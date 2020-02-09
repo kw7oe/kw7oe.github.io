@@ -1,0 +1,12 @@
+{{ define "main" }}
+  {{ range .Sections }}
+    <div class="mb-8">
+      <h2 class="text-xl font-semibold mb-4">{{ .Title }}</h2>
+      <ul>
+        {{ range first 5 .Pages  }}
+        <li><a href="{{ .Permalink }}">{{ .Title }}</a></li>
+        {{ end }}
+      </ul>
+    </div>
+  {{ end }}
+{{ end }}

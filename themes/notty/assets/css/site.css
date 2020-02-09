@@ -1,0 +1,102 @@
+/* General */
+.markdown h1, .markdown h2, .markdown h3, .markdown h4, .markdown h5, .markdown h6 {
+  @apply font-bold;
+  @apply leading-relaxed;
+}
+
+.markdown ul, ul.disc {
+  @apply list-disc;
+  @apply ml-8;
+  @apply mt-2;
+  @apply mb-5;
+}
+
+a {
+  @apply text-blue-700;
+}
+
+a:hover {
+  @apply text-blue-900;
+}
+
+.badge {
+ @apply text-xs;
+ @apply px-2;
+ @apply py-1;
+}
+
+.badge a {
+  @apply text-white;
+}
+
+.badge a:hover {
+  @apply text-white;
+}
+
+.badge + * {
+ @apply ml-2;
+}
+
+.badge-primary {
+ @apply bg-indigo-500;
+}
+
+.badge-primary:hover {
+ @apply bg-indigo-700;
+}
+
+.rounded-badge {
+ @apply rounded;
+}
+
+
+/* Markdown */
+
+.markdown h1 {
+  @apply text-2xl;
+  @apply mt-4;
+  @apply my-8;
+}
+
+.markdown h2 {
+  @apply text-xl;
+  @apply mt-6;
+  @apply mb-4;
+}
+
+.markdown h3 {
+  @apply text-lg;
+  @apply mt-4;
+  @apply mb-4;
+}
+
+.markdown p {
+  @apply leading-normal;
+}
+
+.markdown p + p {
+  @apply mt-4;
+}
+
+.markdown pre code {
+  @apply p-0;
+}
+
+.markdown code {
+  @apply text-sm;
+  @apply bg-gray-200;
+  @apply p-1;
+  @apply rounded;
+  @apply w-full;
+}
+
+.markdown pre {
+  @apply bg-gray-200;
+  @apply mt-3;
+  @apply mb-5;
+  @apply p-2;
+  @apply rounded;
+  @apply leading-normal;
+  @apply overflow-x-auto;
+}
+

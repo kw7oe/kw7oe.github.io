@@ -1,0 +1,12 @@
+# Generated files
+/public
+/resources/_gen/
+
+# MacOS
+.DS_Store
+
+# Executables
+hugo.exe
+hugo.linux
+hugo.darwin
+

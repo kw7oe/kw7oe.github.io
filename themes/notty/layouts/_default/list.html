@@ -1,0 +1,10 @@
+{{ define "main" }}
+<ul>
+  {{ range .Pages }}
+  <li class="flex flex-row">
+    <time class="mr-4">{{ .Date.Format "Jan 02, 2006" }}</time>
+    <a class="w-2/3" href="{{ .Permalink }}">{{ .Title }}</a>
+  </li>
+  {{ end }}
+</ul>
+{{ end }}
