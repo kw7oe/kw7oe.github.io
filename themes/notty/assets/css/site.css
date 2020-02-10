@@ -50,8 +50,15 @@ a:hover {
 }
 
 
-/* Markdown */
+nav#TableOfContents > ul {
+  @apply m-0;
+}
 
+nav#TableOfContents > ul > li {
+  @apply list-none;
+}
+
+/* Markdown */
 .markdown h1 {
   @apply text-2xl;
   @apply mt-4;
@@ -97,6 +104,5 @@ a:hover {
   @apply p-2;
   @apply rounded;
   @apply leading-normal;
-  @apply overflow-x-auto;
-}
+  @apply overflow-x-auto; }
 

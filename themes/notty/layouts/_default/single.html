@@ -1,6 +1,25 @@
 {{ define "main" }}
 <article class="markdown text-gray-700 mx-4 sm:mx-12">
   <h1>{{ .Title }}</h1>
+  {{ $taxo := "tags" }} <!-- Use the plural form here -->
+  <div id="{{ $taxo }}">
+    {{ range .Param $taxo }}
+      {{ $name := . }}
+      {{ with $.Site.GetPage (printf "/%s/%s" $taxo ($name | urlize)) }}
+      <span class="badge badge-primary rounded-badge">
+        <a href="{{ .Permalink }}">{{ $name }}</a>
+      </span>
+      {{ end }}
+    {{ end }}
+  </div>
+
+  {{ if and (gt .WordCount 400 ) (.Params.toc) }}
+  <div class="mb-8 pb-6 border-b border-t">
+    <h2>Table of Content</h2>
+    {{.TableOfContents}}
+  </div>
+  {{ end }}
+
   {{ .Content }}
 </article>
 {{ end }}

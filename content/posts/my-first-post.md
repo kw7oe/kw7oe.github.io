@@ -4,6 +4,7 @@ date: 2020-02-09T17:57:21+08:00
 draft: false
 tags: ["elixir", "phoenix", "deployment"]
 categories: ["technical"]
+toc: true
 ---
 
 Deployment in Elixir and Phoenix can be hard for starter. However, with `mix release` added in Elixir 1.9, it become much more straightforward. No any external dependencies like `distillery` or `edeliver` is needed any more to generate a release for deployment.
