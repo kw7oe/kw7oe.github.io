@@ -6,3 +6,5 @@ theme = "notty"
 pygmentsUseClasses = true
 pygmentsCodeFences = true
 
+[permalinks]
+posts = "/:sections/:year/:month/:day/:title/"

@@ -1,11 +1,11 @@
 ---
-author: Dirk Olbrich
+author: Choong Kai Wern
 title: About
 date: 2019-05-13
 description: A short description about me.
-keywords: [about, creator]
+keywords: []
 ---
 
-Hugo Starter Theme for Tailwindcss.
+Hi, I am Kai Wern Choong, a software engineer at Naluri.
 
-Made by [me](https://github.com/dirkolbrich/).
+I like to read, learn, code and cook.

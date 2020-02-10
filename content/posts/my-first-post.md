@@ -4,7 +4,6 @@ date: 2020-02-09T17:57:21+08:00
 draft: false
 tags: ["elixir", "phoenix", "deployment"]
 categories: ["technical"]
-toc: true
 ---
 
 Deployment in Elixir and Phoenix can be hard for starter. However, with `mix release` added in Elixir 1.9, it become much more straightforward. No any external dependencies like `distillery` or `edeliver` is needed any more to generate a release for deployment.
@@ -49,8 +48,8 @@ In this post, we are going to use the second approach. However, instead of runni
 
 First of all, here are the things you need to install before proceeding we get started:
 
-- [Vagrant]([https://www.vagrantup.com/downloads.html](https://www.vagrantup.com/downloads.html))
-- [Ansible]([https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html?extIdCarryOver=true&sc_cid=701f2000001OH7YAAW](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html?extIdCarryOver=true&sc_cid=701f2000001OH7YAAW))
+- [Vagrant](https://www.vagrantup.com/downloads.html)
+- [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
 - Phoenix Application
 
 **Why we need Vagrant?**

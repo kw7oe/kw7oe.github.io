@@ -4,6 +4,12 @@
   @apply leading-relaxed;
 }
 
+.title {
+  @apply font-bold;
+  @apply text-gray-900;
+  @apply text-2xl;
+}
+
 .markdown ul, ul.disc {
   @apply list-disc;
   @apply ml-8;

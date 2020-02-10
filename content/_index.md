@@ -1,6 +1,6 @@
 ---
 author: Choong Kai Wern
-title: "Welcome to Notes"
+title: "Home"
 date: 2019-05-15
 ---
 
