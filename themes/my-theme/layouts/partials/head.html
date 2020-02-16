@@ -22,3 +22,5 @@
     <link rel="stylesheet" href="{{ $style.Permalink }}" integrity="{{ $style.Data.Integrity }}">
 {{ end }}
 
+{{ $syntax_style := resources.Get "css/syntax.css" | resources.Minify }}
+<link rel="stylesheet" href="{{ $syntax_style.Permalink }}">
