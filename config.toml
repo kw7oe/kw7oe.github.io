@@ -1,10 +1,12 @@
 baseURL = "http://blog.kaiwern.com/"
 languageCode = "en-us"
-title = "Kai Wern Choong"
+title = "kw7oe"
 theme = "my-theme"
 
 pygmentsUseClasses = true
 pygmentsCodeFences = true
+
+summaryLength = 50
 
 [permalinks]
 posts = "/:sections/:year/:month/:day/:title/"

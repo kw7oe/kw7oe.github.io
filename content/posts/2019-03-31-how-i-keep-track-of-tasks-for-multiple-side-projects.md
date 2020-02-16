@@ -2,6 +2,7 @@
 title: How I keep track of tasks for multiple side projects
 date: 2019-03-31T20:51:00+0800
 tags: ["productivity"]
+aliases: ["/productivity/2019/03/31/how-i-keep-track-of-tasks-for-multiple-side-projects.html"]
 ---
 
 If you are like me, having countless side projects and jumping from one to another

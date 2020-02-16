@@ -14,7 +14,9 @@
       {{ .Summary }}
     </p>
 
-    <a class="btn" href="{{ .Permalink }}">Read More</a>
+    {{ if .Truncated }}
+      <a class="btn" href="{{ .Permalink }}">Read More</a>
+    {{ end }}
   </div>
   {{ end }}
 </div>

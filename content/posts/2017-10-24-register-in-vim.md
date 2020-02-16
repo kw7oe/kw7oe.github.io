@@ -2,6 +2,7 @@
 title: "Register in Vim"
 date: 2017-10-24T22:05:00+0800
 tags: ["vim"]
+aliases: ["/vim/2017/10/24/register-in-vim.html"]
 ---
 
 For the past months, I have started to use `vim` in some occasions. One day, I came across a vim video, ["Let Vim Do the Typing"](https://www.youtube.com/watch?v=3TX3kV3TICU){:target="\_blank"}, and discover the use of **register** in `vim`. Basically, the concept of register in `vim` is very similar to the register in our computer. It is a temporary memory space for `vim` to store text.

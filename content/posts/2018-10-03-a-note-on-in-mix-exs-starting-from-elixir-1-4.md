@@ -2,6 +2,7 @@
 title: A note on`application` in mix.exs starting from Elixir 1.4
 date: 2018-10-03T21:45:00+0800
 tags: ["elixr"]
+aliases: ["/elixir/2018/10/03/a-note-on-in-mix-exs-starting-from-elixir-1-4.html"]
 ---
 
 Starting from Elixir 1.4, we don't need to specify our application lists in

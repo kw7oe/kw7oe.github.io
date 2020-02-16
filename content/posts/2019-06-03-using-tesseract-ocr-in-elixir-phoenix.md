@@ -2,6 +2,9 @@
 title: Using Tesseract OCR in Elixir/Phoenix
 date: 2019-06-03T18:04:00+0800
 tags: ["elixir", "phoenix"]
+aliases: [
+  '/elixir/phoenix/2019/06/03/using-tesseract-ocr-in-elixir-phoenix.html'
+]
 ---
 
 Lately, I am exploring the use of OCR in [Expendere][1] (my expense tracking
@@ -78,7 +81,7 @@ In `templates/page/show.html.eex`:
 
 **Demo**
 
-![Demo](/assets/image/tesseract-demo.gif)
+![Demo](/images/tesseract-demo.gif)
 
 Voila, a simple OCR application is done. The demo application is available at [GitHub][5].
 

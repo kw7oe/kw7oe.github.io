@@ -2,6 +2,7 @@
 title: Using Markdown for Static Pages in Rails
 date: 2018-11-27T22:04:00+0800
 tags: ["ruby", "rails"]
+aliases: ["/ruby/rails/2018/11/27/using-markdown-for-static-pages-in-rails.html"]
 ---
 
 Markdown is great for formatting our writing to be publish as HTML. If you're a

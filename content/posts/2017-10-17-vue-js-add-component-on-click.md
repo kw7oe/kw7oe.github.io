@@ -2,6 +2,7 @@
 title: "Vue.js: Add component on click"
 date: 2017-10-17T23:00:00+0800
 tags: ["vue.js"]
+aliases: ["/vue.js/2017/10/17/vue-js-add-component-on-click.html"]
 ---
 
 I have been working on a project which uses `Vue.js` for front end. I came across a scenario where we need to allow user to add more entry in their form.

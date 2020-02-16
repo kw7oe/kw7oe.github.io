@@ -1,7 +1,8 @@
 ---
 title: A note about using 'fetch' in JS
 date: 2018-04-11T22:43:41+0800
-tags: ["JavaScript"]
+tags: ["javascript"]
+aliases: ["/javascript/2018/04/11/a-note-about-using-fetch-in-js.html"]
 ---
 
 Another story about fixing bug. This story is related to the native web

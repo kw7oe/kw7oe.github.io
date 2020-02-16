@@ -2,6 +2,9 @@
 title: Send temporary file in Phoenix
 date: 2019-05-28T20:59:00+0800
 tags: ["phoenix"]
+aliases: [
+  "/phoenix/2019/05/28/send-temporary-file-in-phoenix.html"
+]
 ---
 
 **TLDR:** Use `Phoenix.Controller.send_download/3` to send binary as download
@@ -48,7 +51,7 @@ def export(conn, _params) do
 end
 ```
 
-For more, refer to the [`send_file/5`][1] and [send_download/3][2] documentation.
+For more, refer to the [`send_file/5`][1] and [`send_download/3`][2] documentation.
 
 ---
 

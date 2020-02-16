@@ -2,6 +2,7 @@
 title: Minimal Elixir Web Application with Plug and Cowboy
 date: 2018-10-14T15:32:00+0800
 tags: ["elixir"]
+aliases: ["/elixir/2018/10/14/minimal-web-application-with-plug-and-cowboy.html"]
 ---
 
 It is interesting to learn things from scratch. Coming from Ruby

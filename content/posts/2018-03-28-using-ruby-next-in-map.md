@@ -2,6 +2,7 @@
 title: "Using Ruby next in map"
 date: 2018-03-28T22:43:41+0800
 tags: ["ruby"]
+aliases: ["/ruby/2018/03/28/using-ruby-next-in-map.html"]
 ---
 
 While I was refactoring the code base of my client application,

@@ -1,6 +1,6 @@
 {{ define "main" }}
 <h1 class="text-2xl mb-8">{{ .Title }}</h1>
-<ul class="flex">
+<ul class="flex flex-wrap">
   {{ range .Pages }}
   <li class="badge badge-primary rounded-badge">
     <a href="{{ .Permalink }}">{{ .Title }}</a>

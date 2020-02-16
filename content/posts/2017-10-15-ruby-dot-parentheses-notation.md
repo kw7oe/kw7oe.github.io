@@ -2,6 +2,7 @@
 title: "Ruby .() notation"
 date: 2017-10-15T18:12:19+0800
 tags: ["ruby"]
+aliases: ["/ruby/2017/10/15/ruby-dot-parentheses-notation.html"]
 ---
 
 In Ruby, `.()` is a syntatic sugar for `call` method.

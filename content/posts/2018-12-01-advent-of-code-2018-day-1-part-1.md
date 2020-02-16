@@ -2,6 +2,7 @@
 title: "Advent of Code 2018: Day 1 Part 1"
 date: 2018-12-01T21:47:00+0800
 tags: ["aoc", "elixir"]
+aliases: ["/aoc/elixir/2018/12/01/advent-of-code-2018-day-1-part-1.html"]
 ---
 
 Advent of Code (AOC) 2018 has finally arrived. This is the first time I participate

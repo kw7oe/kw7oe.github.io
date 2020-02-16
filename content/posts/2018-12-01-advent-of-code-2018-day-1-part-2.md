@@ -3,6 +3,7 @@ title: 'Advent of Code 2018: Day 1 Part 2, How I improve my solution by 34x
 faster'
 date: 2018-12-01T22:10:00+0800
 tags: ['aoc', 'elixir']
+aliases: ["/aoc/elixir/2018/12/01/advent-of-code-2018-day-1-part-2.html"]
 ---
 
 In the [previous post][1], we had briefly discuss about the solution of Part 1. It
@@ -163,10 +164,10 @@ If the comments in the code is not sufficient, here are the more detailed
 explanation to help you understand the code _(hopefully)_:
 
 1. First, same as Part 1, we read the content from the file, split it and
-   conver every element into integer first.
+   convert every element into integer first.
 2. Then, we pass it into `Finder.find_first_duplicate_frequency/3` method,
    with the `frequencies`, initial frequency, and appeared frequencies.
-3. In `ind_first_duplicate_frequency`, it will delegate the finding
+3. In `find_first_duplicate_frequency`, it will delegate the finding
    duplicate job to `accumulate_and_find/3` and check if the return result
    is a found duplicate or not.
    - If there is no duplicate found, it will call itself recursively, with the same `frequencies`,

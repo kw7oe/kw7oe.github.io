@@ -2,6 +2,10 @@
 title: Using AWK to extract generated file from jekyll-compose
 date: 2018-09-09T22:25:00+0800
 tags: ["awk"]
+aliases:
+  [
+    "/awk/2018/09/09/using-awk-to-extract-generated-file-from-jekyll-compose.html",
+  ]
 ---
 
 Recently, I have been using `jekyll` to make notes. I use `jekyll-compose`

@@ -36,8 +36,9 @@ a:hover {
   @apply text-white;
 }
 
-.badge + * {
- @apply ml-2;
+.badge {
+ @apply mr-2;
+ @apply mt-1;
 }
 
 .badge-primary {
@@ -132,6 +133,7 @@ nav#TableOfContents > ul > li {
   @apply p-2;
   @apply rounded;
   @apply leading-normal;
+  @apply whitespace-pre-wrap;
   @apply overflow-x-auto;
 }
 
@@ -140,4 +142,15 @@ nav#TableOfContents > ul > li {
   @apply ml-8;
   @apply mt-2;
   @apply mb-5;
+}
+
+.markdown ol {
+  @apply list-decimal;
+  @apply ml-8;
+  @apply mt-2;
+  @apply mb-5;
+}
+
+.markdown hr {
+  @apply my-6;
 }

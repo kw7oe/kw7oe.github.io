@@ -2,6 +2,7 @@
 title: "TIL: Indexing `NULL` in Oracle Database"
 date: 2019-02-18T21:32:00+0800
 tags: ["til", "database index"]
+aliases: ["/til/database index/2019/02/18/til-indexing-null-in-oracle-database.html"]
 ---
 
 Oracle database does not index a row if all the indexed columns are `NULL`
