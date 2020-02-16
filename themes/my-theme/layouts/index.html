@@ -1,0 +1,10 @@
+{{ define "main" }}
+  <div class="markdown">
+    {{ .Content }}
+  </div>
+  {{ range .Sections }}
+    <div class="mb-8">
+      {{ .Render "list" }}
+    </div>
+  {{ end }}
+{{ end }}

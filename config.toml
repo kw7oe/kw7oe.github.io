@@ -1,7 +1,7 @@
-baseURL = "http://example.org/"
+baseURL = "http://blog.kaiwern.com/"
 languageCode = "en-us"
-title = "Notes"
-theme = "notty"
+title = "Kai Wern Choong"
+theme = "my-theme"
 
 pygmentsUseClasses = true
 pygmentsCodeFences = true
