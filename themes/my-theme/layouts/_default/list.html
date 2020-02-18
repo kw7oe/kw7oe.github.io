@@ -1,8 +1,6 @@
-{{ define "main" }}
 <h1 class="text-2xl mb-8">{{ title .Type }}: {{ title .Title }}</h1>
 <ul>
   {{ range .Pages }}
     {{ .Render "li" }}
   {{ end }}
 </ul>
-{{ end }}
