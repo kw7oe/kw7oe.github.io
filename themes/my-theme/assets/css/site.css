@@ -107,7 +107,8 @@ nav#TableOfContents > ul > li {
 }
 
 .markdown p {
-  @apply leading-normal;
+  @apply text-lg;
+  @apply leading-relaxed;
 }
 
 .markdown p + p {
