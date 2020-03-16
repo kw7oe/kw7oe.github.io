@@ -90,20 +90,20 @@ nav#TableOfContents > ul > li {
 
 .markdown h1 {
   @apply text-2xl;
-  @apply mt-4;
-  @apply my-8;
+  @apply mt-8;
+  @apply mb-2;
 }
 
 .markdown h2 {
   @apply text-xl;
   @apply mt-6;
-  @apply mb-4;
+  @apply mb-2;
 }
 
 .markdown h3 {
   @apply text-lg;
-  @apply mt-4;
-  @apply mb-4;
+  @apply mt-6;
+  @apply mb-2;
 }
 
 .markdown p {
