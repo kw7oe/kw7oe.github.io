@@ -132,3 +132,22 @@ nav#TableOfContents > ul > li {
 .markdown hr {
   @apply my-6;
 }
+
+.markdown table {
+  @apply my-4;
+}
+
+.markdown table tr {
+  background-color: #fff;
+  border-top: 1px solid #c6cbd1;
+}
+
+.markdown table th {
+  padding: 6px 13px;
+  border: 1px solid #dfe2e5;
+}
+
+.markdown table td {
+  padding: 6px 13px;
+  border: 1px solid #dfe2e5;
+}
