@@ -6,13 +6,16 @@ tags: ["postgresql"]
 ---
 
 The past months, I have been working on the server side of a feature which
-deal with grouping the records by date and aggregating the values.
+deal with grouping records by date and summing up the values.
 
 I have learn a couple of date functions in PostgreSQL that I think might be
 useful to write about.
 
+
+## Context
+
 A bit of context on the feature I worked on. We are building steps counter
-feature into our mobile, integrating both Google Fit and Apple Health. The data
+feature into our mobile, integrating Apple Health. The data
 provided by Apple Health, is especially interesting as they provide the steps
 dataset in an hourly interval.
 
@@ -20,44 +23,145 @@ So on the database, we will have a `steps` table as follow:
 
 | Column      | Type                     |
 | ----------- | ------------------------ |
-| id          | uuid                     |
+| id          | int                      |
 | count       | int                      |
 | started_at  | timestamp with time zone |
 | ended_at    | timestamp with time zone |
-| data_source | string                   |
 | user_id     | uuid                     |
 
 And this is how the records will looks like:
 
-| Field       | Value                                |
-| ---         | ---                                  |
-| id          | 9b3ebde7-080b-4a0d-9b66-17ce8c02a177 |
-| count       | 34                                   |
-| started_at  | 2020-02-26 13:00:00+08               |
-| ended_at    | 2020-02-26 14:00:00+08               |
-| data_source | apple-health-kit                     |
-| user_id     | 75c482db-9f6c-49ad-9ded-f22dc2d6f25c |
+| Field      | Value                                |
+|------------|--------------------------------------|
+| id         | 1                                    |
+| count      | 34                                   |
+| started_at | 2020-02-26 13:00:00+08               |
+| ended_at   | 2020-02-26 14:00:00+08               |
+| user_id    | 75c482db-9f6c-49ad-9ded-f22dc2d6f25c |
 
-| Field       | Value                                |
-| ---         | ---                                  |
-| id          | a09a0fe6-4f34-4e1f-9d36-bdbe56adfe8d |
-| count       | 319                                  |
-| started_at  | 2020-02-26 12:00:00+08               |
-| ended_at    | 2020-02-26 13:00:00+08               |
-| data_source | apple-health-kit                     |
-| user_id     | 75c482db-9f6c-49ad-9ded-f22dc2d6f25c |
+| Field      | Value                                |
+|------------|--------------------------------------|
+| id         | 2                                    |
+| count      | 319                                  |
+| started_at | 2020-02-26 12:00:00+08               |
+| ended_at   | 2020-02-26 13:00:00+08               |
+| user_id    | 75c482db-9f6c-49ad-9ded-f22dc2d6f25c |
 
-| Field       | Value                                |
-| ---         | ---                                  |
-| id          | 2ff5231a-4966-492c-8dda-b49b970ab51b |
-| count       | 322                                  |
-| started_at  | 2020-02-26 11:00:00+08               |
-| ended_at    | 2020-02-26 12:00:00+08               |
-| data_source | apple-health-kit                     |
-| user_id     | 75c482db-9f6c-49ad-9ded-f22dc2d6f25c |
+| Field      | Value                                |
+|------------|--------------------------------------|
+| id         | 3                                    |
+| count      | 322                                  |
+| started_at | 2020-02-26 11:00:00+08               |
+| ended_at   | 2020-02-26 12:00:00+08               |
+| user_id    | 75c482db-9f6c-49ad-9ded-f22dc2d6f25c |
+
+We then have a endpoint which provide aggregated data of users
+steps count for a specific date range _(this week/month, previous week/month
+and etc)_. So basically, to implement the feature we need to:
+
+- Group users steps by date range _(week, month, year)_.
+- Sum up users `steps.count` after grouping.
+- Populate labels according to provided date range.
+  - When range is week, the labels should indicate `Sun..Sat`
+  - When range is month, the labels should indicate `1..31`
+  - When range is year, the labels should indecate `Jan..Dec`.
+
+Since we are storing the timestamp as `UTC` and our users are using `GMT +8`
+timezone, we will also need to consider the timezone while querying the data.
+For example, the beginning of a day and end of day of `GMT +8` will be
+represented as follows in `UTC`:
+
+```
+2020-03-22 16:00:00 to 2020-03-23 15:59:59
+```
+
+## Let the lesson begins
+
+Okay, enough of boring context. By implementing the feature above, we are going
+to learn the following date functions in PostgreSQL:
 
 - Convert date to specific timezone with `AT TIME ZONE`
 - Truncate date with `date_trunc`
 - Extract date parts, such as weekday, month and year with `date_part`.
 - Format date with `to_char`
+- `inserted_at > localtimestamp - interval '14 days'` to list records created
+  for the past 14 days.
 
+### Setup
+
+For those who want to get their hands dirty, you can run the following scripts
+to setup your database environment to play around with as you go through the
+article:
+
+```bash
+$ createdb step_db
+$ psql step_db
+```
+
+Then, copy and paste the following SQL statement into your `psql` console.
+
+1. Create `steps` table.
+```sql
+CREATE TABLE "steps" (
+  "id" SERIAL,
+  "count" integer,
+  "start_at" timestamptz,
+  "end_at" timestamptz,
+  "user_id" integer,
+  PRIMARY KEY ("id"));
+```
+
+2. Insert data from `2020-01-01` to `2020-01-07` at GMT+8..
+```sql
+INSERT INTO "steps" (count, start_at, end_at, user_id)
+SELECT floor(random() * 50 + 1)::int, d, d + interval '59 minutes 59 seconds', 1
+FROM generate_series('2020-01-01'::timestamptz AT TIME ZONE 'Etc/GMT+8',
+                         '2020-01-07 00:00:00'::timestamptz AT TIME ZONE 'Etc/GMT+8',
+                         interval '1 hour') as d;
+
+```
+
+### Converting provided timestamp to specific timezone.
+
+So, let's start by writing a simple basic query to get all the steps in `2020-01-01`.
+At the very first time, we would probably write something like this:
+
+```sql
+SELECT * FROM "steps" WHERE start_at => '2020-01-01T00:00:00Z' AND start_at <= '2020-01-01T23:59:59Z';
+```
+
+But, that's incorrect since the beginning of a day of `2020-01-01` for a user
+in `GMT+8` timezone would be `2019-12-31 16:00:00` instead. So we need to
+convert the timestamp to user timezone. To do this, we can utilize `AT TIME
+ZONE '<TIMEZONE>`
+
+```
+steps_db=# SELECT '2020-01-01' AT TIME ZONE 'GMT+8';
+      timezone
+---------------------
+ 2019-12-31 16:00:00
+(1 row)
+
+steps_db=# SELECT '2020-01-01'::timestamptz AT TIME ZONE 'GMT+8';
+      timezone
+---------------------
+ 2019-12-31 16:00:00
+(1 row)
+
+steps_db=# SELECT '2020-01-01'::timestamp AT TIME ZONE 'GMT+8';
+        timezone
+------------------------
+ 2020-01-01 08:00:00+00
+(1 row)
+```
+
+### Truncate date
+
+### Extract date part
+
+### Format Date
+
+
+## References:
+
+- https://stackoverflow.com/questions/6663765/postgres-default-timezone
