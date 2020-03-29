@@ -27,33 +27,25 @@ So on the database, we will have a `steps` table as follow:
 | count       | int                      |
 | started_at  | timestamp with time zone |
 | ended_at    | timestamp with time zone |
-| user_id     | uuid                     |
+| user_id     | int                      |
 
 And this is how the records will looks like:
 
-| Field      | Value                                |
-|------------|--------------------------------------|
-| id         | 1                                    |
-| count      | 34                                   |
-| started_at | 2020-02-26 13:00:00+08               |
-| ended_at   | 2020-02-26 14:00:00+08               |
-| user_id    | 75c482db-9f6c-49ad-9ded-f22dc2d6f25c |
+| Field      | Value                  |
+|------------|------------------------|
+| id         | 1                      |
+| count      | 34                     |
+| started_at | 2020-02-26 13:00:00+08 |
+| ended_at   | 2020-02-26 14:00:00+08 |
+| user_id    | 1                      |
 
-| Field      | Value                                |
-|------------|--------------------------------------|
-| id         | 2                                    |
-| count      | 319                                  |
-| started_at | 2020-02-26 12:00:00+08               |
-| ended_at   | 2020-02-26 13:00:00+08               |
-| user_id    | 75c482db-9f6c-49ad-9ded-f22dc2d6f25c |
-
-| Field      | Value                                |
-|------------|--------------------------------------|
-| id         | 3                                    |
-| count      | 322                                  |
-| started_at | 2020-02-26 11:00:00+08               |
-| ended_at   | 2020-02-26 12:00:00+08               |
-| user_id    | 75c482db-9f6c-49ad-9ded-f22dc2d6f25c |
+| Field      | Value                  |
+|------------|------------------------|
+| id         | 2                      |
+| count      | 319                    |
+| started_at | 2020-02-26 12:00:00+08 |
+| ended_at   | 2020-02-26 13:00:00+08 |
+| user_id    | 1                      |
 
 We then have a endpoint which provide aggregated data of users
 steps count for a specific date range _(this week/month, previous week/month
@@ -80,7 +72,6 @@ represented as follows in `UTC`:
 Okay, enough of boring context. By implementing the feature above, we are going
 to learn the following date functions in PostgreSQL:
 
-- Convert date to specific timezone with `AT TIME ZONE`
 - Truncate date with `date_trunc`
 - Extract date parts, such as weekday, month and year with `date_part`.
 - Format date with `to_char`
@@ -111,15 +102,103 @@ CREATE TABLE "steps" (
   PRIMARY KEY ("id"));
 ```
 
-2. Insert data from `2020-01-01` to `2020-01-07` at GMT+8..
+2. Insert data from `2020-01-01` to `2020-01-07` at UTC.
 ```sql
 INSERT INTO "steps" (count, start_at, end_at, user_id)
 SELECT floor(random() * 50 + 1)::int, d, d + interval '59 minutes 59 seconds', 1
-FROM generate_series('2020-01-01'::timestamptz AT TIME ZONE 'Etc/GMT+8',
-                         '2020-01-07 00:00:00'::timestamptz AT TIME ZONE 'Etc/GMT+8',
+FROM generate_series('2020-01-01'::timestamptz,
+                         '2020-01-07 00:00:00'::timestamptz,
                          interval '1 hour') as d;
 
 ```
+
+### Grouping records by day with `date_trunc`
+
+Since, our steps value are inserted as hourly instead of daily. We need to
+write a query to group the steps count by the date and sum it up. So ideally, the
+result should return something like:
+
+| total_count | date       |
+|-------------|------------|
+| 3423        | 2020-01-01 |
+| 4523        | 2020-01-02 |
+
+At the very first sight, I thought we could do something like this and it's
+done:
+
+```sql
+SELECT sum(count) as total_count, start_at as date
+FROM steps
+GROUP BY start_at
+ORDER BY start_at;
+```
+
+But then, after running this query, we will notice that it's group by date and
+time and return something like this:
+
+| total_count | date                 |
+|-------------|------------------------|
+| 31          | 2020-01-01 00:00:00+00 |
+| 17          | 2020-01-01 01:00:00+00 |
+| 31          | 2020-01-01 02:00:00+00 |
+
+To achieve what we want we need to group by just the date of the row. We can
+use `date_trunc` function in PostgreSQL to truncate a timestamp up to part of
+the timestamp like `day`, `month`, `hour`, and etc.
+
+```sql
+SELECT sum(count) as total_count, date_trunc('day', start_at) as date
+FROM steps
+GROUP BY date_trunc('day', start_at)
+ORDER BY date_trunc('day', start_at);
+```
+
+which will return:
+
+| total_count | date                   |
+|-------------|------------------------|
+| 544         | 2020-01-01 00:00:00+00 |
+| 712         | 2020-01-02 00:00:00+00 |
+
+Well close enough to what we want, but how do we remove the time
+component of the timestamp when SQL return the result? Format it.
+
+### Format Date
+
+Now we have the query for grouping the rows by date and get the sum of the
+steps count. The next step is to learn how we can format the timestamp. In
+PostgreSQL, there is a `to_char` formatting function that can convert various
+data type to formatted string. And it works on timestamp also.
+
+For example, we can use:
+
+```sql
+SELECT to_char('2020-01-01'::timestamptz, 'YYYY-MM-DD');
+-- =>  to_char
+--     ------------
+--     2020-01-01
+```
+
+to format the timestamp to return just it's date component. Now, we can update
+our previous SQL query to use it:
+
+```sql
+SELECT sum(count) as total_count, to_char(start_at, 'YYYY-MM-DD') as date
+FROM steps
+GROUP BY to_char(start_at, 'YYYY-MM-DD')
+ORDER BY to_char(start_at, 'YYYY-MM-DD');
+```
+
+which return this result, exactly what we wanted:
+
+| total_count | date       |
+|-------------|------------|
+| 544         | 2020-01-01 |
+| 712         | 2020-01-02 |
+
+
+### Extract date part
+
 
 ### Converting provided timestamp to specific timezone.
 
@@ -154,12 +233,6 @@ steps_db=# SELECT '2020-01-01'::timestamp AT TIME ZONE 'GMT+8';
  2020-01-01 08:00:00+00
 (1 row)
 ```
-
-### Truncate date
-
-### Extract date part
-
-### Format Date
 
 
 ## References:
