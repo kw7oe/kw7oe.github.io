@@ -199,6 +199,83 @@ which return this result, exactly what we wanted:
 
 ### Extract date part
 
+So, let's say we wanted to show the label of the count in the format of
+weekdays if the results show is in the week range _(from Monday to Sunday)_. We
+could also achieve it with `to_char` like this:
+
+```sql
+SELECT sum(count) as total_count,
+  to_char(start_at, 'YYYY-MM-DD') as date,
+  to_char(start_at, 'Dy') as label
+FROM steps
+GROUP BY to_char(start_at, 'YYYY-MM-DD'), to_char(start_at, 'Dy')
+ORDER BY to_char(start_at, 'YYYY-MM-DD');
+```
+
+We need to add the formating to the `GROUP BY` also since we are selecting it.
+With this, the result will be as follow:
+
+| total_count | date       | label |
+|-------------|------------|-------|
+| 544         | 2020-01-01 | Wed   |
+| 712         | 2020-01-02 | Thu   |
+
+We are using the template patterns of `Dy` here which formatted the date to the
+day name such as Mon, Tue, Wed.
+
+But, be aware of this approach when we use `ORDER BY` with `to_char` that return alphabet
+instead of integer in string. For example, let say we want to group by month and
+sum the steps count, we would do something like this:
+
+```sql
+SELECT sum(count) as total_count,
+  to_char(start_at, 'YYYY-MM') as date,
+  --- 'Mon' template pattern  will format 2020-01-01 to 'Jan'
+  to_char(start_at, 'Mon') as label
+FROM steps
+GROUP BY to_char(start_at, 'YYYY-MM'), to_char(start_at, 'Mon')
+ORDER BY to_char(start_at, 'Mon');
+```
+
+This will not return the order of rows from Jan to Dec, instead it would look
+something like this:
+
+| total_count | date    | label |
+|-------------|---------|-------|
+| 17936       | 2020-04 | Apr   |
+| 19160       | 2020-08 | Aug   |
+| 3921        | 2020-12 | Dec   |
+| 17714       | 2020-02 | Feb   |
+
+where the label is sorted **alphabetically** since the column type is string.
+
+One way to prevent this from happening is used the approach shown above, where we
+`ORDER BY to_char(start_at, 'YYYY-MM')` instead, since the value formatted is
+integer in string, it will still be sorted as expected.
+
+The other approach would be using `date_part` to extract part of the timestamp
+instead of `to_char`. The difference between `date_part` from `to_char` is
+`date_part` always return number _(to be exact is `double precision`)_ type.
+With `to_char` you have more options to format your date.
+
+```sql
+SELECT sum(count) as total_count,
+  to_char(start_at, 'YYYY-MM') as date,
+  date_part('month', start_at) as label
+FROM steps
+GROUP BY to_char(start_at, 'YYYY-MM'), date_part('month', start_at)
+ORDER BY date_part('month', start_at);
+```
+
+which return:
+
+| total_count | date    | label |
+|-------------|---------|-------|
+| 18701       | 2020-01 | 1     |
+| 17714       | 2020-02 | 2     |
+| 19495       | 2020-03 | 3     |
+
+
 
 ### Converting provided timestamp to specific timezone.
 
@@ -238,3 +315,6 @@ steps_db=# SELECT '2020-01-01'::timestamp AT TIME ZONE 'GMT+8';
 ## References:
 
 - https://stackoverflow.com/questions/6663765/postgres-default-timezone
+- https://www.postgresql.org/docs/9.1/functions-datetime.html
+- https://www.postgresql.org/docs/9.1/functions-formatting.html
+
