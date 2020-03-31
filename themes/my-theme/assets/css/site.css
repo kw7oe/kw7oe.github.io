@@ -22,6 +22,29 @@ a:hover {
   @apply text-blue-900;
 }
 
+.markdown blockquote {
+  @apply font-serif;
+  @apply my-4;
+  @apply px-5;
+}
+
+.markdown blockquote p {
+  @apply text-2xl;
+  @apply italic;
+  @apply font-serif;
+  @apply text-gray-600;
+}
+
+.markdown blockquote p:before {
+  content: '\201C';
+  @apply mr-1;
+}
+
+.markdown blockquote p:after {
+  content: '\201D';
+  @apply ml-1;
+}
+
 .badge {
  @apply text-xs;
  @apply px-2;
