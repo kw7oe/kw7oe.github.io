@@ -152,6 +152,10 @@ nav#TableOfContents > ul > li {
   @apply mb-5;
 }
 
+.markdown li {
+  @apply text-lg;
+}
+
 .markdown hr {
   @apply my-6;
 }

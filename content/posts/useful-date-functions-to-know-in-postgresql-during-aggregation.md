@@ -5,18 +5,22 @@ draft: true
 tags: ["postgresql"]
 ---
 
-The past months, I have been working on the server side of a feature which
-deal with grouping records by date and summing up the values.
+The past months, I have been working on  a feature which
+deal with grouping records by date and summing up values.
 
-I have learn a couple of date functions in PostgreSQL that I think might be
-useful to write about.
+I have learn a couple of date functions in PostgreSQL that I decided to write
+about the process.
+
+In this post, we will go through a bit of the context of the feature I work on,
+and we will walk through the process of implementing it. Along the way, I'll
+share the date function I learned.
 
 
 ## Context
 
-A bit of context on the feature I worked on. We are building steps counter
-feature into our mobile, integrating Apple Health. The data
-provided by Apple Health, is especially interesting as they provide the steps
+A bit of context on the feature I worked on. We are building a steps counter
+feature into our mobile, integrating Apple Health and Google Fit. The data
+provided by Apple Health is especially interesting as they provide the steps
 dataset in an hourly interval.
 
 So on the database, we will have a `steps` table as follow:
@@ -60,12 +64,8 @@ and etc)_. So basically, to implement the feature we need to:
 
 Since we are storing the timestamp as `UTC` and our users are using `GMT +8`
 timezone, we will also need to consider the timezone while querying the data.
-For example, the beginning of a day and end of day of `GMT +8` will be
-represented as follows in `UTC`:
-
-```
-2020-03-22 16:00:00 to 2020-03-23 15:59:59
-```
+But for the simplicity of this post, I'll skip that part, since dealing with
+different timezone can be a post for another day.
 
 ## Let the lesson begins
 
@@ -123,7 +123,7 @@ result should return something like:
 | 3423        | 2020-01-01 |
 | 4523        | 2020-01-02 |
 
-At the very first sight, I thought we could do something like this and it's
+At the very first sight, you might thought we could do something like this and it's
 done:
 
 ```sql
@@ -133,8 +133,7 @@ GROUP BY start_at
 ORDER BY start_at;
 ```
 
-But then, after running this query, we will notice that it's group by date and
-time and return something like this:
+But then, after running this query, it will actually return something like this:
 
 | total_count | date                 |
 |-------------|------------------------|
@@ -142,9 +141,12 @@ time and return something like this:
 | 17          | 2020-01-01 01:00:00+00 |
 | 31          | 2020-01-01 02:00:00+00 |
 
-To achieve what we want we need to group by just the date of the row. We can
-use `date_trunc` function in PostgreSQL to truncate a timestamp up to part of
-the timestamp like `day`, `month`, `hour`, and etc.
+The initial query we wrote, its grouping by datetime instead of date. To achieve
+what we want, we need to group by just the date of the row.
+
+To do that, We can use `date_trunc` function in PostgreSQL to truncate a timestamp
+up to part of the timestamp like `day`, `month`, `hour`, and etc _(For the full
+options, refer [here][0])_.
 
 ```sql
 SELECT sum(count) as total_count, date_trunc('day', start_at) as date
@@ -160,8 +162,8 @@ which will return:
 | 544         | 2020-01-01 00:00:00+00 |
 | 712         | 2020-01-02 00:00:00+00 |
 
-Well close enough to what we want, but how do we remove the time
-component of the timestamp when SQL return the result? Format it.
+Close enough to what we want, but how do we remove the time
+component of the timestamp when SQL return the result? We can format it.
 
 ### Format Date
 
@@ -221,11 +223,12 @@ With this, the result will be as follow:
 | 712         | 2020-01-02 | Thu   |
 
 We are using the template patterns of `Dy` here which formatted the date to the
-day name such as Mon, Tue, Wed.
+day name such as Mon, Tue, Wed _(For the full list of patterns available, refer
+to the [here][1])_.
 
 But, be aware of this approach when we use `ORDER BY` with `to_char` that return alphabet
 instead of integer in string. For example, let say we want to group by month and
-sum the steps count, we would do something like this:
+sum the steps count, we might do something like this:
 
 ```sql
 SELECT sum(count) as total_count,
@@ -275,46 +278,23 @@ which return:
 | 17714       | 2020-02 | 2     |
 | 19495       | 2020-03 | 3     |
 
+## Wrap Up
 
+Through the post, we have gone through different business requirement and
+implemented it iteratively using different date function in PostgreSQL. To sum
+up:
 
-### Converting provided timestamp to specific timezone.
+- `date_trunc` to truncate date. It is useful when our data is stored in date
+   time granularity and we want it to group by date/month/year.
+- `to_char` to format date. It is very powerful as we can also used it to
+  extract part of the date, use it in grouping and etc. But, beware when you
+  are using it in `ORDER BY` clause as it is sorted alpabetically.
+- `date_part` to extract part of the date. It is useful when we need to extract
+  part of the date as integer. Perhaps, we want to use it for calculation or in
+  `ORDER BY` clause.
 
-So, let's start by writing a simple basic query to get all the steps in `2020-01-01`.
-At the very first time, we would probably write something like this:
+There are probably more use cases of these date functions that I haven't come
+across yet. So, don't let this post limit your usage.
 
-```sql
-SELECT * FROM "steps" WHERE start_at => '2020-01-01T00:00:00Z' AND start_at <= '2020-01-01T23:59:59Z';
-```
-
-But, that's incorrect since the beginning of a day of `2020-01-01` for a user
-in `GMT+8` timezone would be `2019-12-31 16:00:00` instead. So we need to
-convert the timestamp to user timezone. To do this, we can utilize `AT TIME
-ZONE '<TIMEZONE>`
-
-```
-steps_db=# SELECT '2020-01-01' AT TIME ZONE 'GMT+8';
-      timezone
----------------------
- 2019-12-31 16:00:00
-(1 row)
-
-steps_db=# SELECT '2020-01-01'::timestamptz AT TIME ZONE 'GMT+8';
-      timezone
----------------------
- 2019-12-31 16:00:00
-(1 row)
-
-steps_db=# SELECT '2020-01-01'::timestamp AT TIME ZONE 'GMT+8';
-        timezone
-------------------------
- 2020-01-01 08:00:00+00
-(1 row)
-```
-
-
-## References:
-
-- https://stackoverflow.com/questions/6663765/postgres-default-timezone
-- https://www.postgresql.org/docs/9.1/functions-datetime.html
-- https://www.postgresql.org/docs/9.1/functions-formatting.html
-
+[0]: https://www.postgresql.org/docs/9.1/functions-datetime.html#FUNCTIONS-DATETIME-EXTRACT
+[1]: https://www.postgresql.org/docs/9.1/functions-formatting.html#FUNCTIONS-FORMATTING-DATETIME-TABLE
