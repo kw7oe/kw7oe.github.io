@@ -1,15 +1,15 @@
 ---
-title: "Useful Date Functions to Know in Postgresql During Aggregation"
+title: "Essential Date Functions for Grouping in PostgreSQL"
 date: 2020-03-19T21:43:08+08:00
 draft: true
 tags: ["postgresql"]
 ---
 
-The past months, I have been working on  a feature which
+The past months, I have been working on a feature which
 deal with grouping records by date and summing up values.
 
-I have learn a couple of date functions in PostgreSQL that I decided to write
-about the process.
+I have learn a couple of date functions in PostgreSQL that are very useful when
+it comes to grouping records together based on datetime column.
 
 In this post, we will go through a bit of the context of the feature I work on,
 and we will walk through the process of implementing it. Along the way, I'll
@@ -75,8 +75,6 @@ to learn the following date functions in PostgreSQL:
 - Truncate date with `date_trunc`
 - Extract date parts, such as weekday, month and year with `date_part`.
 - Format date with `to_char`
-- `inserted_at > localtimestamp - interval '14 days'` to list records created
-  for the past 14 days.
 
 ### Setup
 
@@ -111,6 +109,8 @@ FROM generate_series('2020-01-01'::timestamptz,
                          interval '1 hour') as d;
 
 ```
+
+Do change the series date range if you want to generate more data.
 
 ### Grouping records by day with `date_trunc`
 
@@ -280,7 +280,7 @@ which return:
 
 ## Wrap Up
 
-Through the post, we have gone through different business requirement and
+Through the post, we have gone through the business requirement and
 implemented it iteratively using different date function in PostgreSQL. To sum
 up:
 
@@ -292,6 +292,15 @@ up:
 - `date_part` to extract part of the date. It is useful when we need to extract
   part of the date as integer. Perhaps, we want to use it for calculation or in
   `ORDER BY` clause.
+
+Utilizing these few function I have managed to implement aggregation of data
+for different period such as:
+
+- Showing daily steps for the current/past week where labels are Mon, Tues, ...,
+  Sun
+- Showing daily steps for the current/past month where labels are 1, 2, ..., 31
+- Showing monthly steps for the current/past year where labels are Jan, Feb,
+  ..., Dec
 
 There are probably more use cases of these date functions that I haven't come
 across yet. So, don't let this post limit your usage.
