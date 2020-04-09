@@ -1,7 +1,6 @@
 ---
 title: "Essential Date Functions for Grouping in PostgreSQL"
-date: 2020-03-19T21:43:08+08:00
-draft: true
+date: 2020-04-08T18:43:08+08:00
 tags: ["postgresql"]
 ---
 
