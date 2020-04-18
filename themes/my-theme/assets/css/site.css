@@ -160,6 +160,7 @@ nav#TableOfContents > ul > li {
   @apply my-6;
 }
 
+/* purgecss start ignore */
 .markdown table {
   @apply my-4;
 }
@@ -178,3 +179,4 @@ nav#TableOfContents > ul > li {
   padding: 6px 13px;
   border: 1px solid #dfe2e5;
 }
+/* purgecss end ignore */
