@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>
+Using Markdown for Static Pages in Rails | kw7oe
+</title>
+
+
+
+<meta name="generator" content="Hugo 0.58.3" />
+
+
+    
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.26b12c72e680761460a41924b81ac7f97d74490d2fe51c2d09e7ee7e0947f400.css" integrity="sha256-JrEscuaAdhRgpBkkuBrH&#43;X10SQ0v5RwtCefufglH9AA=">
+
+
+
+
+<link rel="stylesheet" href="https://kaiwern.com/css/syntax.min.css">
+
+<body class="flex flex-col min-h-screen px-4 max-w-screen-md md:w-2/3 m-auto"><nav class="mt-8">
+  <ul id="nav-menu" class="w-full flex items-center list-reset">
+    
+    <li>
+      <a href="https://kaiwern.com/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Home</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/about/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">About</a>
+    </li>
+    
+
+    
+    
+    <li>
+      <a href="https://kaiwern.com/categories/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Categories</a>
+    </li>
+    
+    
+    
+    <li>
+      <a href="https://kaiwern.com/tags/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Tags</a>
+    </li>
+    
+    
+  </ul>
+</nav>
+<main class="flex-1 mt-4 sm:mt-12">
+<header class="mb-8">
+  <h1 class="title">Using Markdown for Static Pages in Rails</h1>
+  <p class="text-sm font-gray-700 mb-4">Nov 27, 2018</p>
+   
+  <div id="tags">
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/ruby/">ruby</a>
+    </span>
+    
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/rails/">rails</a>
+    </span>
+    
+    
+  </div>
+</header>
+
+<article class="markdown mb-8 text-gray-800">
+  
+
+  
+
+<p>Markdown is great for formatting our writing to be publish as HTML. If you&rsquo;re a
+developer, you probably used Markdown before. <code>README</code> of <a href="https://github.com">GitHub</a> repositories
+are mostly written in Markdown.</p>
+
+<p>While developing web applications, there will be static pages such as
+about page and FAQ page. Most of the time, we have to write it in HTML, which can
+be unpleasant.</p>
+
+<p>Luckily, we can still use Markdown to write the static pages in Rails application
+and compile it into HTML.</p>
+
+<h2 id="general-steps">General Steps</h2>
+
+<p>The steps involved are straightforward.</p>
+
+<ol>
+<li>Write Markdown</li>
+<li>Compile the Markdown</li>
+<li>Rails use the compiled HTML to serve the user.</li>
+</ol>
+
+<p>There are two approaches:</p>
+
+<ol>
+<li>Compile the Markdown file on runtime, which means, the file is only compiled when
+there is a request.</li>
+<li>Precompile the Markdown file into <code>&lt;filename&gt;.html.erb</code> first.</li>
+</ol>
+
+<h2 id="compilation-of-markdown-during-runtime">Compilation of Markdown during runtime</h2>
+
+<p>To compile a Markdown file during runtime in Rails, we need to know how to:</p>
+
+<ul>
+<li>Compile Markdown file in <code>ruby</code></li>
+<li>Render the compiled HTML as views</li>
+<li>Bind ERB environment if instance variables <code>@variable</code> is used in the view</li>
+</ul>
+
+<p>To compile a Markdown file is fairly straighforward in <code>ruby</code>:</p>
+<div class="highlight"><pre class="chroma"><code class="language-ruby" data-lang="ruby"><span class="c1"># gem install kramdown if not found</span>
+<span class="nb">require</span> <span class="s1">&#39;kramdown&#39;</span>
+
+<span class="n">file</span> <span class="o">=</span> <span class="no">File</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;about.md&#39;</span><span class="p">)</span>
+<span class="n">html</span> <span class="o">=</span> <span class="no">Kramdown</span><span class="o">::</span><span class="no">Document</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="p">{</span><span class="ss">input</span><span class="p">:</span> <span class="s2">&#34;GFM&#34;</span><span class="p">})</span><span class="o">.</span><span class="n">to_html</span>
+<span class="c1"># Configuring {input: &#34;GFM&#34;} to set kramdown to use GFM parser</span>
+<span class="c1"># instead of the defaut one. GFM parser can parse Github Flavour Markdown.</span>
+<span class="nb">p</span> <span class="n">html</span>
+<span class="c1">#=&gt; &lt;html&gt;...&lt;/html&gt;</span></code></pre></div>
+<p>To use it in a Rails application:</p>
+
+<p>Add <code>kramdown</code> to <code>Gemfile</code></p>
+<div class="highlight"><pre class="chroma"><code class="language-ruby" data-lang="ruby"><span class="n">gem</span> <span class="s1">&#39;kramdown&#39;</span><span class="p">,</span> <span class="nb">require</span><span class="p">:</span> <span class="kp">false</span>
+<span class="c1"># require: false since we are going to require it only</span>
+<span class="c1"># when we need it</span></code></pre></div>
+<p>In the <code>app/views/pages/about.md</code>:</p>
+
+<pre><code>### Hi, &lt;%= @name %&gt;
+</code></pre>
+
+<p>In the <code>app/views/pages/about.html.erb</code>:</p>
+<div class="highlight"><pre class="chroma"><code class="language-erb" data-lang="erb">&lt;%= raw @content %&gt;
+# We want the raw output of the @content instead of escaped</code></pre></div>
+<p>In the <code>app/controllers/pages_controller.rb</code>:</p>
+<div class="highlight"><pre class="chroma"><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">&#39;kramdown&#39;</span>
+
+<span class="k">class</span> <span class="nc">PagesController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+  <span class="k">def</span> <span class="nf">about</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">lookup_context</span><span class="o">.</span><span class="n">find_template</span><span class="p">(</span><span class="s2">&#34;</span><span class="si">#{</span><span class="n">controller_path</span><span class="si">}</span><span class="s2">/</span><span class="si">#{</span><span class="n">action_name</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+      <span class="o">.</span><span class="n">identifier</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&#34;.html.erb&#34;</span><span class="p">,</span> <span class="s2">&#34;.md&#34;</span><span class="p">)</span>
+    <span class="vi">@name</span> <span class="o">=</span> <span class="s2">&#34;Kai&#34;</span>
+
+    <span class="c1"># Compiled with ERB</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="no">ERB</span><span class="o">.</span><span class="n">new</span><span class="p">(</span>
+      <span class="no">File</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">(</span><span class="nb">binding</span><span class="p">)</span>
+
+    <span class="c1"># Convert MD to HTML</span>
+    <span class="vi">@content</span> <span class="o">=</span> <span class="no">Kramdown</span><span class="o">::</span><span class="no">Document</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="p">{</span><span class="ss">input</span><span class="p">:</span> <span class="s2">&#34;GFM&#34;</span><span class="p">})</span><span class="o">.</span><span class="n">to_html</span>
+  <span class="k">end</span>
+<span class="k">end</span></code></pre></div>
+<p>All the views file are self-explanatory, so let&rsquo;s just focus on the controller.</p>
+
+<p>First of all, we need to get the <code>md</code> file in our controller. We can achieive
+it by hardcoding it like <code>file_path = &quot;../views/pages/about.md&quot;</code>. But it is
+better to make it dynamically look up the right <code>md</code> file depending on the
+action of the controller.</p>
+
+<p>So we use:</p>
+<div class="highlight"><pre class="chroma"><code class="language-ruby" data-lang="ruby"><span class="n">template</span> <span class="o">=</span> <span class="n">lookup_context</span><span class="o">.</span><span class="n">find_template</span><span class="p">(</span><span class="s2">&#34;</span><span class="si">#{</span><span class="n">controller_path</span><span class="si">}</span><span class="s2">/</span><span class="si">#{</span><span class="n">action_name</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+<span class="c1">#=&gt; app/views/pages/about.html.erb</span>
+<span class="n">template</span><span class="o">.</span><span class="n">identifier</span>
+<span class="c1">#=&gt; &#34;/Users/.../app/views/pages/about.html.erb&#34;</span>
+<span class="n">template</span><span class="o">.</span><span class="n">identifier</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&#34;.html.erb&#34;</span><span class="p">,</span> <span class="s2">&#34;.md&#34;</span><span class="p">)</span>
+<span class="c1">#=&gt; &#34;/Users/.../app/views/pages/about.md&#34;</span></code></pre></div>
+<p>How I know I should use this method to lookup for the file? Google search leads me to this <a href="https://stackoverflow.com/questions/34126212/get-path-of-corresponding-controller-action-view-file">Stackoverflow</a> question and answer.</p>
+
+<p>After that, we need to compile the <code>md</code> file first with <code>ERB</code> since we are <code>erb</code> syntax. After that, we just need to convert the result to HTML using <code>kramdown</code>.</p>
+
+<p>The benefit of this approach is:</p>
+
+<ul>
+<li>Don&rsquo;t need to manually compile the <code>md</code> files.</li>
+<li>Can be used to compile dynamic Markdown files.</li>
+</ul>
+
+<h2 id="precompile-the-markdown-file">Precompile the Markdown file</h2>
+
+<p>Another approach, is more troublesome, but has less overhead, since the server don&rsquo;t need to recompile the same Markdown file everytime someone visit to the page.</p>
+
+<p>Instead of compile during runtime, we compile manually everytime after we
+update our Markdown file. Rails just serve the <code>.html.erb</code> that we
+converted from the Markdown files to the visitors.</p>
+
+<p>The steps taken are:</p>
+
+<ul>
+<li>Find all the <code>.md</code> files in <code>app/views/pages</code></li>
+<li>Compile every <code>.md</code> files to <code>.html.erb</code></li>
+</ul>
+
+<p>To do that, we can write a <code>rake</code> task. Add the following code into your
+<code>Rakefile</code>.</p>
+<div class="highlight"><pre class="chroma"><code class="language-ruby" data-lang="ruby"><span class="c1"># Get all files in /app/views/page ending with md</span>
+<span class="no">SOURCE_FILES</span> <span class="o">=</span> <span class="no">Rake</span><span class="o">::</span><span class="no">FileList</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&#34;app/views/pages/*md&#34;</span><span class="p">)</span>
+
+<span class="c1"># Define a task</span>
+<span class="n">task</span> <span class="ss">:compile_md</span> <span class="o">=&gt;</span> <span class="no">SOURCE_FILES</span><span class="o">.</span><span class="n">pathmap</span><span class="p">(</span><span class="s2">&#34;%X.html.erb&#34;</span><span class="p">)</span>
+
+<span class="c1"># Define rule for the task</span>
+<span class="n">rule</span> <span class="s1">&#39;.html.erb&#39;</span> <span class="o">=&gt;</span> <span class="no">SOURCE_FILES</span> <span class="k">do</span> <span class="o">|</span><span class="n">t</span><span class="o">|</span>
+  <span class="nb">require</span> <span class="s1">&#39;kramdown&#39;</span>
+  <span class="n">content</span> <span class="o">=</span> <span class="no">Kramdown</span><span class="o">::</span><span class="no">Document</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="no">File</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">source</span><span class="p">),</span> <span class="p">{</span><span class="ss">input</span><span class="p">:</span> <span class="s2">&#34;GFM&#34;</span><span class="p">})</span><span class="o">.</span><span class="n">to_html</span>
+  <span class="no">File</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+<span class="k">end</span></code></pre></div>
+<p>This code block is a bit tricky. To summarize, what it does is scan through all
+the <code>.md</code> files located in <code>/app/views/page</code> and compile it into <code>.html.erb</code> if
+any changes is made.</p>
+
+<p>We can then run <code>rake compile_md</code> to manually compile our Markdown file into
+<code>erb</code> file after we updated our Markdown file.</p>
+
+<p>With this approach, do note that we did not handle <code>erb</code> syntax. Hence, there
+is a gotcha. If you need to use <code>erb</code> syntax, you need to write plain <code>html</code>
+instead. To demonstrate:</p>
+
+<pre><code>### Hello
+
+This is my first sentence.
+
+Total view:
+{::nomarkdown}
+&lt;span&gt;&lt;%= view_count %&gt;&lt;/span&gt;
+{:/nomarkdown}
+</code></pre>
+
+<p>The benefits of this approach is:</p>
+
+<ul>
+<li>Compilation of Markdown does not happen during runtime. Hence, save some
+computation time.</li>
+</ul>
+
+<h2 id="summary">Summary</h2>
+
+<p>That&rsquo;s all. I know there are a lot of magic happening on the <code>rake</code> task I wrote above.</p>
+
+<p>To further understand the <code>rake</code> task, I would suggest these tutorials from Avdi
+Grimm&rsquo;s rake series as suggested in <code>rake</code> README:</p>
+
+<ul>
+<li><a href="http://www.virtuouscode.com/2014/04/21/rake-part-1-basics/">Rake Basics</a></li>
+<li><a href="http://www.virtuouscode.com/2014/04/22/rake-part-2-file-lists/">Rake File Lists</a></li>
+<li><a href="http://www.virtuouscode.com/2014/04/23/rake-part-3-rules/">Rake Rules</a></li>
+</ul>
+
+<p>A sample application for this post can be found at my <a href="https://github.com/kw7oe/sample-md-static-pages">Github</a>.</p>
+
+<hr />
+
+<p><strong>Footnote</strong></p>
+
+<ol>
+<li><small>I am sorry if this post is a bit messy. I am still not quite good at writing and structuring lengthy tutorial.</small></li>
+</ol>
+
+</article>
+
+    </main><footer class="w-full text-center border-t border-gray-200 p-4 pin-b text-xs text-gray-400">
+    <p>made with <a href="https://gohugo.io" class="underline hover:text-blue-400">Hugo</a> and <a href="https://tailwindcss.com" class="underline hover:text-blue-400">TailwindCSS</a></p>
+</footer></body>
+</html>

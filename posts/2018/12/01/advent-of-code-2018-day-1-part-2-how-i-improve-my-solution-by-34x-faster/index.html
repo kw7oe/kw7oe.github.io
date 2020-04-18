@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>
+Advent of Code 2018: Day 1 Part 2, How I improve my solution by 34x faster | kw7oe
+</title>
+
+
+
+<meta name="generator" content="Hugo 0.58.3" />
+
+
+    
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.26b12c72e680761460a41924b81ac7f97d74490d2fe51c2d09e7ee7e0947f400.css" integrity="sha256-JrEscuaAdhRgpBkkuBrH&#43;X10SQ0v5RwtCefufglH9AA=">
+
+
+
+
+<link rel="stylesheet" href="https://kaiwern.com/css/syntax.min.css">
+
+<body class="flex flex-col min-h-screen px-4 max-w-screen-md md:w-2/3 m-auto"><nav class="mt-8">
+  <ul id="nav-menu" class="w-full flex items-center list-reset">
+    
+    <li>
+      <a href="https://kaiwern.com/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Home</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/about/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">About</a>
+    </li>
+    
+
+    
+    
+    <li>
+      <a href="https://kaiwern.com/categories/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Categories</a>
+    </li>
+    
+    
+    
+    <li>
+      <a href="https://kaiwern.com/tags/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Tags</a>
+    </li>
+    
+    
+  </ul>
+</nav>
+<main class="flex-1 mt-4 sm:mt-12">
+<header class="mb-8">
+  <h1 class="title">Advent of Code 2018: Day 1 Part 2, How I improve my solution by 34x faster</h1>
+  <p class="text-sm font-gray-700 mb-4">Dec 01, 2018</p>
+   
+  <div id="tags">
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/aoc/">aoc</a>
+    </span>
+    
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/elixir/">elixir</a>
+    </span>
+    
+    
+  </div>
+</header>
+
+<article class="markdown mb-8 text-gray-800">
+  
+
+  
+
+<p>In the <a href="/aoc/elixir/2018/12/01/advent-of-code-2018-day-1-part-1.html">previous post</a>, we had briefly discuss about the solution of Part 1. It
+is fairly straightforward. I thought Part 2 is going to be easy too. But man,
+I was wrong. It is a bit tricky.</p>
+
+<p><strong>My initial solution takes around 17 seconds to compute the answer</strong>. I
+<strong>made it 34x faster</strong> by changing the data structure. In the end,
+the improved solution solves the puzzle in just <strong>0.5 seconds</strong>.</p>
+
+<p><em>Code is available at <a href="https://github.com/kw7oe/advent-of-code-2018">GitHub</a>. For those who just want to know how the solution
+improved by 34x faster, see <a href="#three">here</a>.</em></p>
+
+<p>Okay, that&rsquo;s the end of some irrelavant stuff. Let&rsquo;s jump straight to the puzzle of Part 2.</p>
+
+<h2 id="part-2">Part 2</h2>
+
+<p>Part 2 still uses the same inputs as Part 1.</p>
+
+<pre><code>-9
++7 +5
+-13
++6
+...
+-23
+-46
+-27
+-11
+-75223
+</code></pre>
+
+<p>This time, the question and scenario are abit different, which make it
+tricky.</p>
+
+<p>The problem description states that:</p>
+
+<pre><code>You notice that the device repeats the same frequency change list over and over. To calibrate the device, you need to find the first frequency it reaches twice.
+</code></pre>
+
+<p><strong>For example:</strong></p>
+
+<pre><code>Here are other examples:
+
+    +1, -1 first reaches 0 twice.
+    +3, +3, +4, -2, -4 first reaches 10 twice.
+    -6, +3, +8, +5, -6 first reaches 5 twice.
+    +7, +7, -2, -7, -4 first reaches 14 twice.
+
+Note that your device might need to repeat its list of frequency changes many times before a duplicate frequency is found, and that duplicates might be found while in the middle of processing the list.
+</code></pre>
+
+<p>And the question is:</p>
+
+<pre><code>What is the first frequency your device reaches twice?
+</code></pre>
+
+<h3 id="problem-breakdown">Problem Breakdown</h3>
+
+<p>So the question is asking for the first frequency that reaches twice. But, do
+note that <strong>the frequency list can be repeated many times before an asnwer is
+found</strong>.</p>
+
+<p>If after the first interation of the frequency list, there is no duplicate
+found, the frequency list will go through the second interation again. This
+only stops until a duplicate frequency found.</p>
+
+<p>To summarize:</p>
+
+<ul>
+<li>Find first duplicate of frequency.</li>
+<li>Repeat the frequency list if no duplicate frequency found. <a href="#one"><sup>1</sup></a></li>
+<li>The initial frequency is 0.</li>
+<li>Upon second iteration, the current frequency will be resumed from the previosu
+iteration. <a href="#two"><sup>2</sup></a></li>
+</ul>
+
+<h3 id="initial-solution">Initial Solution</h3>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">defmodule</span> <span class="nc">Finder</span> <span class="n">do</span>
+  <span class="n">def</span> <span class="n">is_duplicate?</span><span class="p">(</span><span class="n">frequency</span><span class="p">,</span> <span class="n">appeared_frequencies</span><span class="p">)</span> <span class="n">do</span>
+    <span class="c1"># Check if the frequency is duplicate in appeared_frequencies</span>
+    <span class="n">if</span> <span class="nc">Enum</span><span class="o">.</span><span class="n">member?</span><span class="p">(</span><span class="n">appeared_frequencies</span><span class="p">,</span> <span class="n">frequency</span><span class="p">)</span> <span class="n">do</span>
+
+      <span class="c1"># Return :halt to halt the reduce_while loop</span>
+      <span class="c1"># and the duplicate</span>
+      <span class="p">{</span><span class="ss">:halt</span><span class="p">,</span> <span class="n">frequency</span><span class="p">}</span>
+    <span class="n">else</span>
+      <span class="c1"># Update the appeared_frequencies to include the new frequency</span>
+
+      <span class="c1"># Prepend [ element_to_add | rest_of_list ] is used since it</span>
+      <span class="c1"># has a constant time of adding element to list.</span>
+      <span class="n">appeared_frequencies</span> <span class="o">=</span> <span class="p">[</span> <span class="n">frequency</span> <span class="o">|</span> <span class="n">appeared_frequencies</span> <span class="p">]</span>
+
+      <span class="c1"># Return :cont to continue the reduce_while loop</span>
+      <span class="c1"># with the frequency and updated appeared_frequencies</span>
+      <span class="p">{</span><span class="ss">:cont</span><span class="p">,</span> <span class="p">{</span><span class="n">frequency</span><span class="p">,</span> <span class="n">appeared_frequencies</span><span class="p">}}</span>
+    <span class="n">end</span>
+  <span class="n">end</span>
+
+  <span class="n">def</span> <span class="n">accumulate_and_find</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">initial</span><span class="p">,</span> <span class="n">past_frequencies</span><span class="p">)</span> <span class="n">do</span>
+    <span class="n">frequencies</span>
+     <span class="c1"># The accumulator for reduce_while is:</span>
+
+     <span class="c1">#   initial/prev_frequency -&gt; Initial/Previous Frequency,</span>
+     <span class="c1">#   past_frequencies/appeared_frequencies -&gt; Past Appeared Frequencies /</span>
+     <span class="c1">#                                            Appeared Frequencies</span>
+    <span class="o">|&gt;</span> <span class="nc">Enum</span><span class="o">.</span><span class="n">reduce_while</span><span class="p">({</span><span class="n">initial</span><span class="p">,</span> <span class="n">past_frequencies</span><span class="p">},</span>
+      <span class="n">fn</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">{</span><span class="n">prev_frequency</span><span class="p">,</span> <span class="n">appeared_frequencies</span><span class="p">})</span>  <span class="o">-&gt;</span>
+
+        <span class="c1"># Calculate the new frequency.</span>
+        <span class="n">new_frequency</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">prev_frequency</span>
+
+        <span class="c1"># Check if the new frequency is a duplicate</span>
+
+        <span class="c1"># Halt if it is.</span>
+        <span class="c1"># Continue the reduce_while if it is not.</span>
+        <span class="n">is_duplicate?</span><span class="p">(</span><span class="n">new_frequency</span><span class="p">,</span> <span class="n">appeared_frequencies</span><span class="p">)</span>
+      <span class="n">end</span><span class="p">)</span>
+  <span class="n">end</span>
+
+  <span class="n">def</span> <span class="n">find_first_duplicate_frequency</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">initial</span><span class="p">,</span> <span class="n">past_frequencies</span><span class="p">)</span> <span class="n">do</span>
+    <span class="n">case</span> <span class="n">accumulate_and_find</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">initial</span><span class="p">,</span> <span class="n">past_frequencies</span><span class="p">)</span> <span class="n">do</span>
+      <span class="c1"># No duplicates found</span>
+      <span class="p">{</span><span class="n">result</span><span class="p">,</span> <span class="n">appeared_frequencies</span><span class="p">}</span> <span class="o">-&gt;</span>
+        <span class="c1"># Recursively call this method</span>
+        <span class="c1"># by passing in the frequencies again.</span>
+
+        <span class="c1"># However, the next iteration `initial` frequency will be the previous</span>
+        <span class="c1"># iteration frequency, which is the value of `result`.</span>
+
+        <span class="c1"># The `appeared_frequencies in the previous iteration will be pass</span>
+        <span class="c1"># forward to the next iteration too.</span>
+
+        <span class="n">find_first_duplicate_frequency</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">appeared_frequencies</span><span class="p">)</span>
+
+      <span class="c1"># Duplicate found</span>
+      <span class="n">result</span> <span class="o">-&gt;</span> <span class="n">result</span> <span class="c1"># Return duplicate and end recursive call.</span>
+    <span class="n">end</span>
+  <span class="n">end</span>
+<span class="n">end</span>
+
+<span class="n">case</span> <span class="nc">File</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&#34;input.txt&#34;</span><span class="p">)</span> <span class="n">do</span>
+  <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">content</span><span class="p">}</span> <span class="o">-&gt;</span>
+    <span class="n">frequencies</span> <span class="o">=</span> <span class="n">content</span>
+                  <span class="o">|&gt;</span> <span class="nc">String</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                  <span class="o">|&gt;</span> <span class="nc">Enum</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="nc">String</span><span class="o">.</span><span class="n">to_integer</span><span class="o">/</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="nc">Finder</span><span class="o">.</span><span class="n">find_first_duplicate_frequency</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="o">|&gt;</span> <span class="nc">IO</span><span class="o">.</span><span class="n">inspect</span>
+  <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="n">_</span><span class="p">}</span> <span class="o">-&gt;</span> <span class="nc">IO</span><span class="o">.</span><span class="n">puts</span> <span class="s2">&#34;Error opening files&#34;</span>
+<span class="n">end</span></code></pre></div>
+<p>If the comments in the code is not sufficient, here are the more detailed
+explanation to help you understand the code <em>(hopefully)</em>:</p>
+
+<ol>
+<li>First, same as Part 1, we read the content from the file, split it and
+convert every element into integer first.</li>
+<li>Then, we pass it into <code>Finder.find_first_duplicate_frequency/3</code> method,
+with the <code>frequencies</code>, initial frequency, and appeared frequencies.</li>
+<li>In <code>find_first_duplicate_frequency</code>, it will delegate the finding
+duplicate job to <code>accumulate_and_find/3</code> and check if the return result
+is a found duplicate or not.
+
+<ul>
+<li>If there is no duplicate found, it will call itself recursively, with the same <code>frequencies</code>,
+to start the next iteration.</li>
+<li>The initial frequency will be replaced with the last frequency from the previous iteration.</li>
+<li>The appeared frequencies from the previous iteration will also be pass forward
+to the next iteration.</li>
+</ul></li>
+<li>In <code>accumulate_and_find/3</code>, we use <code>Map.reduce_while/3</code> to map through each
+elements in the <code>frequencies</code> and keep track of the previous frequency and
+appeared frequencies.
+
+<ul>
+<li><code>reduce_while/3</code> is used so that we can control when to <code>halt</code> the
+looping.</li>
+<li>It accepts an accumulator, which in this case is our <code>{ initial, past_frequencies }</code>, which indicates the state we want to keep track of
+while mapping through the elements</li>
+<li>It also accepts a function, which in this case, will be used to calculate
+the new frequency, by <code>new_frequency = x + prev_frequency</code> and check
+if it is a duplicate using <code>is_duplicate?/2</code>.</li>
+</ul></li>
+<li>In <code>is_duplicate?/2</code>, it basically check if the element already existed
+by <code>Enum.member/2?</code>.
+
+<ul>
+<li>If it exists, it return <code>:halt</code> and the duplicate to the <code>reduce_while</code>
+code block. Thus, ending the loop.</li>
+<li>Else, it return <code>:cont</code> with the current frequency and the new appeared
+frequencies to the <code>reduce_while/3</code> code block.</li>
+</ul></li>
+</ol>
+
+<p><strong>Performance:</strong></p>
+
+<pre><code>$ time elixir part-2.ex
+
+real	0m17.047s
+user	0m16.978s
+sys	0m0.184s
+</code></pre>
+
+<p>At first, I thought I am having infinity loop and was kind of disappointed as
+it was my forth time fixing the solution. Then, I jrealized, it
+just take a long time to compute the answer.</p>
+
+<p>After a few hours, I started to think about how to
+improve the performance. Then, I realized why it took so long.</p>
+
+<h3 id="improved-solution">Improved Solution</h3>
+
+<p>It is beacuse of the use of <code>List</code>. <code>Enum.member?/2</code> will iterate through every
+single element until it find the member. So, when there is a new element
+added to <code>appeared_frequency</code>, it has to loop through additional element in the
+<code>Enum.member?/2</code>.</p>
+
+<p>Looping through the <code>frequencies</code> itself is already an <em>O(n)</em> operation. With,
+<code>Enum.member?/2</code>, that&rsquo;s another <em>O(n)</em> operation.Thus, resulting in a <em>O(n^2)</em>
+solution.</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">defmodule</span> <span class="nc">Finder</span> <span class="n">do</span>
+
+  <span class="n">def</span> <span class="n">is_duplicate?</span><span class="p">(</span><span class="n">frequency</span><span class="p">,</span> <span class="n">appeared_frequencies</span><span class="p">)</span> <span class="n">do</span>
+    <span class="c1"># Use Map.has_key?/2 to check if the frequency already existed</span>
+    <span class="n">if</span> <span class="nc">Map</span><span class="o">.</span><span class="n">has_key?</span><span class="p">(</span><span class="n">appeared_frequencies</span><span class="p">,</span> <span class="n">frequency</span><span class="p">)</span> <span class="n">do</span>
+      <span class="p">{</span><span class="ss">:halt</span><span class="p">,</span> <span class="n">frequency</span><span class="p">}</span>
+    <span class="n">else</span>
+      <span class="c1"># Use Map.put/3 to add the new frequency in to the map.</span>
+      <span class="n">appeared_frequencies</span> <span class="o">=</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">appeared_frequencies</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+      <span class="p">{</span><span class="ss">:cont</span><span class="p">,</span> <span class="p">{</span><span class="n">frequency</span><span class="p">,</span> <span class="n">appeared_frequencies</span><span class="p">}}</span>
+    <span class="n">end</span>
+  <span class="n">end</span>
+
+  <span class="n">def</span> <span class="n">accumulate_and_find</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">initial</span><span class="p">,</span> <span class="n">past_frequencies</span><span class="p">)</span> <span class="n">do</span>
+    <span class="n">frequencies</span>
+    <span class="o">|&gt;</span> <span class="nc">Enum</span><span class="o">.</span><span class="n">reduce_while</span><span class="p">({</span><span class="n">initial</span><span class="p">,</span> <span class="n">past_frequencies</span><span class="p">},</span>
+      <span class="n">fn</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">{</span><span class="n">prev_frequency</span><span class="p">,</span> <span class="n">appeared_frequencies</span><span class="p">})</span>  <span class="o">-&gt;</span>
+        <span class="n">new_frequency</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">prev_frequency</span>
+        <span class="n">is_duplicate?</span><span class="p">(</span><span class="n">new_frequency</span><span class="p">,</span> <span class="n">appeared_frequencies</span><span class="p">)</span>
+      <span class="n">end</span><span class="p">)</span>
+  <span class="n">end</span>
+
+  <span class="n">def</span> <span class="n">find_first_duplicate_frequency</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">initial</span><span class="p">,</span> <span class="n">past_frequencies</span><span class="p">)</span> <span class="n">do</span>
+    <span class="n">case</span> <span class="n">accumulate_and_find</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">initial</span><span class="p">,</span> <span class="n">past_frequencies</span><span class="p">)</span> <span class="n">do</span>
+      <span class="p">{</span><span class="n">result</span><span class="p">,</span> <span class="n">appeared_frequencies</span><span class="p">}</span> <span class="o">-&gt;</span>
+        <span class="n">find_first_duplicate_frequency</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">appeared_frequencies</span><span class="p">)</span>
+      <span class="n">result</span> <span class="o">-&gt;</span> <span class="n">result</span>
+    <span class="n">end</span>
+  <span class="n">end</span>
+<span class="n">end</span>
+
+
+<span class="n">case</span> <span class="nc">File</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&#34;input.txt&#34;</span><span class="p">)</span> <span class="n">do</span>
+  <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">content</span><span class="p">}</span> <span class="o">-&gt;</span>
+    <span class="n">frequencies</span> <span class="o">=</span> <span class="n">content</span>
+                  <span class="o">|&gt;</span> <span class="nc">String</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                  <span class="o">|&gt;</span> <span class="nc">Enum</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="nc">String</span><span class="o">.</span><span class="n">to_integer</span><span class="o">/</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Subsitute [0] to %{0 =&gt; 0} to represent the appeared frequencies.</span>
+    <span class="nc">Finder</span><span class="o">.</span><span class="n">find_first_duplicate_frequency</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">%{</span><span class="mi">0</span> <span class="o">=&gt;</span> <span class="mi">0</span><span class="p">})</span>
+    <span class="o">|&gt;</span> <span class="nc">IO</span><span class="o">.</span><span class="n">inspect</span>
+  <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="n">_</span><span class="p">}</span> <span class="o">-&gt;</span> <span class="nc">IO</span><span class="o">.</span><span class="n">puts</span> <span class="s2">&#34;Error opening files&#34;</span>
+<span class="n">end</span></code></pre></div>
+<p>The second solution is just to switch the data structure we used to store the
+<code>appeared_frequencies</code>. Instead of <code>List</code>, we use a <code>Map</code>. <code>Map</code> has a
+constant look up time <em>O(1)</em> to access the element. Hence, it improve the
+performance of the solution.</p>
+
+<p><em>By using the right data structure, with a change of 3 lines of code,
+we successfully improve the execution speed of our program by <strong>34x</strong> faster.</em></p>
+
+<p><strong>Performance:</strong></p>
+
+<pre><code>$ time elixir part-2.ex
+
+real	0m0.517s
+user	0m0.481s
+sys	0m0.188s
+</code></pre>
+
+<p>Day 1 Part 2, Done.</p>
+
+<hr />
+
+<p><strong>Footnote</strong></p>
+
+<ol>
+<li><small id="one">
+At first, I didn&rsquo;t notice this and submitted the wrong answer.
+</small></li>
+<li><small id="two">
+Then I submitted the wrong answer again, as I didn&rsquo;t use the last frequency
+from the previous iteration while starting the next iteration&hellip;
+</small></li>
+<li><small id="three">I replace the data structure to keep track
+of the appeared frequencies <em>(which required lookup)</em> from <code>List</code> to <code>Map</code>.
+</small></li>
+</ol>
+
+</article>
+
+    </main><footer class="w-full text-center border-t border-gray-200 p-4 pin-b text-xs text-gray-400">
+    <p>made with <a href="https://gohugo.io" class="underline hover:text-blue-400">Hugo</a> and <a href="https://tailwindcss.com" class="underline hover:text-blue-400">TailwindCSS</a></p>
+</footer></body>
+</html>

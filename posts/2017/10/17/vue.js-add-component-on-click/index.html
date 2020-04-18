@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>
+Vue.js: Add component on click | kw7oe
+</title>
+
+
+
+<meta name="generator" content="Hugo 0.58.3" />
+
+
+    
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.26b12c72e680761460a41924b81ac7f97d74490d2fe51c2d09e7ee7e0947f400.css" integrity="sha256-JrEscuaAdhRgpBkkuBrH&#43;X10SQ0v5RwtCefufglH9AA=">
+
+
+
+
+<link rel="stylesheet" href="https://kaiwern.com/css/syntax.min.css">
+
+<body class="flex flex-col min-h-screen px-4 max-w-screen-md md:w-2/3 m-auto"><nav class="mt-8">
+  <ul id="nav-menu" class="w-full flex items-center list-reset">
+    
+    <li>
+      <a href="https://kaiwern.com/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Home</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/about/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">About</a>
+    </li>
+    
+
+    
+    
+    <li>
+      <a href="https://kaiwern.com/categories/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Categories</a>
+    </li>
+    
+    
+    
+    <li>
+      <a href="https://kaiwern.com/tags/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Tags</a>
+    </li>
+    
+    
+  </ul>
+</nav>
+<main class="flex-1 mt-4 sm:mt-12">
+<header class="mb-8">
+  <h1 class="title">Vue.js: Add component on click</h1>
+  <p class="text-sm font-gray-700 mb-4">Oct 17, 2017</p>
+   
+  <div id="tags">
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/vue.js/">vue.js</a>
+    </span>
+    
+    
+  </div>
+</header>
+
+<article class="markdown mb-8 text-gray-800">
+  
+
+  
+
+<p>I have been working on a project which uses <code>Vue.js</code> for front end. I came across a scenario where we need to allow user to add more entry in their form.</p>
+
+<h3 id="initial-approach">Initial Approach</h3>
+
+<p>The first thought that come to my mind will be get the <code>div#id</code> of the element and <code>append</code> it dynamically through <code>javascript</code></p>
+<div class="highlight"><pre class="chroma"><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">parent</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">&#34;parent&#34;</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">component</span> <span class="o">=</span> <span class="nx">createComponent</span><span class="p">();</span> <span class="c1">// Assuming this return an Node element
+</span><span class="c1"></span>
+<span class="nx">parent</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">component</span><span class="p">);</span>
+</code></pre></div>
+<p>However, since we are using <code>Vue.js</code>, it doesn&rsquo;t feel natural to approach it this way.</p>
+
+<h3 id="with-vue-js">With Vue.js</h3>
+
+<p>Instead, we can utilize the functionality of <code>Vue.js</code>, by using <code>v-for</code> and <code>v-on:click</code>.</p>
+<div class="highlight"><pre class="chroma"><code class="language-html" data-lang="html"><span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">p</span> <span class="na">v-for</span><span class="o">=</span><span class="s">&#34;index in count&#34;</span> <span class="na">:key</span><span class="o">=</span><span class="s">&#34;index&#34;</span><span class="p">&gt;</span>
+      {% raw %}{{ index }}{% endraw %}
+    <span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">button</span> <span class="na">v-on:click</span><span class="o">=</span><span class="s">&#34;addComponent&#34;</span><span class="p">&gt;</span>Add<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+  <span class="k">export</span> <span class="k">default</span> <span class="p">{</span>
+    <span class="nx">data</span><span class="p">()</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="p">{</span>
+        <span class="nx">count</span><span class="o">:</span> <span class="mi">1</span>
+      <span class="p">};</span>
+    <span class="p">},</span>
+    <span class="nx">methods</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">addComponent</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">count</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">};</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span></code></pre></div>
+<ol>
+<li>Declare a counter</li>
+</ol>
+
+<ul>
+<li>We first declare a data <code>count</code> with the initial value of 1.</li>
+</ul>
+
+<ol>
+<li>Use <code>v-for</code> to generate components</li>
+</ol>
+
+<ul>
+<li>In our <code>template</code> tag, We loop through the component with <code>v-for=&quot;index in count&quot;</code>.</li>
+<li>With the <code>v-for</code> shorthands, <code>vue</code> will generate from <code>count</code> times of the component. In this case, <code>count</code> act like range. For more detailed explanation, refer to the official documetation: <a href="https://vuejs.org/v2/guide/list.html#v-for-with-a-Range">v-for with a Range</a>{:target=&rdquo;_blank&rdquo;}).</li>
+</ul>
+
+<ol>
+<li>Button to increase <code>count</code></li>
+</ol>
+
+<ul>
+<li>Then we create a <code>Add</code> button that execute <code>addComponent</code> on click. The <code>addComponent</code> method is fairly straightforward, just increase the <code>count</code> by 1.</li>
+<li>When the user click the <code>Add</code> button, the <code>count</code> will be increased by 1, thus cause <code>Vue.js</code> to render additional component in our view.</li>
+</ul>
+
+<h3 id="conclusion">Conclusion</h3>
+
+<p>With the combination of, <code>count</code> act as counter. <code>v-for</code> to generate the components, and <code>addComponent</code> method to increase the <code>count</code>, we are able to render new component into our view when the user click the button.</p>
+
+<p>P.S. The solution is inspired by this <a href="https://forum-archive.vuejs.org/topic/747/clone-component-when-click-add-more/3">forum post</a>{:target=&rdquo;_blank&rdquo;}</p>
+
+</article>
+
+    </main><footer class="w-full text-center border-t border-gray-200 p-4 pin-b text-xs text-gray-400">
+    <p>made with <a href="https://gohugo.io" class="underline hover:text-blue-400">Hugo</a> and <a href="https://tailwindcss.com" class="underline hover:text-blue-400">TailwindCSS</a></p>
+</footer></body>
+</html>

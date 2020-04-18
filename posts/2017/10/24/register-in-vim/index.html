@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>
+Register in Vim | kw7oe
+</title>
+
+
+
+<meta name="generator" content="Hugo 0.58.3" />
+
+
+    
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.26b12c72e680761460a41924b81ac7f97d74490d2fe51c2d09e7ee7e0947f400.css" integrity="sha256-JrEscuaAdhRgpBkkuBrH&#43;X10SQ0v5RwtCefufglH9AA=">
+
+
+
+
+<link rel="stylesheet" href="https://kaiwern.com/css/syntax.min.css">
+
+<body class="flex flex-col min-h-screen px-4 max-w-screen-md md:w-2/3 m-auto"><nav class="mt-8">
+  <ul id="nav-menu" class="w-full flex items-center list-reset">
+    
+    <li>
+      <a href="https://kaiwern.com/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Home</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/about/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">About</a>
+    </li>
+    
+
+    
+    
+    <li>
+      <a href="https://kaiwern.com/categories/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Categories</a>
+    </li>
+    
+    
+    
+    <li>
+      <a href="https://kaiwern.com/tags/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Tags</a>
+    </li>
+    
+    
+  </ul>
+</nav>
+<main class="flex-1 mt-4 sm:mt-12">
+<header class="mb-8">
+  <h1 class="title">Register in Vim</h1>
+  <p class="text-sm font-gray-700 mb-4">Oct 24, 2017</p>
+   
+  <div id="tags">
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/vim/">vim</a>
+    </span>
+    
+    
+  </div>
+</header>
+
+<article class="markdown mb-8 text-gray-800">
+  
+
+  
+
+<p>For the past months, I have started to use <code>vim</code> in some occasions. One day, I came across a vim video, <a href="https://www.youtube.com/watch?v=3TX3kV3TICU">&ldquo;Let Vim Do the Typing&rdquo;</a>{:target=&rdquo;_blank&rdquo;}, and discover the use of <strong>register</strong> in <code>vim</code>. Basically, the concept of register in <code>vim</code> is very similar to the register in our computer. It is a temporary memory space for <code>vim</code> to store text.</p>
+
+<h3 id="how-to-use-it">How to use it?</h3>
+
+<p>In normal mode, <code>&quot;r</code> will allow us to select the register <code>r</code>. The charcter after <code>&quot;</code> is the register you selected. You can choose any register you like from <code>a-z</code>.To check the content of every register, use the command <code>:reg</code>. For specific registers, just provide the register name as arguments to the command, e.g <code>:reg r</code>.</p>
+
+<p>In insert mode, you can insert the content of a register by <code>Ctrl-r</code> + <code>r</code>. You&rsquo;ll notice the current cursor will turn into <code>&quot;</code> when <code>Ctrl-r</code> is pressed.</p>
+
+<h3 id="basic-usage">Basic Usage</h3>
+
+<p>We can copy any text and save it to a specific register, which persists even after <code>vim</code> is quit. For example, we can yanked/copy current link and store to register <code>e</code> by <code>&quot;eyy</code>.</p>
+
+<p>We can also paste the content of register <code>e</code> by <code>&quot;ep</code>. Or, go into insert mode and <code>Ctrl-r</code> + <code>e</code> to paste the content of the selected register.</p>
+
+<h3 id="wrapping-up">Wrapping Up</h3>
+
+<p>This is just a basic introduction of register in <code>vim</code>. There is still a lots of details and usage of register I didn&rsquo;t cover in this post. For more details, feel free to refer to the resources below:</p>
+
+<ul>
+<li><a href="http://www.brianstorti.com/vim-registers/">Vim registers: The basics and beyond</a>{:target=&rdquo;_blank&rdquo;}</li>
+<li><a href="https://stackoverflow.com/questions/1497958/how-do-i-use-vim-registers">How do I use vim registers?</a>{:target=&rdquo;_blank&rdquo;}</li>
+</ul>
+
+</article>
+
+    </main><footer class="w-full text-center border-t border-gray-200 p-4 pin-b text-xs text-gray-400">
+    <p>made with <a href="https://gohugo.io" class="underline hover:text-blue-400">Hugo</a> and <a href="https://tailwindcss.com" class="underline hover:text-blue-400">TailwindCSS</a></p>
+</footer></body>
+</html>

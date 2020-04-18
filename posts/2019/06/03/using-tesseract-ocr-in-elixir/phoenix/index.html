@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>
+Using Tesseract OCR in Elixir/Phoenix | kw7oe
+</title>
+
+
+
+<meta name="generator" content="Hugo 0.58.3" />
+
+
+    
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.26b12c72e680761460a41924b81ac7f97d74490d2fe51c2d09e7ee7e0947f400.css" integrity="sha256-JrEscuaAdhRgpBkkuBrH&#43;X10SQ0v5RwtCefufglH9AA=">
+
+
+
+
+<link rel="stylesheet" href="https://kaiwern.com/css/syntax.min.css">
+
+<body class="flex flex-col min-h-screen px-4 max-w-screen-md md:w-2/3 m-auto"><nav class="mt-8">
+  <ul id="nav-menu" class="w-full flex items-center list-reset">
+    
+    <li>
+      <a href="https://kaiwern.com/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Home</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/about/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">About</a>
+    </li>
+    
+
+    
+    
+    <li>
+      <a href="https://kaiwern.com/categories/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Categories</a>
+    </li>
+    
+    
+    
+    <li>
+      <a href="https://kaiwern.com/tags/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Tags</a>
+    </li>
+    
+    
+  </ul>
+</nav>
+<main class="flex-1 mt-4 sm:mt-12">
+<header class="mb-8">
+  <h1 class="title">Using Tesseract OCR in Elixir/Phoenix</h1>
+  <p class="text-sm font-gray-700 mb-4">Jun 03, 2019</p>
+   
+  <div id="tags">
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/elixir/">elixir</a>
+    </span>
+    
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/phoenix/">phoenix</a>
+    </span>
+    
+    
+  </div>
+</header>
+
+<article class="markdown mb-8 text-gray-800">
+  
+
+  
+
+<p>Lately, I am exploring the use of OCR in <a href="https://expendere.herokuapp.com">Expendere</a> (my expense tracking
+application) and came across <a href="https://github.com/tesseract-ocr/tesseract">Tesseract OCR</a>.</p>
+
+<p>At the time of writing this blog post, there is no native binding of Tesseract OCR in Elixir.
+However, there are two Elixir wrapper available on GitHub:</p>
+
+<ul>
+<li><a href="https://github.com/dannnylo/tesseract-ocr-elixir">tesseract-ocr-elixir</a></li>
+<li><a href="https://github.com/bchase/tesseract-elixir">tesseract-elixir</a></li>
+</ul>
+
+<p>Both wrapper use <code>System.cmd/3</code> to invoke the <code>tesseract</code> command line
+interface and return the results of the executed command.</p>
+
+<p>Seeing there are wrappers available out there, I quickly grab one and scaffold
+a Phoenix application to test it out.</p>
+
+<h2 id="code">Code</h2>
+
+<p>In this code example, I will be using wrapper from <a href="https://github.com/dannnylo/tesseract-ocr-elixir">tesseract-ocr-elixir</a>.</p>
+
+<p>In <code>mix.exs</code>, add <code>tesseract-ocr-elixir</code> as dependency:</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">def</span> <span class="n">deps</span> <span class="n">do</span>
+  <span class="p">[</span>
+    <span class="n">...</span><span class="p">,</span>
+    <span class="p">{</span><span class="ss">:tesseract_ocr</span><span class="p">,</span> <span class="s2">&#34;~&gt; 0.1.0&#34;</span><span class="p">}</span>
+  <span class="p">]</span>
+<span class="n">end</span></code></pre></div>
+<p>In <code>page_controller.ex</code>:</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">defmodule</span> <span class="nc">OcrWeb.PageController</span> <span class="n">do</span> <span class="n">use</span> <span class="nc">OcrWeb</span><span class="p">,</span> <span class="ss">:controller</span>
+
+  <span class="n">def</span> <span class="n">index</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">_params</span><span class="p">)</span> <span class="n">do</span>
+    <span class="n">render</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="s2">&#34;index.html&#34;</span><span class="p">)</span>
+  <span class="n">end</span>
+
+  <span class="n">def</span> <span class="n">create</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="p">%{</span><span class="s2">&#34;upload&#34;</span> <span class="o">=&gt;</span> <span class="p">%</span><span class="nc">Plug.Upload</span><span class="p">{}</span> <span class="o">=</span> <span class="n">upload</span><span class="p">})</span> <span class="n">do</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="nc">TesseractOcr</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">upload</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">render</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="s2">&#34;show.html&#34;</span><span class="p">,</span> <span class="ss">result</span><span class="p">:</span> <span class="n">result</span><span class="p">)</span>
+  <span class="n">end</span>
+<span class="n">end</span></code></pre></div>
+<p>In <code>router.ex</code>, add this under <code>scope &quot;/&quot;</code>:</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">get</span> <span class="s2">&#34;/&#34;</span><span class="p">,</span> <span class="nc">PageController</span><span class="p">,</span> <span class="ss">:index</span>
+<span class="n">post</span> <span class="s2">&#34;/upload&#34;</span><span class="p">,</span> <span class="nc">PageController</span><span class="p">,</span> <span class="ss">:create</span></code></pre></div>
+<p>In <code>templates/page/index.html.eex</code>:</p>
+<div class="highlight"><pre class="chroma"><code class="language-eex" data-lang="eex">&lt;%= form_for @conn, Routes.page_path(@conn, :create),
+                    [multipart: true], fn f-&gt; %&gt;
+    &lt;%= file_input f, :upload, class: &#34;form-control&#34; %&gt;
+    &lt;%= submit &#34;Upload&#34;, class: &#34;btn btn-primary&#34; %&gt;
+&lt;% end %&gt;</code></pre></div>
+<p>In <code>templates/page/show.html.eex</code>:</p>
+<div class="highlight"><pre class="chroma"><code class="language-eex" data-lang="eex">&lt;h1&gt;Result:&lt;/h1&gt;
+
+&lt;%= @result %&gt;</code></pre></div>
+<p><strong>Demo</strong></p>
+
+<p><img src="/images/tesseract-demo.gif" alt="Demo" /></p>
+
+<p>Voila, a simple OCR application is done. The demo application is available at <a href="https://github.com/kw7oe/phoenix-ocr-demo">GitHub</a>.</p>
+
+</article>
+
+    </main><footer class="w-full text-center border-t border-gray-200 p-4 pin-b text-xs text-gray-400">
+    <p>made with <a href="https://gohugo.io" class="underline hover:text-blue-400">Hugo</a> and <a href="https://tailwindcss.com" class="underline hover:text-blue-400">TailwindCSS</a></p>
+</footer></body>
+</html>

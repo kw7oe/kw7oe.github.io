@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>vim on kw7oe</title>
+    <link>https://kaiwern.com/tags/vim/</link>
+    <description>Recent content in vim on kw7oe</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 24 Oct 2017 22:05:00 +0800</lastBuildDate>
+    
+	<atom:link href="https://kaiwern.com/tags/vim/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Register in Vim</title>
+      <link>https://kaiwern.com/posts/2017/10/24/register-in-vim/</link>
+      <pubDate>Tue, 24 Oct 2017 22:05:00 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2017/10/24/register-in-vim/</guid>
+      <description>For the past months, I have started to use vim in some occasions. One day, I came across a vim video, &amp;ldquo;Let Vim Do the Typing&amp;rdquo;{:target=&amp;rdquo;_blank&amp;rdquo;}, and discover the use of register in vim. Basically, the concept of register in vim is very similar to the register in our computer.</description>
+    </item>
+    
+  </channel>
+</rss>

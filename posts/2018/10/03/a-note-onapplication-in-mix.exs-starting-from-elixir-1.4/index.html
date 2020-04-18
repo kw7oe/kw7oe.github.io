@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>
+A note on`application` in mix.exs starting from Elixir 1.4 | kw7oe
+</title>
+
+
+
+<meta name="generator" content="Hugo 0.58.3" />
+
+
+    
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.26b12c72e680761460a41924b81ac7f97d74490d2fe51c2d09e7ee7e0947f400.css" integrity="sha256-JrEscuaAdhRgpBkkuBrH&#43;X10SQ0v5RwtCefufglH9AA=">
+
+
+
+
+<link rel="stylesheet" href="https://kaiwern.com/css/syntax.min.css">
+
+<body class="flex flex-col min-h-screen px-4 max-w-screen-md md:w-2/3 m-auto"><nav class="mt-8">
+  <ul id="nav-menu" class="w-full flex items-center list-reset">
+    
+    <li>
+      <a href="https://kaiwern.com/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Home</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/about/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">About</a>
+    </li>
+    
+
+    
+    
+    <li>
+      <a href="https://kaiwern.com/categories/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Categories</a>
+    </li>
+    
+    
+    
+    <li>
+      <a href="https://kaiwern.com/tags/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Tags</a>
+    </li>
+    
+    
+  </ul>
+</nav>
+<main class="flex-1 mt-4 sm:mt-12">
+<header class="mb-8">
+  <h1 class="title">A note on`application` in mix.exs starting from Elixir 1.4</h1>
+  <p class="text-sm font-gray-700 mb-4">Oct 03, 2018</p>
+   
+  <div id="tags">
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/elixr/">elixr</a>
+    </span>
+    
+    
+  </div>
+</header>
+
+<article class="markdown mb-8 text-gray-800">
+  
+
+  
+
+<p>Starting from Elixir 1.4, we don&rsquo;t need to specify our application lists in
+<code>application</code>. It is automatically inferred from our dependencies. <em>(Check the
+release notes <a href="https://elixir-lang.org/blog/2017/01/05/elixir-v1-4-0-released/">here</a>)</em></p>
+
+<p>Do note that <strong>it only automatically infer the application lists if the
+<code>:applications</code> key is empty.</strong> If you had already declared your it in your
+<code>mix.exs</code> like this:</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">def</span> <span class="n">application</span> <span class="n">do</span>
+  <span class="p">[</span>
+    <span class="c1"># Will be automatically inferred starting</span>
+    <span class="c1"># from Elixir 1.4, if it is empty.</span>
+    <span class="ss">applications</span><span class="p">:</span> <span class="p">[</span><span class="ss">:cowboy</span><span class="p">,</span> <span class="ss">:plug</span><span class="p">]</span>
+  <span class="p">]</span>
+<span class="n">end</span></code></pre></div>
+<p>Be sure to clear it to utilize this feature.</p>
+
+<p>Below are the detailed story on how I came across this.</p>
+
+<p><small><em>Disclaimer: The point of this article is summed up above, skip the part below if you&rsquo;re busy.</em></small></p>
+
+<hr />
+
+<h3 id="the-story">The Story</h3>
+
+<p>Recently, I have been writing a simple Plug web application and came across the
+need to use an external database.</p>
+
+<p><code>Ecto</code> and <code>PostgreSQl</code> is the thing that come up to my mind.</p>
+
+<p>Hence, I went over the <a href="https://hexdocs.pm/ecto/getting-started.html#content">Ecto documentation</a> and run through the setup in the
+application. After going through the steps, and finally run <code>iex -S mix</code>, an
+error arise.</p>
+
+<pre><code>...failed to start child: App.Repo
+</code></pre>
+
+<p>I check my <code>config.exs</code>. Nothing wrong.</p>
+
+<p>So, I go through the documentation again and again, to check if I miss out anything.
+No, nothing wrong. The documentation didn&rsquo;t mentioned the need to add <code>ecto</code>
+and <code>postgrex</code> in the <code>application</code>. After googling around, someone mentioned
+that adding it solve the issues.</p>
+
+<p><em>I tried, it worked.</em></p>
+
+<p>But I don&rsquo;t know why. <em>The documentation can&rsquo;t be wrong right?</em></p>
+
+<p>So, I create a new test application and follow the documentation again.</p>
+
+<p><em>And, it works.</em></p>
+
+<p>So, I delete this line of code in my <code>mix.exs</code>:</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">applications</span><span class="p">:</span> <span class="p">[</span><span class="ss">:cowboy</span><span class="p">,</span> <span class="ss">:plug</span><span class="p">]</span></code></pre></div>
+<p><em>And, it works.</em></p>
+
+<h3 id="the-why">The Why</h3>
+
+<p>Hence, I guess that Mix actaully automatically start the applications needed
+for us. So, I search through the documentations of different version of Mix
+<em>(<a href="https://hexdocs.pm/mix/1.3.4/Mix.Tasks.Compile.App.html#content">1.4.5</a> vs <a href="https://hexdocs.pm/mix/1.3.4/Mix.Tasks.Compile.App.html#content">1.3.4</a>)</em>, and finally found out that since Elixir 1.4,
+Mix has this new feature. It is also mentioned in the <a href="https://elixir-lang.org/blog/2017/01/05/elixir-v1-4-0-released/">release notes of Elixir 1.4</a>.</p>
+
+<p>However there is one condition. <strong>It only automatically infer the applications list if the
+<code>:applications</code> key is empty.</strong> That explains why it didn&rsquo;t work in my
+application because I already declared the list manually, as shown below:</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">def</span> <span class="n">application</span> <span class="n">do</span>
+  <span class="p">[</span>
+    <span class="ss">mod</span><span class="p">:</span> <span class="p">{</span><span class="nc">App.App</span><span class="p">,</span> <span class="p">[]},</span>
+    <span class="ss">extra_applications</span><span class="p">:</span> <span class="p">[</span><span class="ss">:logger</span><span class="p">],</span>
+    <span class="c1"># Can be removed for Elixir &gt;= 1.4.</span>
+    <span class="c1"># Since it is automatically inferred.</span>
+    <span class="ss">applications</span><span class="p">:</span> <span class="p">[</span><span class="ss">:cowboy</span><span class="p">,</span> <span class="ss">:plug</span><span class="p">]</span>
+  <span class="p">]</span>
+<span class="n">end</span></code></pre></div>
+<h3 id="the-lessons">The Lessons</h3>
+
+<ul>
+<li>Application lists can be automatically inferred in for Elixir &gt;= 1.4</li>
+<li><em>Documentation can be wrong. But, most of the time, you might be the one who
+are in fault.</em></li>
+<li>Read release notes.</li>
+</ul>
+
+<p>Thanks for reading through it.</p>
+
+</article>
+
+    </main><footer class="w-full text-center border-t border-gray-200 p-4 pin-b text-xs text-gray-400">
+    <p>made with <a href="https://gohugo.io" class="underline hover:text-blue-400">Hugo</a> and <a href="https://tailwindcss.com" class="underline hover:text-blue-400">TailwindCSS</a></p>
+</footer></body>
+</html>

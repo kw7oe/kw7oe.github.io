@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>ruby on kw7oe</title>
+    <link>https://kaiwern.com/tags/ruby/</link>
+    <description>Recent content in ruby on kw7oe</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 27 Nov 2018 22:04:00 +0800</lastBuildDate>
+    
+	<atom:link href="https://kaiwern.com/tags/ruby/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Using Markdown for Static Pages in Rails</title>
+      <link>https://kaiwern.com/posts/2018/11/27/using-markdown-for-static-pages-in-rails/</link>
+      <pubDate>Tue, 27 Nov 2018 22:04:00 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2018/11/27/using-markdown-for-static-pages-in-rails/</guid>
+      <description>Markdown is great for formatting our writing to be publish as HTML. If you&amp;rsquo;re a developer, you probably used Markdown before. README of GitHub repositories are mostly written in Markdown.
+While developing web applications, there will be static pages such as about page and FAQ page. Most of the time, we have to write it in HTML, which can be unpleasant.</description>
+    </item>
+    
+    <item>
+      <title>Using Ruby next in map</title>
+      <link>https://kaiwern.com/posts/2018/03/28/using-ruby-next-in-map/</link>
+      <pubDate>Wed, 28 Mar 2018 22:43:41 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2018/03/28/using-ruby-next-in-map/</guid>
+      <description>While I was refactoring the code base of my client application, I came accross a code block, similar to this:
+arr = [] data.each do |d| status = d[&amp;#39;status&amp;#39;] next if IGNORED_STATUS.include? status arr &amp;lt;&amp;lt; d[&amp;#39;value&amp;#39;] end I think, &amp;ldquo;Ha, I can replace each with map here.&amp;rdquo;
+I go ahead, and make the changes.</description>
+    </item>
+    
+    <item>
+      <title>Ruby fetch</title>
+      <link>https://kaiwern.com/posts/2017/11/04/ruby-fetch/</link>
+      <pubDate>Sat, 04 Nov 2017 22:43:41 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2017/11/04/ruby-fetch/</guid>
+      <description>Today, when I am refactoring a CLI I wrote, I came across a code block where I check whether an index exists in an array (turns out I don&amp;rsquo;t actually need it, I can just access the array and check if the value is nil). I went to search of Ruby Array documentation to see if such method exists.</description>
+    </item>
+    
+    <item>
+      <title>Ruby .() notation</title>
+      <link>https://kaiwern.com/posts/2017/10/15/ruby-.-notation/</link>
+      <pubDate>Sun, 15 Oct 2017 18:12:19 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2017/10/15/ruby-.-notation/</guid>
+      <description>In Ruby, .() is a syntatic sugar for call method.
+class Person def call &amp;#34;Hello World&amp;#34; end end Person.new.() #=&amp;gt; Hello World In this example, we declare a Person class and call method in the class. With this, we can later execute Person.new.() to call the call method.
+Note that, we need to initialize the Person object first by calling new, since the call is a instance method.</description>
+    </item>
+    
+  </channel>
+</rss>

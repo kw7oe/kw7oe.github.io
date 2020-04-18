@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>
+Minimal Elixir Web Application with Plug and Cowboy | kw7oe
+</title>
+
+
+
+<meta name="generator" content="Hugo 0.58.3" />
+
+
+    
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.26b12c72e680761460a41924b81ac7f97d74490d2fe51c2d09e7ee7e0947f400.css" integrity="sha256-JrEscuaAdhRgpBkkuBrH&#43;X10SQ0v5RwtCefufglH9AA=">
+
+
+
+
+<link rel="stylesheet" href="https://kaiwern.com/css/syntax.min.css">
+
+<body class="flex flex-col min-h-screen px-4 max-w-screen-md md:w-2/3 m-auto"><nav class="mt-8">
+  <ul id="nav-menu" class="w-full flex items-center list-reset">
+    
+    <li>
+      <a href="https://kaiwern.com/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Home</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/about/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">About</a>
+    </li>
+    
+
+    
+    
+    <li>
+      <a href="https://kaiwern.com/categories/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Categories</a>
+    </li>
+    
+    
+    
+    <li>
+      <a href="https://kaiwern.com/tags/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Tags</a>
+    </li>
+    
+    
+  </ul>
+</nav>
+<main class="flex-1 mt-4 sm:mt-12">
+<header class="mb-8">
+  <h1 class="title">Minimal Elixir Web Application with Plug and Cowboy</h1>
+  <p class="text-sm font-gray-700 mb-4">Oct 14, 2018</p>
+   
+  <div id="tags">
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/elixir/">elixir</a>
+    </span>
+    
+    
+  </div>
+</header>
+
+<article class="markdown mb-8 text-gray-800">
+  
+
+  
+
+<p>It is interesting to learn things from scratch. Coming from Ruby
+background, I was curious what is the equivalent of Sinatra in
+Elixir. It&rsquo;s called Plug. It is what Phoenix build on top of.</p>
+
+<p>Using Sinatra, we can write a quick and simple web server with the following
+code:</p>
+<div class="highlight"><pre class="chroma"><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">&#39;sinatra&#39;</span>
+<span class="nb">require</span> <span class="s1">&#39;json&#39;</span>
+
+<span class="n">get</span> <span class="s1">&#39;/&#39;</span> <span class="k">do</span>
+  <span class="n">content_type</span> <span class="ss">:json</span>
+  <span class="no">JSON</span><span class="p">({</span><span class="ss">message</span><span class="p">:</span> <span class="s2">&#34;Hello World&#34;</span><span class="p">})</span>
+<span class="k">end</span></code></pre></div>
+<p>How can we achive that in Elixir? With <code>Plug</code> and <code>Cowboy</code>.</p>
+
+<h2 id="setup">Setup</h2>
+
+<p><em><strong>NOTE</strong>: This article is based on Elixir v1.7.3</em></p>
+
+<p>First of all, let&rsquo;s create a <code>mix</code> project and change directory into it.</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">mix new sample_app
+<span class="nb">cd</span> sample_app</code></pre></div>
+<p>Open <code>mix.exs</code> file with your favourite editor. And add the dependencies as
+follow:</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">defp</span> <span class="n">deps</span> <span class="n">do</span>
+  <span class="p">[</span>
+    <span class="p">{</span><span class="ss">:cowboy</span><span class="p">,</span> <span class="s2">&#34;~&gt; 2.0&#34;</span><span class="p">},</span>
+    <span class="p">{</span><span class="ss">:plug</span><span class="p">,</span> <span class="s2">&#34;~&gt; 1.0&#34;</span><span class="p">}</span>
+    <span class="c1"># {:dep_from_hexpm, &#34;~&gt; 0.3.0&#34;},</span>
+    <span class="c1"># {:dep_from_git, git: &#34;https://github.com/elixir-lang/my_dep.git&#34;, tag: &#34;0.1.0&#34;},</span>
+  <span class="p">]</span>
+<span class="n">end</span></code></pre></div>
+<p>We add <code>Plug</code> and <code>Cowboy</code> as dependencies because <code>Cowboy</code> act as a web server and
+<code>Plug</code> on the other hand, act as a connection adapter to the web server.</p>
+
+<p>Before we proceed, let&rsquo;s get all the dependencies first by running the
+following command:</p>
+
+<pre><code>mix deps.get
+</code></pre>
+
+<h2 id="using-plug">Using Plug</h2>
+
+<p><code>Plug</code> can be complicated if we don&rsquo;t understand it. The
+best way to understand it, is to, read the <a href="https://github.com/elixir-plug/plug#hello-world">documentation</a> <em>(In fact, all the
+steps mentioned above and below are already available in the documentation)</em>.</p>
+
+<p>So to get a taste of how <code>Plug</code> works, let&rsquo;s just copy and paste the code from
+the documentation and make some changes. Let&rsquo;s create <code>lib/my_plug.ex</code> and
+and add in the code.</p>
+
+<pre><code>touch lib/my_plug.ex
+</code></pre>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">defmodule</span> <span class="nc">SampleApp.MyPlug</span> <span class="n">do</span>
+  <span class="n">import</span> <span class="nc">Plug.Conn</span>
+
+  <span class="n">def</span> <span class="n">init</span><span class="p">(</span><span class="n">options</span><span class="p">)</span> <span class="n">do</span>
+    <span class="c1"># initialize options</span>
+
+    <span class="n">options</span>
+  <span class="n">end</span>
+
+  <span class="n">def</span> <span class="n">call</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">_opts</span><span class="p">)</span> <span class="n">do</span>
+    <span class="n">conn</span>
+    <span class="o">|&gt;</span> <span class="n">put_resp_content_type</span><span class="p">(</span><span class="s2">&#34;text/plain&#34;</span><span class="p">)</span>
+    <span class="o">|&gt;</span> <span class="n">send_resp</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="s2">&#34;Hello world&#34;</span><span class="p">)</span>
+  <span class="n">end</span>
+<span class="n">end</span></code></pre></div>
+<p>Let&rsquo;s try to run the code.</p>
+
+<pre><code>iex -S mix
+
+iex(1)&gt; {:ok, _} = Plug.Adapters.Cowboy2.http SampleApp.MyPlug, []
+</code></pre>
+
+<p>Now let&rsquo;s go and visit <a href="http://localhost:4000" target="_blank"><a href="http://localhost:4000">http://localhost:4000</a></a>.
+You should be able to see a &ldquo;Hello World&rdquo; on your browser.
+We just start the <code>cowboy</code> web server in <code>iex</code>, by passing it our <code>Plug</code> and <code>[]</code>
+empty arguments.</p>
+
+<h2 id="that-s-all">That&rsquo;s all</h2>
+
+<p>Yes, you have wrote a simple web server using Elixir.</p>
+
+<p><em>Wait, wait, but how can I run my server through command line? I have to run
+<code>iex -S mix</code> and start the <code>Cowboy</code> server manually every time?</em></p>
+
+<p><strong>Nope.</strong> We can make it an OTP application. So that we just need to run <code>mix run --no-halt</code> or <code>iex -S mix</code> and the <code>cowboy</code> server will boot up itself.</p>
+
+<h2 id="basic-of-otp-application">Basic of OTP Application</h2>
+
+<p>OTP application is basically a component that has predefined behaviour. It can
+be started, loaded or stopped. To create an OTP application in Elixir, we
+use the <code>Application</code> module and implements some of the expected behavior. For
+more you can always refer to the documentation of <a href="https://hexdocs.pm/elixir/Application.html">Application</a>.</p>
+
+<p>So let&rsquo;s create a simple application first.</p>
+
+<pre><code>touch lib/app.ex
+</code></pre>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">defmodule</span> <span class="nc">SampleApp.App</span> <span class="n">do</span>
+  <span class="n">use</span> <span class="nc">Application</span>
+  <span class="n">def</span> <span class="n">start</span><span class="p">(</span><span class="n">_type</span><span class="p">,</span> <span class="n">_args</span><span class="p">)</span> <span class="n">do</span>
+    <span class="nc">IO</span><span class="o">.</span><span class="n">puts</span> <span class="s2">&#34;Starting application&#34;</span>
+    <span class="n">children</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="nc">Supervisor</span><span class="o">.</span><span class="n">start_link</span><span class="p">(</span><span class="n">children</span><span class="p">,</span> <span class="ss">strategy</span><span class="p">:</span> <span class="ss">:one_for_one</span><span class="p">)</span>
+  <span class="n">end</span>
+<span class="n">end</span></code></pre></div>
+<p>Now if you run <code>mix run --no-halt</code>, you still won&rsquo;t see the &ldquo;Starting
+application&rdquo; output yet. This is because we haven&rsquo;t configure our <code>mix.exs</code>
+yet.</p>
+
+<p>To make <code>mix</code> run our application, we have to add the following code into
+<code>mix.exs</code>:</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">def</span> <span class="n">application</span> <span class="n">do</span>
+  <span class="p">[</span>
+    <span class="ss">extra_applications</span><span class="p">:</span> <span class="p">[</span><span class="ss">:logger</span><span class="p">],</span>
+    <span class="ss">mod</span><span class="p">:</span> <span class="p">{</span><span class="nc">SampleApp.App</span><span class="p">,</span> <span class="p">[]}</span> <span class="c1"># Add in this line of code</span>
+  <span class="p">]</span>
+<span class="n">end</span></code></pre></div>
+<p>Now, if we run <code>mix run --no-halt</code>, we can finally see the &ldquo;Starting
+application&hellip;&rdquo; output. It also means we have sucessfully start an OTP
+application.</p>
+
+<h2 id="starting-cowboy-server-automatically">Starting Cowboy Server automatically</h2>
+
+<p>Remember how we run our <code>cowboy</code> server in <code>iex</code>?</p>
+
+<pre><code>iex -S mix
+
+iex(1)&gt; {:ok, _} = Plug.Adapters.Cowboy2.http SampleApp.MyPlug, []
+</code></pre>
+
+<p>Now after knowing how to start our OTP application with <code>mix run --no-halt</code> or
+<code>iex -S mix</code>, we need to start our <code>cowboy</code> server after our application is
+started.</p>
+
+<p>To do this, we need to modify the <code>start/2</code> method in the <code>app.ex</code>.</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">def</span> <span class="n">start</span><span class="p">(</span><span class="n">_type</span><span class="p">,</span> <span class="n">_args</span><span class="p">)</span> <span class="n">do</span>
+  <span class="n">children</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># Define workers and child supervisors to be supervised</span>
+    <span class="nc">Plug.Adapters.Cowboy2</span><span class="o">.</span><span class="n">child_spec</span><span class="p">(</span><span class="ss">scheme</span><span class="p">:</span> <span class="ss">:http</span><span class="p">,</span> <span class="ss">plug</span><span class="p">:</span> <span class="nc">SampleApp.MyPlug</span><span class="p">,</span> <span class="ss">options</span><span class="p">:</span> <span class="p">[</span><span class="ss">port</span><span class="p">:</span> <span class="mi">4000</span><span class="p">])</span>
+  <span class="p">]</span>
+
+  <span class="nc">Supervisor</span><span class="o">.</span><span class="n">start_link</span><span class="p">(</span><span class="n">children</span><span class="p">,</span> <span class="ss">strategy</span><span class="p">:</span> <span class="ss">:one_for_one</span><span class="p">)</span>
+<span class="n">end</span></code></pre></div>
+<p>What we are doing here is to specify the child spec of the child process, which
+is our <code>cowboy</code>. A child specification basically tell the supervisor how to
+start, restart or shutdown the child process. The above code is also mentioned
+in the documentation of Plug under <a href="https://hexdocs.pm/plug/readme.html#supervised-handlers">Supervised handlers</a>.</p>
+
+<p>Now, if we run the <code>mix run --no-halt</code>, and visit <a
+href="http://localhost:4000" target="_blank"><a href="http://localhost:4000">http://localhost:4000</a></a>.</p>
+
+<p>Our web application is now online.</p>
+
+<h2 id="summary">Summary</h2>
+
+<p>If you&rsquo;re a beginner to OTP or Elixir, there are a lots of stuff underneath
+that I didn&rsquo;t cover well. This is my first blog post on Elixir. It might be lacking.
+So here are some other resources you can refer to:</p>
+
+<ul>
+<li><a href="https://elixirschool.com/en/lessons/specifics/plug/">Elixir School Plug</a><a href="#one"><sup>1</sup></a></li>
+<li><a href="https://hexdocs.pm/plug/readme.html">Plug documentation</a></li>
+<li><a href="https://hexdocs.pm/elixir/Application.html">Application documentation</a></li>
+<li><a href="https://hexdocs.pm/elixir/Supervisor.html">Supervisor documentation</a></li>
+</ul>
+
+<p><em>The source code of the project is available at <a href="https://github.com/kw7oe/plug_sample_app">GitHub</a>.</em></p>
+
+<hr />
+
+<p><strong>Footnote</strong></p>
+
+<ol>
+<li><small id="one">To be honest, <strong>Elixir School does a better job in explaining this topic</strong>.
+The way I&rsquo;m writing is based on how my thought process flow, so it might be
+different and unstructured. This post also covers less topics about using
+Plug compared to Elixir School.
+</small></li>
+</ol>
+
+</article>
+
+    </main><footer class="w-full text-center border-t border-gray-200 p-4 pin-b text-xs text-gray-400">
+    <p>made with <a href="https://gohugo.io" class="underline hover:text-blue-400">Hugo</a> and <a href="https://tailwindcss.com" class="underline hover:text-blue-400">TailwindCSS</a></p>
+</footer></body>
+</html>

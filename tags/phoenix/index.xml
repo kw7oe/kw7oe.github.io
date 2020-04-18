@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>phoenix on kw7oe</title>
+    <link>https://kaiwern.com/tags/phoenix/</link>
+    <description>Recent content in phoenix on kw7oe</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 03 Jun 2019 18:04:00 +0800</lastBuildDate>
+    
+	<atom:link href="https://kaiwern.com/tags/phoenix/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Using Tesseract OCR in Elixir/Phoenix</title>
+      <link>https://kaiwern.com/posts/2019/06/03/using-tesseract-ocr-in-elixir/phoenix/</link>
+      <pubDate>Mon, 03 Jun 2019 18:04:00 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2019/06/03/using-tesseract-ocr-in-elixir/phoenix/</guid>
+      <description>Lately, I am exploring the use of OCR in Expendere (my expense tracking application) and came across Tesseract OCR.
+At the time of writing this blog post, there is no native binding of Tesseract OCR in Elixir. However, there are two Elixir wrapper available on GitHub:
+ tesseract-ocr-elixir tesseract-elixir  Both wrapper use System.</description>
+    </item>
+    
+    <item>
+      <title>Send temporary file in Phoenix</title>
+      <link>https://kaiwern.com/posts/2019/05/28/send-temporary-file-in-phoenix/</link>
+      <pubDate>Tue, 28 May 2019 20:59:00 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2019/05/28/send-temporary-file-in-phoenix/</guid>
+      <description>TLDR: Use Phoenix.Controller.send_download/3 to send binary as download to your users.
+In Phoenix, there are a couple ways of to send file to your users. The most straightforward one is to programmatically create a file and send it to user using Plug.Conn.send_file/5.
+For example:
+def export(conn, _params) do # Create file filename = &amp;#34;test.</description>
+    </item>
+    
+  </channel>
+</rss>

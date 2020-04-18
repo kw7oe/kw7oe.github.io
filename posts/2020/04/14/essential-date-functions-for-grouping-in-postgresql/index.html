@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>
+Essential Date Functions for Grouping in PostgreSQL | kw7oe
+</title>
+
+
+
+<meta name="generator" content="Hugo 0.58.3" />
+
+
+    
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.26b12c72e680761460a41924b81ac7f97d74490d2fe51c2d09e7ee7e0947f400.css" integrity="sha256-JrEscuaAdhRgpBkkuBrH&#43;X10SQ0v5RwtCefufglH9AA=">
+
+
+
+
+<link rel="stylesheet" href="https://kaiwern.com/css/syntax.min.css">
+
+<body class="flex flex-col min-h-screen px-4 max-w-screen-md md:w-2/3 m-auto"><nav class="mt-8">
+  <ul id="nav-menu" class="w-full flex items-center list-reset">
+    
+    <li>
+      <a href="https://kaiwern.com/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Home</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/about/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">About</a>
+    </li>
+    
+
+    
+    
+    <li>
+      <a href="https://kaiwern.com/categories/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Categories</a>
+    </li>
+    
+    
+    
+    <li>
+      <a href="https://kaiwern.com/tags/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Tags</a>
+    </li>
+    
+    
+  </ul>
+</nav>
+<main class="flex-1 mt-4 sm:mt-12">
+<header class="mb-8">
+  <h1 class="title">Essential Date Functions for Grouping in PostgreSQL</h1>
+  <p class="text-sm font-gray-700 mb-4">Apr 14, 2020</p>
+   
+  <div id="tags">
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/postgresql/">postgresql</a>
+    </span>
+    
+    
+  </div>
+</header>
+
+<article class="markdown mb-8 text-gray-800">
+  
+
+  
+
+<p>The past months, I have been working on a feature which
+deal with grouping records by date and summing up values.</p>
+
+<p>I have learn a couple of date functions in PostgreSQL that are very useful when
+it comes to grouping records together based on datetime column.</p>
+
+<p>In this post, we will go through a bit of the context of the feature I work on,
+and we will walk through the process of implementing it. Along the way, I&rsquo;ll
+share the date function I learned.</p>
+
+<h2 id="context">Context</h2>
+
+<p>A bit of context on the feature I worked on. We are building a steps counter
+feature into our mobile, integrating Apple Health and Google Fit. The data
+provided by Apple Health is especially interesting as they provide the steps
+dataset in an hourly interval.</p>
+
+<p>So on the database, we will have a <code>steps</code> table as follow:</p>
+
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>id</td>
+<td>int</td>
+</tr>
+
+<tr>
+<td>count</td>
+<td>int</td>
+</tr>
+
+<tr>
+<td>started_at</td>
+<td>timestamp with time zone</td>
+</tr>
+
+<tr>
+<td>ended_at</td>
+<td>timestamp with time zone</td>
+</tr>
+
+<tr>
+<td>user_id</td>
+<td>int</td>
+</tr>
+</tbody>
+</table>
+
+<p>And this is how the records will looks like:</p>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>id</td>
+<td>1</td>
+</tr>
+
+<tr>
+<td>count</td>
+<td>34</td>
+</tr>
+
+<tr>
+<td>started_at</td>
+<td>2020-02-26 13:00:00+08</td>
+</tr>
+
+<tr>
+<td>ended_at</td>
+<td>2020-02-26 14:00:00+08</td>
+</tr>
+
+<tr>
+<td>user_id</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>id</td>
+<td>2</td>
+</tr>
+
+<tr>
+<td>count</td>
+<td>319</td>
+</tr>
+
+<tr>
+<td>started_at</td>
+<td>2020-02-26 12:00:00+08</td>
+</tr>
+
+<tr>
+<td>ended_at</td>
+<td>2020-02-26 13:00:00+08</td>
+</tr>
+
+<tr>
+<td>user_id</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+
+<p>We then have a endpoint which provide aggregated data of users
+steps count for a specific date range <em>(this week/month, previous week/month
+and etc)</em>. So basically, to implement the feature we need to:</p>
+
+<ul>
+<li>Group users steps by date range <em>(week, month, year)</em>.</li>
+<li>Sum up users <code>steps.count</code> after grouping.</li>
+<li>Populate labels according to provided date range.
+
+<ul>
+<li>When range is week, the labels should indicate <code>Sun..Sat</code></li>
+<li>When range is month, the labels should indicate <code>1..31</code></li>
+<li>When range is year, the labels should indecate <code>Jan..Dec</code>.</li>
+</ul></li>
+</ul>
+
+<p>Since we are storing the timestamp as <code>UTC</code> and our users are using <code>GMT +8</code>
+timezone, we will also need to consider the timezone while querying the data.
+But for the simplicity of this post, I&rsquo;ll skip that part, since dealing with
+different timezone can be a post for another day.</p>
+
+<h2 id="let-the-lesson-begins">Let the lesson begins</h2>
+
+<p>Okay, enough of boring context. By implementing the feature above, we are going
+to learn the following date functions in PostgreSQL:</p>
+
+<ul>
+<li>Truncate date with <code>date_trunc</code></li>
+<li>Extract date parts, such as weekday, month and year with <code>date_part</code>.</li>
+<li>Format date with <code>to_char</code></li>
+</ul>
+
+<h3 id="setup">Setup</h3>
+
+<p>For those who want to get their hands dirty, you can run the following scripts
+to setup your database environment to play around with as you go through the
+article:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ createdb step_db
+$ psql step_db</code></pre></div>
+<p>Then, copy and paste the following SQL statement into your <code>psql</code> console.</p>
+
+<ol>
+<li><p>Create <code>steps</code> table.</p>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="s2">&#34;steps&#34;</span> <span class="p">(</span>
+<span class="s2">&#34;id&#34;</span> <span class="nb">SERIAL</span><span class="p">,</span>
+<span class="s2">&#34;count&#34;</span> <span class="nb">integer</span><span class="p">,</span>
+<span class="s2">&#34;start_at&#34;</span> <span class="n">timestamptz</span><span class="p">,</span>
+<span class="s2">&#34;end_at&#34;</span> <span class="n">timestamptz</span><span class="p">,</span>
+<span class="s2">&#34;user_id&#34;</span> <span class="nb">integer</span><span class="p">,</span>
+<span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="s2">&#34;id&#34;</span><span class="p">));</span></code></pre></div></li>
+
+<li><p>Insert data from <code>2020-01-01</code> to <code>2020-01-07</code> at UTC.</p>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">INSERT</span> <span class="k">INTO</span> <span class="s2">&#34;steps&#34;</span> <span class="p">(</span><span class="k">count</span><span class="p">,</span> <span class="n">start_at</span><span class="p">,</span> <span class="n">end_at</span><span class="p">,</span> <span class="n">user_id</span><span class="p">)</span>
+<span class="k">SELECT</span> <span class="n">floor</span><span class="p">(</span><span class="n">random</span><span class="p">()</span> <span class="o">*</span> <span class="mi">50</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)::</span><span class="nb">int</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">d</span> <span class="o">+</span> <span class="nb">interval</span> <span class="s1">&#39;59 minutes 59 seconds&#39;</span><span class="p">,</span> <span class="mi">1</span>
+<span class="k">FROM</span> <span class="n">generate_series</span><span class="p">(</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">::</span><span class="n">timestamptz</span><span class="p">,</span>
+                     <span class="s1">&#39;2020-01-07 00:00:00&#39;</span><span class="p">::</span><span class="n">timestamptz</span><span class="p">,</span>
+                     <span class="nb">interval</span> <span class="s1">&#39;1 hour&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">d</span><span class="p">;</span></code></pre></div></li>
+</ol>
+
+<p>Do change the series date range if you want to generate more data.</p>
+
+<h3 id="grouping-records-by-day-with-date-trunc">Grouping records by day with <code>date_trunc</code></h3>
+
+<p>Since, our steps value are inserted as hourly instead of daily. We need to
+write a query to group the steps count by the date and sum it up. So ideally, the
+result should return something like:</p>
+
+<table>
+<thead>
+<tr>
+<th>total_count</th>
+<th>date</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>3423</td>
+<td>2020-01-01</td>
+</tr>
+
+<tr>
+<td>4523</td>
+<td>2020-01-02</td>
+</tr>
+</tbody>
+</table>
+
+<p>At the very first sight, you might thought we could do something like this and it&rsquo;s
+done:</p>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span> <span class="k">sum</span><span class="p">(</span><span class="k">count</span><span class="p">)</span> <span class="k">as</span> <span class="n">total_count</span><span class="p">,</span> <span class="n">start_at</span> <span class="k">as</span> <span class="nb">date</span>
+<span class="k">FROM</span> <span class="n">steps</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">start_at</span>
+<span class="k">ORDER</span> <span class="k">BY</span> <span class="n">start_at</span><span class="p">;</span></code></pre></div>
+<p>But then, after running this query, it will actually return something like this:</p>
+
+<table>
+<thead>
+<tr>
+<th>total_count</th>
+<th>date </th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>31</td>
+<td>2020-01-01 00:00:00+00</td>
+</tr>
+
+<tr>
+<td>17</td>
+<td>2020-01-01 01:00:00+00</td>
+</tr>
+
+<tr>
+<td>31</td>
+<td>2020-01-01 02:00:00+00</td>
+</tr>
+</tbody>
+</table>
+
+<p>The initial query we wrote, its grouping by datetime instead of date. To achieve
+what we want, we need to group by just the date of the row.</p>
+
+<p>To do that, We can use <code>date_trunc</code> function in PostgreSQL to truncate a timestamp
+up to part of the timestamp like <code>day</code>, <code>month</code>, <code>hour</code>, and etc <em>(For the full
+options, refer <a href="https://www.postgresql.org/docs/9.1/functions-datetime.html#FUNCTIONS-DATETIME-EXTRACT">here</a>)</em>.</p>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span> <span class="k">sum</span><span class="p">(</span><span class="k">count</span><span class="p">)</span> <span class="k">as</span> <span class="n">total_count</span><span class="p">,</span> <span class="n">date_trunc</span><span class="p">(</span><span class="s1">&#39;day&#39;</span><span class="p">,</span> <span class="n">start_at</span><span class="p">)</span> <span class="k">as</span> <span class="nb">date</span>
+<span class="k">FROM</span> <span class="n">steps</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">date_trunc</span><span class="p">(</span><span class="s1">&#39;day&#39;</span><span class="p">,</span> <span class="n">start_at</span><span class="p">)</span>
+<span class="k">ORDER</span> <span class="k">BY</span> <span class="n">date_trunc</span><span class="p">(</span><span class="s1">&#39;day&#39;</span><span class="p">,</span> <span class="n">start_at</span><span class="p">);</span></code></pre></div>
+<p>which will return:</p>
+
+<table>
+<thead>
+<tr>
+<th>total_count</th>
+<th>date</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>544</td>
+<td>2020-01-01 00:00:00+00</td>
+</tr>
+
+<tr>
+<td>712</td>
+<td>2020-01-02 00:00:00+00</td>
+</tr>
+</tbody>
+</table>
+
+<p>Close enough to what we want, but how do we remove the time
+component of the timestamp when SQL return the result? We can format it.</p>
+
+<h3 id="format-date">Format Date</h3>
+
+<p>Now we have the query for grouping the rows by date and get the sum of the
+steps count. The next step is to learn how we can format the timestamp. In
+PostgreSQL, there is a <code>to_char</code> formatting function that can convert various
+data type to formatted string. And it works on timestamp also.</p>
+
+<p>For example, we can use:</p>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span> <span class="n">to_char</span><span class="p">(</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">::</span><span class="n">timestamptz</span><span class="p">,</span> <span class="s1">&#39;YYYY-MM-DD&#39;</span><span class="p">);</span>
+<span class="c1">-- =&gt;  to_char
+</span><span class="c1">--     ------------
+</span><span class="c1">--     2020-01-01</span></code></pre></div>
+<p>to format the timestamp to return just it&rsquo;s date component. Now, we can update
+our previous SQL query to use it:</p>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span> <span class="k">sum</span><span class="p">(</span><span class="k">count</span><span class="p">)</span> <span class="k">as</span> <span class="n">total_count</span><span class="p">,</span> <span class="n">to_char</span><span class="p">(</span><span class="n">start_at</span><span class="p">,</span> <span class="s1">&#39;YYYY-MM-DD&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="nb">date</span>
+<span class="k">FROM</span> <span class="n">steps</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">to_char</span><span class="p">(</span><span class="n">start_at</span><span class="p">,</span> <span class="s1">&#39;YYYY-MM-DD&#39;</span><span class="p">)</span>
+<span class="k">ORDER</span> <span class="k">BY</span> <span class="n">to_char</span><span class="p">(</span><span class="n">start_at</span><span class="p">,</span> <span class="s1">&#39;YYYY-MM-DD&#39;</span><span class="p">);</span></code></pre></div>
+<p>which return this result, exactly what we wanted:</p>
+
+<table>
+<thead>
+<tr>
+<th>total_count</th>
+<th>date</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>544</td>
+<td>2020-01-01</td>
+</tr>
+
+<tr>
+<td>712</td>
+<td>2020-01-02</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="extract-date-part">Extract date part</h3>
+
+<p>So, let&rsquo;s say we wanted to show the label of the count in the format of
+weekdays if the results show is in the week range <em>(from Monday to Sunday)</em>. We
+could also achieve it with <code>to_char</code> like this:</p>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span> <span class="k">sum</span><span class="p">(</span><span class="k">count</span><span class="p">)</span> <span class="k">as</span> <span class="n">total_count</span><span class="p">,</span>
+  <span class="n">to_char</span><span class="p">(</span><span class="n">start_at</span><span class="p">,</span> <span class="s1">&#39;YYYY-MM-DD&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="nb">date</span><span class="p">,</span>
+  <span class="n">to_char</span><span class="p">(</span><span class="n">start_at</span><span class="p">,</span> <span class="s1">&#39;Dy&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">label</span>
+<span class="k">FROM</span> <span class="n">steps</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">to_char</span><span class="p">(</span><span class="n">start_at</span><span class="p">,</span> <span class="s1">&#39;YYYY-MM-DD&#39;</span><span class="p">),</span> <span class="n">to_char</span><span class="p">(</span><span class="n">start_at</span><span class="p">,</span> <span class="s1">&#39;Dy&#39;</span><span class="p">)</span>
+<span class="k">ORDER</span> <span class="k">BY</span> <span class="n">to_char</span><span class="p">(</span><span class="n">start_at</span><span class="p">,</span> <span class="s1">&#39;YYYY-MM-DD&#39;</span><span class="p">);</span></code></pre></div>
+<p>We need to add the formating to the <code>GROUP BY</code> also since we are selecting it.
+With this, the result will be as follow:</p>
+
+<table>
+<thead>
+<tr>
+<th>total_count</th>
+<th>date</th>
+<th>label</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>544</td>
+<td>2020-01-01</td>
+<td>Wed</td>
+</tr>
+
+<tr>
+<td>712</td>
+<td>2020-01-02</td>
+<td>Thu</td>
+</tr>
+</tbody>
+</table>
+
+<p>We are using the template patterns of <code>Dy</code> here which formatted the date to the
+day name such as Mon, Tue, Wed <em>(For the full list of patterns available, refer
+to the <a href="https://www.postgresql.org/docs/9.1/functions-formatting.html#FUNCTIONS-FORMATTING-DATETIME-TABLE">here</a>)</em>.</p>
+
+<p>But, be aware of this approach when we use <code>ORDER BY</code> with <code>to_char</code> that return alphabet
+instead of integer in string. For example, let say we want to group by month and
+sum the steps count, we might do something like this:</p>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span> <span class="k">sum</span><span class="p">(</span><span class="k">count</span><span class="p">)</span> <span class="k">as</span> <span class="n">total_count</span><span class="p">,</span>
+  <span class="n">to_char</span><span class="p">(</span><span class="n">start_at</span><span class="p">,</span> <span class="s1">&#39;YYYY-MM&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="nb">date</span><span class="p">,</span>
+  <span class="c1">--- &#39;Mon&#39; template pattern  will format 2020-01-01 to &#39;Jan&#39;
+</span><span class="c1"></span>  <span class="n">to_char</span><span class="p">(</span><span class="n">start_at</span><span class="p">,</span> <span class="s1">&#39;Mon&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">label</span>
+<span class="k">FROM</span> <span class="n">steps</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">to_char</span><span class="p">(</span><span class="n">start_at</span><span class="p">,</span> <span class="s1">&#39;YYYY-MM&#39;</span><span class="p">),</span> <span class="n">to_char</span><span class="p">(</span><span class="n">start_at</span><span class="p">,</span> <span class="s1">&#39;Mon&#39;</span><span class="p">)</span>
+<span class="k">ORDER</span> <span class="k">BY</span> <span class="n">to_char</span><span class="p">(</span><span class="n">start_at</span><span class="p">,</span> <span class="s1">&#39;Mon&#39;</span><span class="p">);</span></code></pre></div>
+<p>This will not return the order of rows from Jan to Dec, instead it would look
+something like this:</p>
+
+<table>
+<thead>
+<tr>
+<th>total_count</th>
+<th>date</th>
+<th>label</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>17936</td>
+<td>2020-04</td>
+<td>Apr</td>
+</tr>
+
+<tr>
+<td>19160</td>
+<td>2020-08</td>
+<td>Aug</td>
+</tr>
+
+<tr>
+<td>3921</td>
+<td>2020-12</td>
+<td>Dec</td>
+</tr>
+
+<tr>
+<td>17714</td>
+<td>2020-02</td>
+<td>Feb</td>
+</tr>
+</tbody>
+</table>
+
+<p>where the label is sorted <strong>alphabetically</strong> since the column type is string.</p>
+
+<p>One way to prevent this from happening is used the approach shown above, where we
+<code>ORDER BY to_char(start_at, 'YYYY-MM')</code> instead, since the value formatted is
+integer in string, it will still be sorted as expected.</p>
+
+<p>The other approach would be using <code>date_part</code> to extract part of the timestamp
+instead of <code>to_char</code>. The difference between <code>date_part</code> from <code>to_char</code> is
+<code>date_part</code> always return number <em>(to be exact is <code>double precision</code>)</em> type.
+With <code>to_char</code> you have more options to format your date.</p>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span> <span class="k">sum</span><span class="p">(</span><span class="k">count</span><span class="p">)</span> <span class="k">as</span> <span class="n">total_count</span><span class="p">,</span>
+  <span class="n">to_char</span><span class="p">(</span><span class="n">start_at</span><span class="p">,</span> <span class="s1">&#39;YYYY-MM&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="nb">date</span><span class="p">,</span>
+  <span class="n">date_part</span><span class="p">(</span><span class="s1">&#39;month&#39;</span><span class="p">,</span> <span class="n">start_at</span><span class="p">)</span> <span class="k">as</span> <span class="n">label</span>
+<span class="k">FROM</span> <span class="n">steps</span>
+<span class="k">GROUP</span> <span class="k">BY</span> <span class="n">to_char</span><span class="p">(</span><span class="n">start_at</span><span class="p">,</span> <span class="s1">&#39;YYYY-MM&#39;</span><span class="p">),</span> <span class="n">date_part</span><span class="p">(</span><span class="s1">&#39;month&#39;</span><span class="p">,</span> <span class="n">start_at</span><span class="p">)</span>
+<span class="k">ORDER</span> <span class="k">BY</span> <span class="n">date_part</span><span class="p">(</span><span class="s1">&#39;month&#39;</span><span class="p">,</span> <span class="n">start_at</span><span class="p">);</span></code></pre></div>
+<p>which return:</p>
+
+<table>
+<thead>
+<tr>
+<th>total_count</th>
+<th>date</th>
+<th>label</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>18701</td>
+<td>2020-01</td>
+<td>1</td>
+</tr>
+
+<tr>
+<td>17714</td>
+<td>2020-02</td>
+<td>2</td>
+</tr>
+
+<tr>
+<td>19495</td>
+<td>2020-03</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="wrap-up">Wrap Up</h2>
+
+<p>Through the post, we have gone through the business requirement and
+implemented it iteratively using different date function in PostgreSQL. To sum
+up:</p>
+
+<ul>
+<li><code>date_trunc</code> to truncate date. It is useful when our data is stored in date
+time granularity and we want it to group by date/month/year.</li>
+<li><code>to_char</code> to format date. It is very powerful as we can also used it to
+extract part of the date, use it in grouping and etc. But, beware when you
+are using it in <code>ORDER BY</code> clause as it is sorted alpabetically.</li>
+<li><code>date_part</code> to extract part of the date. It is useful when we need to extract
+part of the date as integer. Perhaps, we want to use it for calculation or in
+<code>ORDER BY</code> clause.</li>
+</ul>
+
+<p>Utilizing these few function I have managed to implement aggregation of data
+for different period such as:</p>
+
+<ul>
+<li>Showing daily steps for the current/past week where labels are Mon, Tues, &hellip;,
+Sun</li>
+<li>Showing daily steps for the current/past month where labels are 1, 2, &hellip;, 31</li>
+<li>Showing monthly steps for the current/past year where labels are Jan, Feb,
+&hellip;, Dec</li>
+</ul>
+
+<p>There are probably more use cases of these date functions that I haven&rsquo;t come
+across yet. So, don&rsquo;t let this post limit your usage.</p>
+
+</article>
+
+    </main><footer class="w-full text-center border-t border-gray-200 p-4 pin-b text-xs text-gray-400">
+    <p>made with <a href="https://gohugo.io" class="underline hover:text-blue-400">Hugo</a> and <a href="https://tailwindcss.com" class="underline hover:text-blue-400">TailwindCSS</a></p>
+</footer></body>
+</html>

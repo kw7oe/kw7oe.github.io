@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>
+Ruby fetch | kw7oe
+</title>
+
+
+
+<meta name="generator" content="Hugo 0.58.3" />
+
+
+    
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.26b12c72e680761460a41924b81ac7f97d74490d2fe51c2d09e7ee7e0947f400.css" integrity="sha256-JrEscuaAdhRgpBkkuBrH&#43;X10SQ0v5RwtCefufglH9AA=">
+
+
+
+
+<link rel="stylesheet" href="https://kaiwern.com/css/syntax.min.css">
+
+<body class="flex flex-col min-h-screen px-4 max-w-screen-md md:w-2/3 m-auto"><nav class="mt-8">
+  <ul id="nav-menu" class="w-full flex items-center list-reset">
+    
+    <li>
+      <a href="https://kaiwern.com/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Home</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/about/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">About</a>
+    </li>
+    
+
+    
+    
+    <li>
+      <a href="https://kaiwern.com/categories/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Categories</a>
+    </li>
+    
+    
+    
+    <li>
+      <a href="https://kaiwern.com/tags/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Tags</a>
+    </li>
+    
+    
+  </ul>
+</nav>
+<main class="flex-1 mt-4 sm:mt-12">
+<header class="mb-8">
+  <h1 class="title">Ruby fetch</h1>
+  <p class="text-sm font-gray-700 mb-4">Nov 04, 2017</p>
+   
+  <div id="tags">
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/ruby/">ruby</a>
+    </span>
+    
+    
+  </div>
+</header>
+
+<article class="markdown mb-8 text-gray-800">
+  
+
+  
+
+<p>Today, when I am refactoring a CLI I wrote, I came across a code block where I check whether an index exists in an array <em>(turns out I don&rsquo;t actually need it, I can just access the array and check if the value is <code>nil</code>)</em>. I went to search of Ruby <code>Array</code> documentation to see if such method exists. Then, I came across <code>Array#fetch</code> while scrolling through the documetantion.</p>
+
+<h3 id="array-fetch">Array#fetch</h3>
+
+<p>In Ruby <code>Array</code>, <code>fetch</code> is a method that get the value at position <code>index</code> of an array. The difference between <code>fetch</code> and <code>.[]</code> is <code>fetch</code> throws an <code>IndexError</code> if the index doesn&rsquo;t exists.</p>
+<div class="highlight"><pre class="chroma"><code class="language-ruby" data-lang="ruby"><span class="n">array</span> <span class="o">=</span> <span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="o">]</span>
+<span class="n">array</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c1">#=&gt; 1</span>
+<span class="n">array</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="c1">#=&gt; IndexError: index 4 outside of array bounds: -3...3</span></code></pre></div>
+<p>If we take a look at the Ruby documentation of <a href="https://ruby-doc.org/core-2.4.0/Array.html#method-i-fetch">Array#fetch</a>, we&rsquo;ll see that <code>fetch</code> has the following definitions:</p>
+<div class="highlight"><pre class="chroma"><code class="language-ruby" data-lang="ruby"><span class="n">fetch</span><span class="p">(</span><span class="n">index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="no">Object</span>
+<span class="n">fetch</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="no">Object</span>
+<span class="n">fetch</span><span class="p">(</span><span class="n">index</span><span class="p">)</span> <span class="p">{</span> <span class="o">|</span><span class="n">index</span><span class="o">|</span> <span class="n">block</span> <span class="p">}</span> <span class="o">-&gt;</span> <span class="no">Object</span></code></pre></div>
+<p>Which means, we can also provide a default value as the result if the index isn&rsquo;t found. For example:</p>
+<div class="highlight"><pre class="chroma"><code class="language-ruby" data-lang="ruby"><span class="n">array</span> <span class="o">=</span> <span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="o">]</span>
+<span class="n">array</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="c1">#=&gt; 0</span></code></pre></div>
+<p>Or provide a block to be executed if the index is not found:</p>
+<div class="highlight"><pre class="chroma"><code class="language-ruby" data-lang="ruby"><span class="n">array</span> <span class="o">=</span> <span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="o">]</span>
+<span class="n">array</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="p">{</span> <span class="o">|</span><span class="n">index</span><span class="o">|</span> <span class="s2">&#34;The index &#39;</span><span class="si">#{</span><span class="n">index</span><span class="si">}</span><span class="s2">&#39; is not found&#34;</span> <span class="p">}</span>
+<span class="c1">#=&gt; &#34;The index &#39;4&#39; is not found&#34;</span></code></pre></div>
+<h3 id="possible-use-case">Possible Use Case</h3>
+
+<p><code>Array#fetch</code> can be used when we need to provide a default value if the index is not found.</p>
+<div class="highlight"><pre class="chroma"><code class="language-ruby" data-lang="ruby"><span class="n">users</span> <span class="o">=</span> <span class="o">[</span><span class="s1">&#39;Peter&#39;</span><span class="p">,</span> <span class="s1">&#39;Jane&#39;</span><span class="p">,</span> <span class="s1">&#39;John Wick&#39;</span><span class="o">]</span>
+<span class="nb">name</span> <span class="o">=</span> <span class="n">users</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;User not found&#39;</span><span class="p">)</span>
+
+<span class="nb">puts</span> <span class="nb">name</span>
+<span class="s2">&#34;User not found&#34;</span>
+<span class="c1">#=&gt; nil</span></code></pre></div>
+<p>For example, we have a method to allow to search other users <em>(which store in array)</em> and print out the name as a response. To handle the scenario where the user is not found, we can implement it by providing a default value with <code>Array#fetch</code>. No additional handling code is required.</p>
+
+<p>If you know the other possible use cases of <code>Array#fetch</code>, feel free to share it out.</p>
+
+</article>
+
+    </main><footer class="w-full text-center border-t border-gray-200 p-4 pin-b text-xs text-gray-400">
+    <p>made with <a href="https://gohugo.io" class="underline hover:text-blue-400">Hugo</a> and <a href="https://tailwindcss.com" class="underline hover:text-blue-400">TailwindCSS</a></p>
+</footer></body>
+</html>

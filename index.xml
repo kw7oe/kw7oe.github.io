@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Home on kw7oe</title>
+    <link>https://kaiwern.com/</link>
+    <description>Recent content in Home on kw7oe</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 15 May 2019 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://kaiwern.com/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Essential Date Functions for Grouping in PostgreSQL</title>
+      <link>https://kaiwern.com/posts/2020/04/14/essential-date-functions-for-grouping-in-postgresql/</link>
+      <pubDate>Tue, 14 Apr 2020 18:43:08 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2020/04/14/essential-date-functions-for-grouping-in-postgresql/</guid>
+      <description>The past months, I have been working on a feature which deal with grouping records by date and summing up values.
+I have learn a couple of date functions in PostgreSQL that are very useful when it comes to grouping records together based on datetime column.
+In this post, we will go through a bit of the context of the feature I work on, and we will walk through the process of implementing it.</description>
+    </item>
+    
+    <item>
+      <title>AWS EC2 Disk Space Full</title>
+      <link>https://kaiwern.com/posts/2020/03/16/aws-ec2-disk-space-full/</link>
+      <pubDate>Mon, 16 Mar 2020 20:59:55 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2020/03/16/aws-ec2-disk-space-full/</guid>
+      <description>The company I am currently working for, uses AWS infrastructure extensively. For instance, we build our Elixir/Phoenix application release on a seperate EC2 instance.
+Sometimes, if our engineers are unlucky, their build process will failed because of the lack of disk space in our build server.
+Having to deal with this issue a couple of time have taught me a few things.</description>
+    </item>
+    
+    <item>
+      <title>Ignoring file instead of folder with the same name in .gitignore</title>
+      <link>https://kaiwern.com/posts/2020/02/23/ignoring-file-instead-of-folder-with-the-same-name-in-.gitignore/</link>
+      <pubDate>Sun, 23 Feb 2020 17:30:54 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2020/02/23/ignoring-file-instead-of-folder-with-the-same-name-in-.gitignore/</guid>
+      <description>While migrating this website from Jekyll of Hugo, I faced an issue where my /tags resulting in a 404 Not Found after deployment. It turned out that /tags is ignored by git when I build my site.
+I then found out the following line in my ~/.gitignore_global:
+tags  This is the file that I ignore after start using ctags in vim.</description>
+    </item>
+    
+    <item>
+      <title>Using Tesseract OCR in Elixir/Phoenix</title>
+      <link>https://kaiwern.com/posts/2019/06/03/using-tesseract-ocr-in-elixir/phoenix/</link>
+      <pubDate>Mon, 03 Jun 2019 18:04:00 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2019/06/03/using-tesseract-ocr-in-elixir/phoenix/</guid>
+      <description>Lately, I am exploring the use of OCR in Expendere (my expense tracking application) and came across Tesseract OCR.
+At the time of writing this blog post, there is no native binding of Tesseract OCR in Elixir. However, there are two Elixir wrapper available on GitHub:
+ tesseract-ocr-elixir tesseract-elixir  Both wrapper use System.</description>
+    </item>
+    
+    <item>
+      <title>Send temporary file in Phoenix</title>
+      <link>https://kaiwern.com/posts/2019/05/28/send-temporary-file-in-phoenix/</link>
+      <pubDate>Tue, 28 May 2019 20:59:00 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2019/05/28/send-temporary-file-in-phoenix/</guid>
+      <description>TLDR: Use Phoenix.Controller.send_download/3 to send binary as download to your users.
+In Phoenix, there are a couple ways of to send file to your users. The most straightforward one is to programmatically create a file and send it to user using Plug.Conn.send_file/5.
+For example:
+def export(conn, _params) do # Create file filename = &amp;#34;test.</description>
+    </item>
+    
+    <item>
+      <title>About</title>
+      <link>https://kaiwern.com/about/</link>
+      <pubDate>Mon, 13 May 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://kaiwern.com/about/</guid>
+      <description>Hi, I am Kai Wern Choong, a software engineer at Naluri. I like to read, learn, code and cook. Welcome to my blog. Here I write about technology and life. Some of the technologies I used in my work and side projects are:
+ vim Elixir JavaScript React React Native Ruby  So, you can expect posts about these technologies from my blog.</description>
+    </item>
+    
+    <item>
+      <title>How I keep track of tasks for multiple side projects</title>
+      <link>https://kaiwern.com/posts/2019/03/31/how-i-keep-track-of-tasks-for-multiple-side-projects/</link>
+      <pubDate>Sun, 31 Mar 2019 20:51:00 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2019/03/31/how-i-keep-track-of-tasks-for-multiple-side-projects/</guid>
+      <description>If you are like me, having countless side projects and jumping from one to another from time to time, you might also experience ending up losing track of what you should do on each side projects.
+Keeping track of tasks in all of your side projects isn&amp;rsquo;t easy without using any project management software.</description>
+    </item>
+    
+    <item>
+      <title>TIL: Indexing `NULL` in Oracle Database</title>
+      <link>https://kaiwern.com/posts/2019/02/18/til-indexing-null-in-oracle-database/</link>
+      <pubDate>Mon, 18 Feb 2019 21:32:00 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2019/02/18/til-indexing-null-in-oracle-database/</guid>
+      <description>Oracle database does not index a row if all the indexed columns are NULL
+For instance, let say we have a users table where we index role column to improve the query performance.
+SELECT * from users WHERE role IS NULL The index does not work for such query in Oracle database.</description>
+    </item>
+    
+    <item>
+      <title>Advent of Code 2018: Day 1 Part 2, How I improve my solution by 34x faster</title>
+      <link>https://kaiwern.com/posts/2018/12/01/advent-of-code-2018-day-1-part-2-how-i-improve-my-solution-by-34x-faster/</link>
+      <pubDate>Sat, 01 Dec 2018 22:10:00 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2018/12/01/advent-of-code-2018-day-1-part-2-how-i-improve-my-solution-by-34x-faster/</guid>
+      <description>In the previous post, we had briefly discuss about the solution of Part 1. It is fairly straightforward. I thought Part 2 is going to be easy too. But man, I was wrong. It is a bit tricky.
+My initial solution takes around 17 seconds to compute the answer. I made it 34x faster by changing the data structure.</description>
+    </item>
+    
+    <item>
+      <title>Advent of Code 2018: Day 1 Part 1</title>
+      <link>https://kaiwern.com/posts/2018/12/01/advent-of-code-2018-day-1-part-1/</link>
+      <pubDate>Sat, 01 Dec 2018 21:47:00 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2018/12/01/advent-of-code-2018-day-1-part-1/</guid>
+      <description>Advent of Code (AOC) 2018 has finally arrived. This is the first time I participate in AOC. Last year, when I first heard of AOC, I wanted to participate in it. But due to heavy workload from university, I just give up on doing it.
+This year, it&amp;rsquo;s different, I had graduated and working remotely.</description>
+    </item>
+    
+    <item>
+      <title>Using Markdown for Static Pages in Rails</title>
+      <link>https://kaiwern.com/posts/2018/11/27/using-markdown-for-static-pages-in-rails/</link>
+      <pubDate>Tue, 27 Nov 2018 22:04:00 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2018/11/27/using-markdown-for-static-pages-in-rails/</guid>
+      <description>Markdown is great for formatting our writing to be publish as HTML. If you&amp;rsquo;re a developer, you probably used Markdown before. README of GitHub repositories are mostly written in Markdown.
+While developing web applications, there will be static pages such as about page and FAQ page. Most of the time, we have to write it in HTML, which can be unpleasant.</description>
+    </item>
+    
+    <item>
+      <title>Minimal Elixir Web Application with Plug and Cowboy</title>
+      <link>https://kaiwern.com/posts/2018/10/14/minimal-elixir-web-application-with-plug-and-cowboy/</link>
+      <pubDate>Sun, 14 Oct 2018 15:32:00 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2018/10/14/minimal-elixir-web-application-with-plug-and-cowboy/</guid>
+      <description>It is interesting to learn things from scratch. Coming from Ruby background, I was curious what is the equivalent of Sinatra in Elixir. It&amp;rsquo;s called Plug. It is what Phoenix build on top of.
+Using Sinatra, we can write a quick and simple web server with the following code:</description>
+    </item>
+    
+    <item>
+      <title>A note on`application` in mix.exs starting from Elixir 1.4</title>
+      <link>https://kaiwern.com/posts/2018/10/03/a-note-onapplication-in-mix.exs-starting-from-elixir-1.4/</link>
+      <pubDate>Wed, 03 Oct 2018 21:45:00 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2018/10/03/a-note-onapplication-in-mix.exs-starting-from-elixir-1.4/</guid>
+      <description>Starting from Elixir 1.4, we don&amp;rsquo;t need to specify our application lists in application. It is automatically inferred from our dependencies. (Check the release notes here)
+Do note that it only automatically infer the application lists if the :applications key is empty. If you had already declared your it in your mix.</description>
+    </item>
+    
+    <item>
+      <title>Using AWK to extract generated file from jekyll-compose</title>
+      <link>https://kaiwern.com/posts/2018/09/09/using-awk-to-extract-generated-file-from-jekyll-compose/</link>
+      <pubDate>Sun, 09 Sep 2018 22:25:00 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2018/09/09/using-awk-to-extract-generated-file-from-jekyll-compose/</guid>
+      <description>Recently, I have been using jekyll to make notes. I use jekyll-compose gem to create post using command line. However, the auto open generated file features isn&amp;rsquo;t working in my machine after the setup.
+After a few times on manually opening the generated files in vim, I decided to write a quick shell script to solve this issue.</description>
+    </item>
+    
+    <item>
+      <title>A note about using &#39;fetch&#39; in JS</title>
+      <link>https://kaiwern.com/posts/2018/04/11/a-note-about-using-fetch-in-js/</link>
+      <pubDate>Wed, 11 Apr 2018 22:43:41 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2018/04/11/a-note-about-using-fetch-in-js/</guid>
+      <description>Another story about fixing bug. This story is related to the native web API fetch, which is used to make request.
+Backstory After serveral days of having my first production application online, my client inform me that, the application has a bug, again. The button was not working as expected for one of the users.</description>
+    </item>
+    
+    <item>
+      <title>Using Ruby next in map</title>
+      <link>https://kaiwern.com/posts/2018/03/28/using-ruby-next-in-map/</link>
+      <pubDate>Wed, 28 Mar 2018 22:43:41 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2018/03/28/using-ruby-next-in-map/</guid>
+      <description>While I was refactoring the code base of my client application, I came accross a code block, similar to this:
+arr = [] data.each do |d| status = d[&amp;#39;status&amp;#39;] next if IGNORED_STATUS.include? status arr &amp;lt;&amp;lt; d[&amp;#39;value&amp;#39;] end I think, &amp;ldquo;Ha, I can replace each with map here.&amp;rdquo;
+I go ahead, and make the changes.</description>
+    </item>
+    
+    <item>
+      <title>Ruby fetch</title>
+      <link>https://kaiwern.com/posts/2017/11/04/ruby-fetch/</link>
+      <pubDate>Sat, 04 Nov 2017 22:43:41 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2017/11/04/ruby-fetch/</guid>
+      <description>Today, when I am refactoring a CLI I wrote, I came across a code block where I check whether an index exists in an array (turns out I don&amp;rsquo;t actually need it, I can just access the array and check if the value is nil). I went to search of Ruby Array documentation to see if such method exists.</description>
+    </item>
+    
+    <item>
+      <title>Register in Vim</title>
+      <link>https://kaiwern.com/posts/2017/10/24/register-in-vim/</link>
+      <pubDate>Tue, 24 Oct 2017 22:05:00 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2017/10/24/register-in-vim/</guid>
+      <description>For the past months, I have started to use vim in some occasions. One day, I came across a vim video, &amp;ldquo;Let Vim Do the Typing&amp;rdquo;{:target=&amp;rdquo;_blank&amp;rdquo;}, and discover the use of register in vim. Basically, the concept of register in vim is very similar to the register in our computer.</description>
+    </item>
+    
+    <item>
+      <title>Vue.js: Add component on click</title>
+      <link>https://kaiwern.com/posts/2017/10/17/vue.js-add-component-on-click/</link>
+      <pubDate>Tue, 17 Oct 2017 23:00:00 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2017/10/17/vue.js-add-component-on-click/</guid>
+      <description>I have been working on a project which uses Vue.js for front end. I came across a scenario where we need to allow user to add more entry in their form.
+Initial Approach The first thought that come to my mind will be get the div#id of the element and append it dynamically through javascript</description>
+    </item>
+    
+    <item>
+      <title>Ruby .() notation</title>
+      <link>https://kaiwern.com/posts/2017/10/15/ruby-.-notation/</link>
+      <pubDate>Sun, 15 Oct 2017 18:12:19 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2017/10/15/ruby-.-notation/</guid>
+      <description>In Ruby, .() is a syntatic sugar for call method.
+class Person def call &amp;#34;Hello World&amp;#34; end end Person.new.() #=&amp;gt; Hello World In this example, we declare a Person class and call method in the class. With this, we can later execute Person.new.() to call the call method.
+Note that, we need to initialize the Person object first by calling new, since the call is a instance method.</description>
+    </item>
+    
+  </channel>
+</rss>

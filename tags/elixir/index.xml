@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>elixir on kw7oe</title>
+    <link>https://kaiwern.com/tags/elixir/</link>
+    <description>Recent content in elixir on kw7oe</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 03 Jun 2019 18:04:00 +0800</lastBuildDate>
+    
+	<atom:link href="https://kaiwern.com/tags/elixir/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Using Tesseract OCR in Elixir/Phoenix</title>
+      <link>https://kaiwern.com/posts/2019/06/03/using-tesseract-ocr-in-elixir/phoenix/</link>
+      <pubDate>Mon, 03 Jun 2019 18:04:00 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2019/06/03/using-tesseract-ocr-in-elixir/phoenix/</guid>
+      <description>Lately, I am exploring the use of OCR in Expendere (my expense tracking application) and came across Tesseract OCR.
+At the time of writing this blog post, there is no native binding of Tesseract OCR in Elixir. However, there are two Elixir wrapper available on GitHub:
+ tesseract-ocr-elixir tesseract-elixir  Both wrapper use System.</description>
+    </item>
+    
+    <item>
+      <title>Advent of Code 2018: Day 1 Part 2, How I improve my solution by 34x faster</title>
+      <link>https://kaiwern.com/posts/2018/12/01/advent-of-code-2018-day-1-part-2-how-i-improve-my-solution-by-34x-faster/</link>
+      <pubDate>Sat, 01 Dec 2018 22:10:00 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2018/12/01/advent-of-code-2018-day-1-part-2-how-i-improve-my-solution-by-34x-faster/</guid>
+      <description>In the previous post, we had briefly discuss about the solution of Part 1. It is fairly straightforward. I thought Part 2 is going to be easy too. But man, I was wrong. It is a bit tricky.
+My initial solution takes around 17 seconds to compute the answer. I made it 34x faster by changing the data structure.</description>
+    </item>
+    
+    <item>
+      <title>Advent of Code 2018: Day 1 Part 1</title>
+      <link>https://kaiwern.com/posts/2018/12/01/advent-of-code-2018-day-1-part-1/</link>
+      <pubDate>Sat, 01 Dec 2018 21:47:00 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2018/12/01/advent-of-code-2018-day-1-part-1/</guid>
+      <description>Advent of Code (AOC) 2018 has finally arrived. This is the first time I participate in AOC. Last year, when I first heard of AOC, I wanted to participate in it. But due to heavy workload from university, I just give up on doing it.
+This year, it&amp;rsquo;s different, I had graduated and working remotely.</description>
+    </item>
+    
+    <item>
+      <title>Minimal Elixir Web Application with Plug and Cowboy</title>
+      <link>https://kaiwern.com/posts/2018/10/14/minimal-elixir-web-application-with-plug-and-cowboy/</link>
+      <pubDate>Sun, 14 Oct 2018 15:32:00 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2018/10/14/minimal-elixir-web-application-with-plug-and-cowboy/</guid>
+      <description>It is interesting to learn things from scratch. Coming from Ruby background, I was curious what is the equivalent of Sinatra in Elixir. It&amp;rsquo;s called Plug. It is what Phoenix build on top of.
+Using Sinatra, we can write a quick and simple web server with the following code:</description>
+    </item>
+    
+  </channel>
+</rss>

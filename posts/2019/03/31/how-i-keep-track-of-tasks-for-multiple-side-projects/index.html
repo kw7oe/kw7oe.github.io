@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>
+How I keep track of tasks for multiple side projects | kw7oe
+</title>
+
+
+
+<meta name="generator" content="Hugo 0.58.3" />
+
+
+    
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.26b12c72e680761460a41924b81ac7f97d74490d2fe51c2d09e7ee7e0947f400.css" integrity="sha256-JrEscuaAdhRgpBkkuBrH&#43;X10SQ0v5RwtCefufglH9AA=">
+
+
+
+
+<link rel="stylesheet" href="https://kaiwern.com/css/syntax.min.css">
+
+<body class="flex flex-col min-h-screen px-4 max-w-screen-md md:w-2/3 m-auto"><nav class="mt-8">
+  <ul id="nav-menu" class="w-full flex items-center list-reset">
+    
+    <li>
+      <a href="https://kaiwern.com/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Home</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/about/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">About</a>
+    </li>
+    
+
+    
+    
+    <li>
+      <a href="https://kaiwern.com/categories/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Categories</a>
+    </li>
+    
+    
+    
+    <li>
+      <a href="https://kaiwern.com/tags/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Tags</a>
+    </li>
+    
+    
+  </ul>
+</nav>
+<main class="flex-1 mt-4 sm:mt-12">
+<header class="mb-8">
+  <h1 class="title">How I keep track of tasks for multiple side projects</h1>
+  <p class="text-sm font-gray-700 mb-4">Mar 31, 2019</p>
+   
+  <div id="tags">
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/productivity/">productivity</a>
+    </span>
+    
+    
+  </div>
+</header>
+
+<article class="markdown mb-8 text-gray-800">
+  
+
+  
+
+<p>If you are like me, having countless side projects and jumping from one to another
+from time to time, you might also experience <em>ending up losing track of what
+you should do on each side projects.</em></p>
+
+<p>Keeping track of tasks in all of your side projects isn&rsquo;t easy without using
+any project management software. However, it might feel overkill for personal
+projects.</p>
+
+<p>How might one solve it? With a simple <strong>text file and some bash script</strong>.</p>
+
+<h3 id="where-i-left-off-last-time">Where I left off last time?</h3>
+
+<p>Every now and then, when I am working on my side projects, I always forget
+what are the last changes I made. Luckily with version control and the
+practice of writing good commit message, I can always use <code>git log</code> to
+view the past commits to get an overview what I should do next and
+what have been done.</p>
+
+<p>However, this approach is limited. Sometime, the past commits can&rsquo;t really
+tell me what should I do next.</p>
+
+<p>Hence, I use a simple way to keep track of what I need to do in my side
+projects, which is a todo list. To be more accurate, a project based todo list,
+in a simple file.</p>
+
+<h3 id="introducing-todo-file">Introducing <code>.todo</code> file</h3>
+
+<p>The idea is straighforward. I write down my tasks in the <code>.todo</code> file located
+at the root directory of the project.</p>
+
+<p>To edit it, I just use <code>vim .todo</code>. Adding tasks or deleting tasks are the
+same as manipulating text. If you&rsquo;re not a <code>vim</code> user, you can use any text
+editor you prefer.</p>
+
+<h3 id="listing-the-tasks">Listing the tasks</h3>
+
+<p>To get what you need to do on each side projects, is simple. The simplest
+apporach is to <code>cat -n .todo</code>. This command will show your task in your <code>.todo</code>
+file, numbered.</p>
+
+<p>In cases where you have wrote a lot of tasks, listing out just like this might
+clutter your terminal. To resolve this, we can use <code>head</code> to show only the top
+few tasks on the <code>.todo</code> file. Now our command becomes:</p>
+
+<pre><code>cat -n .todo | head -n 5
+</code></pre>
+
+<p>This command will list the top 5 line of your file. To take it further, you can
+write a bash function and add it to your <code>.bashrc</code> or <code>.zshrc</code>.</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="k">function</span> whattodo<span class="o">()</span> <span class="o">{</span>
+    cat -n .todo
+<span class="o">}</span></code></pre></div>
+<p>Now, everytime I need to know what I need to do for each side projects, I just
+<code>cd</code> into project directory and run my <code>whattodo</code> command.</p>
+
+<h3 id="benefits">Benefits</h3>
+
+<p>No extra dependencies is needed. Since, we use the comamnds that are widely
+available and also cross compatible to every machine Unix based machine.</p>
+
+<hr />
+
+<h2 id="final-thoughts">Final Thoughts</h2>
+
+<p>There are no silver bullets to manage a project. Different project size, might
+need different toolings and approach. For instance, this approach is not really
+suitable when the project become too large or complex, where the tasks involved
+consists of different type of work such as bug fixes, adding features and etc.</p>
+
+<p>For a small, personal side project, I found this method to be quite helpful personally.</p>
+
+</article>
+
+    </main><footer class="w-full text-center border-t border-gray-200 p-4 pin-b text-xs text-gray-400">
+    <p>made with <a href="https://gohugo.io" class="underline hover:text-blue-400">Hugo</a> and <a href="https://tailwindcss.com" class="underline hover:text-blue-400">TailwindCSS</a></p>
+</footer></body>
+</html>

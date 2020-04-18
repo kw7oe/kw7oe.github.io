@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>vue.js on kw7oe</title>
+    <link>https://kaiwern.com/tags/vue.js/</link>
+    <description>Recent content in vue.js on kw7oe</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 17 Oct 2017 23:00:00 +0800</lastBuildDate>
+    
+	<atom:link href="https://kaiwern.com/tags/vue.js/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Vue.js: Add component on click</title>
+      <link>https://kaiwern.com/posts/2017/10/17/vue.js-add-component-on-click/</link>
+      <pubDate>Tue, 17 Oct 2017 23:00:00 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2017/10/17/vue.js-add-component-on-click/</guid>
+      <description>I have been working on a project which uses Vue.js for front end. I came across a scenario where we need to allow user to add more entry in their form.
+Initial Approach The first thought that come to my mind will be get the div#id of the element and append it dynamically through javascript</description>
+    </item>
+    
+  </channel>
+</rss>

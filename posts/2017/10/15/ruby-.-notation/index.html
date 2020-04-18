@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>
+Ruby .() notation | kw7oe
+</title>
+
+
+
+<meta name="generator" content="Hugo 0.58.3" />
+
+
+    
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.26b12c72e680761460a41924b81ac7f97d74490d2fe51c2d09e7ee7e0947f400.css" integrity="sha256-JrEscuaAdhRgpBkkuBrH&#43;X10SQ0v5RwtCefufglH9AA=">
+
+
+
+
+<link rel="stylesheet" href="https://kaiwern.com/css/syntax.min.css">
+
+<body class="flex flex-col min-h-screen px-4 max-w-screen-md md:w-2/3 m-auto"><nav class="mt-8">
+  <ul id="nav-menu" class="w-full flex items-center list-reset">
+    
+    <li>
+      <a href="https://kaiwern.com/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Home</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/about/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">About</a>
+    </li>
+    
+
+    
+    
+    <li>
+      <a href="https://kaiwern.com/categories/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Categories</a>
+    </li>
+    
+    
+    
+    <li>
+      <a href="https://kaiwern.com/tags/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Tags</a>
+    </li>
+    
+    
+  </ul>
+</nav>
+<main class="flex-1 mt-4 sm:mt-12">
+<header class="mb-8">
+  <h1 class="title">Ruby .() notation</h1>
+  <p class="text-sm font-gray-700 mb-4">Oct 15, 2017</p>
+   
+  <div id="tags">
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/ruby/">ruby</a>
+    </span>
+    
+    
+  </div>
+</header>
+
+<article class="markdown mb-8 text-gray-800">
+  
+
+  <p>In Ruby, <code>.()</code> is a syntatic sugar for <code>call</code> method.</p>
+<div class="highlight"><pre class="chroma"><code class="language-ruby" data-lang="ruby"><span class="k">class</span> <span class="nc">Person</span>
+  <span class="k">def</span> <span class="nf">call</span>
+    <span class="s2">&#34;Hello World&#34;</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="no">Person</span><span class="o">.</span><span class="n">new</span><span class="o">.</span><span class="p">()</span>
+<span class="c1">#=&gt; Hello World</span></code></pre></div>
+<p>In this example, we declare a <code>Person</code> class and <code>call</code> method in the class. With this, we can later execute <code>Person.new.()</code> to call the <code>call</code> method.</p>
+
+<p>Note that, we need to initialize the <code>Person</code> object first by calling <code>new</code>, since the <code>call</code> is a instance method.</p>
+
+<p>If we wanted to just call by <code>Person.()</code>, we can do it this way:</p>
+<div class="highlight"><pre class="chroma"><code class="language-ruby" data-lang="ruby"><span class="k">class</span> <span class="nc">Person</span>
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">call</span>
+    <span class="s2">&#34;Hello World&#34;</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="no">Person</span><span class="o">.</span><span class="p">()</span>
+<span class="c1">#=&gt; &#34;Hello World&#34;</span></code></pre></div>
+<p>Some programming languages such as Python, Swift and Scala initalize object by <code>Person()</code>. In Ruby, we can&rsquo;t override the <code>()</code> operator to achieve the same effect <em>(see this <a href="https://stackoverflow.com/questions/24351218/how-to-create-an-object-in-ruby-without-using-new?answertab=oldest#tab-top">StackOverflow question</a>)</em>. However, we can use <code>.()</code> to achieve a similar result:</p>
+<div class="highlight"><pre class="chroma"><code class="language-ruby" data-lang="ruby"><span class="k">class</span> <span class="nc">Person</span>
+  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="nb">name</span><span class="p">,</span> <span class="n">age</span><span class="p">)</span>
+    <span class="vi">@name</span> <span class="o">=</span> <span class="nb">name</span>
+    <span class="vi">@age</span> <span class="o">=</span> <span class="n">age</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">call</span><span class="p">(</span><span class="nb">name</span><span class="p">:,</span> <span class="ss">age</span><span class="p">:)</span>
+    <span class="nb">self</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="nb">name</span><span class="p">,</span> <span class="n">age</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="no">Person</span><span class="o">.</span><span class="p">(</span><span class="nb">name</span><span class="p">:</span> <span class="s2">&#34;Peter&#34;</span><span class="p">,</span> <span class="ss">age</span><span class="p">:</span> <span class="mi">12</span><span class="p">)</span>
+<span class="c1">#=&gt; #&lt;Person:0x00007f991b80b8d8 @name=&#34;Peter&#34;, @age=12&gt;</span></code></pre></div>
+<p>Another way is to use metaprogramming in Ruby. Take a look at this <a href="https://stackoverflow.com/a/24356542">StackOverflow answer</a> to find out how.</p>
+
+</article>
+
+    </main><footer class="w-full text-center border-t border-gray-200 p-4 pin-b text-xs text-gray-400">
+    <p>made with <a href="https://gohugo.io" class="underline hover:text-blue-400">Hugo</a> and <a href="https://tailwindcss.com" class="underline hover:text-blue-400">TailwindCSS</a></p>
+</footer></body>
+</html>
