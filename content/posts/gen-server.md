@@ -25,7 +25,7 @@ The post will be break down into following sections:
 - Limitations of GenServer
 - Common Usage of GenServer
 
-## Quick Introduction to GenServer
+# Quick Introduction to GenServer
 
 What is GenServer? For someone new to Elixir, GenServer usually came up to
 their mind when they need to implement a server process, a stateful process.
@@ -36,7 +36,7 @@ implemet a client-server relation.
 But, what is an OTP behaviour? Behaviour is basically common pattern that
 abstract generic and specific logic into different modules, such as behaviour module
 and callback module. All of these behaviours are derived from years of
-battle-tested production system. With that, the OTP behaviours also take care of some
+battle-tested production system. The OTP behaviours also take care of some
 of the edge cases for you.
 
 When we `use GenServer`, we are using GenServer behaviour and
@@ -83,8 +83,77 @@ the "Designing for Scalability with Erlang/OTP" book _(at the end of Chapter
 3)_, the authors did layout more detailed flow on some of the edge cases that
 GenServer handle for us.
 
+# When you should and shouldn't use GenServer?
+
+Coming from a Ruby/Rails background, when I first know about GenServer, I have
+no idea on how I can use that in my application, especially a web application.
+
+It's a cool new amazing concept, but how can I utilize it? That often came up
+to my mind when I first starting to learn Elixir.
+
+Let's focus on when we should avoid using GenServer behaviour.
+
+### When you shouldn't use GenServer
+
+If you have read through the [documentation of GenServer][0], you might come
+across this:
+
+> A GenServer, or a process in general, must be used to model runtime characteristics of your system.
+> A GenServer must never be used for code organization purposes.
+
+As mentioned above, our GenServer is just another stateful process. It's a
+pattern to write stateful process. Hence, it **should never be use for code
+organization**. Use module for that instead.
+
+
+While it is possible to do the following with `GenServer` too, it's not really
+recommended as there are better alternatives:
+
+**1. Use it to execute simple asynchronous task/job**
+
+For this, using `Task` module is recommended instead. Depending on the your
+requirment, rolling out your own `GenServer` just to execute asynchronous job
+can be a bit too much.
+
+**Unless you need more control over the task execution** such as error handling,
+monitoring and job retry, then implementing a `GenServer` with
+`Task.Supervisor` is very reasonable.
+
+However do note that `GenServer` is a single process and will inherently become
+your bottleneck when the load increase.
+
+On a side note, [there is this article from DockYard where the author demostrated
+on how we can implement job retry with `GenServer` and `Task.Supervisor`.][1]
+
+**2. Storing state.**
+
+Start by using `Agent`. If it provide what you need, that's great. A rule of
+thumb is to reach for tool that have a higher level abstraction. Only reach out
+to `GenServer` as base when you need extra customization.
+
+If `Agent` doesn't fit your requirement, then look into the combination of
+`GenServer` and `ETS` instead. Avoid writing your own `GenServer` to track key
+value pair, or other kind of state, unless it is a short term state. E.g. state
+of a game match.
+
+Well again, it really depends on your system requirements and you'll have to
+make the design decision. But do keep the rule of thumb in mind.
+
+### When you should use GenServer?
+
+It's a bit irony isn't it. We have just listed a few use cases of GenServer in
+the section of "When you shouldn't user GenServer?". But that's the reality of
+design decision. That's no silver bullet to every problems, it really depends
+varily based on the context. It's the same for when and when you shouldn't use
+GenServer.
+
+So here are a list of scenario where it make sense to bring it `GenServer`:
+
+- To send periodic message, or to schedule tasks
+- To gain more control over task execution of `Task` module.
+- To use `ETS` as store.
 
 
 
-
-
+[0]: https://hexdocs.pm/elixir/GenServer.html#module-when-not-to-use-a-genserver
+[1]: https://dockyard.com/blog/2019/04/02/three-simple-patterns-for-retrying-jobs-in-elixir
