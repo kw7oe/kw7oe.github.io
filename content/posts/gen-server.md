@@ -93,7 +93,7 @@ to my mind when I first starting to learn Elixir.
 
 Let's focus on when we should avoid using GenServer behaviour.
 
-### When you shouldn't use GenServer
+## When you shouldn't use GenServer
 
 If you have read through the [documentation of GenServer][0], you might come
 across this:
@@ -115,15 +115,15 @@ For this, using `Task` module is recommended instead. Depending on the your
 requirment, rolling out your own `GenServer` just to execute asynchronous job
 can be a bit too much.
 
-**Unless you need more control over the task execution** such as error handling,
-monitoring and job retry, then implementing a `GenServer` with
-`Task.Supervisor` is very reasonable.
+Implementing a `GenServer` with `Task.Supervisor` is **reasonable when you need
+more control over the task execution** such as error handling, monitoring and
+job retry.
 
 However do note that `GenServer` is a single process and will inherently become
 your bottleneck when the load increase.
 
-On a side note, [there is this article from DockYard where the author demostrated
-on how we can implement job retry with `GenServer` and `Task.Supervisor`.][1]
+On a side note, there is this [article][1] from DockYard where the author demostrated
+on how we can implement job retry with `GenServer` and `Task.Supervisor`.
 
 **2. Storing state.**
 
@@ -136,10 +136,18 @@ If `Agent` doesn't fit your requirement, then look into the combination of
 value pair, or other kind of state, unless it is a short term state. E.g. state
 of a game match.
 
+Also, try to **avoid storing global state** with `GenServer` _unless you are
+100% sure that you won't run the application on multiple nodes_. When you start
+running `GenServer` process that store state in multiple nodes, things get
+really tricky. Chris Keathley wrote about the reasons really well in his
+article ["The dangers of the Single Global Process"][5].
+
 Well again, it really depends on your system requirements and you'll have to
 make the design decision. But do keep the rule of thumb in mind.
 
-### When you should use GenServer?
+---
+
+## When you should use GenServer?
 
 It's a bit irony isn't it. We have just listed a few use cases of GenServer in
 the section of "When you shouldn't user GenServer?". But that's the reality of
@@ -149,11 +157,81 @@ GenServer.
 
 So here are a list of scenario where it make sense to bring it `GenServer`:
 
-- To send periodic message, or to schedule tasks
-- To gain more control over task execution of `Task` module.
-- To use `ETS` as store.
+**1. To send periodic message, or to schedule tasks**
 
+When you need to send periodic message, using `GenServer` make sense as it
+allow you to utilize `Process.send_after` to send periodic message or schedule
+one off tasks.
 
+Depending on your needs, you may consider to use [`periodic`][3] library by the
+author of Elixir in Action instead of rolling out your own solution. _(You can
+also read this [article][4] by the author on the design behind the library)_
+
+If you need more full fledge solution for scheduling jobs, consider
+[`quantum`][2] that allow you to use cron like syntax to schedule jobs.
+
+**2. To gain more control over task execution of `Task` module.**
+
+As mentioned above in using `GenServer` for simple asynchronous task, you
+should probably bring `GenServer` in with `Task.Supervisor` **only when you
+need more control over task execution**. For example, you want to ensure that
+a task is really executed and retry if there is failures _(E.g. network
+failrues where retry make sense)_.
+
+**3. To use `ets` as store.**
+
+`ets` is really good built-in in memory storage for BEAM. No doubt, there will
+be times when you'll need to use this for your production application. And
+starting a `ets` table in a `GenServer` is definitely the way to go.
+
+This is because, `ets` table is owned by the process create it, if the process
+is terminated, the `ets` table is also deleted. However, do avoid wrapping
+`ets` call with `GenServer` callbacks as follows:
+
+```elixir
+defmodule MyETS do
+  use GenServer
+  @table_name :table
+
+  def init(_) do
+    :ets.new(@table_name, [:named_table, read_concurrency: true])
+    {:ok, []}
+  end
+
+  # AVOID THIS
+  # Wrapping look up in a GenServer.call
+  def lookup(key) do
+    GenServer.call(__MODULE__, {:lookup, key})
+  end
+
+  # DO THIS instead
+  # Call :ets.lookup directly
+  def lookup_v2(key) do
+    case :ets.lookup(@table_name, key) do
+      [{^key, value}] -> {:ok, value}
+      _ -> {:error, :not_found}
+    end
+  end
+
+  def handle_call({:lookup, key}, _from, _state) do
+    case :ets.lookup(@table_name, key) do
+      [{^key, value}] -> {:ok, value}
+      _ -> {:error, :not_found}
+    end
+  end
+end
+```
+
+This is because, if we are wrapping `:ets.lookup` in the `GenServer.call`, we
+are losing the performance gained from using `ets` and limiting our usage of
+`ets`, like reading and writing concurrently with `ets`. The `GenServer.call`
+here will become the bottleneck as every lookup is going through the
+single `GenServer` process, _unless you are doing this intentionally to act
+as a backpressure mechanism._
 
 [0]: https://hexdocs.pm/elixir/GenServer.html#module-when-not-to-use-a-genserver
 [1]: https://dockyard.com/blog/2019/04/02/three-simple-patterns-for-retrying-jobs-in-elixir
+[2]: https://github.com/quantum-elixir/quantum-core
+[3]: https://hexdocs.pm/parent/Periodic.html#content
+[4]: https://www.theerlangelist.com/article/periodic
+[5]: https://keathley.io/blog/sgp.html
