@@ -21,9 +21,9 @@ The post will be break down into following sections:
 
 - Introduction to GenServer
 - When you should and shouldn't use GenServer
-- Do and Don't of GenServer
 - Limitations of GenServer
-- Common Usage of GenServer
+- Do and Don't of GenServer
+- Real world usage of GenServer
 
 # Quick Introduction to GenServer
 
@@ -91,7 +91,7 @@ no idea on how I can use that in my application, especially a web application.
 It's a cool new amazing concept, but how can I utilize it? That often came up
 to my mind when I first starting to learn Elixir.
 
-Let's focus on when we should avoid using GenServer behaviour.
+Let's focus on when we shouldn't use GenServer behaviour.
 
 ## When you shouldn't use GenServer
 
@@ -229,9 +229,50 @@ here will become the bottleneck as every lookup is going through the
 single `GenServer` process, _unless you are doing this intentionally to act
 as a backpressure mechanism._
 
+# Limitations of GenServer
+
+As mentioned, `GenServer` is inherently just a process. Every process in BEAM
+has one mailbox, where the messages are processed _synchrounously_. That is the
+reason it can become the bottleneck of a system when the load increased.
+
+And, as `GenServer` messages in the mailbox increased, it will start performing
+even slower due to the internal mechanism on how it process the message.
+As your process mailbox get larger, the process will need to go through all the
+messages in the mailbox, to match the message in the `receive` pattern again.
+
+Generally speaking, using `GenServer` is fine until your system load increases
+and it become the bottleneck. People commonly use `ets` or
+having a pool of multiple `GenServer` process to cope with the high load.
+
+A quick way to check the messages length in your process mailbox is to use
+`Process.info(genserver_process, :message_queue_len)`.
+
+Here are some of the interesting articles talk about the limitation of
+GenServer:
+
+- [Avoding GenServer bottlenecks][6]
+- [GenServer and scaling][7]
+
+# Do and Don't of GenServer
+
+Here are some of the do and don'ts when implementing your own `GenServer`.
+
+**1. Do have a separate supervisor for your `GenServer` process, instead of using the root supervisor.**
+
+**2. Do add a catch all for your custom `handle_info` callback.**
+
+3. Do understand when to use `cast` and when to use `call`.
+
+**3. Don’t use atom for dynamically allocated name for GenServer name registration.**
+
+# Real world usage of GenServer
+
 [0]: https://hexdocs.pm/elixir/GenServer.html#module-when-not-to-use-a-genserver
 [1]: https://dockyard.com/blog/2019/04/02/three-simple-patterns-for-retrying-jobs-in-elixir
 [2]: https://github.com/quantum-elixir/quantum-core
 [3]: https://hexdocs.pm/parent/Periodic.html#content
 [4]: https://www.theerlangelist.com/article/periodic
 [5]: https://keathley.io/blog/sgp.html
+[6]: https://www.cogini.com/blog/avoiding-genserver-bottlenecks/
+[7]: https://groups.google.com/forum/#!msg/elixir-lang-talk/PY4n1qsI3vU/DZNpHfpxqD8J
+[8]: https://elixirforum.com/t/genserver-docs-handle-cast-should-be-used-sparingly-why
