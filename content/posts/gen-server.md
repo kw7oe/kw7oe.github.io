@@ -10,7 +10,7 @@ the talk, I gave a quick introduction on GenServer and talk about the best
 practices of using GenServer.
 
 To prepare for the talk, I have done a lot of research and readings. With
-experience working with GenServer in a production environment, I
+some experience working with GenServer in a production environment, I
 have also realized that there are a lot of caveats when using GenServer.
 
 While GenServer is easy to use, there are actually a lot of challenges when
@@ -19,11 +19,18 @@ to write down my findings about GenServer.
 
 The post will be break down into following sections:
 
-- Introduction to GenServer
+- Quick Introduction to GenServer
 - When you should and shouldn't use GenServer
 - Limitations of GenServer
 - Do and Don't of GenServer
 - Real world usage of GenServer
+
+_Disclaimer: I am no expert in Elixir, Erlang and GenServer. What I wrote,
+might be wrong too. However, I tried my best to cross check multiple sources
+on what I wrote to ensure the correctness. I have attached the relavant links
+I refered to while writing this article for further references. Some of the
+points are purely my opinion based on my limited knowledge and experience. Do
+take it as a grain of salt._
 
 # Quick Introduction to GenServer
 
@@ -68,6 +75,9 @@ act as the interface between GenServer and our module. This also decouple the
 logic of managing process _(what GenServer do)_ from our business logic _(what
 our callback modules do)_.
 
+
+### Why not implemnting our own GenServer behavior?
+
 Well, if GenServer is just a pattern that decouple the logics, can't we create
 and use our own one?
 
@@ -78,24 +88,36 @@ few notable one are:
 - Handling system messages
 - Handling timeout
 
-The edge cases handled by GenServer worth writing another separate posts. In
-the "Designing for Scalability with Erlang/OTP" book _(at the end of Chapter
-3)_, the authors did layout more detailed flow on some of the edge cases that
-GenServer handle for us.
+The edge cases handled by GenServer worth writing another separate posts. If
+you would like to know more, there is this [article][11] by DockYard that talk
+about how GenServer handle some of the concurrent conditions and edge
+cases. More details is also layout at the end of Chapter 3 of
+["Designing for Scalability with Erlang/OTP"][12].
+
+---
+I only learn about how OTP behaviour is designed to extract common and business
+logic behaviour and the edge cases in implementing your own GenServer after
+reading the book ["Designing for Scalability with Erlang/OTP"][12].
+
+---
 
 # When you should and shouldn't use GenServer?
 
 Coming from a Ruby/Rails background, when I first know about GenServer, I have
-no idea on how I can use that in my application, especially a web application.
+no idea on how I can use that in my application, especially in a web application.
 
-It's a cool new amazing concept, but how can I utilize it? That often came up
-to my mind when I first starting to learn Elixir.
+It's a cool new amazing concept for me,
 
-Let's focus on when we shouldn't use GenServer behaviour.
+> but how can I utilize it?
 
-## When you shouldn't use GenServer
+ That often came up to my mind when I first starting to learn Elixir.
 
-If you have read through the [documentation of GenServer][0], you might come
+ Before we talk about when i think it's a good time to use GenServer, let's focus on
+ when we _shouldn't use_ GenServer.
+
+## When you _shouldn't use_ GenServer
+
+If you have read through the [Elixir documentation of GenServer][0], you might come
 across this:
 
 > A GenServer, or a process in general, must be used to model runtime characteristics of your system.
@@ -147,7 +169,7 @@ make the design decision. But do keep the rule of thumb in mind.
 
 ---
 
-## When you should use GenServer?
+## When you _should_ use GenServer?
 
 It's a bit irony isn't it. We have just listed a few use cases of GenServer in
 the section of "When you shouldn't user GenServer?". But that's the reality of
@@ -155,11 +177,11 @@ design decision. That's no silver bullet to every problems, it really depends
 varily based on the context. It's the same for when and when you shouldn't use
 GenServer.
 
-So here are a list of scenario where it make sense to bring it `GenServer`:
+So here are a list of scenario where it make sense to bring it GenServer:
 
 **1. To send periodic message, or to schedule tasks**
 
-When you need to send periodic message, using `GenServer` make sense as it
+When you need to send periodic message, using GenServer make sense as it
 allow you to utilize `Process.send_after` to send periodic message or schedule
 one off tasks.
 
@@ -172,8 +194,8 @@ If you need more full fledge solution for scheduling jobs, consider
 
 **2. To gain more control over task execution of `Task` module.**
 
-As mentioned above in using `GenServer` for simple asynchronous task, you
-should probably bring `GenServer` in with `Task.Supervisor` **only when you
+As mentioned above in using GenServer for simple asynchronous task, you
+should probably bring GenServer in with `Task.Supervisor` **only when you
 need more control over task execution**. For example, you want to ensure that
 a task is really executed and retry if there is failures _(E.g. network
 failrues where retry make sense)_.
@@ -233,39 +255,114 @@ as a backpressure mechanism._
 
 As mentioned, `GenServer` is inherently just a process. Every process in BEAM
 has one mailbox, where the messages are processed _synchrounously_. That is the
-reason it can become the bottleneck of a system when the load increased.
+reason why it can become the bottleneck of your system when the load increased.
 
-And, as `GenServer` messages in the mailbox increased, it will start performing
+As `GenServer` messages in the mailbox increased, it will start performing
 even slower due to the internal mechanism on how it process the message.
 As your process mailbox get larger, the process will need to go through all the
 messages in the mailbox, to match the message in the `receive` pattern again.
+
+Here is how the [erlang documentation][9] describing on how the process go through
+the messages:
+
+> Each process has its own input queue for messages it receives. New messages
+> received are put at the end of the queue. When a process executes a receive,
+> the first message in the queue is matched against the first pattern in the receive.
+> If this matches, the message is removed from the queue and the actions
+> corresponding to the pattern are executed.
+>
+> However, if the first pattern does not match, the second pattern is tested.
+> If this matches, the message is removed from the queue and the actions
+> corresponding to the second pattern are executed. If the second pattern
+> does not match, the third is tried and so on until there are no more patterns to test.
 
 Generally speaking, using `GenServer` is fine until your system load increases
 and it become the bottleneck. People commonly use `ets` or
 having a pool of multiple `GenServer` process to cope with the high load.
 
-A quick way to check the messages length in your process mailbox is to use
-`Process.info(genserver_process, :message_queue_len)`.
+But, how do you know your `GenServer` process have too many messages in their
+mailbox?  A quick way to check the messages length in your process mailbox is
+to use `Process.info(genserver_process, :message_queue_len)`, which will
+return the total number meessages in the process mailbox to you.
 
-Here are some of the interesting articles talk about the limitation of
-GenServer:
+If you would like to know more about it, here are some of the resources where I
+refer to and that are related:
 
 - [Avoding GenServer bottlenecks][6]
 - [GenServer and scaling][7]
+- [StackOverflow Question][10]
 
 # Do and Don't of GenServer
 
-Here are some of the do and don'ts when implementing your own `GenServer`.
+Here are some of the do and don'ts when you use GenServer:
 
 **1. Do have a separate supervisor for your `GenServer` process, instead of using the root supervisor.**
 
+Ideally, it's always better to have different `Supervisor` for your GenServer
+process, instead of using the root application `Supervisor`. This allow us to
+avoid edge scenario where repeating failures of your GenServer process bring
+down your whole application.
+
+I don't have anything to back up this suggestion but I guess the idea behind is
+to always **design your supervision tree and think about how you need your system
+to behave when things go wrong**.
+
+According to [Erlang documentation][15], OTP design principles define how we
+structure code in terms of processes, modules and directories, and supervision
+trees is introduced to help use model our processes based on the idea of
+workers and supervisors.
+
 **2. Do add a catch all for your custom `handle_info` callback.**
 
-3. Do understand when to use `cast` and when to use `call`.
+When we `use GenServer`, Elixir actually include a default catch all
+`handle_info` implementation _(from the source code [here][14])_. However,
+when you start overwriting by defining your own callback:
 
-**3. Don’t use atom for dynamically allocated name for GenServer name registration.**
+```elixir
+def handle_info(...) do
+  ...
+end
+```
+
+If you don't want unmatch message to raise error in your GenServer, don't
+forget to implement a catch all `handle_info`.
+
+**3. Do understand when to use `cast` and when to use `call`.**
+
+As a newcomer to Elixir, the only difference I know about `cast` and `call` is:
+
+- `cast` is asynchronous. Use it when you don't care about the result, or
+  whether it has been executed.
+- `call` is synchronous. Use it when you need the result, or ensure it has been
+  executed.
+
+But when I dive in deeper, I found out that calling `cast` on a GenServer
+process that doesn't exists will still return you `:ok`. With `cast`, there is
+no guarantee that it is executed by your GenServer process.
+
+There is also this [Elixir forum threads][8] which discuss about why we should use `cast`
+sparringly according to the documentation. There are different opinions from
+different people, but generally, _do understand the tradeoff of your decision_.
+
+
+**4. Don’t use atom for dynamically allocated name for GenServer name registration.**
 
 # Real world usage of GenServer
+
+There are a couple of well known Elixir library that is build on top of
+GenServer. To named a few:
+
+- [GenStage](https://github.com/elixir-lang/gen_stage)
+- [Flow](https://github.com/dashbitco/flow)
+- [Broadway](https://github.com/dashbitco/broadway)
+
+Here are some of the use cases I found over the internet:
+
+- [Rate Limiter with GenServer and ETS][13]
+- Key Value Cache with GenServer and ETS
+  - [con_cache](https://github.com/sasa1977/con_cache)
+  - [cachex](https://github.com/whitfin/cachex)
+
 
 [0]: https://hexdocs.pm/elixir/GenServer.html#module-when-not-to-use-a-genserver
 [1]: https://dockyard.com/blog/2019/04/02/three-simple-patterns-for-retrying-jobs-in-elixir
@@ -276,3 +373,10 @@ Here are some of the do and don'ts when implementing your own `GenServer`.
 [6]: https://www.cogini.com/blog/avoiding-genserver-bottlenecks/
 [7]: https://groups.google.com/forum/#!msg/elixir-lang-talk/PY4n1qsI3vU/DZNpHfpxqD8J
 [8]: https://elixirforum.com/t/genserver-docs-handle-cast-should-be-used-sparingly-why
+[9]: https://erlang.org/doc/getting_started/conc_prog.html#processes
+[10]: https://stackoverflow.com/questions/36216246/in-erlang-when-a-processs-mailbox-growth-bigger-it-runs-slower-why
+[11]: https://dockyard.com/blog/2016/11/18/how-genserver-helps-to-handle-errors
+[12]: http://shop.oreilly.com/product/0636920024149.do
+[13]: https://dockyard.com/blog/2017/05/19/optimizing-elixir-and-phoenix-with-ets
+[14]: https://github.com/elixir-lang/elixir/blob/master/lib/elixir/lib/gen_server.ex#L781
+[15]: https://erlang.org/doc/design_principles/des_princ.html#supervision-trees
