@@ -32,6 +32,8 @@ I refered to while writing this article for further references. Some of the
 points are purely my opinion based on my limited knowledge and experience. Do
 take it as a grain of salt._
 
+---
+
 # Quick Introduction to GenServer
 
 What is GenServer? For someone new to Elixir, GenServer usually came up to
@@ -94,10 +96,13 @@ about how GenServer handle some of the concurrent conditions and edge
 cases. More details is also layout at the end of Chapter 3 of
 ["Designing for Scalability with Erlang/OTP"][12].
 
----
-I only learn about how OTP behaviour is designed to extract common and business
+<div class="callout callout-info" >
+
+  <p>I only learn about how OTP behaviour is designed to extract common and business
 logic behaviour and the edge cases in implementing your own GenServer after
-reading the book ["Designing for Scalability with Erlang/OTP"][12].
+reading the book ["Designing for Scalability with Erlang/OTP"][12].</p>
+
+</div>
 
 ---
 
@@ -251,6 +256,8 @@ here will become the bottleneck as every lookup is going through the
 single `GenServer` process, _unless you are doing this intentionally to act
 as a backpressure mechanism._
 
+---
+
 # Limitations of GenServer
 
 As mentioned, `GenServer` is inherently just a process. Every process in BEAM
@@ -292,6 +299,8 @@ refer to and that are related:
 - [GenServer and scaling][7]
 - [StackOverflow Question][10]
 
+---
+
 # Do and Don't of GenServer
 
 Here are some of the do and don'ts when you use GenServer:
@@ -309,8 +318,11 @@ to behave when things go wrong**.
 
 According to [Erlang documentation][15], OTP design principles define how we
 structure code in terms of processes, modules and directories, and supervision
-trees is introduced to help use model our processes based on the idea of
+trees is introduced to help us model our processes based on the idea of
 workers and supervisors.
+
+I guess, the takeway would be: **think about the supervision tree of your
+GenServer whenever you use GenServer**.
 
 **2. Do add a catch all for your custom `handle_info` callback.**
 
@@ -336,33 +348,66 @@ As a newcomer to Elixir, the only difference I know about `cast` and `call` is:
 - `call` is synchronous. Use it when you need the result, or ensure it has been
   executed.
 
-But when I dive in deeper, I found out that calling `cast` on a GenServer
+But when I dive deeper, I found out that calling `cast` on a GenServer
 process that doesn't exists will still return you `:ok`. With `cast`, there is
 no guarantee that it is executed by your GenServer process.
 
 There is also this [Elixir forum threads][8] which discuss about why we should use `cast`
-sparringly according to the documentation. There are different opinions from
-different people, but generally, _do understand the tradeoff of your decision_.
+sparringly according to the documentation. Some people recommended to always use `call`
+and avoid `cast` even you don't need the reply, so that it act as a backpressure and
+prevent overloading from the clients.
 
+Again, it really depends the nature of your system. But, do keep in mind of the
+trade offs of the decision. And, **when in doubt, use `call`**.
 
 **4. Don’t use atom for dynamically allocated name for GenServer name registration.**
 
-# Real world usage of GenServer
+This is also mentioned clearly in [Elixir GenServer documentation][16]:
 
-There are a couple of well known Elixir library that is build on top of
-GenServer. To named a few:
+> If there is an interest to register dynamic names locally, do not use atoms,
+> as atoms are never garbage-collected and therefore dynamically generated atoms
+> won't be garbage-collected.
+
+As mentioned, atoms are never garbage-collected. So, you could end up crashing
+your BEAM VM if your code happens to create _too much_ dynamic naming
+GenServer.
+
+The documentation suggested to setup our own local registry with `Registry`
+module. I have not much experience on this so I'll probably stop here.
+
+---
+
+# Wrap Up
+
+Before I wrap up, There are a couple of well known Elixir library that is build
+on top of GenServer. To named a few:
 
 - [GenStage](https://github.com/elixir-lang/gen_stage)
 - [Flow](https://github.com/dashbitco/flow)
 - [Broadway](https://github.com/dashbitco/broadway)
 
-Here are some of the use cases I found over the internet:
+All these libraries are build on top of plain OTP behavior like GenServer and
+Supervisor, which then allow more specific use case. The authors take care of
+the generic behavior and allow us to implement application specific logic and
+code.
+
+I also tried to look up a few real world use case of plain GenServer behaviour
+and here are what I found over the internet:
 
 - [Rate Limiter with GenServer and ETS][13]
 - Key Value Cache with GenServer and ETS
   - [con_cache](https://github.com/sasa1977/con_cache)
   - [cachex](https://github.com/whitfin/cachex)
+- [Discord usage of GenServer][17]
 
+Hopefully, this post covers all the things you need to know about GenServer
+before using it in production. Again, I am no expert in this area and I am just
+presenting my findings _(which could be wrong)_.
+
+Different systems have different requirements. It is important to understand
+why one have a different approach in their context before following blindly.
+The same applies to some of the opinion. I might say don't do this and
+that, but _you probably know your system better than me to make a better decision_.
 
 [0]: https://hexdocs.pm/elixir/GenServer.html#module-when-not-to-use-a-genserver
 [1]: https://dockyard.com/blog/2019/04/02/three-simple-patterns-for-retrying-jobs-in-elixir
@@ -380,3 +425,5 @@ Here are some of the use cases I found over the internet:
 [13]: https://dockyard.com/blog/2017/05/19/optimizing-elixir-and-phoenix-with-ets
 [14]: https://github.com/elixir-lang/elixir/blob/master/lib/elixir/lib/gen_server.ex#L781
 [15]: https://erlang.org/doc/design_principles/des_princ.html#supervision-trees
+[16]: https://hexdocs.pm/elixir/GenServer.html#module-name-registration
+[17]: https://blog.discord.com/scaling-elixir-f9b8e1e7c29b

@@ -160,8 +160,20 @@ nav#TableOfContents > ul > li {
   @apply my-6;
 }
 
+.callout {
+  @apply border-l-4;
+  @apply p-4;
+  @apply my-6;
+}
+
+.callout-info {
+  @apply bg-blue-100;
+  @apply border-blue-500;
+}
+
 /* purgecss start ignore */
 .markdown table {
+  @apply border-collapse;
   @apply my-4;
 }
 

@@ -10,3 +10,8 @@ summaryLength = 50
 
 [permalinks]
 posts = "/:sections/:year/:month/:day/:title/"
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
