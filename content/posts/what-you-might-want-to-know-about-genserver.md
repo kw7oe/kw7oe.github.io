@@ -1,7 +1,6 @@
 ---
-title: "GenServer"
-date: 2020-04-13T21:21:59+08:00
-draft: true
+title: "What you might want to know about GenServer"
+date: 2020-05-19T19:21:59+08:00
 tags: ['elixir']
 ---
 
@@ -16,11 +15,10 @@ to write down _my findings_ about GenServer.
 
 The post will be break down into following sections:
 
-- Quick Introduction to GenServer
-- When you should and shouldn't use GenServer
-- Limitations of GenServer
-- Do and Don't of GenServer
-- Real world usage of GenServer
+- [Quick Introduction to GenServer](#quick-introduction-to-genserver)
+- [When you should and shouldn't use GenServer](#when-you-should-and-shouldn-t-use-genserver)
+- [Limitations of GenServer](#limitations-of-genserver)
+- [Do and Don't of GenServer](#do-and-don-t-of-genserver)
 
 _Disclaimer: I am no expert in Elixir, Erlang and GenServer. What I wrote,
 might be wrong too. However, I tried my best to cross check multiple sources
