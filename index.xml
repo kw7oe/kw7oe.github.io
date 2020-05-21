@@ -12,6 +12,15 @@
     
     
     <item>
+      <title>What you might want to know about GenServer</title>
+      <link>https://kaiwern.com/posts/2020/05/21/what-you-might-want-to-know-about-genserver/</link>
+      <pubDate>Thu, 21 May 2020 19:21:59 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2020/05/21/what-you-might-want-to-know-about-genserver/</guid>
+      <description>I once gave a talk about GenServer in a local Elixir meet up in 2019. To prepare for the talk, I have done a lot of research and readings. With additional experience working with GenServer in a production environment, I have come to realize that there are a lot of caveats when using GenServer.</description>
+    </item>
+    
+    <item>
       <title>Essential Date Functions for Grouping in PostgreSQL</title>
       <link>https://kaiwern.com/posts/2020/04/14/essential-date-functions-for-grouping-in-postgresql/</link>
       <pubDate>Tue, 14 Apr 2020 18:43:08 +0800</pubDate>
@@ -73,8 +82,9 @@ def export(conn, _params) do # Create file filename = &amp;#34;test.</descriptio
       <pubDate>Mon, 13 May 2019 00:00:00 +0000</pubDate>
       
       <guid>https://kaiwern.com/about/</guid>
-      <description>Hi, I am Kai Wern Choong, a software engineer at Naluri. I like to read, learn, code and cook. Welcome to my blog. Here I write about technology and life. Some of the technologies I used in my work and side projects are:
- vim Elixir JavaScript React React Native Ruby  So, you can expect posts about these technologies from my blog.</description>
+      <description>Hi, I am Kai Wern Choong, a software engineer at Naluri. I like to read, learn, code and cook. Welcome to my blog. Here I write about technology and life.
+Some of the technologies I used day to day are:
+ vim Elixir JavaScript/TypeScript React React Native  So, you can expect posts about these technologies from my blog.</description>
     </item>
     
     <item>
