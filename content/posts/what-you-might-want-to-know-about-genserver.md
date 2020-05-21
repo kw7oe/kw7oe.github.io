@@ -1,6 +1,6 @@
 ---
 title: "What you might want to know about GenServer"
-date: 2020-05-19T19:21:59+08:00
+date: 2020-05-21T19:21:59+08:00
 tags: ['elixir']
 ---
 
