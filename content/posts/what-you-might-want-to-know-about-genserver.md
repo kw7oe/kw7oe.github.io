@@ -22,8 +22,8 @@ The post will be break down into following sections:
 
 _Disclaimer: I am no expert in Elixir, Erlang and GenServer. What I wrote,
 might be wrong too. However, I tried my best to cross check multiple sources
-on what I wrote to ensure the correctness. I have attached the relavant links
-I refered to while writing this article for further references. Some of the
+on what I wrote to ensure the correctness. I have attached the relevant links
+I referred to while writing this article for further references. Some of the
 points are purely my opinion based on my limited knowledge and experience. Do
 take it as a grain of salt._
 
@@ -33,7 +33,7 @@ What is GenServer? For someone new to Elixir, GenServer usually came up to
 their mind when they need to implement a server process or stateful process.
 
 However, diving a bit deeper, GenServer is actually an OTP behaviour that
-implemet a client-server relation.
+implement a client-server relation.
 
 But, what is an OTP behaviour? Behaviour is basically common pattern that
 abstract generic and specific logic into different modules, such as behaviour module
@@ -139,7 +139,7 @@ recommended as there are better alternatives:
 **1. Use it to execute simple asynchronous task/job**
 
 For this, using `Task` module is recommended instead. Depending on the your
-requirment, rolling out your own `GenServer` just to execute asynchronous job
+requirement, rolling out your own `GenServer` just to execute asynchronous job
 can be a bit too much.
 
 Implementing a `GenServer` with `Task.Supervisor` is **reasonable when you need
@@ -149,7 +149,7 @@ job retry.
 However do note that `GenServer` is a single process and will inherently become
 your bottleneck when the load increase.
 
-On a side note, there is this [article][1] from DockYard where the author demostrated
+On a side note, there is this [article][1] from DockYard where the author demonstrated
 on how we can implement job retry with `GenServer` and `Task.Supervisor`.
 
 **2. Storing state.**
@@ -202,7 +202,7 @@ As mentioned above in using GenServer for simple asynchronous task, you
 should probably bring GenServer in with `Task.Supervisor` **only when you
 need more control over task execution**. For example, you want to ensure that
 a task is really executed and retry if there is failures _(E.g. network
-failrues where retry make sense)_.
+failures where retry make sense)_.
 
 **3. To use `ets` as store.**
 
@@ -253,12 +253,12 @@ are losing the performance gained from using `ets` and limiting our usage of
 `ets`, like reading and writing concurrently with `ets`. The `GenServer.call`
 will become the bottleneck as every lookup is going through the
 single `GenServer` process. Avoid that, _unless you are doing this intentionally to act
-as a backpressure mechanism._
+as a back pressure mechanism._
 
 # Limitations of GenServer
 
 As mentioned, GenServer is inherently just a process. Every process in BEAM
-has one mailbox, where the messages are processed _synchrounously_. That is the
+has one mailbox, where the messages are processed _synchronously_. That is the
 reason why it can become the bottleneck of your system when the load increased.
 
 As `GenServer` messages in the mailbox increased, it will start performing
@@ -287,12 +287,12 @@ having a pool of `GenServer` processes to cope with the high load.
 But, how do you know your GenServer process have too many messages in their
 mailbox?  A quick way to check the messages length in your process mailbox is
 to use `Process.info(genserver_process, :message_queue_len)`, which will
-return the total number meessages in the process mailbox.
+return the total number messages in the process mailbox.
 
 If you would like to know more about it, here are some of the resources where I
 refer to and that are related:
 
-- [Avoding GenServer bottlenecks][6]
+- [Avoiding GenServer bottlenecks][6]
 - [GenServer and scaling][7]
 - [StackOverflow Question][10]
 
@@ -315,8 +315,16 @@ structure code in terms of processes, modules and directories, and supervision
 trees is introduced to help us model our processes based on the idea of
 workers and supervisors.
 
-I guess, the takeway would be: **think about the supervision tree of your
+I guess, the takeaway would be: **think about the supervision tree of your
 GenServer whenever you use GenServer**.
+
+<div class="callout callout-info">
+<p>I recently came across this article on <a
+href="https://moosecode.nl/blog/why_supervise_every_process">
+why process should be supervised</a>, which I think is relevant to this point
+too.
+</p>
+</div>
 
 ## 2. Do add a catch all for your custom `handle_info` callback.
 
@@ -351,7 +359,7 @@ written clearly in the docs but I never read it in detail...)_
 
 There is also this [Elixir forum threads][8] which discuss about why we should use `cast`
 sparingly according to the documentation. Some people recommended to always use `call`
-and avoid `cast` even you don't need the reply, so that it act as a backpressure and
+and avoid `cast` even you don't need the reply, so that it act as a back pressure and
 prevent overloading from the clients _(and also ensure it's really been processed)_.
 
 Again, it really depends the nature of your system. But, do keep in mind of the
