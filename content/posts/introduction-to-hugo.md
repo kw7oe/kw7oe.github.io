@@ -106,6 +106,18 @@ day when working with Hugo.
 
 ## Core concepts and file directory structure
 
+- Content
+- Archetypes
+- Taxanomies
+- Static Files (images)
+- Themes
+  - Layouts
+    - Defaults
+    - Partials
+    - Archetypes
+    - index
+- Others
+  - Filename start with underscore.
 
 [0]: https://github.com/dirkolbrich/hugo-theme-tailwindcss-starter
 [1]: https://gohugo.io/
