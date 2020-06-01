@@ -4,30 +4,78 @@ date: 2020-05-31T14:17:08+08:00
 draft: true
 ---
 
-This is a short post where I share how I build my Elixir/Phoenix releases with Docker
-and _extract the tar file deployed to production environment_.
+This is a short post where I share how I build my Elixir/Phoenix releases with
+Docker and extract the tar file that will be deployed to production.
+
+This post assume you have the basic knowledge of Docker and building Phoenix
+release and is break down into the following sections:
+
+- [Why Docker?](#why-docker)
+- [Dockerfile](#dockerfile)
+- [Extracting tar file from Docker](#extracting-tar-file)
+- [Glue it all together with a simple bash
+  script](#glue-it-all-together-with-a-simple-bash-script)
+
+By the end of this post, you should be able to build your Elixir/Phoenix
+application by just running:
+
+```
+./build
+```
 
 ## Why Docker?
 
-I used to use [Vagrant][0] and [Ansible][1] to build my Phoenix releases.
-I basically setup a Ubuntu VM with Vagrant and have Ansible script that build
-the release in the VM locally.
+To deploy a release to a target _(your production server)_, most of the time
+you are required to build in on the host on the same environment. To quote the
+[Mix Release documentation][3]:
+
+>  ...to deploy straight from a host to a separate target, the Erlang Runtime System (ERTS), and any native dependencies (NIFs), must be compiled for the same target triple.
+
+Hence, if you are using a Macbook, and wanted to build you release and deploy
+to a Ubuntu 18.04 server, you'll need to build your release on a Ubuntu 18.04 virtual machine (VM).
+
+### Without Docker
+
+Without using Docker, normally the common approaches are:
+
+- Build the release by spinning up VM locally with Vagrant.
+- Build the release in a build server in the cloud.
+
+I previously used [Vagrant][0] and [Ansible][1] to build
+my Phoenix releases.  I setup a Ubuntu VM with Vagrant and have Ansible
+script that provision the VM and build the release in the VM locally.
 
 However, it's requires a breadth of knowledge _(in Ansible and a bit of Vagrant)_
-to make this happen. After getting familiar with Docker in my work environment,
-I started to experiment with building release just with Docker, glue with some bash
-script.
+to make this happen.
 
-With Docker, **all you need to learn is about Docker** _(and of course how to build
-a release in an Elixir application)_.
+### With Docker
+With Docker, **all you need to learn is about Docker**.
+
+After getting familiar with Docker, I experiment with building
+Elixir release with Docker, which turns out to be fairly simple, thanks to
+the resource available online. I end up gluing it all together with some
+bash script to build the release in Docker and extract the tar from the Docker
+images.
 
 ## Dockerfile
 
-### Base Image
-Depending on your production machine OS, you might just want to use the official Elixir
-image, which is based on Debian OS. However if you are like me using Ubuntu
-18.04 on your production machine, you can use the following `Dockerfile` as the
-base image for Elixir in Ubuntu 18.04.
+The first step of using Docker to build an image is to writing your
+Dockerfile.
+
+### Parent Image
+
+Depending on your production environment , you might just want to use the
+official Elixir image as your parent image, which is based on Debian OS.
+
+```docker
+FROM elixir:1.9.0 AS build
+```
+
+and [skip to the next section](#build-image).
+
+However if you are using Ubuntu 18.04 on your production machine,
+you can use the following `Dockerfile` as the base image for Elixir
+in Ubuntu 18.04.
 
 ```docker
 FROM ubuntu:18.04
@@ -48,7 +96,7 @@ CMD ["/bin/bash"]
 ```
 
 I named it as `Dockerfile.ubuntu` in my application root directory and run the
-following command to build the image:
+following command to build the parent image:
 
 ```bash
 docker build -t ubuntu-elixir -f Dockerfile.ubuntu .
@@ -56,8 +104,8 @@ docker build -t ubuntu-elixir -f Dockerfile.ubuntu .
 
 ### Build Image
 
-Writing the Dockerfile for building release is fairly straightforward and it is
-also available in Phoenix ["Deploying with Releases"][2] documentation.
+Writing the rest of the Dockerfile for building release is fairly straightforward
+when referring to the Phoenix ["Deploying with Releases"][2] documentation.
 
 ```docker
 FROM ubuntu-elixir as build
@@ -104,14 +152,14 @@ COPY --from=build /app/_build/prod/app_name-*.tar.gz ./
 CMD ["/bin/bash"]
 ```
 
-There some minor differences in this Dockerfile compared to the one in the
+There are some minor differences in this Dockerfile compared to the one in the
 documentation. For example:
 
 - `RUN apk add --no-cache build-base npm git python` is not included as we have
   added this in our `Dockerfile.ubuntu`. However, if you are not using the same
   one, do add it in according to your Dockerfile OS.
 - At the end of the Dockerfile, instead of copying our whole release and make
-  the `CMD` as starting the release, we just copy the tar file of the release.
+  `CMD` to start the release, we just copy the tar file of the release.
 
 Now you can build your release by running:
 
@@ -121,8 +169,8 @@ docker build -t app_name_server .
 
 ## Extracting tar file
 
-After building the images, you might be curious how can we extract the tar file
-from the image itself. A quick and easy way is to run the following command:
+After building the image, we can then extract the tar file from the image by
+running the following command:
 
 ```bash
 # You could also just manually specifying your app name and version.
@@ -135,26 +183,29 @@ docker cp $id:/app/${TAR_FILENAME} .
 docker rm $id
 ```
 
-Basicaly, what we are doing are:
+Here are the explanation of the main commands we run:
 
 - `docker create` create a container with your image. The output of the
   command is the id of the container which we will need later.
-- `docker cp`  copy our tar file to our host directory. We are
-  copying the tar file to our application root directory.
-- `docker rm` to remove the container we started in the first place.
+- `docker cp`  allow us to copy the file in the container to our local directory.
+   Here, we are copying the tar file to our application root directory.
+- `docker rm` remove the container we started in through `docker create`.
 
 
 ## Glue it all together with a simple bash script
 
-Lastly, with some bash scripting, we can glue the build and extraction process
+Lastly, with some bash script, we can glue the build and extraction process
 all into a single script `build`:
 ```bash
 #!/bin/bash
 
-# Exit on error
+# Setting the flag to exit on error
+
+# Without this, for example, when we didn't run Docker daemon
+# the script will still continue to execute despite of the error.
 set -e
 
-# Get App info
+# Get App info (which is copied from Distillery documentation)
 APP_NAME="$(grep 'app:' mix.exs | sed -e 's/\[//g' -e 's/ //g' -e 's/app://' -e 's/[:,]//g')"
 APP_VSN="$(grep 'version:' mix.exs | cut -d '"' -f2)"
 TAR_FILENAME=${APP_NAME}-${APP_VSN}.tar.gz
@@ -176,14 +227,33 @@ chmod +x build
 
 Now, you can just build your Phoenix application by running `./build`.
 
-# Wrap Up
+## Wrap Up
 
-Building the release is just the very first step of deployment. I'll write up a
-upcoming post in the future to cover a bit on how I deploy the tar file
-extracted to my production environment _(which is just a DigitalOcean
-instnace)_.
+Building the release and getting the tar file is just the very first step of deployment. The next steps of deployment normally involves:
+
+- Copying the tar file to production server
+- Extracting the tar file
+- Running the release
+- Cleaning up the tar file both in production and local machine _(Optional)_
+
+I'll write up a upcoming post in the future to cover on all these steps in the
+future. Stay tuned.
+
+<div class="callout callout-info">
+  <p>
+    The same deployment process is also used in my
+    <a href="https://github.com/kw7oe/til">open source TIL</a> project.
+    While it's not documented clearly, the build and deploy script are there
+    for references.
+  </p>
+  <p>At the time of writing, the deploy script includes buildkite command to
+  download the tar file, so you might need to comment out that specific line
+  to run directly</p>
+</div>
 
 
 [0]: https://www.vagrantup.com/
 [1]: https://docs.ansible.com/ansible/latest/index.html
 [2]: https://hexdocs.pm/phoenix/releases.html#containers
+[3]: https://hexdocs.pm/mix/Mix.Tasks.Release.html#module-requirements
+[4]: https://github.com/kw7oe/til
