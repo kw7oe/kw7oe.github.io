@@ -4,14 +4,16 @@ date: 2020-05-31T14:17:08+08:00
 draft: true
 ---
 
-This is a short post where I share how I build my Elixir/Phoenix releases with
-Docker and extract the tar file that will be deployed to production.
+This is a short post about how I build my Elixir/Phoenix releases with
+Docker and extract the tar file that will be deployed to production. In this
+approach, we are just building the release with Docker. _We are not building
+the image to run our application in a Docker container._
 
-This post assume you have the basic knowledge of Docker and building Phoenix
-release and is break down into the following sections:
+This post assume you have the basic knowledge of Docker and building
+Elixir/Phoenix release and is break down into the following sections:
 
 - [Why Docker?](#why-docker)
-- [Dockerfile](#dockerfile)
+- [Writing the Dockerfile](#writing-the-dockerfile)
 - [Extracting tar file from Docker](#extracting-tar-file)
 - [Glue it all together with a simple bash
   script](#glue-it-all-together-with-a-simple-bash-script)
@@ -26,8 +28,8 @@ application by just running:
 ## Why Docker?
 
 To deploy a release to a target _(your production server)_, most of the time
-you are required to build in on the host on the same environment. To quote the
-[Mix Release documentation][3]:
+you are required to build the release in the host with the same environment.
+To quote the [Mix Release documentation][3]:
 
 >  ...to deploy straight from a host to a separate target, the Erlang Runtime System (ERTS), and any native dependencies (NIFs), must be compiled for the same target triple.
 
@@ -41,15 +43,13 @@ Without using Docker, normally the common approaches are:
 - Build the release by spinning up VM locally with Vagrant.
 - Build the release in a build server in the cloud.
 
-I previously used [Vagrant][0] and [Ansible][1] to build
-my Phoenix releases.  I setup a Ubuntu VM with Vagrant and have Ansible
-script that provision the VM and build the release in the VM locally.
-
-However, it's requires a breadth of knowledge _(in Ansible and a bit of Vagrant)_
-to make this happen.
+I previously setup a Ubuntu VM with Vagrant and have Ansible
+script that provision the VM and build the release in the VM locally. This
+approach have more dependencies. You'll need to undetsand and install both
+Vagrant and Ansible to make this happen.
 
 ### With Docker
-With Docker, **all you need to learn is about Docker**.
+With Docker, **all you need is to learn and install Docker**.
 
 After getting familiar with Docker, I experiment with building
 Elixir release with Docker, which turns out to be fairly simple, thanks to
@@ -57,15 +57,14 @@ the resource available online. I end up gluing it all together with some
 bash script to build the release in Docker and extract the tar from the Docker
 images.
 
-## Dockerfile
+## Writing the Dockerfile
 
-The first step of using Docker to build an image is to writing your
-Dockerfile.
+To build your Docker image, you'll first need to write the Dockerfile.
 
 ### Parent Image
 
 Depending on your production environment , you might just want to use the
-official Elixir image as your parent image, which is based on Debian OS.
+official Elixir image as your parent image, which is based on Debian.
 
 ```docker
 FROM elixir:1.9.0 AS build
@@ -105,7 +104,7 @@ docker build -t ubuntu-elixir -f Dockerfile.ubuntu .
 ### Build Image
 
 Writing the rest of the Dockerfile for building release is fairly straightforward
-when referring to the Phoenix ["Deploying with Releases"][2] documentation.
+as I am referring to the Phoenix ["Deploying with Releases"][2] documentation.
 
 ```docker
 FROM ubuntu-elixir as build
@@ -157,7 +156,7 @@ documentation. For example:
 
 - `RUN apk add --no-cache build-base npm git python` is not included as we have
   added this in our `Dockerfile.ubuntu`. However, if you are not using the same
-  one, do add it in according to your Dockerfile OS.
+  one, do add it in according to your OS package management.
 - At the end of the Dockerfile, instead of copying our whole release and make
   `CMD` to start the release, we just copy the tar file of the release.
 
