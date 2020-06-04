@@ -4,6 +4,8 @@ date: 2020-03-16T20:59:55+08:00
 tags: ["aws", "devops"]
 ---
 
+_Updates (4th June, 2020): Adding in another potential causes: logs_
+
 The company I am currently working for, uses AWS infrastructure extensively.
 For instance, we build our Elixir/Phoenix application release on a seperate EC2 instance.
 
@@ -80,6 +82,7 @@ Based on my limited experience, the root cause could be one of the following:
 
 - Old Linux header files
 - Deleted but opened files
+- Huge undeleted log files
 
 ## Old Linux Header Files
 
@@ -209,6 +212,89 @@ kill -9 19341
 After that you can check your disk usage  by using `df -hT` again and you should
 now have more free disk space. With this approach, we managed to  free up `3.2G`
 of disk space on our build server.
+
+## Huge undeleted log files
+
+Recently, I have also came across another potential causes which is huge
+undeleted log files. It's easy to locate the issues by simply running:
+
+```
+du -ah . | sort -rh | head -20
+```
+
+If your results is something like this, where `/var/log` come up as the top
+one, then it's definitely due to logs.
+
+```
+7.6G	.
+4.5G	./var
+3.8G	./var/log
+3.4G	./var/log/nginx
+1.7G	./usr
+1.6G	./var/log/nginx/access.log
+882M	./var/log/nginx/error.log.1
+696M	./snap
+645M	./var/log/nginx/access.log.1
+...
+324M	./var/lib/snapd
+276M	./usr/lib/x86_64-linux-gnu
+275M	./snap/core/9066
+275M	./snap/core/8935
+```
+
+As you can see from the results, in this case `/var/log/nginx` seems like the
+culprit. We can then change directory and `ls -lah` _(`-h` to format the
+file size to human readable format)_, which result in:
+
+```
+total 3.4G
+drwxr-xr-x  2 root   adm     4.0K May 31 06:25 .
+drwxrwxr-x 11 root   syslog  4.0K Jun  1 01:30 ..
+-rw-r-----  1 deploy adm     1.6G Jun  1 02:09 access.log
+-rw-r-----  1 deploy adm     645M May 29 06:25 access.log.1
+-rw-r-----  1 deploy adm      81K May 17 06:25 access.log.10.gz
+-rw-r-----  1 deploy adm     268K May 16 06:25 access.log.11.gz
+-rw-r-----  1 deploy adm    1019K May 15 06:25 access.log.12.gz
+...
+-rw-r-----  1 deploy adm     252M Jun  1 02:07 error.log
+-rw-r-----  1 deploy adm     882M May 29 02:34 error.log.1
+...
+```
+
+While it may seems like the straightforward solution is just `rm access.log`,
+but there are some caveat. Before deleting those logs directly, is good to
+google search around on how to do it properly, so this is what I found:
+
+- [Deleting nginx log and now nginx won't start](https://serverfault.com/questions/146913/nginx-error-log-was-huge-so-i-deleted-and-created-a-new-one-now-nginx-wont-st)
+- [How to erase content of error.log file but keep file intact](https://superuser.com/questions/218214/how-do-erase-the-contents-of-a-error-log-file-but-keep-the-file-intact)
+- [Clean nginx logs file](https://stackoverflow.com/questions/32410053/clean-var-log-nginx-logs-file)
+
+Browse those link if you want to learn more about it. But in my case, I am
+following the answer on the third link:
+
+```bash
+mv access.log access.log.old
+# After this command, you should see a new empty access.log file created.
+kill -USR1 `cat /var/run/nginx.pid`
+rm access.log.old
+```
+
+If let's say your largest log file is `access.log.<number>`, generally, it's
+safe to delete it directly _(you might need to double check on this, can't
+manage to find a source to support my point and this time of writing)_.
+
+At the end, here is the result when I run `df -hT` again:
+
+```
+Filesystem     Type      Size  Used Avail Use% Mounted on
+udev           devtmpfs  2.0G     0  2.0G   0% /dev
+tmpfs          tmpfs     396M   41M  355M  11% /run
+/dev/xvda1     ext4      7.7G  4.3G  3.5G  56% /
+...
+```
+
+All my space is back! And `nginx` is still working properly.
+
 
 # Conclusion
 
