@@ -143,7 +143,7 @@ COPY lib lib
 # COPY rel rel
 RUN mix do compile, release
 
-FROM ubuntu:18.04 AS app
+FROM scratch AS app
 
 WORKDIR /app
 COPY --from=build /app/_build/prod/app_name-*.tar.gz ./
@@ -158,7 +158,9 @@ documentation. For example:
   added this in our `Dockerfile.ubuntu`. However, if you are not using the same
   one, do add it in according to your OS package management.
 - At the end of the Dockerfile, instead of copying our whole release and make
-  `CMD` to start the release, we just copy the tar file of the release.
+  `CMD` to start the release, we just copy the tar file of the release. Also
+  notice that we use `FROM scratch` instead of `FROM ubuntu:18.04` to reduce
+  our final image size _(since we are just storing the tar file)_.
 
 Now you can build your release by running:
 
