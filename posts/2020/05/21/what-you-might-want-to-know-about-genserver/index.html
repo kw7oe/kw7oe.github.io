@@ -51,7 +51,7 @@ What you might want to know about GenServer | kw7oe
 <header class="mb-8">
   <h1 class="title">What you might want to know about GenServer</h1>
   <p class="text-sm font-gray-700 mb-1">May 21, 2020</p>
-  <p class="text-sm mb-4 font-gray-700 italic">Estimated Reading Time: 13 minutes (2593 words)</p>
+  <p class="text-sm mb-4 font-gray-700 italic">Estimated Reading Time: 13 minutes (2560 words)</p>
 
    
   <div id="tags">
@@ -138,10 +138,10 @@ our callback modules do)</em>.</p>
 <h3 id="why-not-implementing-our-own-genserver-behavior">Why not implementing our own GenServer behavior?</h3>
 
 <p>If GenServer is just a pattern that decouple the logic, can&rsquo;t we write
-and use our own one?</p>
+our own one and use it?</p>
 
 <p>You can, but GenServer do a lot more than just decoupling these logic. GenServer
-take care of some of the cases that we are not aware of in an concurrent system. A
+take care of some of the cases that we are not aware of in a concurrent system. A
 few notable one are:</p>
 
 <ul>
@@ -208,9 +208,9 @@ recommended as there are better alternatives:</p>
 
 <p><strong>1. Use it to execute simple asynchronous task/job</strong></p>
 
-<p>For this, using <code>Task</code> module is recommended instead. Depending on the your
+<p>For this, using <code>Task</code> module is recommended instead. Depending on your
 requirement, rolling out your own <code>GenServer</code> just to execute asynchronous job
-can be a bit too much.</p>
+can be too much.</p>
 
 <p>Implementing a <code>GenServer</code> with <code>Task.Supervisor</code> is <strong>reasonable when you need
 more control over the task execution</strong> such as error handling, monitoring and
@@ -224,9 +224,9 @@ on how we can implement job retry with <code>GenServer</code> and <code>Task.Sup
 
 <p><strong>2. Storing state.</strong></p>
 
-<p>Start by using <code>Agent</code>. If it provide what you need, that&rsquo;s great. A rule of
+<p>Start by using <code>Agent</code>. If it provides what you need, that&rsquo;s great. A rule of
 thumb is to reach for tool that have a higher level abstraction. Only reach out
-to GenServer as base when you need extra customization.</p>
+to GenServer when you need extra customization.</p>
 
 <p>If <code>Agent</code> doesn&rsquo;t fit your requirement, then look into the combination of
 GenServer and <code>ETS</code> instead. Avoid writing your own GenServer to track key
@@ -245,10 +245,10 @@ make the design decision.</p>
 <h2 id="when-you-should-use-genserver">When you <em>should</em> use GenServer?</h2>
 
 <p>It&rsquo;s a bit irony isn&rsquo;t it. We have just go through a few use cases of GenServer in
-the section of &ldquo;When you shouldn&rsquo;t user GenServer?&rdquo;.</p>
+the previous section.</p>
 
-<p>But that&rsquo;s the reality of design decision. That&rsquo;s no silver bullet to every problems,
-it really depends on the context. The same apply to  when and when you shouldn&rsquo;t use
+<p>But that&rsquo;s the reality of design decision. There is no silver bullet to every problems,
+it really depends on the context. The same apply for when and when you shouldn&rsquo;t use
 GenServer.</p>
 
 <p>So here are a list of scenario where it make sense to bring it GenServer:</p>
@@ -259,25 +259,24 @@ GenServer.</p>
 allow you to utilize <code>Process.send_after</code> to send periodic message or schedule
 one off tasks.</p>
 
-<p>Depending on your needs, you may consider to use <a href="https://hexdocs.pm/parent/Periodic.html#content"><code>periodic</code></a> library by the
-author of Elixir in Action instead of rolling out your own solution. <em>(You can
-also read this <a href="https://www.theerlangelist.com/article/periodic">article</a> by the author on the design behind the library)</em></p>
+<p>Depending on your needs, consider using existing libarry like  <a href="https://hexdocs.pm/parent/Periodic.html#content"><code>periodic</code></a>
+by Saša Jurić <em>(the author of Elixir in Action)</em> instead of rolling out your own
+solution. <em>(You can also read this <a href="https://www.theerlangelist.com/article/periodic">article</a> on the design behind the library)</em></p>
 
-<p>If you need more full-fledged solution for scheduling jobs, consider
-<a href="https://github.com/quantum-elixir/quantum-core"><code>quantum</code></a> that allow you to use cron like syntax to schedule jobs.</p>
+<p>If you need a more full-fledged solution for scheduling jobs, consider
+<a href="https://github.com/quantum-elixir/quantum-core"><code>quantum</code></a> that allow the use of cron like syntax to schedule jobs.</p>
 
 <p><strong>2. To gain more control over task execution of <code>Task</code> module.</strong></p>
 
-<p>As mentioned above in using GenServer for simple asynchronous task, you
-should probably bring GenServer in with <code>Task.Supervisor</code> <strong>only when you
-need more control over task execution</strong>. For example, you want to ensure that
-a task is really executed and retry if there is failures <em>(E.g. network
-failures where retry make sense)</em>.</p>
+<p>As mentioned in previous section, bring in GenServer with
+<code>Task.Supervisor</code> <strong>when you need more control over task execution</strong>.
+For example, to ensure that a task is really executed and retry
+if there is failures <em>(E.g. network failures where retry make sense)</em>.</p>
 
 <p><strong>3. To use <code>ets</code> as store.</strong></p>
 
-<p><code>ets</code> is really good built-in in memory storage for BEAM. No doubt, there will
-be times when you&rsquo;ll need to use this for your production application.
+<p><code>ets</code> is a good built-in in memory storage for BEAM. No doubt, there will
+be times when you&rsquo;ll need this for your production application.
 Starting <code>ets</code> table in a <code>GenServer</code> is definitely the way to go.</p>
 
 <p>This is because <code>ets</code> table is owned by the process create it. If the process
@@ -316,19 +315,20 @@ is terminated, the <code>ets</code> table is also deleted. However, do avoid wra
 <span class="n">end</span></code></pre></div>
 <p>This is because if we are wrapping <code>:ets.lookup</code> in the <code>GenServer.call</code>, we
 are losing the performance gained from using <code>ets</code> and limiting our usage of
-<code>ets</code>, like reading and writing concurrently with <code>ets</code>. The <code>GenServer.call</code>
+<code>ets</code>, like reading and writing concurrently with <code>ets</code>.</p>
+
+<p>The <code>GenServer.call</code>
 will become the bottleneck as every lookup is going through the
-single <code>GenServer</code> process. Avoid that, <em>unless you are doing this intentionally to act
-as a back pressure mechanism.</em></p>
+single <code>GenServer</code> process. Avoid that, <em>unless you are doing this intentionally to act as a back pressure mechanism.</em></p>
 
 <h1 id="limitations-of-genserver">Limitations of GenServer</h1>
 
-<p>As mentioned, GenServer is inherently just a process. Every process in BEAM
-has one mailbox, where the messages are processed <em>synchronously</em>. That is the
+<p>As mentioned, GenServer is just a process. Every process in BEAM
+has one mailbox, where the messages are processed <em>synchronously</em>. This is the
 reason why it can become the bottleneck of your system when the load increased.</p>
 
 <p>As <code>GenServer</code> messages in the mailbox increased, it will start performing
-even slower due to the internal mechanism on how it process the message.
+even slower due to the internal mechanism on how it process the messages.
 As your process mailbox get larger, the process will need to go through all the
 messages in the mailbox to match the message in the <code>receive</code> pattern again.</p>
 
@@ -348,13 +348,13 @@ corresponding to the second pattern are executed. If the second pattern
 does not match, the third is tried and so on until there are no more patterns to test.</p>
 </blockquote>
 
-<p>Generally speaking, using GenServer is fine until your load increases
+<p>Using GenServer is fine until your load increases
 and it become the bottleneck. People commonly use <code>ets</code> or
 having a pool of <code>GenServer</code> processes to cope with the high load.</p>
 
 <p>But, how do you know your GenServer process have too many messages in their
 mailbox?  A quick way to check the messages length in your process mailbox is
-to use <code>Process.info(genserver_process, :message_queue_len)</code>, which will
+to use <code>Process.info(genserver_process, :message_queue_len)</code>, which
 return the total number messages in the process mailbox.</p>
 
 <p>If you would like to know more about it, here are some of the resources where I
@@ -381,11 +381,11 @@ down your whole application.</p>
 you need your system to behave when things go wrong</strong>.</p>
 
 <p>According to <a href="https://erlang.org/doc/design_principles/des_princ.html#supervision-trees">Erlang documentation</a>, OTP design principles define how we
-structure code in terms of processes, modules and directories, and supervision
+structure code in terms of processes, modules and directories, and <em>supervision
 trees is introduced to help us model our processes based on the idea of
-workers and supervisors.</p>
+workers and supervisors</em>.</p>
 
-<p>I guess, the takeaway would be: <strong>think about the supervision tree of your
+<p>I guess, the takeaway is: <strong>think about the supervision tree of your
 GenServer whenever you use GenServer</strong>.</p>
 
 <div class="callout callout-info">
@@ -420,9 +420,9 @@ whether it has been executed.</li>
 executed.</li>
 </ul>
 
-<p>But when I dive deeper, I found out that calling <code>cast</code> on a GenServer
-process that doesn&rsquo;t exists will still return you <code>:ok</code>. With <code>cast</code>, there is
-no guarantee that it is executed by your GenServer process. <em>(Well it&rsquo;s actually
+<p>But when I dive deeper, I found that calling <code>cast</code> on a GenServer
+process that doesn&rsquo;t exists still return you <code>:ok</code>. With <code>cast</code>, there is
+no guarantee that it is executed. <em>(Well it&rsquo;s actually
 written clearly in the docs but I never read it in detail&hellip;)</em></p>
 
 <p>There is also this <a href="https://elixirforum.com/t/genserver-docs-handle-cast-should-be-used-sparingly-why">Elixir forum threads</a> which discuss about why we should use <code>cast</code>
