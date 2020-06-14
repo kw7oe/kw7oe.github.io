@@ -1,5 +1,5 @@
 ---
-title: "How I Deploy My Elixir Release (for my hobby project)"
+title: "Deploying Elixir/Phoenix Release to Production (for my hobby project)"
 date: 2020-06-11T20:49:01+08:00
 draft: true
 ---
@@ -37,25 +37,25 @@ APP_NAME="$(grep 'app:' mix.exs | sed -e 's/\[//g' -e 's/ //g' -e 's/app://' -e 
 APP_VSN="$(grep 'version:' mix.exs | cut -d '"' -f2)"
 TAR_FILENAME=${APP_NAME}-${APP_VSN}.tar.gz
 
-# Replace with your remote server IP address or alias
+# Replace with your remote server IP address or hostname
 HOST="192.162.1.1"
 
 # Create directory for our app first. In this case we are creating
 # the folder at our user home directory. WHICH MIGHT NOT BE THE BEST PRACTICE.
-ssh $HOST mkdir -p $APP_NAME/$APP_VSN
+ssh $HOST mkdir -p $APP_NAME/releases
 
 # Use scp to copy our tarfile from local machie to remote server
 # We are copying the tarfile to the directory we created above.
-scp $TAR_FILENAME $HOST:~/$APP_NAME/$TAR_FILENAME
+scp $TAR_FILENAME $HOST:~/$APP_NAME/releases/$TAR_FILENAME
 
 # Extract the tarfile
-ssh $HOST tar -xzf $APP_NAME/$TAR_FILENAME -C $APP_NAME/$APP_VSN
+ssh $HOST tar -xzf $APP_NAME/releases/$TAR_FILENAME -C $APP_NAME
 
 # Source environment variable and start our Elixir application
-ssh $HOST "source ~/$APP_NAME/.env  && ~/$APP_NAME/$APP_VSN/bin/$APP_NAME daemon"
+ssh $HOST "source ~/$APP_NAME/.env  && ~/$APP_NAME/bin/$APP_NAME daemon"
 
 # Remove tarfile that is copied in the 2nd step.
-ssh $HOST rm "~/$APP_NAME/$TAR_FILENAME"
+ssh $HOST rm "~/$APP_NAME/releases/$TAR_FILENAME"
 ```
 
 If you save this file as `./deploy` in your application root directory _(or
@@ -76,7 +76,148 @@ Host prod-server # Host Name
   Hostname 192.168.1.1 # IP address
 ```
 
-With this configuration, you can now directly `ssh prod-server` instaed of
+With this configuration, you can now directly `ssh prod-server` instead of
 using `ssh kai@192.168.1.1`.
+
+## Steps for updating subsequent release
+
+Subsequent release involves the similar steps as the above. Before starting
+the new version, We need to stop our old version server first. However, script
+like this won't work:
+
+```bash
+bin/app stop
+bin/app start
+```
+
+This is because it would take some time for the old application to be shutdown
+gracefully, so running start command immediately would very likely to caused
+the following error:
+
+```
+Protocol 'inet_tcp': the name appname@hostname seems to be in use by another Erlang node
+```
+
+To overcome this issue, we would have to repeatedly try to start the
+application until there is no error faced. The only difference between the
+script for initial release and subsequent release is the part where we start
+the application:
+
+_Instead of:_
+```bash
+source ~/$APP_NAME/.env  && ~/$APP_NAME/bin/$APP_NAME daemon
+```
+
+_Here is what we use:_
+```bash
+# Stop existing application if any
+ssh $HOST $APP_NAME/bin/$APP_NAME stop
+
+# Allow error so we can capture the command error code
+set +e
+
+# ===============================
+# Waiting for application to stop
+# ===============================
+ssh $HOST $APP_NAME/bin/$APP_NAME pid
+
+# Check previous command status code, where 1 indicate error,
+# which infers that the node is stopped successfully.
+# Retry until bin/app pid actually return nodedown error.
+while [ $? -ne 1 ]
+do
+  ssh $HOST $APP_NAME/bin/$APP_NAME pid
+done
+
+# ================================
+# Start application in daemon mode
+# ================================
+ssh $HOST "source $APP_NAME/.env  && $APP_NAME/bin/$APP_NAME daemon"
+
+# ========================
+# Health Check Application
+# ========================
+ssh $HOST "$APP_NAME/bin/$APP_NAME rpc 'IO.puts(\"health-check\")'"
+
+# Retry until we can use rpc to talk to our node, which indicate our node
+# is now up and running.
+while [ $? -ne 0 ]
+do
+  ssh $HOST "$APP_NAME/bin/$APP_NAME rpc 'IO.puts(\"health-check\")'"
+done
+
+# Trap error
+set -e
+```
+
+<div class="callout callout-info">
+  <p>
+    You might be wondering if we can just use <code>bin/app restart</code> to
+    resolve this issue. The answer is no. After running restart, the BEAM
+    VM will still use the previous version of our application.
+  </p>
+
+  <p>
+    And instead of using <code>bin/app eval IO.puts("health-check")</code>, we use
+    <code>rpc</code> because <code>eval</code> do not communicate with the
+    node to execute the code. Hence, even if the node is not up yet, the
+    execution will still be successful.
+  </p>
+</div>
+
+
+```bash
+#!/bin/bash
+
+set -e
+
+APP_NAME="$(grep 'app:' mix.exs | sed -e 's/\[//g' -e 's/ //g' -e 's/app://' -e 's/[:,]//g')"
+APP_VSN="$(grep 'version:' mix.exs | cut -d '"' -f2)"
+TAR_FILENAME=${APP_NAME}-${APP_VSN}.tar.gz
+HOST="192.168.1.1"
+
+bold_echo() {
+  echo -e "\033[1m---> $1\033[0m"
+}
+
+bold_echo "Creating directory if not exist..."
+ssh $HOST mkdir -p $APP_NAME/releases/$APP_VSN
+
+bold_echo "Copying release to remote..."
+scp $TAR_FILENAME do:~/$APP_NAME/releases/$TAR_FILENAME
+ssh $HOST tar -xzf $APP_NAME/releases/$TAR_FILENAME -C $APP_NAME/
+
+bold_echo "Waiting for existing application to stop..."
+# Stop existing application if any
+ssh $HOST $APP_NAME/bin/$APP_NAME stop
+
+set +e
+# Waiting for application to stop
+ssh $HOST $APP_NAME/bin/$APP_NAME pid
+while [ $? -ne 1 ]
+do
+  ssh $HOST $APP_NAME/bin/$APP_NAME pid
+done
+
+bold_echo "Starting application in daemon mode..."
+ssh $HOST "source $APP_NAME/.env  && $APP_NAME/bin/$APP_NAME daemon"
+
+bold_echo "Health checking application..."
+# Waiting for application to start
+ssh $HOST "$APP_NAME/bin/$APP_NAME rpc 'IO.puts(\"health-check\")'"
+while [ $? -ne 0 ]
+do
+  ssh $HOST "$APP_NAME/bin/$APP_NAME rpc 'IO.puts(\"health-check\")'"
+done
+set -e
+bold_echo "Application started!"
+
+bold_echo "Removing remote tar file..."
+ssh $HOST rm "~/$APP_NAME/releases/$TAR_FILENAME"
+
+bold_echo "Removing local tar file..."
+rm $TAR_FILENAME
+
+```
 
 [1]: https://askubuntu.com/questions/25347/what-command-do-i-need-to-unzip-extract-a-tar-gz-file
