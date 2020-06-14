@@ -9,8 +9,28 @@ Docker and extract the tar file that will be deployed to production. In this
 approach, we are just building the release with Docker. _We are not building
 the image to run our application in a Docker container._
 
-This post assume you have the basic knowledge of Docker and building
-Elixir/Phoenix release and is break down into the following sections:
+This post assume that you have the basic knowledge of Docker,
+building Elixir release and using Elixir 1.9.3 and above, where `:tar` options
+is supported in Elixir releases. Your `mix.exs` should also have the similar
+configuration as below:
+
+```elixir
+def project do
+  [
+    ...
+    releases: [
+      app_name: [
+        # Ask mix release to build tarball of the release.
+        steps: [:assemble, :tar]
+      ]
+    ]
+  ]
+end
+```
+
+For more, can refer to the [`mix release` documentation](https://hexdocs.pm/mix/Mix.Tasks.Release.html#module-steps).
+
+This post is break down into the following sections:
 
 - [Why Docker?](#why-docker)
 - [Writing the Dockerfile](#writing-the-dockerfile)
@@ -24,6 +44,7 @@ application by just running:
 ```
 ./build
 ```
+
 
 ## Why Docker?
 

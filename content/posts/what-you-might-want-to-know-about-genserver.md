@@ -74,10 +74,10 @@ our callback modules do)_.
 ### Why not implementing our own GenServer behavior?
 
 If GenServer is just a pattern that decouple the logic, can't we write
-and use our own one?
+our own one and use it?
 
 You can, but GenServer do a lot more than just decoupling these logic. GenServer
-take care of some of the cases that we are not aware of in an concurrent system. A
+take care of some of the cases that we are not aware of in a concurrent system. A
 few notable one are:
 
 - Handling system messages
@@ -138,9 +138,9 @@ recommended as there are better alternatives:
 
 **1. Use it to execute simple asynchronous task/job**
 
-For this, using `Task` module is recommended instead. Depending on the your
+For this, using `Task` module is recommended instead. Depending on your
 requirement, rolling out your own `GenServer` just to execute asynchronous job
-can be a bit too much.
+can be too much.
 
 Implementing a `GenServer` with `Task.Supervisor` is **reasonable when you need
 more control over the task execution** such as error handling, monitoring and
@@ -154,9 +154,9 @@ on how we can implement job retry with `GenServer` and `Task.Supervisor`.
 
 **2. Storing state.**
 
-Start by using `Agent`. If it provide what you need, that's great. A rule of
+Start by using `Agent`. If it provides what you need, that's great. A rule of
 thumb is to reach for tool that have a higher level abstraction. Only reach out
-to GenServer as base when you need extra customization.
+to GenServer when you need extra customization.
 
 If `Agent` doesn't fit your requirement, then look into the combination of
 GenServer and `ETS` instead. Avoid writing your own GenServer to track key
@@ -175,10 +175,10 @@ make the design decision.
 ## When you _should_ use GenServer?
 
 It's a bit irony isn't it. We have just go through a few use cases of GenServer in
-the section of "When you shouldn't user GenServer?".
+the previous section.
 
-But that's the reality of design decision. That's no silver bullet to every problems,
-it really depends on the context. The same apply to  when and when you shouldn't use
+But that's the reality of design decision. There is no silver bullet to every problems,
+it really depends on the context. The same apply for when and when you shouldn't use
 GenServer.
 
 So here are a list of scenario where it make sense to bring it GenServer:
@@ -189,25 +189,24 @@ When you need to send periodic message, using GenServer make sense as it
 allow you to utilize `Process.send_after` to send periodic message or schedule
 one off tasks.
 
-Depending on your needs, you may consider to use [`periodic`][3] library by the
-author of Elixir in Action instead of rolling out your own solution. _(You can
-also read this [article][4] by the author on the design behind the library)_
+Depending on your needs, consider using existing libarry like  [`periodic`][3]
+by Saša Jurić _(the author of Elixir in Action)_ instead of rolling out your own
+solution. _(You can also read this [article][4] on the design behind the library)_
 
-If you need more full-fledged solution for scheduling jobs, consider
-[`quantum`][2] that allow you to use cron like syntax to schedule jobs.
+If you need a more full-fledged solution for scheduling jobs, consider
+[`quantum`][2] that allow the use of cron like syntax to schedule jobs.
 
 **2. To gain more control over task execution of `Task` module.**
 
-As mentioned above in using GenServer for simple asynchronous task, you
-should probably bring GenServer in with `Task.Supervisor` **only when you
-need more control over task execution**. For example, you want to ensure that
-a task is really executed and retry if there is failures _(E.g. network
-failures where retry make sense)_.
+As mentioned in previous section, bring in GenServer with
+`Task.Supervisor` **when you need more control over task execution**.
+For example, to ensure that a task is really executed and retry
+if there is failures _(E.g. network failures where retry make sense)_.
 
 **3. To use `ets` as store.**
 
-`ets` is really good built-in in memory storage for BEAM. No doubt, there will
-be times when you'll need to use this for your production application.
+`ets` is a good built-in in memory storage for BEAM. No doubt, there will
+be times when you'll need this for your production application.
 Starting `ets` table in a `GenServer` is definitely the way to go.
 
 This is because `ets` table is owned by the process create it. If the process
@@ -250,19 +249,20 @@ end
 
 This is because if we are wrapping `:ets.lookup` in the `GenServer.call`, we
 are losing the performance gained from using `ets` and limiting our usage of
-`ets`, like reading and writing concurrently with `ets`. The `GenServer.call`
+`ets`, like reading and writing concurrently with `ets`.
+
+The `GenServer.call`
 will become the bottleneck as every lookup is going through the
-single `GenServer` process. Avoid that, _unless you are doing this intentionally to act
-as a back pressure mechanism._
+single `GenServer` process. Avoid that, _unless you are doing this intentionally to act as a back pressure mechanism._
 
 # Limitations of GenServer
 
-As mentioned, GenServer is inherently just a process. Every process in BEAM
-has one mailbox, where the messages are processed _synchronously_. That is the
+As mentioned, GenServer is just a process. Every process in BEAM
+has one mailbox, where the messages are processed _synchronously_. This is the
 reason why it can become the bottleneck of your system when the load increased.
 
 As `GenServer` messages in the mailbox increased, it will start performing
-even slower due to the internal mechanism on how it process the message.
+even slower due to the internal mechanism on how it process the messages.
 As your process mailbox get larger, the process will need to go through all the
 messages in the mailbox to match the message in the `receive` pattern again.
 
@@ -280,13 +280,13 @@ processing the messages:
 > corresponding to the second pattern are executed. If the second pattern
 > does not match, the third is tried and so on until there are no more patterns to test.
 
-Generally speaking, using GenServer is fine until your load increases
+Using GenServer is fine until your load increases
 and it become the bottleneck. People commonly use `ets` or
 having a pool of `GenServer` processes to cope with the high load.
 
 But, how do you know your GenServer process have too many messages in their
 mailbox?  A quick way to check the messages length in your process mailbox is
-to use `Process.info(genserver_process, :message_queue_len)`, which will
+to use `Process.info(genserver_process, :message_queue_len)`, which
 return the total number messages in the process mailbox.
 
 If you would like to know more about it, here are some of the resources where I
@@ -311,11 +311,11 @@ The idea behind is to always **design your supervision tree and think about how
 you need your system to behave when things go wrong**.
 
 According to [Erlang documentation][15], OTP design principles define how we
-structure code in terms of processes, modules and directories, and supervision
+structure code in terms of processes, modules and directories, and _supervision
 trees is introduced to help us model our processes based on the idea of
-workers and supervisors.
+workers and supervisors_.
 
-I guess, the takeaway would be: **think about the supervision tree of your
+I guess, the takeaway is: **think about the supervision tree of your
 GenServer whenever you use GenServer**.
 
 <div class="callout callout-info">
@@ -352,9 +352,9 @@ As a newcomer to Elixir, the only difference I know about `cast` and `call` is:
 - `call` is synchronous. Use it when you need the result, or ensure it has been
   executed.
 
-But when I dive deeper, I found out that calling `cast` on a GenServer
-process that doesn't exists will still return you `:ok`. With `cast`, there is
-no guarantee that it is executed by your GenServer process. _(Well it's actually
+But when I dive deeper, I found that calling `cast` on a GenServer
+process that doesn't exists still return you `:ok`. With `cast`, there is
+no guarantee that it is executed. _(Well it's actually
 written clearly in the docs but I never read it in detail...)_
 
 There is also this [Elixir forum threads][8] which discuss about why we should use `cast`
