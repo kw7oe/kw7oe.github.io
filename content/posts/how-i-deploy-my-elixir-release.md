@@ -4,12 +4,13 @@ date: 2020-06-11T20:49:01+08:00
 draft: true
 ---
 
-In my previous post "Building Elixir/Phoenix Release With Docker", I wrote
+
+In my previous post ["Building Elixir/Phoenix Release With Docker"]({{< ref "building-phoenix-release-with-docker.md" >}}), I wrote
 about how I build Elixir release with Docker and extract the tar file. However,
-I haven't talk about I deploy the release to my production server and start the
+I haven't talk about how I deploy the release to my production server and start the
 application.
 
-So, in this post, I am going to share my process on deploying the Elixir release.
+So, in this post, I am going to share my process on deploying Elixir release.
 
 _For the sake of simplicity, this post assume that your remote server already
 has reverse proxy like `nginx` setup and pointing port 80 towards your
@@ -25,7 +26,7 @@ release.
 2. Extract the tar file on the remote server.
 3. Start your application by running `/bin/app_name daemon`
 
-Which is equivalent to the following script:
+Which is equivalent to the following bash script:
 
 ```bash
 #!/bin/bash
@@ -146,9 +147,23 @@ do
   ssh $HOST "$APP_NAME/bin/$APP_NAME rpc 'IO.puts(\"health-check\")'"
 done
 
-# Trap error
+# Trap error back
 set -e
 ```
+
+The script basically done the following through `ssh`:
+
+- Stop the application by running `bin/appname stop`.
+- Check the process id of the running application by using `bin/appname pid`. If it the
+- status code is not error, it means that the application is still running.
+  `$?` is the special variable in bash that indicate the status code of the
+  previous command, in this example, it would be the `bin/appname pid` command.
+- After the application stop runnning _(after `bin/appname pid` return error, since the
+  node is down)_, we start our new version application in daemon mode by
+  running `bin/appname start`.
+- After starting our application, we continuosly attempt to health check our
+  application by using `bin/appname rpc`. Alternatively, you can also `curl`
+  your health check endpoint.
 
 <div class="callout callout-info">
   <p>
@@ -165,6 +180,13 @@ set -e
   </p>
 </div>
 
+This work good enough if you have only one production server. If you have more
+than one, consider looping through and extract the code into function. So
+basically that's all.
+
+## Glue it all together
+
+To sum up, here is the bash script for deploying initial or subsequent release:
 
 ```bash
 #!/bin/bash
@@ -217,7 +239,26 @@ ssh $HOST rm "~/$APP_NAME/releases/$TAR_FILENAME"
 
 bold_echo "Removing local tar file..."
 rm $TAR_FILENAME
-
 ```
+
+What we do additionally here is just add some extra logging on each step and
+clean up after our release.
+
+# Wrap Up
+
+That's all. Building and deploying Elixir release can be simple once you know
+the building blocks. However, do remember that this might not be the best
+approach to deploy. It really depends on your context. For my personal
+projects, I found it to be sufficient as I only have a single production server
+and I am the only one who deployed it.
+
+If you're looking for a deployment process for a team, ideally, it would be
+better to utilize the resources available for your team. For intances, starting
+your application in a Docker container. Hence, deployment is just as easy as
+updating Docker image version for your container.
+
+But is that all for my deployment processs for Elixir/Phoenix release? Of
+course not! The next one I would share in the future  would be deploying our
+release using Blue Green Deployment strategy with nginx. So do stay tuned!
 
 [1]: https://askubuntu.com/questions/25347/what-command-do-i-need-to-unzip-extract-a-tar-gz-file
