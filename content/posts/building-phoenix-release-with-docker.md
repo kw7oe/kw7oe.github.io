@@ -1,7 +1,7 @@
 ---
 title: "Building Elixir/Phoenix Release With Docker"
-date: 2020-05-31T14:17:08+08:00
-draft: true
+date: 2020-06-16T14:17:08+08:00
+tag: ['elixir']
 ---
 
 This is a short post about how I build my Elixir/Phoenix releases with
