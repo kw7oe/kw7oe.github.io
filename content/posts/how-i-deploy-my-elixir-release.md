@@ -1,6 +1,6 @@
 ---
 title: "Deploying Elixir/Phoenix Release to Production (for my hobby project)"
-date: 2020-06-11T20:49:01+08:00
+date: 2020-06-16T20:49:01+08:00
 draft: true
 ---
 
@@ -19,14 +19,14 @@ is created and running._
 
 ## Steps for initial release
 
-Before we start, let's briefly talk about the steps involve to deploy our
+Before we start, let's briefly talk about the steps involved to deploy our
 release.
 
-1. Copy the release tar file to the remote server.
+1. Copy the release tarball to the remote server.
 2. Extract the tar file on the remote server.
 3. Start your application by running `/bin/app_name daemon`
 
-Which is equivalent to the following bash script:
+This is equivalent to the following bash script:
 
 ```bash
 #!/bin/bash
@@ -59,14 +59,22 @@ ssh $HOST "source ~/$APP_NAME/.env  && ~/$APP_NAME/bin/$APP_NAME daemon"
 ssh $HOST rm "~/$APP_NAME/releases/$TAR_FILENAME"
 ```
 
+Here we used some of the common linux command such as:
+
+- `scp` to copy our tarball securely to the remote server.
+- `tar` to extract the tarball, refer to this [StackOverflow Question][1]
+  for more.
+- `source` to load our environment variable required by our application.
+
 If you save this file as `./deploy` in your application root directory _(or
-where your tarfile is available)_ and run `chmod +x ./deploy`, you should be
+where your tarball is available)_ and run `chmod +x ./deploy`, you should be
 able to deploy your initial release by simply running `./deploy`.
 
 Notice the pattern we use here `ssh $HOST <command to run>`. We are essentially
 just running the command on our remote server by first sshing into the server.
 If you're new to this, go ahead and run `ssh <ip> "ls -la"` on your local
-machine.
+machine, you should be able to see the result of running `ls -la` in your
+remote server.
 
 If you frequently ssh to that particular IP, you can add the following to
 your `~/.ssh/config`:
@@ -82,17 +90,17 @@ using `ssh kai@192.168.1.1`.
 
 ## Steps for updating subsequent release
 
-Subsequent release involves the similar steps as the above. Before starting
-the new version, We need to stop our old version server first. However, script
-like this won't work:
+Subsequent release involves the similar steps as the above. The difference is
+before starting the new version, we need to stop our old version server first.
+However, script like this won't work:
 
 ```bash
 bin/app stop
 bin/app start
 ```
 
-This is because it would take some time for the old application to be shutdown
-gracefully, so running start command immediately would very likely to caused
+This is because it take time for the old application to shutdown
+gracefully. Hence, running start command immediately would likely to cause
 the following error:
 
 ```
@@ -100,7 +108,9 @@ Protocol 'inet_tcp': the name appname@hostname seems to be in use by another Erl
 ```
 
 To overcome this issue, we would have to repeatedly try to start the
-application until there is no error faced. The only difference between the
+application until there is no error faced.
+
+So, the only difference between the
 script for initial release and subsequent release is the part where we start
 the application:
 
@@ -111,10 +121,10 @@ source ~/$APP_NAME/.env  && ~/$APP_NAME/bin/$APP_NAME daemon
 
 _Here is what we use:_
 ```bash
-# Stop existing application if any
+# Stop existing application if there is any
 ssh $HOST $APP_NAME/bin/$APP_NAME stop
 
-# Allow error so we can capture the command error code
+# Allow error so we can capture the error code of the command
 set +e
 
 # ===============================
@@ -151,17 +161,17 @@ done
 set -e
 ```
 
-The script basically done the following through `ssh`:
+These code basically done the following through `ssh`:
 
 - Stop the application by running `bin/appname stop`.
-- Check the process id of the running application by using `bin/appname pid`. If it the
-- status code is not error, it means that the application is still running.
+- Check the process id of the running application by using `bin/appname pid`. If
+  the status code is not error, it means that the application is still running.
   `$?` is the special variable in bash that indicate the status code of the
   previous command, in this example, it would be the `bin/appname pid` command.
-- After the application stop runnning _(after `bin/appname pid` return error, since the
+- After the application stop running _(after `bin/appname pid` return error, since the
   node is down)_, we start our new version application in daemon mode by
-  running `bin/appname start`.
-- After starting our application, we continuosly attempt to health check our
+  running `bin/appname daemon`.
+- After starting our application, we continuously health check our
   application by using `bin/appname rpc`. Alternatively, you can also `curl`
   your health check endpoint.
 
@@ -181,12 +191,11 @@ The script basically done the following through `ssh`:
 </div>
 
 This work good enough if you have only one production server. If you have more
-than one, consider looping through and extract the code into function. So
-basically that's all.
+than one, consider looping through and extract the code into function.
 
 ## Glue it all together
 
-To sum up, here is the bash script for deploying initial or subsequent release:
+To sum up, this is the bash script `./deploy` for deploying initial or subsequent release:
 
 ```bash
 #!/bin/bash
@@ -252,13 +261,8 @@ approach to deploy. It really depends on your context. For my personal
 projects, I found it to be sufficient as I only have a single production server
 and I am the only one who deployed it.
 
-If you're looking for a deployment process for a team, ideally, it would be
-better to utilize the resources available for your team. For intances, starting
-your application in a Docker container. Hence, deployment is just as easy as
-updating Docker image version for your container.
-
-But is that all for my deployment processs for Elixir/Phoenix release? Of
+But is that all for my deployment process for Elixir/Phoenix release? Of
 course not! The next one I would share in the future  would be deploying our
-release using Blue Green Deployment strategy with nginx. So do stay tuned!
+release using Blue Green Deployment strategy with NGINX. So do stay tuned!
 
 [1]: https://askubuntu.com/questions/25347/what-command-do-i-need-to-unzip-extract-a-tar-gz-file
