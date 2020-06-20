@@ -1,6 +1,6 @@
 ---
 title: "Building Elixir/Phoenix Release With Docker"
-date: 2020-06-16T14:17:08+08:00
+date: 2020-06-20T14:17:08+08:00
 tag: ['elixir']
 ---
 
