@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>
+Building Elixir/Phoenix Release With Docker | kw7oe
+</title>
+
+
+
+<meta name="generator" content="Hugo 0.58.3" />
+
+
+    
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.ae808e0d5578f73e14219baf9b24d430658b5a84b80857ae04cd82aca4e34c7b.css" integrity="sha256-roCODVV49z4UIZuvmyTUMGWLWoS4CFeuBM2CrKTjTHs=">
+
+
+
+
+<link rel="stylesheet" href="https://kaiwern.com/css/syntax.min.css">
+
+<body class="flex flex-col min-h-screen px-4 max-w-screen-md md:w-2/3 m-auto"><nav class="mt-8">
+  <ul id="nav-menu" class="w-full flex items-center list-reset">
+    
+    <li>
+      <a href="https://kaiwern.com/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Home</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/about/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">About</a>
+    </li>
+    
+
+    
+    
+    <li>
+      <a href="https://kaiwern.com/categories/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Categories</a>
+    </li>
+    
+    
+    
+    <li>
+      <a href="https://kaiwern.com/tags/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Tags</a>
+    </li>
+    
+    
+  </ul>
+</nav>
+<main class="flex-1 mt-4 sm:mt-12">
+<header class="mb-8">
+  <h1 class="title">Building Elixir/Phoenix Release With Docker</h1>
+  <p class="text-sm font-gray-700 mb-1">Jun 20, 2020</p>
+  <p class="text-sm mb-4 font-gray-700 italic">Estimated Reading Time: 6 minutes (1205 words)</p>
+
+   
+  <div id="tags">
+    
+  </div>
+</header>
+
+<article class="markdown mb-8 text-gray-800">
+  
+
+  
+
+<p>This is a short post about how I build my Elixir/Phoenix releases with
+Docker and extract the tar file that will be deployed to production. In this
+approach, we are just building the release with Docker. <em>We are not building
+the image to run our application in a Docker container.</em></p>
+
+<p>This post assume that you have the basic knowledge of Docker,
+building Elixir release and using Elixir 1.9.3 and above, where <code>:tar</code> options
+is supported in Elixir releases. Your <code>mix.exs</code> should also have the similar
+configuration as below:</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">def</span> <span class="n">project</span> <span class="n">do</span>
+  <span class="p">[</span>
+    <span class="n">...</span>
+    <span class="ss">releases</span><span class="p">:</span> <span class="p">[</span>
+      <span class="ss">app_name</span><span class="p">:</span> <span class="p">[</span>
+        <span class="c1"># Ask mix release to build tarball of the release.</span>
+        <span class="ss">steps</span><span class="p">:</span> <span class="p">[</span><span class="ss">:assemble</span><span class="p">,</span> <span class="ss">:tar</span><span class="p">]</span>
+      <span class="p">]</span>
+    <span class="p">]</span>
+  <span class="p">]</span>
+<span class="n">end</span></code></pre></div>
+<p>For more, can refer to the <a href="https://hexdocs.pm/mix/Mix.Tasks.Release.html#module-steps"><code>mix release</code> documentation</a>.</p>
+
+<p>This post is break down into the following sections:</p>
+
+<ul>
+<li><a href="#why-docker">Why Docker?</a></li>
+<li><a href="#writing-the-dockerfile">Writing the Dockerfile</a></li>
+<li><a href="#extracting-tar-file">Extracting tar file from Docker</a></li>
+<li><a href="#glue-it-all-together-with-a-simple-bash-script">Glue it all together with a simple bash
+script</a></li>
+</ul>
+
+<p>By the end of this post, you should be able to build your Elixir/Phoenix
+application by just running:</p>
+
+<pre><code>./build
+</code></pre>
+
+<h2 id="why-docker">Why Docker?</h2>
+
+<p>To deploy a release to a target <em>(your production server)</em>, most of the time
+you are required to build the release in the host with the same environment.
+To quote the <a href="https://hexdocs.pm/mix/Mix.Tasks.Release.html#module-requirements">Mix Release documentation</a>:</p>
+
+<blockquote>
+<p>&hellip;to deploy straight from a host to a separate target, the Erlang Runtime System (ERTS), and any native dependencies (NIFs), must be compiled for the same target triple.</p>
+</blockquote>
+
+<p>Hence, if you are using a Macbook, and wanted to build you release and deploy
+to a Ubuntu 18.04 server, you&rsquo;ll need to build your release on a Ubuntu 18.04 virtual machine (VM).</p>
+
+<h3 id="without-docker">Without Docker</h3>
+
+<p>Without using Docker, normally the common approaches are:</p>
+
+<ul>
+<li>Build the release by spinning up VM locally with Vagrant.</li>
+<li>Build the release in a build server in the cloud.</li>
+</ul>
+
+<p>I previously setup a Ubuntu VM with Vagrant and have Ansible
+script that provision the VM and build the release in the VM locally. This
+approach have more dependencies. You&rsquo;ll need to undetsand and install both
+Vagrant and Ansible to make this happen.</p>
+
+<h3 id="with-docker">With Docker</h3>
+
+<p>With Docker, <strong>all you need is to learn and install Docker</strong>.</p>
+
+<p>After getting familiar with Docker, I experiment with building
+Elixir release with Docker, which turns out to be fairly simple, thanks to
+the resource available online. I end up gluing it all together with some
+bash script to build the release in Docker and extract the tar from the Docker
+images.</p>
+
+<h2 id="writing-the-dockerfile">Writing the Dockerfile</h2>
+
+<p>To build your Docker image, you&rsquo;ll first need to write the Dockerfile.</p>
+
+<h3 id="parent-image">Parent Image</h3>
+
+<p>Depending on your production environment , you might just want to use the
+official Elixir image as your parent image, which is based on Debian.</p>
+<div class="highlight"><pre class="chroma"><code class="language-docker" data-lang="docker"><span class="k">FROM</span><span class="s"> elixir:1.9.0 AS build</span></code></pre></div>
+<p>and <a href="#build-image">skip to the next section</a>.</p>
+
+<p>However if you are using Ubuntu 18.04 on your production machine,
+you can use the following <code>Dockerfile</code> as the base image for Elixir
+in Ubuntu 18.04.</p>
+<div class="highlight"><pre class="chroma"><code class="language-docker" data-lang="docker"><span class="k">FROM</span><span class="s"> ubuntu:18.04</span><span class="err">
+</span><span class="err"></span><span class="k">ENV</span><span class="s"> LANG=en_US.UTF-8</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="k">RUN</span> <span class="se">\
+</span><span class="se"></span>  apt-get update -y <span class="o">&amp;&amp;</span> <span class="se">\
+</span><span class="se"></span>  apt-get install -y git curl wget locales gnupg2 build-essential <span class="o">&amp;&amp;</span> <span class="se">\
+</span><span class="se"></span>  locale-gen en_US.UTF-8 <span class="o">&amp;&amp;</span> <span class="se">\
+</span><span class="se"></span>  wget https://packages.erlang-solutions.com/erlang-solutions_2.0_all.deb <span class="o">&amp;&amp;</span> <span class="se">\
+</span><span class="se"></span>  dpkg -i erlang-solutions_2.0_all.deb <span class="o">&amp;&amp;</span> <span class="se">\
+</span><span class="se"></span>  rm erlang-solutions_2.0_all.deb <span class="o">&amp;&amp;</span> <span class="se">\
+</span><span class="se"></span>  apt-get update -y <span class="o">&amp;&amp;</span> <span class="se">\
+</span><span class="se"></span>  curl -sL https://deb.nodesource.com/setup_10.x <span class="p">|</span> bash - <span class="o">&amp;&amp;</span> <span class="se">\
+</span><span class="se"></span>  apt-get install -y esl-erlang elixir nodejs <span class="o">&amp;&amp;</span> node -v <span class="o">&amp;&amp;</span> npm -v<span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="k">CMD</span><span class="s"> [&#34;/bin/bash&#34;]</span></code></pre></div>
+<p>I named it as <code>Dockerfile.ubuntu</code> in my application root directory and run the
+following command to build the parent image:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker build -t ubuntu-elixir -f Dockerfile.ubuntu .</code></pre></div>
+<h3 id="build-image">Build Image</h3>
+
+<p>Writing the rest of the Dockerfile for building release is fairly straightforward
+as I am referring to the Phoenix <a href="https://hexdocs.pm/phoenix/releases.html#containers">&ldquo;Deploying with Releases&rdquo;</a> documentation.</p>
+<div class="highlight"><pre class="chroma"><code class="language-docker" data-lang="docker"><span class="k">FROM</span><span class="s"> ubuntu-elixir as build</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="c"># ===========</span><span class="err">
+</span><span class="err"></span><span class="c"># Application</span><span class="err">
+</span><span class="err"></span><span class="c"># ===========</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="c"># prepare build dir</span><span class="err">
+</span><span class="err"></span><span class="k">WORKDIR</span><span class="s"> /app</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="c"># install hex + rebar</span><span class="err">
+</span><span class="err"></span><span class="k">RUN</span> mix local.hex --force <span class="o">&amp;&amp;</span> <span class="se">\
+</span><span class="se"></span>    mix local.rebar --force<span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="c"># set build ENV</span><span class="err">
+</span><span class="err"></span><span class="k">ENV</span><span class="s"> MIX_ENV=prod</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="c"># install mix dependencies</span><span class="err">
+</span><span class="err"></span>COPY mix.exs mix.lock ./<span class="err">
+</span><span class="err"></span>COPY config config<span class="err">
+</span><span class="err"></span><span class="k">RUN</span> mix <span class="k">do</span> deps.get, deps.compile<span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="c"># build assets</span><span class="err">
+</span><span class="err"></span>COPY assets/package.json assets/package-lock.json ./assets/<span class="err">
+</span><span class="err"></span><span class="k">RUN</span> npm --prefix ./assets ci --progress<span class="o">=</span><span class="nb">false</span> --no-audit --loglevel<span class="o">=</span>error<span class="err">
+</span><span class="err">
+</span><span class="err"></span>COPY priv priv<span class="err">
+</span><span class="err"></span>COPY assets assets<span class="err">
+</span><span class="err"></span><span class="k">RUN</span> npm run --prefix ./assets deploy<span class="err">
+</span><span class="err"></span><span class="k">RUN</span> mix phx.digest<span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="c"># compile and build release</span><span class="err">
+</span><span class="err"></span>COPY lib lib<span class="err">
+</span><span class="err"></span><span class="c"># uncomment COPY if rel/ exists</span><span class="err">
+</span><span class="err"></span><span class="c"># COPY rel rel</span><span class="err">
+</span><span class="err"></span><span class="k">RUN</span> mix <span class="k">do</span> compile, release<span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="k">FROM</span><span class="s"> scratch AS app</span><span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="k">WORKDIR</span><span class="s"> /app</span><span class="err">
+</span><span class="err"></span>COPY --from<span class="o">=</span>build /app/_build/prod/app_name-*.tar.gz ./<span class="err">
+</span><span class="err">
+</span><span class="err"></span><span class="k">CMD</span><span class="s"> [&#34;/bin/bash&#34;]</span></code></pre></div>
+<p>There are some minor differences in this Dockerfile compared to the one in the
+documentation. For example:</p>
+
+<ul>
+<li><code>RUN apk add --no-cache build-base npm git python</code> is not included as we have
+added this in our <code>Dockerfile.ubuntu</code>. However, if you are not using the same
+one, do add it in according to your OS package management.</li>
+<li>At the end of the Dockerfile, instead of copying our whole release and make
+<code>CMD</code> to start the release, we just copy the tar file of the release. Also
+notice that we use <code>FROM scratch</code> instead of <code>FROM ubuntu:18.04</code> to reduce
+our final image size <em>(since we are just storing the tar file)</em>.</li>
+</ul>
+
+<p>Now you can build your release by running:</p>
+
+<pre><code>docker build -t app_name_server .
+</code></pre>
+
+<h2 id="extracting-tar-file">Extracting tar file</h2>
+
+<p>After building the image, we can then extract the tar file from the image by
+running the following command:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># You could also just manually specifying your app name and version.</span>
+<span class="nv">APP_NAME</span><span class="o">=</span><span class="s2">&#34;</span><span class="k">$(</span>grep <span class="s1">&#39;app:&#39;</span> mix.exs <span class="p">|</span> sed -e <span class="s1">&#39;s/\[//g&#39;</span> -e <span class="s1">&#39;s/ //g&#39;</span> -e <span class="s1">&#39;s/app://&#39;</span> -e <span class="s1">&#39;s/[:,]//g&#39;</span><span class="k">)</span><span class="s2">&#34;</span>
+<span class="nv">APP_VSN</span><span class="o">=</span><span class="s2">&#34;</span><span class="k">$(</span>grep <span class="s1">&#39;version:&#39;</span> mix.exs <span class="p">|</span> cut -d <span class="s1">&#39;&#34;&#39;</span> -f2<span class="k">)</span><span class="s2">&#34;</span>
+<span class="nv">TAR_FILENAME</span><span class="o">=</span><span class="si">${</span><span class="nv">APP_NAME</span><span class="si">}</span>-<span class="si">${</span><span class="nv">APP_VSN</span><span class="si">}</span>.tar.gz
+
+<span class="nv">id</span><span class="o">=</span><span class="k">$(</span>docker create <span class="si">${</span><span class="nv">APP_NAME</span><span class="si">}</span>_server<span class="k">)</span>
+docker cp <span class="nv">$id</span>:/app/<span class="si">${</span><span class="nv">TAR_FILENAME</span><span class="si">}</span> .
+docker rm <span class="nv">$id</span></code></pre></div>
+<p>Here are the explanation of the main commands we run:</p>
+
+<ul>
+<li><code>docker create</code> create a container with your image. The output of the
+command is the id of the container which we will need later.</li>
+<li><code>docker cp</code>  allow us to copy the file in the container to our local directory.
+Here, we are copying the tar file to our application root directory.</li>
+<li><code>docker rm</code> remove the container we started in through <code>docker create</code>.</li>
+</ul>
+
+<h2 id="glue-it-all-together-with-a-simple-bash-script">Glue it all together with a simple bash script</h2>
+
+<p>Lastly, with some bash script, we can glue the build and extraction process
+all into a single script <code>build</code>:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="cp">#!/bin/bash
+</span><span class="cp"></span>
+<span class="c1"># Setting the flag to exit on error</span>
+
+<span class="c1"># Without this, for example, when we didn&#39;t run Docker daemon</span>
+<span class="c1"># the script will still continue to execute despite of the error.</span>
+<span class="nb">set</span> -e
+
+<span class="c1"># Get App info (which is copied from Distillery documentation)</span>
+<span class="nv">APP_NAME</span><span class="o">=</span><span class="s2">&#34;</span><span class="k">$(</span>grep <span class="s1">&#39;app:&#39;</span> mix.exs <span class="p">|</span> sed -e <span class="s1">&#39;s/\[//g&#39;</span> -e <span class="s1">&#39;s/ //g&#39;</span> -e <span class="s1">&#39;s/app://&#39;</span> -e <span class="s1">&#39;s/[:,]//g&#39;</span><span class="k">)</span><span class="s2">&#34;</span>
+<span class="nv">APP_VSN</span><span class="o">=</span><span class="s2">&#34;</span><span class="k">$(</span>grep <span class="s1">&#39;version:&#39;</span> mix.exs <span class="p">|</span> cut -d <span class="s1">&#39;&#34;&#39;</span> -f2<span class="k">)</span><span class="s2">&#34;</span>
+<span class="nv">TAR_FILENAME</span><span class="o">=</span><span class="si">${</span><span class="nv">APP_NAME</span><span class="si">}</span>-<span class="si">${</span><span class="nv">APP_VSN</span><span class="si">}</span>.tar.gz
+
+<span class="c1"># Build image</span>
+docker build -t <span class="si">${</span><span class="nv">APP_NAME</span><span class="si">}</span>_server .
+
+<span class="c1"># Extract tar</span>
+<span class="nv">id</span><span class="o">=</span><span class="k">$(</span>docker create <span class="si">${</span><span class="nv">APP_NAME</span><span class="si">}</span>_server<span class="k">)</span>
+docker cp <span class="nv">$id</span>:/app/<span class="si">${</span><span class="nv">TAR_FILENAME</span><span class="si">}</span> .
+docker rm <span class="nv">$id</span></code></pre></div>
+<p>After saving the <code>build</code> file, you need to make it executable by running:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">chmod +x build</code></pre></div>
+<p>Now, you can just build your Phoenix application by running <code>./build</code>.</p>
+
+<h2 id="wrap-up">Wrap Up</h2>
+
+<p>Building the release and getting the tar file is just the very first step of deployment. The next steps of deployment normally involves:</p>
+
+<ul>
+<li>Copying the tar file to production server</li>
+<li>Extracting the tar file</li>
+<li>Running the release</li>
+<li>Cleaning up the tar file both in production and local machine <em>(Optional)</em></li>
+</ul>
+
+<p>I&rsquo;ll write up a upcoming post in the future to cover on all these steps in the
+future. Stay tuned.</p>
+
+<div class="callout callout-info">
+  <p>
+    The same deployment process is also used in my
+    <a href="https://github.com/kw7oe/til">open source TIL</a> project.
+    While it's not documented clearly, the build and deploy script are there
+    for references.
+  </p>
+  <p>At the time of writing, the deploy script includes buildkite command to
+  download the tar file, so you might need to comment out that specific line
+  to run directly</p>
+</div>
+
+</article>
+
+    </main><footer class="w-full text-center border-t border-gray-200 p-4 pin-b text-xs text-gray-400">
+    <p>made with <a href="https://gohugo.io" class="underline hover:text-blue-400">Hugo</a> and <a href="https://tailwindcss.com" class="underline hover:text-blue-400">TailwindCSS</a></p>
+</footer></body>
+</html>
