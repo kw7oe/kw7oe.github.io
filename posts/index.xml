@@ -17,7 +17,7 @@
       <pubDate>Sat, 20 Jun 2020 14:17:08 +0800</pubDate>
       
       <guid>https://kaiwern.com/posts/2020/06/20/building-elixir/phoenix-release-with-docker/</guid>
-      <description>This is a short post about how I build my Elixir/Phoenix releases with Docker and extract the tar file that will be deployed to production. In this approach, we are just building the release with Docker. We are not building the image to run our application in a Docker container.</description>
+      <description>This is a short post about how I build my Elixir/Phoenix releases with Docker and extract the tarball that will be deployed to production. In this approach, we are just building the release with Docker. We are not building the image to run our application in a Docker container.</description>
     </item>
     
     <item>
