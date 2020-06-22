@@ -5,7 +5,7 @@ tag: ['elixir']
 ---
 
 This is a short post about how I build my Elixir/Phoenix releases with
-Docker and extract the tar file that will be deployed to production. In this
+Docker and extract the tarball that will be deployed to production. In this
 approach, we are just building the release with Docker. _We are not building
 the image to run our application in a Docker container._
 
@@ -54,7 +54,7 @@ To quote the [Mix Release documentation][3]:
 
 >  ...to deploy straight from a host to a separate target, the Erlang Runtime System (ERTS), and any native dependencies (NIFs), must be compiled for the same target triple.
 
-Hence, if you are using a Macbook, and wanted to build you release and deploy
+Hence, if you are using a Macbook, and want to build you release and deploy
 to a Ubuntu 18.04 server, you'll need to build your release on a Ubuntu 18.04 virtual machine (VM).
 
 ### Without Docker
@@ -66,7 +66,7 @@ Without using Docker, normally the common approaches are:
 
 I previously setup a Ubuntu VM with Vagrant and have Ansible
 script that provision the VM and build the release in the VM locally. This
-approach have more dependencies. You'll need to undetsand and install both
+approach have more dependencies. You'll need to understand and install both
 Vagrant and Ansible to make this happen.
 
 ### With Docker
@@ -75,12 +75,24 @@ With Docker, **all you need is to learn and install Docker**.
 After getting familiar with Docker, I experiment with building
 Elixir release with Docker, which turns out to be fairly simple, thanks to
 the resource available online. I end up gluing it all together with some
-bash script to build the release in Docker and extract the tar from the Docker
-images.
+bash script to build the release in Docker and extract the tarball from the
+Docker images.
 
 ## Writing the Dockerfile
 
-To build your Docker image, you'll first need to write the Dockerfile.
+To build your Docker image, you'll first need to write the Dockerfile. In the
+process of writing these Dockerfile, there are a few references that I refer
+to, which are:
+
+- [Distillery Documentation](https://hexdocs.pm/distillery/guides/building_in_docker.html)
+- [Elixir Official Dockerfile](https://github.com/c0b/docker-elixir/blob/fcf3a05b730e55b805b85aa571048e72dc82fe1e/1.10/Dockerfile)
+- [Phoenix Documentation][2]
+
+While we are not using `distillery` to generate our releases, the documentation
+is still quite relevant especially when we want to build our release with
+Docker. _It's not until I am more familiar with Docker and wrote my
+own bash scripts that I realized that the documentation of `distillery`
+is really good._
 
 ### Parent Image
 
@@ -251,7 +263,7 @@ Now, you can just build your Phoenix application by running `./build`.
 
 ## Wrap Up
 
-Building the release and getting the tar file is just the very first step of deployment. The next steps of deployment normally involves:
+Building the release and getting the tarball is the very first step of deployment. The next steps of deployment normally involves:
 
 - Copying the tar file to production server
 - Extracting the tar file
