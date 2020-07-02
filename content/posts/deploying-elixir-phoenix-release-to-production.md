@@ -1,9 +1,9 @@
 ---
-title: "Deploying Elixir/Phoenix Release to Production (for my hobby project)"
-date: 2020-06-16T20:49:01+08:00
+title: "Deploying Elixir/Phoenix Release to Production"
+date: 2020-06-30T20:09:01+08:00
+tags: ["elixir", "deployment"]
 draft: true
 ---
-
 
 In my previous post ["Building Elixir/Phoenix Release With Docker"]({{< ref "building-phoenix-release-with-docker.md" >}}), I wrote
 about how I build Elixir release with Docker and extract the tar file. However,
@@ -12,18 +12,21 @@ application.
 
 So, in this post, I am going to share my process on deploying Elixir release.
 
+_Do note that, the way I deploy **works best for hobby or small projects**. For
+larger scale system, consider using other tooling._
+
 _For the sake of simplicity, this post assume that your remote server already
 has reverse proxy like `nginx` setup and pointing port 80 towards your
-application port (4000). If you have a database, it's assume that the database
+application port (4000). If you have a database, it's assumed that the database
 is created and running._
 
 ## Steps for initial release
 
 Before we start, let's briefly talk about the steps involved to deploy our
-release.
+release:
 
 1. Copy the release tarball to the remote server.
-2. Extract the tar file on the remote server.
+2. Extract the tarball on the remote server.
 3. Start your application by running `/bin/app_name daemon`
 
 This is equivalent to the following bash script:
@@ -45,7 +48,7 @@ HOST="192.162.1.1"
 # the folder at our user home directory. WHICH MIGHT NOT BE THE BEST PRACTICE.
 ssh $HOST mkdir -p $APP_NAME/releases
 
-# Use scp to copy our tarfile from local machie to remote server
+# Use scp to copy our tarfile from local machine to remote server
 # We are copying the tarfile to the directory we created above.
 scp $TAR_FILENAME $HOST:~/$APP_NAME/releases/$TAR_FILENAME
 
@@ -59,24 +62,26 @@ ssh $HOST "source ~/$APP_NAME/.env  && ~/$APP_NAME/bin/$APP_NAME daemon"
 ssh $HOST rm "~/$APP_NAME/releases/$TAR_FILENAME"
 ```
 
-Here we used some of the common linux command such as:
+Here we used some of the common command such as:
 
 - `scp` to copy our tarball securely to the remote server.
 - `tar` to extract the tarball, refer to this [StackOverflow Question][1]
-  for more.
-- `source` to load our environment variable required by our application.
+  for more details.
+- `source` to load our environment variables required by our application.
 
 If you save this file as `./deploy` in your application root directory _(or
 where your tarball is available)_ and run `chmod +x ./deploy`, you should be
 able to deploy your initial release by simply running `./deploy`.
 
-Notice the pattern we use here `ssh $HOST <command to run>`. We are essentially
-just running the command on our remote server by first sshing into the server.
+### Side Topic: SSH Tips and Tricks
+
+Notice the pattern we use here in `ssh $HOST <command to run>`. We are essentially
+running the command on our remote server by first ssh into the server.
 If you're new to this, go ahead and run `ssh <ip> "ls -la"` on your local
-machine, you should be able to see the result of running `ls -la` in your
+machine. You should be able to see the same result as running `ls -la` in your
 remote server.
 
-If you frequently ssh to that particular IP, you can add the following to
+If you frequently ssh to a particular IP, you can add the following to
 your `~/.ssh/config`:
 
 ```ssh
@@ -99,7 +104,7 @@ bin/app stop
 bin/app start
 ```
 
-This is because it take time for the old application to shutdown
+This is because it takes time for the old application to shutdown
 gracefully. Hence, running start command immediately would likely to cause
 the following error:
 
@@ -107,8 +112,9 @@ the following error:
 Protocol 'inet_tcp': the name appname@hostname seems to be in use by another Erlang node
 ```
 
-To overcome this issue, we would have to repeatedly try to start the
-application until there is no error faced.
+To overcome this issue, we need to either repeatedly try to start the
+application until there is no error faced or ensure that the application is
+stopped before we run the start command.
 
 So, the only difference between the
 script for initial release and subsequent release is the part where we start
@@ -167,13 +173,25 @@ These code basically done the following through `ssh`:
 - Check the process id of the running application by using `bin/appname pid`. If
   the status code is not error, it means that the application is still running.
   `$?` is the special variable in bash that indicate the status code of the
-  previous command, in this example, it would be the `bin/appname pid` command.
-- After the application stop running _(after `bin/appname pid` return error, since the
-  node is down)_, we start our new version application in daemon mode by
+  previous command. In this example, it would be the `bin/appname pid` command.
+- After the application stop running _(which is after `bin/appname pid` return error,
+- since the node is down)_, we start our new version application in daemon mode by
   running `bin/appname daemon`.
 - After starting our application, we continuously health check our
   application by using `bin/appname rpc`. Alternatively, you can also `curl`
   your health check endpoint.
+
+A side note here about how we health check our application:
+
+- We only check if the application is up and running. We didn't really health
+  check whether our database connection is working correctly or not. Or, if it
+  is ready to handle HTTP request correctly.
+- Ideally a better way to health check our application would be using `curl`
+  and hit an endpoint that also query your database.
+- If we are doing a more thorough health check, we might want to limit the
+  number of health check attempts and has it failed the deployment and rollback
+  if things doesn't go well after a couple of times, which is another topic
+  for another day.
 
 <div class="callout callout-info">
   <p>
@@ -190,12 +208,13 @@ These code basically done the following through `ssh`:
   </p>
 </div>
 
-This work good enough if you have only one production server. If you have more
+This is good enough if you have only one production server. If you have more
 than one, consider looping through and extract the code into function.
 
 ## Glue it all together
 
-To sum up, this is the bash script `./deploy` for deploying initial or subsequent release:
+To sum up, this is the bash script `./deploy` that I used for deploying initial or
+subsequent release of my side projects:
 
 ```bash
 #!/bin/bash
@@ -250,8 +269,10 @@ bold_echo "Removing local tar file..."
 rm $TAR_FILENAME
 ```
 
-What we do additionally here is just add some extra logging on each step and
-clean up after our release.
+The additional stuff added here are:
+
+- Added extra logging on each step
+- Added clean up code after our release.
 
 # Wrap Up
 
