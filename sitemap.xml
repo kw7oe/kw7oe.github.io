@@ -8,18 +8,33 @@
   </url>
   
   <url>
-    <loc>https://kaiwern.com/posts/</loc>
+    <loc>https://kaiwern.com/tags/deployment/</loc>
+    <lastmod>2020-06-20T14:17:08+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kaiwern.com/tags/docker/</loc>
     <lastmod>2020-06-20T14:17:08+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://kaiwern.com/tags/elixir/</loc>
-    <lastmod>2020-05-21T19:21:59+08:00</lastmod>
+    <lastmod>2020-06-20T14:17:08+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kaiwern.com/tags/phoenix/</loc>
+    <lastmod>2020-06-20T14:17:08+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kaiwern.com/posts/</loc>
+    <lastmod>2020-06-20T14:17:08+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://kaiwern.com/tags/</loc>
-    <lastmod>2020-05-21T19:21:59+08:00</lastmod>
+    <lastmod>2020-06-20T14:17:08+08:00</lastmod>
   </url>
   
   <url>
@@ -60,11 +75,6 @@
   <url>
     <loc>https://kaiwern.com/posts/2020/02/23/ignoring-file-instead-of-folder-with-the-same-name-in-.gitignore/</loc>
     <lastmod>2020-02-23T17:30:54+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://kaiwern.com/tags/phoenix/</loc>
-    <lastmod>2019-06-03T18:04:00+08:00</lastmod>
   </url>
   
   <url>

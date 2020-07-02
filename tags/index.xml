@@ -6,17 +6,44 @@
     <description>Recent content in Tags on kw7oe</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 21 May 2020 19:21:59 +0800</lastBuildDate>
+    <lastBuildDate>Sat, 20 Jun 2020 14:17:08 +0800</lastBuildDate>
     
 	<atom:link href="https://kaiwern.com/tags/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
+      <title>deployment</title>
+      <link>https://kaiwern.com/tags/deployment/</link>
+      <pubDate>Sat, 20 Jun 2020 14:17:08 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/tags/deployment/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>docker</title>
+      <link>https://kaiwern.com/tags/docker/</link>
+      <pubDate>Sat, 20 Jun 2020 14:17:08 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/tags/docker/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>elixir</title>
       <link>https://kaiwern.com/tags/elixir/</link>
-      <pubDate>Thu, 21 May 2020 19:21:59 +0800</pubDate>
+      <pubDate>Sat, 20 Jun 2020 14:17:08 +0800</pubDate>
       
       <guid>https://kaiwern.com/tags/elixir/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>phoenix</title>
+      <link>https://kaiwern.com/tags/phoenix/</link>
+      <pubDate>Sat, 20 Jun 2020 14:17:08 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/tags/phoenix/</guid>
       <description></description>
     </item>
     
@@ -53,15 +80,6 @@
       <pubDate>Sun, 23 Feb 2020 17:30:54 +0800</pubDate>
       
       <guid>https://kaiwern.com/tags/git/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>phoenix</title>
-      <link>https://kaiwern.com/tags/phoenix/</link>
-      <pubDate>Mon, 03 Jun 2019 18:04:00 +0800</pubDate>
-      
-      <guid>https://kaiwern.com/tags/phoenix/</guid>
       <description></description>
     </item>
     

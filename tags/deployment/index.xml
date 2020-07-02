@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>deployment on kw7oe</title>
+    <link>https://kaiwern.com/tags/deployment/</link>
+    <description>Recent content in deployment on kw7oe</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 20 Jun 2020 14:17:08 +0800</lastBuildDate>
+    
+	<atom:link href="https://kaiwern.com/tags/deployment/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Building Elixir/Phoenix Release With Docker</title>
+      <link>https://kaiwern.com/posts/2020/06/20/building-elixir/phoenix-release-with-docker/</link>
+      <pubDate>Sat, 20 Jun 2020 14:17:08 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2020/06/20/building-elixir/phoenix-release-with-docker/</guid>
+      <description>This is a short post about how I build my Elixir/Phoenix releases with Docker and extract the tarball that will be deployed to production. In this approach, we are just building the release with Docker. We are not building the image to run our application in a Docker container.</description>
+    </item>
+    
+  </channel>
+</rss>
