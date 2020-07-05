@@ -237,11 +237,11 @@ bold_echo "Copying release to remote..."
 scp $TAR_FILENAME do:~/$APP_NAME/releases/$TAR_FILENAME
 ssh $HOST tar -xzf $APP_NAME/releases/$TAR_FILENAME -C $APP_NAME/
 
+set +e
 bold_echo "Waiting for existing application to stop..."
 # Stop existing application if any
 ssh $HOST $APP_NAME/bin/$APP_NAME stop
 
-set +e
 # Waiting for application to stop
 ssh $HOST $APP_NAME/bin/$APP_NAME pid
 while [ $? -ne 1 ]
