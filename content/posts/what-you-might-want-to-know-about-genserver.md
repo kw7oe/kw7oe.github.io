@@ -219,7 +219,7 @@ defmodule MyETS do
   @table_name :table
 
   def init(_) do
-    :ets.new(@table_name, [:named_table, read_concurrency: true])
+    :ets.new(@table_name, [:set, :named_table, :public, read_concurrency: true])
     {:ok, []}
   end
 
