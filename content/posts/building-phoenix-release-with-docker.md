@@ -52,10 +52,15 @@ To deploy a release to a target _(your production server)_, most of the time
 you are required to build the release in the host with the same environment.
 To quote the [Mix Release documentation][3]:
 
->  ...to deploy straight from a host to a separate target, the Erlang Runtime System (ERTS), and any native dependencies (NIFs), must be compiled for the same target triple.
+>  ...to deploy straight from a host to a separate target, the Erlang Runtime System (ERTS),
+>  and any native dependencies (NIFs), must be compiled for the same target triple.
 
 Hence, if you are using a Macbook, and want to build you release and deploy
 to a Ubuntu 18.04 server, you'll need to build your release on a Ubuntu 18.04 virtual machine (VM).
+
+_Unless you configure it to `include_erts: false`. Not going to dive deep into
+this, but if you are interested into it, feel free to refer to the
+documentation at [here][5]._
 
 ### Without Docker
 
@@ -291,3 +296,4 @@ future. Stay tuned.
 [2]: https://hexdocs.pm/phoenix/releases.html#containers
 [3]: https://hexdocs.pm/mix/Mix.Tasks.Release.html#module-requirements
 [4]: https://github.com/kw7oe/til
+[5]: https://hexdocs.pm/mix/Mix.Tasks.Release.html#module-options
