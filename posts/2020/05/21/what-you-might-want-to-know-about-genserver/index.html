@@ -51,7 +51,7 @@ What you might want to know about GenServer | kw7oe
 <header class="mb-8">
   <h1 class="title">What you might want to know about GenServer</h1>
   <p class="text-sm font-gray-700 mb-1">May 21, 2020</p>
-  <p class="text-sm mb-4 font-gray-700 italic">Estimated Reading Time: 13 minutes (2560 words)</p>
+  <p class="text-sm mb-4 font-gray-700 italic">Estimated Reading Time: 13 minutes (2562 words)</p>
 
    
   <div id="tags">
@@ -287,7 +287,7 @@ is terminated, the <code>ets</code> table is also deleted. However, do avoid wra
   <span class="na">@table_name</span> <span class="ss">:table</span>
 
   <span class="n">def</span> <span class="n">init</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="n">do</span>
-    <span class="ss">:ets</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="na">@table_name</span><span class="p">,</span> <span class="p">[</span><span class="ss">:named_table</span><span class="p">,</span> <span class="ss">read_concurrency</span><span class="p">:</span> <span class="n">true</span><span class="p">])</span>
+    <span class="ss">:ets</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="na">@table_name</span><span class="p">,</span> <span class="p">[</span><span class="ss">:set</span><span class="p">,</span> <span class="ss">:named_table</span><span class="p">,</span> <span class="ss">:public</span><span class="p">,</span> <span class="ss">read_concurrency</span><span class="p">:</span> <span class="n">true</span><span class="p">])</span>
     <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="p">[]}</span>
   <span class="n">end</span>
 
