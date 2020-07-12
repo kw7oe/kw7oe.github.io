@@ -1,5 +1,4 @@
-<div>
-  {{ range .Pages }}
+<div class="mb-8">
   <div class="py-10 border-b">
     <div class="mb-8">
       <h1 class="title mb-2">
@@ -11,12 +10,11 @@
     </div>
 
     <p class="text-lg leading-relaxed mb-8">
-      {{ .Summary }}
+    {{ .Summary }}
     </p>
 
     {{ if .Truncated }}
-      <a class="btn" href="{{ .Permalink }}">Read More</a>
+    <a class="btn" href="{{ .Permalink }}">Read More</a>
     {{ end }}
   </div>
-  {{ end }}
 </div>

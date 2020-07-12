@@ -2,9 +2,7 @@
   <div class="markdown">
     {{ .Content }}
   </div>
-  {{ range .Sections }}
-    <div class="mb-8">
-      {{ .Render "list" }}
-    </div>
+  {{ range where .Site.RegularPages "Type" "posts"  }}
+    {{ partial "info_li.html" . }}
   {{ end }}
 {{ end }}
