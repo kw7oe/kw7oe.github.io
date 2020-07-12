@@ -97,7 +97,10 @@ using `ssh kai@192.168.1.1`.
 
 Subsequent release involves the similar steps as the above. The difference is
 before starting the new version, we need to stop our old version server first.
-However, script like this won't work:
+However, there is a couple of challenge we need to overcome first.
+
+### Stopping application take some times
+Script like this won't work:
 
 ```bash
 bin/app stop
@@ -116,6 +119,46 @@ To overcome this issue, we need to either repeatedly try to start the
 application until there is no error faced or ensure that the application is
 stopped before we run the start command.
 
+### Replacing old release with new release will `bin/app` command not working expectedly
+That's not the only thing we need to overcome. Another tricky one would be, if
+we were extract our new release tarball, which then replace our old release,
+`bin/app stop` would not work as expected. You'll get the following error
+instead:
+
+```
+--rpc-eval : RPC failed with reason :nodedown
+```
+
+Why would this occur? After some experimentation, I have found out that this
+happen because each time we run `mix release`, it would generate a new random
+cookie that is written to our `releases/COOKIE` file, and if we don't have
+`RELEASE_COOKIE` set in our environment, the randomly generated cookie  would be used.
+
+So, everytime we extract our new release tarball, the `releases/COOKIE` might
+be updated to a different cookie and cause the command to unable to talk to our
+running application. Here's what the [Erlang documentation][2] mentioned:
+
+> When a node tries to connect to another node, the magic cookies are compared.
+> If they do not match, the connected node rejects the connection.
+
+Our new release cookie doesn't match with our old release, running application
+cookie, thus, they are not able to talk to each other.
+
+But, how is it related to our `bin/app pid` command? Isn't it just a normal
+command that get the process id of the application?
+
+It is, but internally, the command is using `rpc` mechanism to talk to the node,
+which spin up a hidden node and evaluate some code on the remote node
+(our running application) _(refer to `elixir --help`, Distribution options for
+more details)_.
+
+Here is what is executed underneath every time we run `bin/app pid`:
+
+```
+/home/kai/app/releases/0.1.1/elixir --hidden --cookie COOKIE --sname rpc-29e0-app --boot /home/kai/app/releases/0.1.1/start_clean --boot-var RELEASE_LIB /home/kai/app/lib --rpc-eval app IO.puts System.pid()
+```
+
+### Solution
 So, the only difference between the
 script for initial release and subsequent release is the part where we start
 the application:
@@ -127,30 +170,36 @@ source ~/$APP_NAME/.env  && ~/$APP_NAME/bin/$APP_NAME daemon
 
 _Here is what we use:_
 ```bash
-# Stop existing application if there is any
-ssh $HOST $APP_NAME/bin/$APP_NAME stop
+# =========================
+# Stop existing application
+# =========================
 
 # Allow error so we can capture the error code of the command
 set +e
+ssh $HOST $APP_NAME/bin/$APP_NAME stop
 
-# ===============================
 # Waiting for application to stop
-# ===============================
 ssh $HOST $APP_NAME/bin/$APP_NAME pid
-
-# Check previous command status code, where 1 indicate error,
-# which infers that the node is stopped successfully.
-# Retry until bin/app pid actually return nodedown error.
 while [ $? -ne 1 ]
 do
   ssh $HOST $APP_NAME/bin/$APP_NAME pid
 done
+
+# Trap error back
+set -e
+
+# =============================
+# Copying new release to remote
+# =============================
+scp $TAR_FILENAME do:~/$APP_NAME/releases/$TAR_FILENAME
+ssh $HOST tar -xzf $APP_NAME/releases/$TAR_FILENAME -C $APP_NAME/
 
 # ================================
 # Start application in daemon mode
 # ================================
 ssh $HOST "source $APP_NAME/.env  && $APP_NAME/bin/$APP_NAME daemon"
 
+set +e
 # ========================
 # Health Check Application
 # ========================
@@ -163,7 +212,6 @@ do
   ssh $HOST "$APP_NAME/bin/$APP_NAME rpc 'IO.puts(\"health-check\")'"
 done
 
-# Trap error back
 set -e
 ```
 
@@ -233,21 +281,30 @@ bold_echo() {
 bold_echo "Creating directory if not exist..."
 ssh $HOST mkdir -p $APP_NAME/releases/$APP_VSN
 
+bold_echo "Copying environment variables..."
+scp .env.production do:~/$APP_NAME/.env
+
+set +e
+ssh $HOST [ -f $APP_NAME/bin/$APP_NAME ]
+
+if [ $? -ne 1 ]; then
+  bold_echo "Detected $APP_NAME/bin/$APP_NAME..."
+  bold_echo "Waiting for existing application to stop..."
+  # # Stop existing application if any
+  ssh $HOST $APP_NAME/bin/$APP_NAME stop
+
+  # Waiting for application to stop
+  ssh $HOST $APP_NAME/bin/$APP_NAME pid
+  while [ $? -ne 1 ]
+  do
+    ssh $HOST $APP_NAME/bin/$APP_NAME pid
+  done
+fi
+set -e
+
 bold_echo "Copying release to remote..."
 scp $TAR_FILENAME do:~/$APP_NAME/releases/$TAR_FILENAME
 ssh $HOST tar -xzf $APP_NAME/releases/$TAR_FILENAME -C $APP_NAME/
-
-set +e
-bold_echo "Waiting for existing application to stop..."
-# Stop existing application if any
-ssh $HOST $APP_NAME/bin/$APP_NAME stop
-
-# Waiting for application to stop
-ssh $HOST $APP_NAME/bin/$APP_NAME pid
-while [ $? -ne 1 ]
-do
-  ssh $HOST $APP_NAME/bin/$APP_NAME pid
-done
 
 bold_echo "Starting application in daemon mode..."
 ssh $HOST "source $APP_NAME/.env  && $APP_NAME/bin/$APP_NAME daemon"
@@ -287,3 +344,4 @@ course not! The next one I would share in the future  would be deploying our
 release using Blue Green Deployment strategy with NGINX. So do stay tuned!
 
 [1]: https://askubuntu.com/questions/25347/what-command-do-i-need-to-unzip-extract-a-tar-gz-file
+[2]: https://erlang.org/doc/reference_manual/distributed.html
