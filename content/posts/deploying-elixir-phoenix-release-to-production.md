@@ -6,19 +6,17 @@ draft: true
 ---
 
 In my previous post ["Building Elixir/Phoenix Release With Docker"]({{< ref "building-phoenix-release-with-docker.md" >}}), I wrote
-about how I build Elixir release with Docker and extract the tar file. However,
-I haven't talk about how I deploy the release to my production server and start the
-application.
+about how I build Elixir release with Docker and extract the tarball. Today,
+I am going to share the way I deploy release to production server.
 
-So, in this post, I am going to share my process on deploying Elixir release.
 
 _Do note that, the way I deploy **works best for hobby or small projects**. For
-larger scale system, consider using other tooling._
+larger scale system, consider using other tools._
 
 _For the sake of simplicity, this post assume that your remote server already
 has reverse proxy like `nginx` setup and pointing port 80 towards your
-application port (4000). If you have a database, it's assumed that the database
-is created and running._
+application port 4000. If you have a database, it's assumed that the database
+is up and running._
 
 # Steps for initial release
 
@@ -68,8 +66,9 @@ Here we used some of the common command such as:
 - `tar` to extract the tarball, refer to this [StackOverflow Question][1]
   for more details.
 - `source` to load our environment variables required by our application.
+  _(which assume your remote server have the `.env` located at `~/$APP_NAME/`)_
 
-If you save this file as `./deploy` in your application root directory _(or
+If you save this file as `./deploy` in your application root directory locally _(or
 where your tarball is available)_ and run `chmod +x ./deploy`, you should be
 able to deploy your initial release by simply running `./deploy`.
 
@@ -115,9 +114,10 @@ the following error:
 Protocol 'inet_tcp': the name appname@hostname seems to be in use by another Erlang node
 ```
 
-To overcome this issue, we need to either repeatedly try to start the
-application until there is no error faced or ensure that the application is
-stopped before we run the start command.
+To overcome this issue, we need to either:
+
+- Repeatedly try to start the application until there is no error faced.
+- Or, ensure that the application is stopped before we run the start command.
 
 ## Replacing old release with new release will cause `bin/app` command not working expectedly
 That's not the only thing we need to overcome. Another tricky one would be, if
@@ -135,23 +135,22 @@ happen because each time we run `mix release`, it would generate a new random
 cookie that is written to our `releases/COOKIE` file, and if we don't have
 `RELEASE_COOKIE` set in our environment, the randomly generated cookie  would be used.
 
-Everytime we extract our new release tarball, the `releases/COOKIE` might
-be updated to a different cookie and cause the command to unable to talk to our
+Every time we extract our new release tarball, the `releases/COOKIE` might
+be updated to a different cookie and cause the command unable to talk to our
 running application. Here's what the [Erlang documentation][2] mentioned:
 
 > When a node tries to connect to another node, the magic cookies are compared.
 > If they do not match, the connected node rejects the connection.
 
-Our new release cookie doesn't match with our old release (running
-application)_
-cookie, thus, they are not able to talk to each other.
+Our new release cookie doesn't match with our old release _(running
+application)_ cookie. Thus, they are not able to talk to each other.
 
 But, how is it related to our `bin/app pid` command? Isn't it just a normal
 command that get the process id of the application?
 
 It is, but internally, the command is using `rpc` mechanism to talk to the node,
 which spin up a hidden node and evaluate some code on the remote node
-_(our running application) _(refer to `elixir --help`, Distribution options for
+_(our running application)_ _(refer to `elixir --help`, Distribution options for
 more details)_.
 
 Here is the command executed underneath every time we run `bin/app pid`:
@@ -160,11 +159,48 @@ Here is the command executed underneath every time we run `bin/app pid`:
 /home/kai/app/releases/0.1.1/elixir --hidden --cookie COOKIE --sname rpc-29e0-app --boot /home/kai/app/releases/0.1.1/start_clean --boot-var RELEASE_LIB /home/kai/app/lib --rpc-eval app IO.puts System.pid()
 ```
 
+### Side Note: How to know the command running underneath?
+
+An easy way to know what's the command running underneath of a executable
+script is adding `set -x` on top of the script file. Instead of having the
+original `bin/appname` script that looks like this:
+
+```sh
+#!/bin/sh
+set -e
+
+SELF=$(readlink "$0" || true)
+if [ -z "$SELF" ]; then SELF="$0"; fi
+RELEASE_ROOT="$(cd "$(dirname "$SELF")/.." && pwd -P)"
+...
+```
+
+We can modified the script to get more details by adding a single character:
+
+```sh
+#!/bin/sh
+# Just add extra x here
+set -ex
+
+SELF=$(readlink "$0" || true)
+if [ -z "$SELF" ]; then SELF="$0"; fi
+RELEASE_ROOT="$(cd "$(dirname "$SELF")/.." && pwd -P)"
+...
+```
+
+With a simple change, now every time when we execute the `bin/appname` command,
+a detailed log will be output to show what is being run underneath.
+
+I actually came across this while going through Buildkite documentation for
+[writing build scripts][4]. Go ahead and read about it if you're interested in
+the details behind.
+
+
 ## Solution
 
 **1. Fixing our cookie**
 
-The first thing we need to resolve is to ensure that everytime we start our
+The first thing we need to resolve is to ensure that every time we start our
 release, the same cookie is used. Fortunately, this can be easily done by using
 `RELEASE_COOKIE` environment variable or putting the cookie in our release
 configuration in `mix.exs`:
@@ -184,7 +220,7 @@ def project do
 end
 ```
 
-In the [documentation][3], it recommend to use a long and randomly
+The [documentation][3] recommend to use a long and randomly
 generated string for your cookie, which can be generated using the following
 code:
 
@@ -192,19 +228,18 @@ code:
 Base.url_encode64(:crypto.strong_rand_bytes(40))
 ```
 
-Alternatively, you can the `RELEASE_COOKIE` environment variable. In my case,
-it would be placing it in my `.env.production` that will be eventually copy to
-my remote server as `.env`:
-
+Alternatively, you can use the `RELEASE_COOKIE` environment variable. In my case,
+it would be placing it in my local `.env.production` file:
 ```bash
 export RELEASE_COOKIE=<YOUR COOKIE>
 ```
 
-where later on, you'll have some bash script that copy your environment
-variable file to the remote machine:
+where later on, I have the following command that copy it to the remote machine
+as my environment variable file `.env`:
 
 ```bash
-scp .env.production do:~/$APP_NAME/.env
+# scp <source> <host>:<destination>
+scp .env.production $HOST:~/$APP_NAME/.env
 ```
 
 **2. Add script to deploy new release**
@@ -223,12 +258,12 @@ _Here is what we use:_
 # ==========================================
 # Copying .env.production to remote as .env
 # ==========================================
-scp .env.production do:~/$APP_NAME/.env
+scp .env.production $HOST:~/$APP_NAME/.env
 
 # =============================
 # Copying new release to remote
 # =============================
-scp $TAR_FILENAME do:~/$APP_NAME/releases/$TAR_FILENAME
+scp $TAR_FILENAME $HOST:~/$APP_NAME/releases/$TAR_FILENAME
 ssh $HOST tar -xzf $APP_NAME/releases/$TAR_FILENAME -C $APP_NAME/
 
 # =========================
@@ -286,7 +321,12 @@ These code basically done the following through `ssh`:
   application by using `bin/appname rpc`. Alternatively, you can also `curl`
   your health check endpoint.
 
-A side note here about how we health check our application:
+This is good enough if you have only one production server. If you have more
+than one, consider looping through and extract the code into function.
+
+### Side Note: Not the best way to health check:
+This is not the best way to health check your application. For the following
+reasons:
 
 - We only check if the application is up and running. We didn't really health
   check whether our database connection is working correctly or not. Or, if it
@@ -313,10 +353,7 @@ A side note here about how we health check our application:
   </p>
 </div>
 
-This is good enough if you have only one production server. If you have more
-than one, consider looping through and extract the code into function.
-
-## Glue it all together
+# Glue it all together
 
 To sum up, this is the bash script `./deploy` that I used for deploying initial or
 subsequent release of my side projects:
@@ -329,6 +366,9 @@ set -e
 APP_NAME="$(grep 'app:' mix.exs | sed -e 's/\[//g' -e 's/ //g' -e 's/app://' -e 's/[:,]//g')"
 APP_VSN="$(grep 'version:' mix.exs | cut -d '"' -f2)"
 TAR_FILENAME=${APP_NAME}-${APP_VSN}.tar.gz
+
+# Change it to your hostname or ip address like ubuntu@192.159.12.1
+# I happen to name it as "do" for my DigitalOcean server.
 HOST="do"
 
 bold_echo() {
@@ -339,10 +379,10 @@ bold_echo "Creating directory if not exist..."
 ssh $HOST mkdir -p $APP_NAME/releases/$APP_VSN
 
 bold_echo "Copying environment variables..."
-scp .env.production do:~/$APP_NAME/.env
+scp .env.production $HOST:~/$APP_NAME/.env
 
 bold_echo "Copying release to remote..."
-scp $TAR_FILENAME do:~/$APP_NAME/releases/$TAR_FILENAME
+scp $TAR_FILENAME $HOST:~/$APP_NAME/releases/$TAR_FILENAME
 ssh $HOST tar -xzf $APP_NAME/releases/$TAR_FILENAME -C $APP_NAME/
 
 set +e
@@ -377,9 +417,20 @@ rm $TAR_FILENAME
 Don't forget to make it executable by running `chmod +x ./deploy`, and now you
 can deploy your Elixir release by running `./deploy` locally.
 
-Additiona notes on the extra stuff added in the scripts:
+Here, I didn't cover how I run my migration but a quick way is just adding the
+following command after we start the application _(assuming you have added the
+code mentioned in the [Phoenix Release Documentation][5])_:
 
-- Added extra logging on each step
+```bash
+ssh $HOST "source ~/$APP_NAME/.env && ~/$APP_NAME/bin/$APP_NAME eval 'AppName.Release.migrate()'"
+```
+
+The reason we need to source the `.env` is because our runtime require some
+environment variable to be available in order to execute it.
+
+Also, some additional notes on the extra stuff added in the scripts:
+
+- Added `bold_echo` to print out each step in bold and formatted text.
 - Added clean up code after our release.
 
 # Wrap Up
@@ -392,8 +443,10 @@ and I am the only one who deployed it.
 
 But is that all for my deployment process for Elixir/Phoenix release? Of
 course not! The next one I would share in the future  would be deploying our
-release using Blue Green Deployment strategy with NGINX. So do stay tuned!
+release using Blue Green Deployment strategy with `nginx`. So do stay tuned!
 
 [1]: https://askubuntu.com/questions/25347/what-command-do-i-need-to-unzip-extract-a-tar-gz-file
 [2]: https://erlang.org/doc/reference_manual/distributed.html
 [3]: https://hexdocs.pm/mix/Mix.Tasks.Release.html#module-options
+[4]: https://buildkite.com/docs/pipelines/writing-build-scripts#configuring-bash
+[5]: https://hexdocs.pm/phoenix/releases.html#ecto-migrations-and-custom-commands
