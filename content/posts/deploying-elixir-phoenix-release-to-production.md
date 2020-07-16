@@ -70,7 +70,8 @@ Here we used some of the common command such as:
 
 If you save this file as `./deploy` in your application root directory locally _(or
 where your tarball is available)_ and run `chmod +x ./deploy`, you should be
-able to deploy your initial release by simply running `./deploy`.
+able to deploy your initial release by simply running `./deploy`. Simple and
+straightforward right?
 
 ### Side Topic: SSH Tips and Tricks
 
@@ -111,18 +112,19 @@ gracefully. Hence, running start command immediately would likely to cause
 the following error:
 
 ```
-Protocol 'inet_tcp': the name appname@hostname seems to be in use by another Erlang node
+Protocol 'inet_tcp': the name app@hostname seems to be in use by another Erlang node
 ```
 
 To overcome this issue, we need to either:
 
 - Repeatedly try to start the application until there is no error faced.
 - Or, ensure that the application is stopped before we run the start command.
+- Or, use the `restart` command instead.
 
 ## Replacing old release with new release will cause `bin/app` command not working expectedly
 That's not the only thing we need to overcome. Another tricky one would be, if
 we were extract our new release tarball, which then replace our old release,
-`bin/app stop` would not work as expected at the time of writing (11th July,
+`bin/app pid` would not work as expected at the time of writing (11th July,
 2020). You'll get the following error
 instead:
 
@@ -163,7 +165,7 @@ Here is the command executed underneath every time we run `bin/app pid`:
 
 An easy way to know what's the command running underneath of a executable
 script is adding `set -x` on top of the script file. Instead of having the
-original `bin/appname` script that looks like this:
+original `bin/app` script that looks like this:
 
 ```sh
 #!/bin/sh
@@ -188,7 +190,7 @@ RELEASE_ROOT="$(cd "$(dirname "$SELF")/.." && pwd -P)"
 ...
 ```
 
-With a simple change, now every time when we execute the `bin/appname` command,
+With a simple change, now every time when we execute the `bin/app` command,
 a detailed log will be output to show what is being run underneath.
 
 I actually came across this while going through Buildkite documentation for
@@ -245,15 +247,20 @@ scp .env.production $HOST:~/$APP_NAME/.env
 **2. Add script to deploy new release**
 
 The only difference between the
-script for initial release and subsequent release is the part where we start
-the application:
+script for initial release and subsequent release is how we start our
+application or in this case, restart our application.
 
-_Instead of:_
+However, we also want our `deploy` script to handle
+both initial and subsequent release deployment. So, we will rely on `bin/app
+pid` to check if the application is running and conditionally execute either
+`bin/app daemon` or `bin/app restart` command.
+
+So, instead of:
 ```bash
 source ~/$APP_NAME/.env  && ~/$APP_NAME/bin/$APP_NAME daemon
 ```
 
-_Here is what we use:_
+This is how it looks like:
 ```bash
 # ==========================================
 # Copying .env.production to remote as .env
@@ -266,34 +273,33 @@ scp .env.production $HOST:~/$APP_NAME/.env
 scp $TAR_FILENAME $HOST:~/$APP_NAME/releases/$TAR_FILENAME
 ssh $HOST tar -xzf $APP_NAME/releases/$TAR_FILENAME -C $APP_NAME/
 
-# =========================
-# Stop existing application
-# =========================
-# Allow error so we can capture the error code of the command
+# ===============================
+# Check if application is running
+# ===============================
 set +e
-
-# Stop our application
-ssh $HOST "source $APP_NAME/.env && $APP_NAME/bin/$APP_NAME stop"
-
-# Waiting for application to stop
 ssh $HOST "source $APP_NAME/.env && $APP_NAME/bin/$APP_NAME pid"
-while [ $? -ne 1 ]
-do
-  ssh $HOST "source $APP_NAME/.env && $APP_NAME/bin/$APP_NAME pid"
-done
 
-# Trap error back
-set -e
+# =========================
+# Start/Restart application
+# =========================
 
-# ================================
-# Start application in daemon mode
-# ================================
-ssh $HOST "source $APP_NAME/.env  && $APP_NAME/bin/$APP_NAME daemon"
+# If not success when getting application process id,
+# it mean no application is running.
+if [ $? -ne 0 ]; then
+
+  # Starting the application in daemon mode
+  ssh $HOST "source $APP_NAME/.env  && $APP_NAME/bin/$APP_NAME daemon"
+else
+
+  # Restart application if it's already running
+  ssh $HOST "source $APP_NAME/.env  && $APP_NAME/bin/$APP_NAME restart"
+fi
+
+ssh $HOST "source $APP_NAME/.env  && $APP_NAME/bin/$APP_NAME restart"
 
 # ========================
 # Health Check Application
 # ========================
-set +e
 
 # Repeatly use rpc to talk to our node until it succeed, which indicate our node
 # is now up and running.
@@ -309,22 +315,21 @@ These code basically done the following through `ssh`:
 
 - Copy our environment variable files to remote machine.
 - Copy our release tarball to remote machine and extract it.
-- Stop the application by running `bin/appname stop`.
-- Check the process id of the running application by using `bin/appname pid`. If
-  the status code is not error, it means that the application is still running.
+- Check if the application is running  by checking the process id of the
+  application with the  `bin/app pid` command. If the status code is not error, it means that the application is still running.
 - `$?` is the special variable in `bash` that indicate the status code of the
-  previous command. In this example, it would be the `bin/appname pid` command.
-- After the application stop running _(which is after `bin/appname pid` return error,
-  since the node is down)_, we start our new version application in daemon mode by
-  running `bin/appname daemon`.
-- After starting our application, we continuously health check our
-  application by using `bin/appname rpc`. Alternatively, you can also `curl`
+  previous command. In this example, it would be the `bin/app pid` command.
+- If the application is not running, we would start the application by running
+  `bin/app daemon`, else we would just restart the application by running
+  `bin/app restart`.
+- After (re)starting our application, we continuously health check our
+  application by using `bin/app rpc`. Alternatively, you can also `curl`
   your health check endpoint.
 
 This is good enough if you have only one production server. If you have more
 than one, consider looping through and extract the code into function.
 
-### Side Note: Not the best way to health check:
+### Side Note: Not the best way to health check
 This is not the best way to health check your application. For the following
 reasons:
 
@@ -366,9 +371,6 @@ set -e
 APP_NAME="$(grep 'app:' mix.exs | sed -e 's/\[//g' -e 's/ //g' -e 's/app://' -e 's/[:,]//g')"
 APP_VSN="$(grep 'version:' mix.exs | cut -d '"' -f2)"
 TAR_FILENAME=${APP_NAME}-${APP_VSN}.tar.gz
-
-# Change it to your hostname or ip address like ubuntu@192.159.12.1
-# I happen to name it as "do" for my DigitalOcean server.
 HOST="do"
 
 bold_echo() {
@@ -379,23 +381,24 @@ bold_echo "Creating directory if not exist..."
 ssh $HOST mkdir -p $APP_NAME/releases/$APP_VSN
 
 bold_echo "Copying environment variables..."
-scp .env.production $HOST:~/$APP_NAME/.env
+scp .env.production do:~/$APP_NAME/.env
 
 bold_echo "Copying release to remote..."
-scp $TAR_FILENAME $HOST:~/$APP_NAME/releases/$TAR_FILENAME
+scp $TAR_FILENAME do:~/$APP_NAME/releases/$TAR_FILENAME
 ssh $HOST tar -xzf $APP_NAME/releases/$TAR_FILENAME -C $APP_NAME/
 
 set +e
-bold_echo "Waiting for existing application to stop..."
-ssh $HOST "source $APP_NAME/.env && $APP_NAME/bin/$APP_NAME stop"
 ssh $HOST "source $APP_NAME/.env && $APP_NAME/bin/$APP_NAME pid"
-while [ $? -ne 1 ]
-do
-  ssh $HOST "source $APP_NAME/.env && $APP_NAME/bin/$APP_NAME pid"
-done
 
-bold_echo "Starting application in daemon mode..."
-ssh $HOST "source $APP_NAME/.env  && $APP_NAME/bin/$APP_NAME daemon"
+# If not success when getting application process id,
+# it mean no application is running.
+if [ $? -ne 0 ]; then
+  bold_echo "Starting application in daemon mode..."
+  ssh $HOST "source $APP_NAME/.env  && $APP_NAME/bin/$APP_NAME daemon"
+else
+  bold_echo "Restarting application..."
+  ssh $HOST "source $APP_NAME/.env  && $APP_NAME/bin/$APP_NAME restart"
+fi
 
 bold_echo "Health checking application..."
 # Waiting for application to start
@@ -404,6 +407,7 @@ while [ $? -ne 0 ]
 do
   ssh $HOST "source $APP_NAME/.env && $APP_NAME/bin/$APP_NAME rpc 'IO.puts(\"health-check\")'"
 done
+set -e
 
 bold_echo "Application started!"
 
@@ -422,7 +426,7 @@ following command after we start the application _(assuming you have added the
 code mentioned in the [Phoenix Release Documentation][5])_:
 
 ```bash
-ssh $HOST "source ~/$APP_NAME/.env && ~/$APP_NAME/bin/$APP_NAME eval 'AppName.Release.migrate()'"
+ssh $HOST "source ~/$APP_NAME/.env && ~/$APP_NAME/bin/$APP_NAME eval 'App.Release.migrate()'"
 ```
 
 The reason we need to source the `.env` is because our runtime require some
