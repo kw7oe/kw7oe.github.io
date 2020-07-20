@@ -1,7 +1,7 @@
 ---
 title: "Deploying Elixir/Phoenix Release to Production"
 date: 2020-07-20T20:09:01+08:00
-tags: ["elixir", "deployment"]
+tags: ["elixir", "phoenix", "deployment"]
 ---
 
 In my previous post ["Building Elixir/Phoenix Release With Docker"]({{< ref "building-phoenix-release-with-docker.md" >}}), I wrote
