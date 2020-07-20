@@ -1,21 +1,20 @@
 ---
 title: "Deploying Elixir/Phoenix Release to Production"
-date: 2020-06-30T20:09:01+08:00
+date: 2020-07-20T20:09:01+08:00
 tags: ["elixir", "deployment"]
-draft: true
 ---
 
 In my previous post ["Building Elixir/Phoenix Release With Docker"]({{< ref "building-phoenix-release-with-docker.md" >}}), I wrote
 about how I build Elixir release with Docker and extract the tarball. Today,
-I am going to share the way I deploy release to production server.
+I am going to share how I deploy Elixir release to the production server.
 
 
 _Do note that, the way I deploy **works best for hobby or small projects**. For
 larger scale system, consider using other tools._
 
-_For the sake of simplicity, this post assume that your remote server already
+_For the sake of simplicity, this post assume that your remote server
 has reverse proxy like `nginx` setup and pointing port 80 towards your
-application port 4000. If you have a database, it's assumed that the database
+application port 4000. If you depend on the database, it's assumed that the database
 is up and running._
 
 # Steps for initial release
@@ -76,8 +75,10 @@ straightforward right?
 ### Side Topic: SSH Tips and Tricks
 
 Notice the pattern we use here in `ssh $HOST <command to run>`. We are essentially
-running the command on our remote server by first ssh into the server.
-If you're new to this, go ahead and run `ssh <ip> "ls -la"` on your local
+running the command on our remote server by first ssh into the server and
+executing the command.
+
+If you're new to this, go ahead and run `ssh <user>@<ip> "ls -la"` on your local
 machine. You should be able to see the same result as running `ls -la` in your
 remote server.
 
@@ -97,7 +98,7 @@ using `ssh kai@192.168.1.1`.
 
 Subsequent release involves the similar steps as the above. The difference is
 before starting the new version, we need to stop our old version server first.
-However, there is a couple of challenge we need to overcome first.
+However, there is a couple of things that is good to know before we proceed.
 
 ## Stopping application take some times
 Script like this won't work:
@@ -125,7 +126,7 @@ To overcome this issue, we need to either:
 That's not the only thing we need to overcome. Another tricky one would be, if
 we were extract our new release tarball, which then replace our old release,
 `bin/app pid` would not work as expected at the time of writing (11th July,
-2020). You'll get the following error
+2020) _without any additional configuration_. You'll get the following error
 instead:
 
 ```
@@ -133,13 +134,17 @@ instead:
 ```
 
 Why would this occur? After some experimentation, I have found out that this
-happen because each time we run `mix release`, it would generate a new random
-cookie that is written to our `releases/COOKIE` file, and if we don't have
-`RELEASE_COOKIE` set in our environment, the randomly generated cookie  would be used.
+happen because every time we build a new release in Docker, as we run `mix release`,
+it would generate a new random cookie.
+
+Which is then written to our `releases/COOKIE` file, and if we don't have
+`RELEASE_COOKIE` set in our environment, this cookie would be used.
 
 Every time we extract our new release tarball, the `releases/COOKIE` might
 be updated to a different cookie and cause the command unable to talk to our
-running application. Here's what the [Erlang documentation][2] mentioned:
+running application.
+
+Here's what the [Erlang documentation][2] mentioned:
 
 > When a node tries to connect to another node, the magic cookies are compared.
 > If they do not match, the connected node rejects the connection.
@@ -161,7 +166,7 @@ Here is the command executed underneath every time we run `bin/app pid`:
 /home/kai/app/releases/0.1.1/elixir --hidden --cookie COOKIE --sname rpc-29e0-app --boot /home/kai/app/releases/0.1.1/start_clean --boot-var RELEASE_LIB /home/kai/app/lib --rpc-eval app IO.puts System.pid()
 ```
 
-### Side Note: How to know the command running underneath?
+### Side Note: How can we know the command running underneath?
 
 An easy way to know what's the command running underneath of a executable
 script is adding `set -x` on top of the script file. Instead of having the
@@ -276,6 +281,8 @@ ssh $HOST tar -xzf $APP_NAME/releases/$TAR_FILENAME -C $APP_NAME/
 # ===============================
 # Check if application is running
 # ===============================
+
+# Start to trap error
 set +e
 ssh $HOST "source $APP_NAME/.env && $APP_NAME/bin/$APP_NAME pid"
 
@@ -308,6 +315,8 @@ while [ $? -ne 0 ]
 do
   ssh $HOST "source $APP_NAME/.env && $APP_NAME/bin/$APP_NAME rpc 'IO.puts(\"health-check\")'"
 done
+
+# Stop trapping error
 set -e
 ```
 
@@ -327,14 +336,25 @@ These code basically done the following through `ssh`:
   your health check endpoint.
 
 This is good enough if you have only one production server. If you have more
-than one, consider looping through and extract the code into function.
+than one, consider looping through the IP addresses  and extract the code
+into function.
+
+<div class="callout callout-info">
+  <p>
+  You might be wondering why  instead of using <code>bin/app eval IO.puts("health-check")</code>,
+  we use <code>rpc</code>. This is because <code>eval</code> do not communicate with the
+    node to execute the code. Hence, even if the node is not up yet, the
+    execution will still be successful.
+  </p>
+</div>
+
 
 ### Side Note: Not the best way to health check
 This is not the best way to health check your application. For the following
 reasons:
 
 - We only check if the application is up and running. We didn't really health
-  check whether our database connection is working correctly or not. Or, if it
+  check if our database connection is working correctly. Or, if it
   is ready to handle HTTP request correctly.
 - Ideally a better way to health check our application would be using `curl`
   and hit an endpoint that also query your database.
@@ -342,21 +362,10 @@ reasons:
   number of health check attempts and has it failed the deployment and rollback
   if things doesn't go well after a couple of times, which is another topic
   for another day.
+- That's also part of the reason why I think this approach of deployment is
+  only suitable for small projects. Cluster schedulers like Kubernetes, Nomad or ECS
+  have already solve this issue for you, as far as I know.
 
-<div class="callout callout-info">
-  <p>
-    You might be wondering if we can just use <code>bin/app restart</code> to
-    resolve this issue. The answer is no. After running restart, the BEAM
-    VM will still use the previous version of our application.
-  </p>
-
-  <p>
-    And instead of using <code>bin/app eval IO.puts("health-check")</code>, we use
-    <code>rpc</code> because <code>eval</code> do not communicate with the
-    node to execute the code. Hence, even if the node is not up yet, the
-    execution will still be successful.
-  </p>
-</div>
 
 # Glue it all together
 
@@ -381,10 +390,10 @@ bold_echo "Creating directory if not exist..."
 ssh $HOST mkdir -p $APP_NAME/releases/$APP_VSN
 
 bold_echo "Copying environment variables..."
-scp .env.production do:~/$APP_NAME/.env
+scp .env.production $HOST:~/$APP_NAME/.env
 
 bold_echo "Copying release to remote..."
-scp $TAR_FILENAME do:~/$APP_NAME/releases/$TAR_FILENAME
+scp $TAR_FILENAME $HOST:~/$APP_NAME/releases/$TAR_FILENAME
 ssh $HOST tar -xzf $APP_NAME/releases/$TAR_FILENAME -C $APP_NAME/
 
 set +e
