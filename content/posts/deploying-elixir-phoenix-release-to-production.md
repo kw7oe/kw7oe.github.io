@@ -4,6 +4,8 @@ date: 2020-07-20T20:09:01+08:00
 tags: ["elixir", "phoenix", "deployment"]
 ---
 
+_Updates (12th August 2020): Fix my mistake on using `bin/app restart`._
+
 In my previous post ["Building Elixir/Phoenix Release With Docker"]({{< ref "building-phoenix-release-with-docker.md" >}}), I wrote
 about how I build Elixir release with Docker and extract the tarball. Today,
 I am going to share how I deploy Elixir release to the production server.
@@ -120,7 +122,28 @@ To overcome this issue, we need to either:
 
 - Repeatedly try to start the application until there is no error faced.
 - Or, ensure that the application is stopped before we run the start command.
-- Or, use the `restart` command instead.
+
+<div class="callout callout-info">
+  <p class="font-bold">Why can't we just use <code>bin/app restart</code>?</p>
+  <p>
+    In the previous version of this post, we are using <code>bin/app
+    restart</code>. However, after I use the code personally in one of my
+    project, I realized that by using `<code>bin/app restart</code>`, the
+    application will <strong>not be started as the latest version</strong>.
+  </p>
+
+  <p>
+    It is restarted as the previous version of the application, which is not what
+    we expected when we want to update our application right. Hence, we will
+    need to write some custom logic as mentioned above.
+  </p>
+
+  <p>
+    I haven't figure out why it behave like this. If you happen to know,
+    please let me know! If I manage to find out why, I'll update this part once
+    again.
+  </p>
+</div>
 
 ## Replacing old release with new release will cause `bin/app` command not working expectedly
 That's not the only thing we need to overcome. Another tricky one would be, if
@@ -252,13 +275,8 @@ scp .env.production $HOST:~/$APP_NAME/.env
 **2. Add script to deploy new release**
 
 The only difference between the
-script for initial release and subsequent release is how we start our
-application or in this case, restart our application.
-
-However, we also want our `deploy` script to handle
-both initial and subsequent release deployment. So, we will rely on `bin/app
-pid` to check if the application is running and conditionally execute either
-`bin/app daemon` or `bin/app restart` command.
+script for initial release and subsequent release is the part where we start
+the application:
 
 So, instead of:
 ```bash
@@ -278,31 +296,39 @@ scp .env.production $HOST:~/$APP_NAME/.env
 scp $TAR_FILENAME $HOST:~/$APP_NAME/releases/$TAR_FILENAME
 ssh $HOST tar -xzf $APP_NAME/releases/$TAR_FILENAME -C $APP_NAME/
 
-# ===============================
-# Check if application is running
-# ===============================
-
+# ===================
 # Start to trap error
+# ===================
+
+# This is because bin/app stop will return error
+# if the application is not running.
+
+# Furthermore, we want to get the status code of
+# bin/app pid.
 set +e
+
+# ========================
+# Stop running application
+# ========================
+ssh $HOST "source $APP_NAME/.env && $APP_NAME/bin/$APP_NAME stop"
+
+# ================================
+# Check if application has stopped
+# ================================
 ssh $HOST "source $APP_NAME/.env && $APP_NAME/bin/$APP_NAME pid"
 
-# =========================
-# Start/Restart application
-# =========================
+# if getting process id of application return error
+# it means that the application has been stopped
+while [ $? -ne 1 ]
+do
+  ssh $HOST "source $APP_NAME/.env && $APP_NAME/bin/$APP_NAME pid"
+done
 
-# If not success when getting application process id,
-# it mean no application is running.
-if [ $? -ne 0 ]; then
-
-  # Starting the application in daemon mode
-  ssh $HOST "source $APP_NAME/.env  && $APP_NAME/bin/$APP_NAME daemon"
-else
-
-  # Restart application if it's already running
-  ssh $HOST "source $APP_NAME/.env  && $APP_NAME/bin/$APP_NAME restart"
-fi
-
-ssh $HOST "source $APP_NAME/.env  && $APP_NAME/bin/$APP_NAME restart"
+# =================
+# Start application
+# =================
+# Starting the application in daemon mode
+ssh $HOST "source $APP_NAME/.env  && $APP_NAME/bin/$APP_NAME daemon"
 
 # ========================
 # Health Check Application
@@ -316,7 +342,9 @@ do
   ssh $HOST "source $APP_NAME/.env && $APP_NAME/bin/$APP_NAME rpc 'IO.puts(\"health-check\")'"
 done
 
+# ===================
 # Stop trapping error
+# ===================
 set -e
 ```
 
@@ -324,14 +352,15 @@ These code basically done the following through `ssh`:
 
 - Copy our environment variable files to remote machine.
 - Copy our release tarball to remote machine and extract it.
-- Check if the application is running  by checking the process id of the
-  application with the  `bin/app pid` command. If the status code is not error, it means that the application is still running.
+- Stop the application by running `bin/app stop`.
+- Check the process id of the running application by using `bin/app pid`. If
+  the status code is not error, it means that the application is still running.
 - `$?` is the special variable in `bash` that indicate the status code of the
-  previous command. In this example, it would be the `bin/app pid` command.
-- If the application is not running, we would start the application by running
-  `bin/app daemon`, else we would just restart the application by running
-  `bin/app restart`.
-- After (re)starting our application, we continuously health check our
+   previous command. In this example, it would be the `bin/app pid` command.
+- After the application stop running _(which is after `bin/app pid` return error,
+  since the node is down)_, we start our new version application in daemon mode by
+  running `bin/app daemon`.
+- After starting our application, we continuously health check our
   application by using `bin/app rpc`. Alternatively, you can also `curl`
   your health check endpoint.
 
@@ -397,17 +426,19 @@ scp $TAR_FILENAME $HOST:~/$APP_NAME/releases/$TAR_FILENAME
 ssh $HOST tar -xzf $APP_NAME/releases/$TAR_FILENAME -C $APP_NAME/
 
 set +e
+bold_echo "Waiting for existing application to stop..."
+ssh $HOST "source $APP_NAME/.env && $APP_NAME/bin/$APP_NAME stop"
 ssh $HOST "source $APP_NAME/.env && $APP_NAME/bin/$APP_NAME pid"
 
-# If not success when getting application process id,
-# it mean no application is running.
-if [ $? -ne 0 ]; then
-  bold_echo "Starting application in daemon mode..."
-  ssh $HOST "source $APP_NAME/.env  && $APP_NAME/bin/$APP_NAME daemon"
-else
-  bold_echo "Restarting application..."
-  ssh $HOST "source $APP_NAME/.env  && $APP_NAME/bin/$APP_NAME restart"
-fi
+# if getting process id of application return error
+# it means that the application has been stopped
+while [ $? -ne 1 ]
+do
+  ssh $HOST "source $APP_NAME/.env && $APP_NAME/bin/$APP_NAME pid"
+done
+
+bold_echo "Starting application in daemon mode..."
+ssh $HOST "source $APP_NAME/.env  && $APP_NAME/bin/$APP_NAME daemon"
 
 bold_echo "Health checking application..."
 # Waiting for application to start
