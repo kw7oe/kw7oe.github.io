@@ -51,7 +51,7 @@ Deploying Elixir/Phoenix Release to Production | kw7oe
 <header class="mb-8">
   <h1 class="title">Deploying Elixir/Phoenix Release to Production</h1>
   <p class="text-sm font-gray-700 mb-1">Jul 20, 2020</p>
-  <p class="text-sm mb-4 font-gray-700 italic">Estimated Reading Time: 11 minutes (2310 words)</p>
+  <p class="text-sm mb-4 font-gray-700 italic">Estimated Reading Time: 12 minutes (2440 words)</p>
 
    
   <div id="tags">
@@ -84,6 +84,8 @@ Deploying Elixir/Phoenix Release to Production | kw7oe
   
 
   
+
+<p><em>Updates (12th August 2020): Fix my mistake on using <code>bin/app restart</code>.</em></p>
 
 <p>In my previous post <a href="https://kaiwern.com/posts/2020/06/20/building-elixir/phoenix-release-with-docker/">&ldquo;Building Elixir/Phoenix Release With Docker&rdquo;</a>, I wrote
 about how I build Elixir release with Docker and extract the tarball. Today,
@@ -193,8 +195,29 @@ the following error:</p>
 <ul>
 <li>Repeatedly try to start the application until there is no error faced.</li>
 <li>Or, ensure that the application is stopped before we run the start command.</li>
-<li>Or, use the <code>restart</code> command instead.</li>
 </ul>
+
+<div class="callout callout-info">
+  <p class="font-bold">Why can't we just use <code>bin/app restart</code>?</p>
+  <p>
+    In the previous version of this post, we are using <code>bin/app
+    restart</code>. However, after I use the code personally in one of my
+    project, I realized that by using `<code>bin/app restart</code>`, the
+    application will <strong>not be started as the latest version</strong>.
+  </p>
+
+  <p>
+    It is restarted as the previous version of the application, which is not what
+    we expected when we want to update our application right. Hence, we will
+    need to write some custom logic as mentioned above.
+  </p>
+
+  <p>
+    I haven't figure out why it behave like this. If you happen to know,
+    please let me know! If I manage to find out why, I'll update this part once
+    again.
+  </p>
+</div>
 
 <h2 id="replacing-old-release-with-new-release-will-cause-bin-app-command-not-working-expectedly">Replacing old release with new release will cause <code>bin/app</code> command not working expectedly</h2>
 
@@ -303,13 +326,8 @@ scp .env.production <span class="nv">$HOST</span>:~/<span class="nv">$APP_NAME</
 <p><strong>2. Add script to deploy new release</strong></p>
 
 <p>The only difference between the
-script for initial release and subsequent release is how we start our
-application or in this case, restart our application.</p>
-
-<p>However, we also want our <code>deploy</code> script to handle
-both initial and subsequent release deployment. So, we will rely on <code>bin/app
-pid</code> to check if the application is running and conditionally execute either
-<code>bin/app daemon</code> or <code>bin/app restart</code> command.</p>
+script for initial release and subsequent release is the part where we start
+the application:</p>
 
 <p>So, instead of:</p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">source</span> ~/<span class="nv">$APP_NAME</span>/.env  <span class="o">&amp;&amp;</span> ~/<span class="nv">$APP_NAME</span>/bin/<span class="nv">$APP_NAME</span> daemon</code></pre></div>
@@ -325,31 +343,39 @@ scp .env.production <span class="nv">$HOST</span>:~/<span class="nv">$APP_NAME</
 scp <span class="nv">$TAR_FILENAME</span> <span class="nv">$HOST</span>:~/<span class="nv">$APP_NAME</span>/releases/<span class="nv">$TAR_FILENAME</span>
 ssh <span class="nv">$HOST</span> tar -xzf <span class="nv">$APP_NAME</span>/releases/<span class="nv">$TAR_FILENAME</span> -C <span class="nv">$APP_NAME</span>/
 
-<span class="c1"># ===============================</span>
-<span class="c1"># Check if application is running</span>
-<span class="c1"># ===============================</span>
-
+<span class="c1"># ===================</span>
 <span class="c1"># Start to trap error</span>
+<span class="c1"># ===================</span>
+
+<span class="c1"># This is because bin/app stop will return error</span>
+<span class="c1"># if the application is not running.</span>
+
+<span class="c1"># Furthermore, we want to get the status code of</span>
+<span class="c1"># bin/app pid.</span>
 <span class="nb">set</span> +e
+
+<span class="c1"># ========================</span>
+<span class="c1"># Stop running application</span>
+<span class="c1"># ========================</span>
+ssh <span class="nv">$HOST</span> <span class="s2">&#34;source </span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; </span><span class="nv">$APP_NAME</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> stop&#34;</span>
+
+<span class="c1"># ================================</span>
+<span class="c1"># Check if application has stopped</span>
+<span class="c1"># ================================</span>
 ssh <span class="nv">$HOST</span> <span class="s2">&#34;source </span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; </span><span class="nv">$APP_NAME</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> pid&#34;</span>
 
-<span class="c1"># =========================</span>
-<span class="c1"># Start/Restart application</span>
-<span class="c1"># =========================</span>
+<span class="c1"># if getting process id of application return error</span>
+<span class="c1"># it means that the application has been stopped</span>
+<span class="k">while</span> <span class="o">[</span> <span class="nv">$?</span> -ne <span class="m">1</span> <span class="o">]</span>
+<span class="k">do</span>
+  ssh <span class="nv">$HOST</span> <span class="s2">&#34;source </span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; </span><span class="nv">$APP_NAME</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> pid&#34;</span>
+<span class="k">done</span>
 
-<span class="c1"># If not success when getting application process id,</span>
-<span class="c1"># it mean no application is running.</span>
-<span class="k">if</span> <span class="o">[</span> <span class="nv">$?</span> -ne <span class="m">0</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-
-  <span class="c1"># Starting the application in daemon mode</span>
-  ssh <span class="nv">$HOST</span> <span class="s2">&#34;source </span><span class="nv">$APP_NAME</span><span class="s2">/.env  &amp;&amp; </span><span class="nv">$APP_NAME</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> daemon&#34;</span>
-<span class="k">else</span>
-
-  <span class="c1"># Restart application if it&#39;s already running</span>
-  ssh <span class="nv">$HOST</span> <span class="s2">&#34;source </span><span class="nv">$APP_NAME</span><span class="s2">/.env  &amp;&amp; </span><span class="nv">$APP_NAME</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> restart&#34;</span>
-<span class="k">fi</span>
-
-ssh <span class="nv">$HOST</span> <span class="s2">&#34;source </span><span class="nv">$APP_NAME</span><span class="s2">/.env  &amp;&amp; </span><span class="nv">$APP_NAME</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> restart&#34;</span>
+<span class="c1"># =================</span>
+<span class="c1"># Start application</span>
+<span class="c1"># =================</span>
+<span class="c1"># Starting the application in daemon mode</span>
+ssh <span class="nv">$HOST</span> <span class="s2">&#34;source </span><span class="nv">$APP_NAME</span><span class="s2">/.env  &amp;&amp; </span><span class="nv">$APP_NAME</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> daemon&#34;</span>
 
 <span class="c1"># ========================</span>
 <span class="c1"># Health Check Application</span>
@@ -363,21 +389,24 @@ ssh <span class="nv">$HOST</span> <span class="s2">&#34;source </span><span clas
   ssh <span class="nv">$HOST</span> <span class="s2">&#34;source </span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; </span><span class="nv">$APP_NAME</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> rpc &#39;IO.puts(\&#34;health-check\&#34;)&#39;&#34;</span>
 <span class="k">done</span>
 
+<span class="c1"># ===================</span>
 <span class="c1"># Stop trapping error</span>
+<span class="c1"># ===================</span>
 <span class="nb">set</span> -e</code></pre></div>
 <p>These code basically done the following through <code>ssh</code>:</p>
 
 <ul>
 <li>Copy our environment variable files to remote machine.</li>
 <li>Copy our release tarball to remote machine and extract it.</li>
-<li>Check if the application is running  by checking the process id of the
-application with the  <code>bin/app pid</code> command. If the status code is not error, it means that the application is still running.</li>
+<li>Stop the application by running <code>bin/app stop</code>.</li>
+<li>Check the process id of the running application by using <code>bin/app pid</code>. If
+the status code is not error, it means that the application is still running.</li>
 <li><code>$?</code> is the special variable in <code>bash</code> that indicate the status code of the
 previous command. In this example, it would be the <code>bin/app pid</code> command.</li>
-<li>If the application is not running, we would start the application by running
-<code>bin/app daemon</code>, else we would just restart the application by running
-<code>bin/app restart</code>.</li>
-<li>After (re)starting our application, we continuously health check our
+<li>After the application stop running <em>(which is after <code>bin/app pid</code> return error,
+since the node is down)</em>, we start our new version application in daemon mode by
+running <code>bin/app daemon</code>.</li>
+<li>After starting our application, we continuously health check our
 application by using <code>bin/app rpc</code>. Alternatively, you can also <code>curl</code>
 your health check endpoint.</li>
 </ul>
@@ -443,17 +472,19 @@ scp <span class="nv">$TAR_FILENAME</span> <span class="nv">$HOST</span>:~/<span 
 ssh <span class="nv">$HOST</span> tar -xzf <span class="nv">$APP_NAME</span>/releases/<span class="nv">$TAR_FILENAME</span> -C <span class="nv">$APP_NAME</span>/
 
 <span class="nb">set</span> +e
+bold_echo <span class="s2">&#34;Waiting for existing application to stop...&#34;</span>
+ssh <span class="nv">$HOST</span> <span class="s2">&#34;source </span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; </span><span class="nv">$APP_NAME</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> stop&#34;</span>
 ssh <span class="nv">$HOST</span> <span class="s2">&#34;source </span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; </span><span class="nv">$APP_NAME</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> pid&#34;</span>
 
-<span class="c1"># If not success when getting application process id,</span>
-<span class="c1"># it mean no application is running.</span>
-<span class="k">if</span> <span class="o">[</span> <span class="nv">$?</span> -ne <span class="m">0</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-  bold_echo <span class="s2">&#34;Starting application in daemon mode...&#34;</span>
-  ssh <span class="nv">$HOST</span> <span class="s2">&#34;source </span><span class="nv">$APP_NAME</span><span class="s2">/.env  &amp;&amp; </span><span class="nv">$APP_NAME</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> daemon&#34;</span>
-<span class="k">else</span>
-  bold_echo <span class="s2">&#34;Restarting application...&#34;</span>
-  ssh <span class="nv">$HOST</span> <span class="s2">&#34;source </span><span class="nv">$APP_NAME</span><span class="s2">/.env  &amp;&amp; </span><span class="nv">$APP_NAME</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> restart&#34;</span>
-<span class="k">fi</span>
+<span class="c1"># if getting process id of application return error</span>
+<span class="c1"># it means that the application has been stopped</span>
+<span class="k">while</span> <span class="o">[</span> <span class="nv">$?</span> -ne <span class="m">1</span> <span class="o">]</span>
+<span class="k">do</span>
+  ssh <span class="nv">$HOST</span> <span class="s2">&#34;source </span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; </span><span class="nv">$APP_NAME</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> pid&#34;</span>
+<span class="k">done</span>
+
+bold_echo <span class="s2">&#34;Starting application in daemon mode...&#34;</span>
+ssh <span class="nv">$HOST</span> <span class="s2">&#34;source </span><span class="nv">$APP_NAME</span><span class="s2">/.env  &amp;&amp; </span><span class="nv">$APP_NAME</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> daemon&#34;</span>
 
 bold_echo <span class="s2">&#34;Health checking application...&#34;</span>
 <span class="c1"># Waiting for application to start</span>
