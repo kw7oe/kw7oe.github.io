@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>
+Identify and specify Identity File used by SSH | kw7oe
+</title>
+
+
+
+<meta name="generator" content="Hugo 0.58.3" />
+
+
+    
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.ae808e0d5578f73e14219baf9b24d430658b5a84b80857ae04cd82aca4e34c7b.css" integrity="sha256-roCODVV49z4UIZuvmyTUMGWLWoS4CFeuBM2CrKTjTHs=">
+
+
+
+
+<link rel="stylesheet" href="https://kaiwern.com/css/syntax.min.css">
+
+<body class="flex flex-col min-h-screen px-4 max-w-screen-md md:w-2/3 m-auto"><nav class="mt-8">
+  <ul id="nav-menu" class="w-full flex items-center list-reset">
+    
+    <li>
+      <a href="https://kaiwern.com/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Home</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/about/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">About</a>
+    </li>
+    
+
+    
+    
+    <li>
+      <a href="https://kaiwern.com/categories/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Categories</a>
+    </li>
+    
+    
+    
+    <li>
+      <a href="https://kaiwern.com/tags/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Tags</a>
+    </li>
+    
+    
+  </ul>
+</nav>
+<main class="flex-1 mt-4 sm:mt-12">
+<header class="mb-8">
+  <h1 class="title">Identify and specify Identity File used by SSH</h1>
+  <p class="text-sm font-gray-700 mb-1">Aug 20, 2020</p>
+  <p class="text-sm mb-4 font-gray-700 italic">Estimated Reading Time: 3 minutes (536 words)</p>
+
+   
+  <div id="tags">
+    
+  </div>
+</header>
+
+<article class="markdown mb-8 text-gray-800">
+  
+
+  
+
+<p>Recently, I have been looking into improving our access management to our EC2
+instances in Naluri and came across EC2 Instance Connect features.
+While experementing with it, I have learn a thing or two about <code>ssh</code>.</p>
+
+<p>In this post, we are going to cover the following topics:</p>
+
+<ul>
+<li>Which private keys <code>ssh</code> is using?</li>
+<li>How to use only specifc private keys when <code>ssh</code></li>
+</ul>
+
+<h2 id="which-private-keys-ssh-is-using">Which private keys <code>ssh</code> is using?</h2>
+
+<p>When I was experimenting with EC2 Instance Connect, I try to ssh with private
+key that is supposed to be expired, however, I can still successfully <code>ssh</code>
+into the application server. This seem weird. So I&rsquo;ll need to find out which
+private key that <code>ssh</code> used to allow me to access the server. After some google
+search, I found the answer <a href="https://serverfault.com/questions/339355/how-to-findout-which-key-was-being-used-to-login-for-an-ssh-session">here</a>, which is:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">ssh -v user@ip_address</code></pre></div>
+<p>After running the above you&rsquo;ll see additional logs on what <code>ssh</code> go through
+before connecting to the remote server, which looks like this:</p>
+
+<pre><code>OpenSSH_7.9p1, LibreSSL 2.7.3
+debug1: Reading configuration data /Users/kai/.ssh/config
+...
+debug1: Authenticating to &lt;ip_address&gt;:&lt;port&gt; as '&lt;user&gt;'
+...
+debug1: Will attempt key: /Users/kai/.ssh/id_rsa RSA SHA256:LJnPQHkVlt+cqWslxTzObpDezpdjgIKdfh8qa7u4ftM agent
+debug1: Will attempt key:  RSA SHA256:klrkbMg/32KGGbqW2GCEeWIx4MQ4aYJZonF0XIexVlI agent
+debug1: Will attempt key: kai@KW.local RSA SHA256:utKcZ1r14VeHKyagE7IdqKOkZ+fWVVtk05zpl/K+tQQ agent
+...
+debug1: Authentications that can continue: publickey
+debug1: Next authentication method: publickey
+debug1: Offering public key: /Users/kai/.ssh/id_rsa RSA SHA256:LJnPQHkVlt+cqWslxTzObpDezpdjgIKdfh8qa7u4ftM agent
+debug1: Server accepts key: /Users/kai/.ssh/id_rsa RSA SHA256:LJnPQHkVlt+cqWslxTzObpDezpdjgIKdfh8qa7u4ftM agent
+debug1: Authentication succeeded (publickey).
+Authenticated to &lt;ip_address&gt; (via proxy).
+...
+</code></pre>
+
+<p>Among these logs the most relevant one are these two lines:</p>
+
+<pre><code>debug1: Offering public key: /Users/kai/.ssh/id_rsa RSA SHA256:LJnPQHkVlt+cqWslxTzObpDezpdjgIKdfh8qa7u4ftM agent
+debug1: Server accepts key: /Users/kai/.ssh/id_rsa RSA SHA256:LJnPQHkVlt+cqWslxTzObpDezpdjgIKdfh8qa7u4ftM agent
+</code></pre>
+
+<p>Here, the logs specified the fingerprint of public key <code>ssh</code> used that
+authenticated by the remote server. To identify which key pair is used, we&rsquo;ll
+need to get the fingerprint of each key pair we have. We can use <code>ssh-keygen</code>
+to achieve that:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">ssh-keygen -lf ~/.ssh/id_rsa.pub
+<span class="c1">#=&gt; 2048 SHA256:LJnPQHkVlt+cqWslxTzObpDezpdjgIKdfh8qa7u4ftM kai@KW.local (RSA)</span></code></pre></div>
+<p>If the fingerprint match <em>(as in this case)</em>, than you got it. You know that is
+the key pair that successfully get accepted by the remote server. However, if
+it doesn&rsquo;t match, try to get the fingerprint of other ssh key pair you have
+used before.</p>
+
+<h2 id="how-to-use-only-specific-keys-when-ssh">How to use only specific keys when <code>ssh</code></h2>
+
+<p>I wanted to test out if I could still ssh in to the remote
+server after my SSH key is expired my EC2 Instance Connect. However, if I just
+use:</p>
+
+<pre><code># my_rsa_key is expired by now
+ssh -i my_rsa_key user@ip_address
+</code></pre>
+
+<p>I would always successfully ssh into the remote server <em>(since I have another
+public key placed in the server)</em> . So in order to prevent
+<code>ssh</code> to attempt other public key that might be accepted the remote server, we
+need to tell <code>ssh</code> to only use the identity file we provide, which can be done
+like this:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># Note that I am passing private key file</span>
+ssh -o <span class="nv">IdentitiesOnly</span><span class="o">=</span>yes -i my_rsa_key user@ip_address</code></pre></div>
+<p>With this, <code>ssh</code> will only attempt to use the identity file you provided in the
+command. However, do note that if the file does not exist, <code>ssh</code> will still
+attempt to use all the identity files you have.</p>
+
+<h1 id="wrap-up">Wrap Up</h1>
+
+<p>Here, I am just sharing another new things I learn from the internet . Hope it
+helps!</p>
+
+</article>
+
+    </main><footer class="w-full text-center border-t border-gray-200 p-4 pin-b text-xs text-gray-400">
+    <p>made with <a href="https://gohugo.io" class="underline hover:text-blue-400">Hugo</a> and <a href="https://tailwindcss.com" class="underline hover:text-blue-400">TailwindCSS</a></p>
+</footer></body>
+</html>

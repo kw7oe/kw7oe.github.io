@@ -6,10 +6,21 @@
     <description>Recent content in Posts on kw7oe</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 20 Jul 2020 20:09:01 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 20 Aug 2020 21:02:01 +0800</lastBuildDate>
     
 	<atom:link href="https://kaiwern.com/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Identify and specify Identity File used by SSH</title>
+      <link>https://kaiwern.com/posts/2020/08/20/identify-and-specify-identity-file-used-by-ssh/</link>
+      <pubDate>Thu, 20 Aug 2020 21:02:01 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2020/08/20/identify-and-specify-identity-file-used-by-ssh/</guid>
+      <description>Recently, I have been looking into improving our access management to our EC2 instances in Naluri and came across EC2 Instance Connect features. While experementing with it, I have learn a thing or two about ssh.
+In this post, we are going to cover the following topics:
+ Which private keys ssh is using?</description>
+    </item>
     
     <item>
       <title>Deploying Elixir/Phoenix Release to Production</title>
