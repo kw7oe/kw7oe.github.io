@@ -29,6 +29,7 @@ In this post, we are going to cover the following topics:
       
       <guid>https://kaiwern.com/posts/2020/07/20/deploying-elixir/phoenix-release-to-production/</guid>
       <description>Updates (12th August 2020): Fix my mistake on using bin/app restart.
+Updates (7th October 2020): Include the reason why bin/app restart doesn&amp;rsquo;t work
 In my previous post &amp;ldquo;Building Elixir/Phoenix Release With Docker&amp;rdquo;, I wrote about how I build Elixir release with Docker and extract the tarball. Today, I am going to share how I deploy Elixir release to the production server.</description>
     </item>
     

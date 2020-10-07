@@ -51,7 +51,7 @@ Deploying Elixir/Phoenix Release to Production | kw7oe
 <header class="mb-8">
   <h1 class="title">Deploying Elixir/Phoenix Release to Production</h1>
   <p class="text-sm font-gray-700 mb-1">Jul 20, 2020</p>
-  <p class="text-sm mb-4 font-gray-700 italic">Estimated Reading Time: 12 minutes (2440 words)</p>
+  <p class="text-sm mb-4 font-gray-700 italic">Estimated Reading Time: 12 minutes (2506 words)</p>
 
    
   <div id="tags">
@@ -86,6 +86,9 @@ Deploying Elixir/Phoenix Release to Production | kw7oe
   
 
 <p><em>Updates (12th August 2020): Fix my mistake on using <code>bin/app restart</code>.</em></p>
+
+<p><em>Updates (7th October 2020): Include the reason why <code>bin/app restart</code> doesn&rsquo;t
+work</em></p>
 
 <p>In my previous post <a href="https://kaiwern.com/posts/2020/06/20/building-elixir/phoenix-release-with-docker/">&ldquo;Building Elixir/Phoenix Release With Docker&rdquo;</a>, I wrote
 about how I build Elixir release with Docker and extract the tarball. Today,
@@ -212,10 +215,21 @@ the following error:</p>
     need to write some custom logic as mentioned above.
   </p>
 
-  <p>
+  <p><s>
     I haven't figure out why it behave like this. If you happen to know,
     please let me know! If I manage to find out why, I'll update this part once
     again.
+  </s></p>
+
+  <p>
+    One of the reader commented on the
+    <a href="https://github.com/kw7oe/kw7oe.github.io/commit/e272a559388f26206643cc386198c410c2364f2a">
+      commit
+    </a>
+    of this post to include the reason why it isn't working as expected. This
+    is because restart normally send <code>HUP</code> signal to the running code and this
+    does not stop the code like <code>KILL</code> signal does. Hence, that's why we are
+    still getting the old version.
   </p>
 </div>
 
