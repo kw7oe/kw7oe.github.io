@@ -6,6 +6,9 @@ tags: ["elixir", "phoenix", "deployment"]
 
 _Updates (12th August 2020): Fix my mistake on using `bin/app restart`._
 
+_Updates (7th October 2020): Include the reason why `bin/app restart` doesn't
+work_
+
 In my previous post ["Building Elixir/Phoenix Release With Docker"]({{< ref "building-phoenix-release-with-docker.md" >}}), I wrote
 about how I build Elixir release with Docker and extract the tarball. Today,
 I am going to share how I deploy Elixir release to the production server.
@@ -138,10 +141,21 @@ To overcome this issue, we need to either:
     need to write some custom logic as mentioned above.
   </p>
 
-  <p>
+  <p><s>
     I haven't figure out why it behave like this. If you happen to know,
     please let me know! If I manage to find out why, I'll update this part once
     again.
+  </s></p>
+
+  <p>
+    One of the reader commented on the
+    <a href="https://github.com/kw7oe/kw7oe.github.io/commit/e272a559388f26206643cc386198c410c2364f2a">
+      commit
+    </a>
+    of this post to include the reason why it isn't working as expected. This
+    is because restart normally send <code>HUP</code> signal to the running code and this
+    does not stop the code like <code>KILL</code> signal does. Hence, that's why we are
+    still getting the old version.
   </p>
 </div>
 

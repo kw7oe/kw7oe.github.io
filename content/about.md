@@ -12,16 +12,14 @@ Welcome to my blog. Here I write about technology and life.
 Some of the technologies I used day to day are:
 
 - vim
-- Elixir
+- Elixir/Phoenix
 - JavaScript/TypeScript
-- React
-- React Native
 
 So, you can expect posts about these technologies from my blog.
 
-~~Lately, due to work schedule, I have not been able to write a lot. Hopefully, I
-can write consistently in the coming month.~~ I have been writing a bit more
-lately and manage to publish around one article per month.
+Lately, due to work schedule, I have not been able to write a lot. Hopefully, I
+can write consistently in the coming month. ~~I have been writing a bit more
+lately and manage to publish around one article per month.~~
 
 
 ## Projects
@@ -36,10 +34,6 @@ The idea of the application is inspired by [Hashrocket TIL](https://til.hashrock
 application which includes features like expense tracking, budget and recurring
 transaction (bills). It is developed with Ruby on Rails and a little bit of
 Preact. Due to limited time _(and interest)_ available, _it is abandoned now_.
-
-But lately, I have been just learning different technologies in order to solve
-some of the technical challenges we faced in Naluri.
-
 
 [1]: https://til.kaiwern.com
 [2]: https://expendere.herokuapp.com
