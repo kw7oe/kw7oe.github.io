@@ -4,24 +4,40 @@ date: 2020-10-18T20:02:48+08:00
 draft: true
 ---
 
+_If you are a video person, and have 24 minutes to spend with, just jump over to
+this [ElixirConf 2020 - Debugging Live Systems on the BEAM talk by Jeffery
+Utter][2]._
+
+_This article is a downgraded version of the video_ 😂.
+
+_I started writing this before the video are published, then I came across
+it and learn a lot more from there also._
+
+<hr>
+
 I use `IO.inspect` for debugging in Elixir a lot. But there are times when you
 can't just `IO.inspect` to debug stuff, especially in a running production
 system _(without redeploying your code, i guess)_.
 
 Sometime ago, I came across the power of tracing to debug an application from
 Fred Herbert ["Operable Erlang Elixir"][1] talk. This is especially powerful
-for debugging live production system _(however, it is not really recommended to
-use the options I share below)_..
+for debugging live production system. _(however, it is not really recommended to
+use the options I share below...)_
 
 Generally, in the BEAM ecosystem there are a couple of ways for tracing. For
 example, you can use:
 
 - `:dbg`
-- `:sys`
 - `recon_trace`
 
 However, for today, I am going to cover `:dbg`, where I came across recently
 while trying to debug my code.
+
+_All of the stuff written here are referenced from the following StackOverflow
+questions heavily:_
+
+- [Elixir - Trace function call][0]
+- [Using trace and dbg in Erlang][3]
 
 # Introduction
 
@@ -135,16 +151,101 @@ Enum.map([1,2,3,4], & &1 + 1)
 
 # Customization
 
+However, sometimes you would want to know more than the arguments being passed
+to the function, you might want to know what's the return result, or when is
+the timestamps when the function run.
+
+You can achieve this by providing more arguments to some of the function we
+used above.
+
+## Getting return trace/value
+
+To get the return trace, instead of the code above, we can specify more options
+in `:dbg.tpl` as follow:
+
 ```elixir
-:dbg.tp(Enum, :map, 2, [{:_, [], [{:return_trace}]}])
+:dbg.tpl(Enum, :map, 2, [{:_, [], [{:return_trace}]}])
 # (<0.106.0>) call 'Elixir.Enum':map([1,2,3],#Fun<erl_eval.44.97283095>)
 # (<0.106.0>) returned from 'Elixir.Enum':map/2 -> [2,3,4]
 ```
 
+The additional options we provide is called the [`MatchSpec`][4].
 
-**References:**
+## Include timestamps of function call
 
-- [Trace function call StackOverflow question][0]
+To include the timestamps of the function call, we can include `:timestamp` when
+calling `:dbg.p`:
+
+```elixir
+:dbg.p(:all, [:c, :timestamp])
+
+Enum.map([1,2,3,4], & &1 + 1)
+#=> [2, 3, 4, 5]
+#=> {:trace_ts, #PID<0.106.0>, :call,
+#=> {Enum, :map, [[1, 2, 3, 4], #Function<44.97283095/1 in :erl_eval.expr/5>]},
+#=> Erlang Timestamp tuple here
+#=> {1603, 377071, 478813}}
+```
+
+## Tracing more specific function call
+
+In some cases, you might want to trace only function called with specific
+arguments, for example the user id, or certain category. You could do this by
+modifying the match spec for `:dbg.tpl`:
+
+```elixir
+:dbg.tpl(Enum, :map, 2, [{[[1, 2, 3], :_], [], [:return_trace]}])
+# (<0.106.0>) call 'Elixir.Enum':map([1,2,3],#Fun<erl_eval.44.97283095>)
+# (<0.106.0>) returned from 'Elixir.Enum':map/2 -> [2,3,4]
+```
+
+Here the first argument in the first tuple of the match spec, is basically the
+function parameter that we want to match. In this case, we want to match
+`Enum.map/2` with first parameter matching `[1,2,3]` and second parameter
+matching `:_` which is anything.
+
+_"How do I write those complicated match spec?"_, you might be wondering. Rest
+assure, it's cover next.
+
+## Writing a match spec
+
+Sometimes, it is hard to write those match spec for complicated scenario.
+Luckily, `:dbg.fun2ms` can be used to help you transform your function to a
+match spec:
+
+```elixir
+:dbg.fun2ms(fn [[1,2,3], _] -> :return_trace end)
+#=> [{[1, 2, 3], [], [:return_trace]}]
+```
+
+Notice that the function parameter is expecting a list of parameter `[]`
+instead of multiple parameter values. If you attempt to do multiple parameters
+like this:
+
+```elixir
+:dbg.fun2ms(fn [1,2,3], _ -> :return_trace end)
+#=> Error: dbg:fun2ms requires fun with single variable or list parameter
+#=> {:error, :transform_error}
+```
+
+# Wrap Up
+
+That's all I'm resharing today. One of the benefits of `:dbg` over
+`recon_trace` is, it's build in. There is no need to add any additional
+dependencies to your codebase.  However, if you find yourself doing this a lot,
+especially in a production live system, I'll still highly recommend adding
+`recon` as your dependencies and use `recon_trace`.
+
+`recon` bring it's a lot more tooling than just tracing. It also allows you to
+diagnose your system safely. If you are interested into topic like this, might
+also consider get yourself a free copy of [`Erlang in Anger`][5] where the
+author of `recon` wrote about diagnosing BEAM application with `recon` and many
+more.
+
 
 [0]: https://stackoverflow.com/questions/50364530/elixir-trace-function-call
 [1]: https://www.youtube.com/watch?v=OR2Gc6_Le2U
+[2]: https://www.youtube.com/watch?v=sR9h3DZAA74
+[3]: https://stackoverflow.com/questions/1954894/using-trace-and-dbg-in-erlang/1954980#1954980
+[4]: http://erlang.org/doc/apps/erts/match_spec.html
+[5]: https://www.erlang-in-anger.com/
