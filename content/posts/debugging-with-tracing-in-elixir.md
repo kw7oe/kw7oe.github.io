@@ -2,6 +2,7 @@
 title: "Debugging With Tracing in Elixir"
 date: 2020-10-18T20:02:48+08:00
 draft: true
+tags: ["elixir", "tracing", "debugging"]
 ---
 
 _If you are a video person, and have 24 minutes to spend with, just jump over to
@@ -10,31 +11,25 @@ Utter][2]._
 
 _This article is a downgraded version of the video_ 😂.
 
-_I started writing this before the video are published, then I came across
-it and learn a lot more from there also._
+_I wrote this before the video is published. Then, I came across
+it and learn a lot more from there._
 
 <hr>
 
 I use `IO.inspect` for debugging in Elixir a lot. But there are times when you
 can't just `IO.inspect` to debug stuff, especially in a running production
-system _(without redeploying your code, i guess)_.
+system _(without redeploying your code)_.
 
-Sometime ago, I came across the power of tracing to debug an application from
+Then, I came across the power of tracing for debugging from
 Fred Herbert ["Operable Erlang Elixir"][1] talk. This is especially powerful
-for debugging live production system. _(however, it is not really recommended to
+for debugging in live production system. _(however, it is not really recommended to
 use the options I share below...)_
 
-Generally, in the BEAM ecosystem there are a couple of ways for tracing. For
-example, you can use:
-
-- `:dbg`
-- `recon_trace`
-
-However, for today, I am going to cover `:dbg`, where I came across recently
+Today, I am going to cover `:dbg`, where I came across recently
 while trying to debug my code.
 
 _All of the stuff written here are referenced from the following StackOverflow
-questions heavily:_
+questions:_
 
 - [Elixir - Trace function call][0]
 - [Using trace and dbg in Erlang][3]
@@ -43,7 +38,7 @@ questions heavily:_
 
 ## Starting `:dbg`
 
-Before we start tracing, we would need to start the process with the following
+Before we start tracing, we need to start the `dbg` and `tracer` process with the following
 code:
 
 ```elixir
@@ -51,13 +46,12 @@ code:
 :dbg.tracer
 ```
 
-This would start the `dbg` and `tracer` process. However, it won't do anything
-until you state what you would like to trace.
+It won't do anything until you state what you would like to trace explicitly.
 
 ## Specifying what to trace
 
-Let's say we want to trace the `Enum.map/2` function that's happening in the
-system. We can specify it by running the following code:
+Let's say we want to trace the `Enum.map/2` function that was called in the
+system. We can specify it by running:
 
 ```elixir
 :dbg.tp(Enum, :map, 2, [])
@@ -66,8 +60,8 @@ system. We can specify it by running the following code:
 
 ## Tracing in action
 
-Let's assume some part of your code called `Enum.map([1,2,3], & &1 + 1)`.
-Depending on whether you are running the above `:dbg` code, you'll get
+When some part of your code call `Enum.map([1,2,3], & &1 + 1)`,
+depending on where you are running the above `:dbg` code, you'll get
 different output in your shell.
 
 - on a local shell _(that is running your application code)_
@@ -75,8 +69,8 @@ different output in your shell.
 
 **In Local Shell**
 
-If you are running it on the same shell that are running the system,
-you will see something as follow, whenever the function you traced is run:
+If you are on the shell that are running the system,
+ whenever the function you traced is called, you will see something as follow:
 
 ```
 (<0.106.0>) call 'Elixir.Enum':map([1,2,3],#Fun<erl_eval.44.97283095>)
@@ -84,7 +78,7 @@ you will see something as follow, whenever the function you traced is run:
 
 **In Remote Shell**
 
-You'll not see any output, since the tracer is actually logging in the live
+You'll not see any output as the tracer is logging the output in the live
 process instead of your remote shell. In order to see the trace, you'll need to
 go through your logs file _(E.g. `erlang.log.1`)_.
 
@@ -96,12 +90,12 @@ If you want it to output in your remote shell, you'll need to start your
 ```
 
 `:dbg.tracer` accept a second argument where you can customize how you want to
-handle each of the traced events. In this code, we are telling the tracer to
-just output to our local shell instead.
+handle each of the traced events. Here, we are telling the tracer to
+log output to our local shell instead.
 
 ## Stopping the tracing
 
-To stop the tracing, it is as simple as calling:
+To stop the tracing, it is as simple as:
 
 ```elixir
 :dbg.stop_clear
@@ -113,17 +107,18 @@ need. This is because:
 - Tracing is an additional overhead to the system.
 - It write to your IO/logs. So, it would take up disk space.
 
-And this become critical _especially when you are tracing a high frequency
+And this become significant _especially when you are tracing a high frequency
 functions or a high volume system_. Hence, it is actually better to do
-something as follow when starting your tracer process:
+use the following  when starting your tracer process in a live production
+system:
 
 ```elixir
 :dbg.tracer(:process, {fn _, 5 -> :dbg.stop_clear()
                         msg, n -> IO.inspect(msg); n+1 end, 0})
 ```
 
-The first function clause basically tell the tracer to stop after 5 events. The
-second one is telling how the tracer should handle the receive event, in this
+The first function clause tell the tracer to stop after 5 events. The
+second one tell the tracer how it should handle the receive event. In this
 case, we are just printing it and increment the counter.
 
 ## All together
@@ -151,8 +146,8 @@ Enum.map([1,2,3,4], & &1 + 1)
 
 # Customization
 
-However, sometimes you would want to know more than the arguments being passed
-to the function, you might want to know what's the return result, or when is
+Sometimes you would want to know more than the arguments being passed
+to the function, you might want to know the return result, or
 the timestamps when the function run.
 
 You can achieve this by providing more arguments to some of the function we
@@ -160,8 +155,7 @@ used above.
 
 ## Getting return trace/value
 
-To get the return trace, instead of the code above, we can specify more options
-in `:dbg.tpl` as follow:
+To get the return trace, we can specify more options in `:dbg.tpl` as follow:
 
 ```elixir
 :dbg.tpl(Enum, :map, 2, [{:_, [], [{:return_trace}]}])
@@ -189,27 +183,34 @@ Enum.map([1,2,3,4], & &1 + 1)
 
 ## Tracing more specific function call
 
-In some cases, you might want to trace only function called with specific
+You might also want to only trace function called with specific
 arguments, for example the user id, or certain category. You could do this by
 modifying the match spec for `:dbg.tpl`:
 
 ```elixir
 :dbg.tpl(Enum, :map, 2, [{[[1, 2, 3], :_], [], [:return_trace]}])
+
+Enum.map([1,2,3], & &1 + 1)
 # (<0.106.0>) call 'Elixir.Enum':map([1,2,3],#Fun<erl_eval.44.97283095>)
 # (<0.106.0>) returned from 'Elixir.Enum':map/2 -> [2,3,4]
+
+Enum.map([1,2,3], & &1 + 1)
+# Nothing is logged
 ```
 
-Here the first argument in the first tuple of the match spec, is basically the
-function parameter that we want to match. In this case, we want to match
-`Enum.map/2` with first parameter matching `[1,2,3]` and second parameter
-matching `:_` which is anything.
+The first argument in the first tuple of the match spec, is the
+function parameter that we want to match. Here, we want to match
+`Enum.map/2` with:
+
+- first parameter matching `[1,2,3]`
+- second parameter matching `:_` which is anything.
 
 _"How do I write those complicated match spec?"_, you might be wondering. Rest
-assure, it's cover next.
+assure, that's what we cover next.
 
 ## Writing a match spec
 
-Sometimes, it is hard to write those match spec for complicated scenario.
+Sometimes, it is hard to write match spec for complicated scenario.
 Luckily, `:dbg.fun2ms` can be used to help you transform your function to a
 match spec:
 
@@ -230,11 +231,14 @@ like this:
 
 # Wrap Up
 
-That's all I'm resharing today. One of the benefits of `:dbg` over
-`recon_trace` is, it's build in. There is no need to add any additional
-dependencies to your codebase.  However, if you find yourself doing this a lot,
-especially in a production live system, I'll still highly recommend adding
-`recon` as your dependencies and use `recon_trace`.
+That's all I'm _re_ sharing today. `:dbg` can be a bit low level. If you prefer
+s simple to use interface, consider using [`recon_trace`][6] from [`recon`][7].
+
+One of the benefits of `:dbg` over `recon_trace` is, it's build in.
+There is no need to add any additional dependencies to your codebase.
+However, if you find yourself doing this a lot, especially in
+a live production system, I'll  highly recommend adding
+`recon` as your dependencies and use `recon_trace` instead.
 
 `recon` bring it's a lot more tooling than just tracing. It also allows you to
 diagnose your system safely. If you are interested into topic like this, might
@@ -249,3 +253,5 @@ more.
 [3]: https://stackoverflow.com/questions/1954894/using-trace-and-dbg-in-erlang/1954980#1954980
 [4]: http://erlang.org/doc/apps/erts/match_spec.html
 [5]: https://www.erlang-in-anger.com/
+[6]: http://ferd.github.io/recon/recon_trace.html
+[7]: https://hex.pm/packages/recon

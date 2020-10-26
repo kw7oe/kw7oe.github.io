@@ -1,6 +1,7 @@
 ---
 title: "Identify and specify Identity File used by SSH"
 date: 2020-08-20T21:02:01+08:00
+tags: ["ssh"]
 ---
 
 Recently, I have been looking into improving our access management to our EC2
