@@ -71,6 +71,88 @@ questions you can ask:
   to the end user? E.g expecting user to have a payment record, however nothing
   is found, so let's create one for them.
 
+### Error that require user action
+
+For error that require user action, it is crucial to have a good error message.
+Error handling is generally very easy to handle, just return an appropriate
+error message, and allow the client to display the messages to the user.
+
+### Error that require developer action
+
+Some errors, for example, are due to broken invariants that can be "fixed" on
+runtime. For example, you might have a update profile endpoint, where you
+expect user to have `profile` record in the database.
+
+However, in some edge cases, you have this `user` that doesn't have any
+`profile` associated, and causing your `update_profile` function called to
+throw error.
+
+So, your initial code looks something like this:
+
+```elixir
+def update_profile(user_id, params) do
+  with {:ok, profile} <- get_profile_by(user_id),
+       {:ok, profile} <- do_update_profile(profile, params) do
+    {:ok, profile}
+  end
+end
+
+update_profile("id-without-profile", %{name: "John Wick"})
+# => {:error, :profile_not_found}
+```
+
+However, since the invariant is every user have a profile, we can actually
+enforce this in runtime by just creating `profile` record when one is not found
+instead of throwing an error:
+
+
+```elixir
+def update_profile(user_id, params) do
+  profile = find_or_create_profile!(user_id)
+  do_update_profile(profile, params)
+end
+
+def find_or_create_profile!(user_id) do
+  case get_profile_by(user_id) do
+    {:ok, profile} -> {:ok, profile}
+    {:error, :profile_not_found} ->
+      user = get_user!(user_id)
+      # In reality, this might fail if there is a race condition,
+      # so you might want to try catch it to refetch profile again
+      # if a error is throw due to foreign constraint.
+      profile = create_profile!(user)
+      {:ok, profile}
+  end
+end
+
+update_profile("id-without-profile", %{name: "John Wick"})
+# => {:ok, %Profile{}}
+```
+
+Notice that, we are using `!` here for our `find_or_create_profile!` function
+because we are expecting to always be success. This is because:
+
+- The function basically take in inputs that is derived from the system or code
+  itself. No additional inputs other than `user_id` is provided.
+- Does it mean it would never throw error? No, there are still occasion that it
+  might throw error, for example, when our database service went down and we
+  can't save to the database successfully. However, all this kind of error,
+  is due to the broken our assumption when we write this part of the code.
+  This allow us to focus on the business logic itself. Furthermore, there are
+  some error that you can't just handle or don't know how to handle gracefully
+  where throwing, letting it crash is probably the best approach.
+
+### Error that doesn't require any action
+
+Some error, doesn't really require any action. For example, there is nothing
+you can do on runtime when your database/external service is down other than
+retrying with backoff and jitter.  Other type of error might require you to
+deploy a fix.
+
+So for this kind of error, it's always good to let it fail loudly, so you get
+notified and take appropriate action.
+
+
 # Further Readings:
 
 Here are some of the readings that heavily influence my thought around
