@@ -6,10 +6,37 @@
     <description>Recent content in Tags on kw7oe</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 20 Aug 2020 21:02:01 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 02 Nov 2020 20:45:48 +0800</lastBuildDate>
     
 	<atom:link href="https://kaiwern.com/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>debugging</title>
+      <link>https://kaiwern.com/tags/debugging/</link>
+      <pubDate>Mon, 02 Nov 2020 20:45:48 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/tags/debugging/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>elixir</title>
+      <link>https://kaiwern.com/tags/elixir/</link>
+      <pubDate>Mon, 02 Nov 2020 20:45:48 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/tags/elixir/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>tracing</title>
+      <link>https://kaiwern.com/tags/tracing/</link>
+      <pubDate>Mon, 02 Nov 2020 20:45:48 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/tags/tracing/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>ssh</title>
@@ -26,15 +53,6 @@
       <pubDate>Mon, 20 Jul 2020 20:09:01 +0800</pubDate>
       
       <guid>https://kaiwern.com/tags/deployment/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>elixir</title>
-      <link>https://kaiwern.com/tags/elixir/</link>
-      <pubDate>Mon, 20 Jul 2020 20:09:01 +0800</pubDate>
-      
-      <guid>https://kaiwern.com/tags/elixir/</guid>
       <description></description>
     </item>
     

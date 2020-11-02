@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>debugging on kw7oe</title>
+    <link>https://kaiwern.com/tags/debugging/</link>
+    <description>Recent content in debugging on kw7oe</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 02 Nov 2020 20:45:48 +0800</lastBuildDate>
+    
+	<atom:link href="https://kaiwern.com/tags/debugging/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Debugging With Tracing in Elixir</title>
+      <link>https://kaiwern.com/posts/2020/11/02/debugging-with-tracing-in-elixir/</link>
+      <pubDate>Mon, 02 Nov 2020 20:45:48 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2020/11/02/debugging-with-tracing-in-elixir/</guid>
+      <description>If you are a video person, and have 24 minutes to spend with, just jump over to this ElixirConf 2020 - Debugging Live Systems on the BEAM talk by Jeffery Utter.
+This article is a downgraded version of the video 😂.
+I wrote this before the video is published. Then, I came across it and learn a lot more from there.</description>
+    </item>
+    
+  </channel>
+</rss>

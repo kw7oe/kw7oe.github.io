@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>
+Debugging With Tracing in Elixir | kw7oe
+</title>
+
+
+
+<meta name="generator" content="Hugo 0.58.3" />
+
+
+    
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.ae808e0d5578f73e14219baf9b24d430658b5a84b80857ae04cd82aca4e34c7b.css" integrity="sha256-roCODVV49z4UIZuvmyTUMGWLWoS4CFeuBM2CrKTjTHs=">
+
+
+
+
+<link rel="stylesheet" href="https://kaiwern.com/css/syntax.min.css">
+
+<body class="flex flex-col min-h-screen px-4 max-w-screen-md md:w-2/3 m-auto"><nav class="mt-8">
+  <ul id="nav-menu" class="w-full flex items-center list-reset">
+    
+    <li>
+      <a href="https://kaiwern.com/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Home</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/about/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">About</a>
+    </li>
+    
+
+    
+    
+    <li>
+      <a href="https://kaiwern.com/categories/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Categories</a>
+    </li>
+    
+    
+    
+    <li>
+      <a href="https://kaiwern.com/tags/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Tags</a>
+    </li>
+    
+    
+  </ul>
+</nav>
+<main class="flex-1 mt-4 sm:mt-12">
+<header class="mb-8">
+  <h1 class="title">Debugging With Tracing in Elixir</h1>
+  <p class="text-sm font-gray-700 mb-1">Nov 02, 2020</p>
+  <p class="text-sm mb-4 font-gray-700 italic">Estimated Reading Time: 6 minutes (1140 words)</p>
+
+   
+  <div id="tags">
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/elixir/">elixir</a>
+    </span>
+    
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/tracing/">tracing</a>
+    </span>
+    
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/debugging/">debugging</a>
+    </span>
+    
+    
+  </div>
+</header>
+
+<article class="markdown mb-8 text-gray-800">
+  
+
+  
+
+<p><em>If you are a video person, and have 24 minutes to spend with, just jump over to
+this <a href="https://www.youtube.com/watch?v=sR9h3DZAA74">ElixirConf 2020 - Debugging Live Systems on the BEAM talk by Jeffery
+Utter</a>.</em></p>
+
+<p><em>This article is a downgraded version of the video</em> 😂.</p>
+
+<p><em>I wrote this before the video is published. Then, I came across
+it and learn a lot more from there.</em></p>
+
+<hr>
+
+<p>I use <code>IO.inspect</code> for debugging in Elixir a lot. But there are times when you
+can&rsquo;t just <code>IO.inspect</code> to debug stuff, especially in a running production
+system <em>(without redeploying your code)</em>.</p>
+
+<p>Then, I came across the power of tracing for debugging from
+Fred Herbert <a href="https://www.youtube.com/watch?v=OR2Gc6_Le2U">&ldquo;Operable Erlang Elixir&rdquo;</a> talk. This is especially powerful
+for debugging in live production system. <em>(however, it is not really recommended to
+use the options I share below&hellip;)</em></p>
+
+<p>Today, I am going to cover <code>:dbg</code>, where I came across recently
+while trying to debug my code.</p>
+
+<p><em>All of the stuff written here are referenced from the following StackOverflow
+questions:</em></p>
+
+<ul>
+<li><a href="https://stackoverflow.com/questions/50364530/elixir-trace-function-call">Elixir - Trace function call</a></li>
+<li><a href="https://stackoverflow.com/questions/1954894/using-trace-and-dbg-in-erlang/1954980#1954980">Using trace and dbg in Erlang</a></li>
+</ul>
+
+<h1 id="introduction">Introduction</h1>
+
+<h2 id="starting-dbg">Starting <code>:dbg</code></h2>
+
+<p>Before we start tracing, we need to start the <code>dbg</code> and <code>tracer</code> process with the following
+code:</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">start</span>
+<span class="ss">:dbg</span><span class="o">.</span><span class="n">tracer</span></code></pre></div>
+<p>It won&rsquo;t do anything until you state what you would like to trace explicitly.</p>
+
+<h2 id="specifying-what-to-trace">Specifying what to trace</h2>
+
+<p>Let&rsquo;s say we want to trace the <code>Enum.map/2</code> function that was called in the
+system. We can specify it by running:</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">tp</span><span class="p">(</span><span class="nc">Enum</span><span class="p">,</span> <span class="ss">:map</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">[])</span>
+<span class="ss">:dbg</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="ss">:all</span><span class="p">,</span> <span class="ss">:c</span><span class="p">)</span></code></pre></div>
+<h2 id="tracing-in-action">Tracing in action</h2>
+
+<p>When some part of your code call <code>Enum.map([1,2,3], &amp; &amp;1 + 1)</code>,
+depending on where you are running the above <code>:dbg</code> code, you&rsquo;ll get
+different output in your shell.</p>
+
+<ul>
+<li>on a local shell <em>(that is running your application code)</em></li>
+<li>on a remote shell <em>(where the shell process is attach to the process that is running your application)</em></li>
+</ul>
+
+<p><strong>In Local Shell</strong></p>
+
+<p>If you are on the shell that are running the system,
+ whenever the function you traced is called, you will see something as follow:</p>
+
+<pre><code>(&lt;0.106.0&gt;) call 'Elixir.Enum':map([1,2,3],#Fun&lt;erl_eval.44.97283095&gt;)
+</code></pre>
+
+<p><strong>In Remote Shell</strong></p>
+
+<p>You&rsquo;ll not see any output as the tracer is logging the output in the live
+process instead of your remote shell. In order to see the trace, you&rsquo;ll need to
+go through your logs file <em>(E.g. <code>erlang.log.1</code>)</em>.</p>
+
+<p>If you want it to output in your remote shell, you&rsquo;ll need to start your
+<code>tracer</code> process differently:</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">tracer</span><span class="p">(</span><span class="ss">:process</span><span class="p">,</span> <span class="p">{</span><span class="n">fn</span> <span class="n">msg</span><span class="p">,</span> <span class="n">n</span> <span class="o">-&gt;</span> <span class="nc">IO</span><span class="o">.</span><span class="n">inspect</span><span class="p">(</span><span class="n">msg</span><span class="p">);</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span> <span class="n">end</span><span class="p">,</span> <span class="mi">0</span><span class="p">})</span></code></pre></div>
+<p><code>:dbg.tracer</code> accept a second argument where you can customize how you want to
+handle each of the traced events. Here, we are telling the tracer to
+log output to our local shell instead.</p>
+
+<h2 id="stopping-the-tracing">Stopping the tracing</h2>
+
+<p>To stop the tracing, it is as simple as:</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">stop_clear</span></code></pre></div>
+<p>It is very important to stop your tracing after you get the information you
+need. This is because:</p>
+
+<ul>
+<li>Tracing is an additional overhead to the system.</li>
+<li>It write to your IO/logs. So, it would take up disk space.</li>
+</ul>
+
+<p>And this become significant <em>especially when you are tracing a high frequency
+functions or a high volume system</em>. Hence, it is actually better to do
+use the following  when starting your tracer process in a live production
+system:</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">tracer</span><span class="p">(</span><span class="ss">:process</span><span class="p">,</span> <span class="p">{</span><span class="n">fn</span> <span class="n">_</span><span class="p">,</span> <span class="mi">5</span> <span class="o">-&gt;</span> <span class="ss">:dbg</span><span class="o">.</span><span class="n">stop_clear</span><span class="p">()</span>
+                        <span class="n">msg</span><span class="p">,</span> <span class="n">n</span> <span class="o">-&gt;</span> <span class="nc">IO</span><span class="o">.</span><span class="n">inspect</span><span class="p">(</span><span class="n">msg</span><span class="p">);</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span> <span class="n">end</span><span class="p">,</span> <span class="mi">0</span><span class="p">})</span></code></pre></div>
+<p>The first function clause tell the tracer to stop after 5 events. The
+second one tell the tracer how it should handle the receive event. In this
+case, we are just printing it and increment the counter.</p>
+
+<h2 id="all-together">All together</h2>
+
+<p>Here is the code you can copy all together and past it in your <code>iex</code> to see
+tracing in action:</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">start</span>
+<span class="ss">:dbg</span><span class="o">.</span><span class="n">tracer</span><span class="p">(</span><span class="ss">:process</span><span class="p">,</span> <span class="p">{</span><span class="n">fn</span> <span class="n">_</span><span class="p">,</span> <span class="mi">5</span> <span class="o">-&gt;</span> <span class="ss">:dbg</span><span class="o">.</span><span class="n">stop_clear</span><span class="p">()</span>
+                        <span class="n">msg</span><span class="p">,</span> <span class="n">n</span> <span class="o">-&gt;</span> <span class="nc">IO</span><span class="o">.</span><span class="n">inspect</span><span class="p">(</span><span class="n">msg</span><span class="p">);</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span> <span class="n">end</span><span class="p">,</span> <span class="mi">0</span><span class="p">})</span>
+<span class="ss">:dbg</span><span class="o">.</span><span class="n">tpl</span><span class="p">(</span><span class="nc">Enum</span><span class="p">,</span> <span class="ss">:map</span><span class="p">,</span> <span class="p">[])</span>
+<span class="ss">:dbg</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="ss">:all</span><span class="p">,</span> <span class="ss">:c</span><span class="p">)</span>
+
+<span class="c1"># With trace</span>
+<span class="nc">Enum</span><span class="o">.</span><span class="n">map</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span> <span class="o">&amp;</span> <span class="ni">&amp;1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+<span class="nc">Enum</span><span class="o">.</span><span class="n">map</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span> <span class="o">&amp;</span> <span class="ni">&amp;1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+<span class="nc">Enum</span><span class="o">.</span><span class="n">map</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span> <span class="o">&amp;</span> <span class="ni">&amp;1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+<span class="nc">Enum</span><span class="o">.</span><span class="n">map</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span> <span class="o">&amp;</span> <span class="ni">&amp;1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+<span class="nc">Enum</span><span class="o">.</span><span class="n">map</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span> <span class="o">&amp;</span> <span class="ni">&amp;1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># No more trace</span>
+<span class="nc">Enum</span><span class="o">.</span><span class="n">map</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span> <span class="o">&amp;</span> <span class="ni">&amp;1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span></code></pre></div>
+<h1 id="customization">Customization</h1>
+
+<p>Sometimes you would want to know more than the arguments being passed
+to the function, you might want to know the return result, or
+the timestamps when the function run.</p>
+
+<p>You can achieve this by providing more arguments to some of the function we
+used above.</p>
+
+<h2 id="getting-return-trace-value">Getting return trace/value</h2>
+
+<p>To get the return trace, we can specify more options in <code>:dbg.tpl</code> as follow:</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">tpl</span><span class="p">(</span><span class="nc">Enum</span><span class="p">,</span> <span class="ss">:map</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">[{</span><span class="ss">:_</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[{</span><span class="ss">:return_trace</span><span class="p">}]}])</span>
+<span class="c1"># (&lt;0.106.0&gt;) call &#39;Elixir.Enum&#39;:map([1,2,3],#Fun&lt;erl_eval.44.97283095&gt;)</span>
+<span class="c1"># (&lt;0.106.0&gt;) returned from &#39;Elixir.Enum&#39;:map/2 -&gt; [2,3,4]</span></code></pre></div>
+<p>The additional options we provide is called the <a href="http://erlang.org/doc/apps/erts/match_spec.html"><code>MatchSpec</code></a>.</p>
+
+<h2 id="include-timestamps-of-function-call">Include timestamps of function call</h2>
+
+<p>To include the timestamps of the function call, we can include <code>:timestamp</code> when
+calling <code>:dbg.p</code>:</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="ss">:all</span><span class="p">,</span> <span class="p">[</span><span class="ss">:c</span><span class="p">,</span> <span class="ss">:timestamp</span><span class="p">])</span>
+
+<span class="nc">Enum</span><span class="o">.</span><span class="n">map</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span> <span class="o">&amp;</span> <span class="ni">&amp;1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+<span class="c1">#=&gt; [2, 3, 4, 5]</span>
+<span class="c1">#=&gt; {:trace_ts, #PID&lt;0.106.0&gt;, :call,</span>
+<span class="c1">#=&gt; {Enum, :map, [[1, 2, 3, 4], #Function&lt;44.97283095/1 in :erl_eval.expr/5&gt;]},</span>
+<span class="c1">#=&gt; Erlang Timestamp tuple here</span>
+<span class="c1">#=&gt; {1603, 377071, 478813}}</span></code></pre></div>
+<h2 id="tracing-more-specific-function-call">Tracing more specific function call</h2>
+
+<p>You might also want to only trace function called with specific
+arguments, for example a user id, or specific category. You could do this by
+modifying the match spec for <code>:dbg.tpl</code>:</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">tpl</span><span class="p">(</span><span class="nc">Enum</span><span class="p">,</span> <span class="ss">:map</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">[{[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="ss">:_</span><span class="p">],</span> <span class="p">[],</span> <span class="p">[</span><span class="ss">:return_trace</span><span class="p">]}])</span>
+
+<span class="nc">Enum</span><span class="o">.</span><span class="n">map</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="o">&amp;</span> <span class="ni">&amp;1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+<span class="c1"># (&lt;0.106.0&gt;) call &#39;Elixir.Enum&#39;:map([1,2,3],#Fun&lt;erl_eval.44.97283095&gt;)</span>
+<span class="c1"># (&lt;0.106.0&gt;) returned from &#39;Elixir.Enum&#39;:map/2 -&gt; [2,3,4]</span>
+
+<span class="nc">Enum</span><span class="o">.</span><span class="n">map</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="o">&amp;</span> <span class="ni">&amp;1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+<span class="c1"># Nothing is logged</span></code></pre></div>
+<p>The first argument in the first tuple of the match spec, is the
+function parameter that we want to match. Here, we want to match
+<code>Enum.map/2</code> with:</p>
+
+<ul>
+<li>first parameter matching <code>[1,2,3]</code></li>
+<li>second parameter matching <code>:_</code> which is anything.</li>
+</ul>
+
+<p><em>&ldquo;How do I write those complicated match spec?&rdquo;</em>, you might be wondering. Rest
+assure, that&rsquo;s what we cover next.</p>
+
+<h2 id="writing-a-match-spec">Writing a match spec</h2>
+
+<p>Sometimes, it is hard to write match spec for complicated scenario.
+Luckily, <code>:dbg.fun2ms</code> can be used to help you transform your function to a
+match spec:</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">fun2ms</span><span class="p">(</span><span class="n">fn</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="n">_</span><span class="p">]</span> <span class="o">-&gt;</span> <span class="ss">:return_trace</span> <span class="n">end</span><span class="p">)</span>
+<span class="c1">#=&gt; [{[1, 2, 3], [], [:return_trace]}]</span></code></pre></div>
+<p>Notice that the function parameter is expecting a list of parameter <code>[]</code>
+instead of multiple parameter values. If you attempt to do multiple parameters
+like this:</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">fun2ms</span><span class="p">(</span><span class="n">fn</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="n">_</span> <span class="o">-&gt;</span> <span class="ss">:return_trace</span> <span class="n">end</span><span class="p">)</span>
+<span class="c1">#=&gt; Error: dbg:fun2ms requires fun with single variable or list parameter #=&gt; {:error, :transform_error}</span></code></pre></div>
+<h1 id="wrap-up">Wrap Up</h1>
+
+<p>That&rsquo;s all I&rsquo;m <em>re</em> sharing today. <code>:dbg</code> can be a bit low level. If you prefer
+a simpler interface, consider using <a href="http://ferd.github.io/recon/recon_trace.html"><code>recon_trace</code></a> from <a href="https://hex.pm/packages/recon"><code>recon</code></a>.</p>
+
+<p>One of the benefits of <code>:dbg</code> over <code>recon_trace</code> is, it&rsquo;s build in.
+There is no need to add any additional dependencies to your codebase.
+However, if you find yourself doing this a lot, especially in
+a live production system, I highly recommend adding
+<code>recon</code> as your dependencies and use <code>recon_trace</code> instead.</p>
+
+<p><code>recon</code> bring it&rsquo;s a lot more tooling than just tracing. It also allows you to
+diagnose your system safely. If you are interested into topic like this, might
+also consider get yourself a free copy of <a href="https://www.erlang-in-anger.com/"><code>Erlang in Anger</code></a> where the
+author of <code>recon</code> wrote about diagnosing BEAM application with <code>recon</code> and many
+more.</p>
+
+</article>
+
+    </main><footer class="w-full text-center border-t border-gray-200 p-4 pin-b text-xs text-gray-400">
+    <p>made with <a href="https://gohugo.io" class="underline hover:text-blue-400">Hugo</a> and <a href="https://tailwindcss.com" class="underline hover:text-blue-400">TailwindCSS</a></p>
+</footer></body>
+</html>
