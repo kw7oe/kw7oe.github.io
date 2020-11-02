@@ -1,7 +1,6 @@
 ---
 title: "Debugging With Tracing in Elixir"
-date: 2020-10-18T20:02:48+08:00
-draft: true
+date: 2020-11-02T20:45:48+08:00
 tags: ["elixir", "tracing", "debugging"]
 ---
 
@@ -184,7 +183,7 @@ Enum.map([1,2,3,4], & &1 + 1)
 ## Tracing more specific function call
 
 You might also want to only trace function called with specific
-arguments, for example the user id, or certain category. You could do this by
+arguments, for example a user id, or specific category. You could do this by
 modifying the match spec for `:dbg.tpl`:
 
 ```elixir
@@ -194,7 +193,7 @@ Enum.map([1,2,3], & &1 + 1)
 # (<0.106.0>) call 'Elixir.Enum':map([1,2,3],#Fun<erl_eval.44.97283095>)
 # (<0.106.0>) returned from 'Elixir.Enum':map/2 -> [2,3,4]
 
-Enum.map([1,2,3], & &1 + 1)
+Enum.map([1,2], & &1 + 1)
 # Nothing is logged
 ```
 
@@ -225,19 +224,18 @@ like this:
 
 ```elixir
 :dbg.fun2ms(fn [1,2,3], _ -> :return_trace end)
-#=> Error: dbg:fun2ms requires fun with single variable or list parameter
-#=> {:error, :transform_error}
+#=> Error: dbg:fun2ms requires fun with single variable or list parameter #=> {:error, :transform_error}
 ```
 
 # Wrap Up
 
 That's all I'm _re_ sharing today. `:dbg` can be a bit low level. If you prefer
-s simple to use interface, consider using [`recon_trace`][6] from [`recon`][7].
+a simpler interface, consider using [`recon_trace`][6] from [`recon`][7].
 
 One of the benefits of `:dbg` over `recon_trace` is, it's build in.
 There is no need to add any additional dependencies to your codebase.
 However, if you find yourself doing this a lot, especially in
-a live production system, I'll  highly recommend adding
+a live production system, I highly recommend adding
 `recon` as your dependencies and use `recon_trace` instead.
 
 `recon` bring it's a lot more tooling than just tracing. It also allows you to
