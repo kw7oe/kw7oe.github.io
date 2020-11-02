@@ -6,10 +6,19 @@
     <description>Recent content in Tags on kw7oe</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 20 Jul 2020 20:09:01 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 20 Aug 2020 21:02:01 +0800</lastBuildDate>
     
 	<atom:link href="https://kaiwern.com/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>ssh</title>
+      <link>https://kaiwern.com/tags/ssh/</link>
+      <pubDate>Thu, 20 Aug 2020 21:02:01 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/tags/ssh/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>deployment</title>

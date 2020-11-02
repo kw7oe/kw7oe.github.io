@@ -13,6 +13,16 @@
   </url>
   
   <url>
+    <loc>https://kaiwern.com/tags/ssh/</loc>
+    <lastmod>2020-08-20T21:02:01+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kaiwern.com/tags/</loc>
+    <lastmod>2020-08-20T21:02:01+08:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://kaiwern.com/posts/2020/07/20/deploying-elixir/phoenix-release-to-production/</loc>
     <lastmod>2020-07-20T20:09:01+08:00</lastmod>
   </url>
@@ -29,11 +39,6 @@
   
   <url>
     <loc>https://kaiwern.com/tags/phoenix/</loc>
-    <lastmod>2020-07-20T20:09:01+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://kaiwern.com/tags/</loc>
     <lastmod>2020-07-20T20:09:01+08:00</lastmod>
   </url>
   
