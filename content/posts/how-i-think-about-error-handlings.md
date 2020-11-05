@@ -14,6 +14,16 @@ In short, I think there are generally two types of error:
   - Fixable
   - Unfixable
 
+- What is error in this context?
+- Error handling in different context:
+  - Expected error.
+  - Unexpected error.
+- Identify possible failures?
+- Identify invariant? To scope down error handling
+- Is it recoverable?
+  - Recoverable in runtime? E.g restart, perform some action, or just wait?
+- Is it critical?
+
 
 ## Broken Invariant
 
