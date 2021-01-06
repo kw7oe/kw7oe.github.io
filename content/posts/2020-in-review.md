@@ -37,7 +37,7 @@ Appreciate what you already have. And don't take it for granted.
 In the beginning of 2020, I set out to:
 
 - Be a consistent writer.
-- Be better and efficient in learning
+- Be better and efficient in learning.
 - Exercise consistently.
 - Be good at dating and loving someone.
 - Be a better son.
@@ -100,6 +100,74 @@ to try to incorporate these techniques into my day to day learning.
 
 The result? _I failed badly._ I'm still learning my old way. I still don't
 retain much after reading a book.
+
+However, I have started working on some small steps such as:
+
+- After reading a small section of a book, practice recall on the important
+  points and takeways from the reading and note it down. _(This is really
+  really really hard)_.
+- Plan out my learning.
+  - State down what I area I wish to learn and explore.
+  - Break it down further into each topics.
+  - Define the outcomes of the learning.
+
+I'm still experimenting with different learning methods, hopefully, I'll do better
+in 2021.
+
+Regardless, I still learn tons of things and gain a lot of new knowledge in
+2020, which might be a post for another day.
+
+### Exercise consistently
+
+Health is also an important aspect in our life. To make sure I'm healthy, I try
+to workout consistently.
+
+I think I did okay in 2020. I completed at least 216 workouts in 2020. However,
+the number doesn't tell much without context on the intensity or
+duration of the workout.
+
+The definition of my workout is basically complete one small reps of activities such as:
+
+- 20 push ups
+- 20 Leg raisings
+- 20 squats
+
+This is the small steps I took in 2020 to be healthier. I do try to workout
+for a longer duration and also practice some yoga movement in 2020. However,
+those don't persists, and eventually I fallback to the small step.
+
+So, in 2021, I decided to up my game a bit and set out to workout at least 2
+hours per week. Hopefully, by 2022, my stomach is not all in one anymore.
+
+
+### Be good at dating and loving someone
+
+This is the worst part of me. And, I did the worst on this in 2020. No excuse,
+I'm just bad at putting effort in a relationship.
+
+To me, being together with someone, is about the everyday. To her, that's like
+a routine, and not an effort. I understand that. But, I'm still not improving
+much in this aspect of my life.
+
+On my partner birthday in 2020, even though she have hint me what to buy as a
+gift, I didn't really put much effort to get the gift earliar, instead I
+brought her to buy the gift on her birthday.
+
+That's just one example. Imagine you experience this 10x more in a year of your
+life.  This is also just one of it. There is a lot more bad sides I have as a partner.
+Not so good.
+
+On a bright side, I did improve a litle bit for the past months. A little bit,
+not much. I think moving forward, is about:
+
+- Scheduling time to plan outings and dates for her.
+- Putting in effort to buy gift that she needs.
+- Make those small changes in the day to day interaction that might make her
+  day.
+
+
+
+
 
 
 
