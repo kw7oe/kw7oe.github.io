@@ -165,8 +165,33 @@ not much. I think moving forward, is about:
 - Make those small changes in the day to day interaction that might make her
   day.
 
+I'm still far from perfect. In 2021, I'll put in a lot more effort on being
+better at this.
 
+### Be a better son
 
+This is a good example of a bad goal setting. What does being a better son
+mean? Having said that, I think I'm not explicitly doing anything to be a
+better son.
+
+I failed at this goal too. What's important next is to think about:
+
+- What does it mean to be a better son?
+- What are the actions that I take that makes me a better son?
+- What are the one small thing I can start doing??
+
+Instead of just writing this as a goal to achieve, I should start defining
+small steps I can take. Maybe I can start with calling my parents weekly.
+If that's too hard, how about calling them monthly?
+
+I guess we are all know what the next step looks like, it's just a matter of
+taking that one small step. And throughout 2020, I have also realized that:
+
+> Things are always scary before you take the first step. But once you take the
+first step, you'll realized that it's really not that scary.
+
+So, if things seem to be hard for you, maybe try to just thinking about taking
+that one small step, and ignore everything else.
 
 
 
