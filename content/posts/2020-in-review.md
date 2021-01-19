@@ -1,6 +1,6 @@
 ---
 title: "2020 in Review"
-date: 2021-01-04T20:40:41+08:00
+date: 2021-01-19T20:40:41+08:00
 draft: true
 categories: ["life"]
 ---
@@ -18,19 +18,19 @@ There are a lot of things I have been through in 2020, which lead to a lot of
 learnings and takeaways. I gained more experience of being an adult and also
 realize many of my mistakes and weaknesses throughout the year
 
-# The main takeaways
-The key takeways of 2020 is:
+# The Main Takeaway
+The key takeaway of 2020 is:
 
 > Life is fragile.
 
 Seeing how a pandemic impact the human population, just changes my perspective
-on life generally. _While life can be fragile, humankind is strong_.
+on life generally. _While life can be fragile, humankind is still strong_.
 
 Knowing that, it's important for us to take time and appreciate things we have.
 The fact that you are reading this, means you are luckier than a lot of people
-around the world. Let's start to be grateful of what we have,
+around the world.
 
-Appreciate what you already have. And don't take it for granted.
+Appreciate what you have, and don't take it for granted.
 
 # Goals
 
@@ -42,7 +42,7 @@ In the beginning of 2020, I set out to:
 - Be good at dating and loving someone.
 - Be a better son.
 
-In order to achieve my goals, here are some of the habits I'm building during
+In order to achieve my goals, here are some of the habits I'm building in
 2020:
 
 - Writing at least 3 times per week.
@@ -53,16 +53,16 @@ In order to achieve my goals, here are some of the habits I'm building during
 
   So here's a brief review of why and how I am progressing in 2020 for each goals.
 
-### Be a consistent writer
+## Be a consistent writer
 
 This was my main gaols in 2020, and in order to achieve that, I try to write at
 least 3 times per week. But why was this the main goal over everything else?
-This ie because:
+This is because:
 
-- It helps me to articulate my thoguhts and to form my opinion on things.
+- It helps me to articulate my thoughts and form my opinion on things.
 - It helps me to think more critically.
-- There is a lots of knowledge I want to share, that would be helpful to
-  people. And one way to achieve that is write it down.
+- There is a lots of knowledge I want to share that would be helpful to
+  people. To achieve that, is to write it down.
 - It trains me to structure and simplify my thoughts and mental model about
   things. Through the action of writing down, rereading and rewriting it, it
   allows me to smooth the edges of my thoughts.
@@ -89,22 +89,22 @@ where I think about the goals and tiny habits I want to focus on each week.
 There are more on these I can write on, but that's all for the reflection for
 now _(let's leave that for another post)_.
 
-### Be better and efficient in learning
+## Be better and efficient in learning
 
 To me, part of life is continuous learning. Hence, being better and efficient
 at learning is another goal I set out to achieve in 2020.
 
-Sometime ago, I learn about spaced repetition from WaniKani, and also read a
-book, Make It Stick, that talk about the science of learning. Hence, I decided
-to try to incorporate these techniques into my day to day learning.
+Sometime ago, I learn about spaced repetition from WaniKani, and read "Make It
+Stick", a book that talk about the science of learning. Hence, I try to incorporate
+these techniques into my learning.
 
-The result? _I failed badly._ I'm still learning my old way. I still don't
+The result? _I failed._ I'm still learning my old way. I still don't
 retain much after reading a book.
 
 However, I have started working on some small steps such as:
 
 - After reading a small section of a book, practice recall on the important
-  points and takeways from the reading and note it down. _(This is really
+  points and takeaways from the reading and note it down. _(This is really
   really really hard)_.
 - Plan out my learning.
   - State down what I area I wish to learn and explore.
@@ -117,30 +117,29 @@ in 2021.
 Regardless, I still learn tons of things and gain a lot of new knowledge in
 2020, which might be a post for another day.
 
-### Exercise consistently
+## Exercise consistently
 
-Health is also an important aspect in our life. To make sure I'm healthy, I try
+Health is an important aspect in life. To stay healthy, I try
 to workout consistently.
 
-I think I did okay in 2020. I completed at least 216 workouts in 2020. However,
+I did okay in 2020. I completed at least 216 workouts in 2020. However,
 the number doesn't tell much without context on the intensity or
 duration of the workout.
 
-The definition of my workout is basically complete one small reps of activities such as:
+The definition of my workout is to complete one small reps of activities such as:
 
 - 20 push ups
 - 20 Leg raisings
 - 20 squats
 
-This is the small steps I took in 2020 to be healthier. I do try to workout
-for a longer duration and also practice some yoga movement in 2020. However,
-those don't persists, and eventually I fallback to the small step.
+This is the small step I took in 2020 to be healthier. I tried to workout
+for a longer duration and also practiced some yoga movement in 2020. However,
+I didn't persists, and eventually I fallback to the small step.
 
-So, in 2021, I decided to up my game a bit and set out to workout at least 2
+In 2021, I will up my game a bit and set out to workout at least 2
 hours per week. Hopefully, by 2022, my stomach is not all in one anymore.
 
-
-### Be good at dating and loving someone
+## Be good at dating and loving someone
 
 This is the worst part of me. And, I did the worst on this in 2020. No excuse,
 I'm just bad at putting effort in a relationship.
@@ -150,14 +149,13 @@ a routine, and not an effort. I understand that. But, I'm still not improving
 much in this aspect of my life.
 
 On my partner birthday in 2020, even though she have hint me what to buy as a
-gift, I didn't really put much effort to get the gift earliar, instead I
+gift, I didn't really put much effort to get the gift earlier, instead I
 brought her to buy the gift on her birthday.
 
 That's just one example. Imagine you experience this 10x more in a year of your
-life.  This is also just one of it. There is a lot more bad sides I have as a partner.
-Not so good.
+life. There is a lot more bad sides I have as a partner. Not so good.
 
-On a bright side, I did improve a litle bit for the past months. A little bit,
+On a bright side, I did improve a little bit for the past months. A little bit,
 not much. I think moving forward, is about:
 
 - Scheduling time to plan outings and dates for her.
@@ -168,7 +166,7 @@ not much. I think moving forward, is about:
 I'm still far from perfect. In 2021, I'll put in a lot more effort on being
 better at this.
 
-### Be a better son
+## Be a better son
 
 This is a good example of a bad goal setting. What does being a better son
 mean? Having said that, I think I'm not explicitly doing anything to be a
@@ -188,13 +186,20 @@ I guess we are all know what the next step looks like, it's just a matter of
 taking that one small step. And throughout 2020, I have also realized that:
 
 > Things are always scary before you take the first step. But once you take the
-first step, you'll realized that it's really not that scary.
+> first step, you'll realized that it's really not that scary.
 
-So, if things seem to be hard for you, maybe try to just thinking about taking
-that one small step, and ignore everything else.
+So, if things seem to be hard for you, maybe try to just thinking about _taking
+that one small step_, and ignore everything else.
 
+# Summary
 
+Overall, I did okay in 2020. I have grow significantly in my career. Doing okay
+in my personal life. Learn tons of things from my mistakes, and still continue
+to learn and improve every single day.
 
+And if you are curious about how's my 2021 so far:
 
+> _It's tough_, but I'll be doing fine, and so do you.
 
+Cheers, and have a nice day.
 
