@@ -1,7 +1,6 @@
 ---
 title: "2020 in Review"
-date: 2021-01-19T20:40:41+08:00
-draft: true
+date: 2021-01-19T22:33:41+08:00
 categories: ["life"]
 ---
 
