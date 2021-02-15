@@ -20,9 +20,11 @@
 {{ else }}
     {{ $style := resources.Get "css/styles.css" | postCSS (dict "config" "./assets/css/postcss.config.js") | minify | fingerprint }}
     <link rel="stylesheet" href="{{ $style.Permalink }}" integrity="{{ $style.Data.Integrity }}">
+    <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 {{ end }}
 
 {{ if ne .Title "Home" }}
 {{ $syntax_style := resources.Get "css/syntax.css" | resources.Minify }}
 <link rel="stylesheet" href="{{ $syntax_style.Permalink }}">
 {{ end }}
+
