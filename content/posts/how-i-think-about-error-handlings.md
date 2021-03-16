@@ -24,7 +24,6 @@ In short, I think there are generally two types of error:
   - Recoverable in runtime? E.g restart, perform some action, or just wait?
 - Is it critical?
 
-
 ## Broken Invariant
 
 The first type of error is basically broken invariant. Invariant
