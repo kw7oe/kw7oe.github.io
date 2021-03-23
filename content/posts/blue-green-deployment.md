@@ -48,7 +48,7 @@ upstream phoenix-blue {
 }
 
 server {
-  server_name my-app.domain;
+  server_name myapp.domain;
   listen 80;
 
   location /deployment_id {
@@ -136,7 +136,7 @@ Similar with above, to _promote_ our green application to live, all we need
 to do is to symlink it to be used as our domain configuration with the
 following command:
 ```sh
-sudo ln -sf /etc/nginx/sites-available/blue /etc/nginx/sites-enabled/myapp.domain
+sudo ln -sf /etc/nginx/sites-available/green /etc/nginx/sites-enabled/myapp.domain
 ```
 
 follow by reloading our nginx service configuration:
@@ -146,12 +146,27 @@ sudo systemctl reload nginx
 ```
 
 Now, visit to `myapp.domain/deployment_id` and you'll see a `green`
-text returned.
+text returned.  However, if you try to visit `myapp.domain` and visit
+other path of your application, you might get a 502 Bad Gateway.
 
-However, if you try to visit `myapp.domain` and visit other path
-of your application, you might get a 502 Bad Gateway. That's because we
+```bash
+╰─➤  curl myapp.domain/deployment_id
+green%
+╭─kai at KW.local ~/Desktop/mini-hackathon/life ‹1.11.3-otp-23› ‹main*›
+╰─➤  curl myapp.domain/health
+<html>
+<head><title>502 Bad Gateway</title></head>
+<body>
+<center><h1>502 Bad Gateway</h1></center>
+<hr><center>nginx/1.18.0 (Ubuntu)</center>
+</body>
+</html>
+```
+
+That's because we
 haven't run any copy of our application on port `5000` yet as specified in
 our `nginx` configuration.
+
 
 ## Running two copies of our application
 
@@ -189,7 +204,39 @@ fi
 # continue here...
 ```
 
-We are done right? Not quite.
+We are done right? Not quite. If we go into our instance and check with
+`lsof` _(list open file description)_:
+
+```bash
+$ lsof -i :5000
+#=> empty result
+
+$ lsof -i :4000
+COMMAND   PID    USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+beam.smp 5162 vagrant   20u  IPv6  39660      0t0  TCP *:4000 (LISTEN)
+```
+
+You'll see that our application release doesn't get started successfully.
+Attempting to start it manually while in the remote instance will result
+in the following error:
+
+```bash
+$ source .env && PORT=5000 <app_version>/bin/<app_name> start
+Protocol 'inet_tcp': the name <app_name>@<hostname> seems to be in use by another Erlang node
+```
+
+What is this error about? Well everytime, our release is started, a node name
+for our release is actually provided a default node name according on our
+application name.
+
+So if we do this instead when starting our release, it will then work:
+
+```bash
+$ source .env && PORT=5000 RELEASE_NODE=green <app_version>/bin/<app_name> start
+15:46:40.449 [info] Running Web.Endpoint with cowboy 2.8.0 at :::5000 (http)
+15:46:40.450 [info] Access Web.Endpoint at http://example.com
+```
+
 
 ## Blue Green Deployment manually
 
