@@ -238,7 +238,7 @@ However, if you find yourself doing this a lot, especially in
 a live production system, I highly recommend adding
 `recon` as your dependencies and use `recon_trace` instead.
 
-`recon` bring it's a lot more tooling than just tracing. It also allows you to
+`recon` bring in a lot more tooling than just tracing. It also allows you to
 diagnose your system safely. If you are interested into topic like this, might
 also consider get yourself a free copy of [`Erlang in Anger`][5] where the
 author of `recon` wrote about diagnosing BEAM application with `recon` and many
