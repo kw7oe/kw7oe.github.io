@@ -1,6 +1,6 @@
 ---
 title: "Blue Green Deployment"
-date: 2020-07-05T10:36:41+08:00
+date: 2021-03-29T10:36:41+08:00
 tags: ["elixir", "phoenix", "deployment", "nginx"]
 draft: true
 ---
@@ -237,23 +237,160 @@ $ source .env && PORT=5000 RELEASE_NODE=green <app_version>/bin/<app_name> start
 15:46:40.450 [info] Access Web.Endpoint at http://example.com
 ```
 
+At this point, this is how our `./deploy.sh` script looks like:
+
+```bash
+#!/bin/bash
+set -e
+
+APP_NAME="$(grep 'app:' mix.exs | sed -e 's/\[//g' -e 's/ //g' -e 's/app://' -e 's/[:,]//g')"
+APP_VSN="$(grep 'version:' mix.exs | cut -d '"' -f2)"
+TAR_FILENAME=${APP_NAME}-${APP_VSN}.tar.gz
+# I'm using vagrant to run and test locally,
+# can be replaced by your remote server ip and user.
+HOST="vagrant@192.168.33.40"
+
+bold_echo() {
+  echo -e "\033[1m---> $1\033[0m"
+}
+
+build_release() {
+  bold_echo "Building Docker images..."
+  docker build -t app .
+
+  bold_echo "Extracting release tar file..."
+  ID=$(docker create app)
+  docker cp "$ID:/app/$TAR_FILENAME" .
+  docker rm "$ID"
+}
+
+deploy_release() {
+  bold_echo "Creating directory if not exist..."
+  ssh $HOST mkdir -p "$APP_NAME/$APP_VSN"
+
+  bold_echo "Copying environment variables..."
+  scp .env.production $HOST:"~/$APP_NAME/.env"
+
+  bold_echo "Copying release to remote..."
+  scp "$TAR_FILENAME" $HOST:"~/$APP_NAME/$TAR_FILENAME"
+  ssh $HOST tar -xzf "$APP_NAME/$TAR_FILENAME" -C "$APP_NAME/$APP_VSN"
+
+  start_release
+
+  bold_echo "Removing remote tar file..."
+  ssh $HOST rm "~/$APP_NAME/$TAR_FILENAME"
+}
+
+start_release() {
+  LIVE_VERSION=$(curl -s -w "\n" "myapp.domain/deployment_id")
+
+  if [ "$LIVE_VERSION" = "blue" ]; then
+    deploy_version="green"
+  else
+    deploy_version="blue"
+  fi
+
+  bold_echo "Starting release ..."
+  if [ "$deploy_version" = "blue" ]; then
+    ssh $HOST "source ~/$APP_NAME/.env && PORT=4000 ~/$APP_NAME/$APP_VSN/bin/$APP_NAME daemon"
+  else
+    ssh $HOST "source ~/$APP_NAME/.env && PORT=5000 RELEASE_NODE=green ~/$APP_NAME/$APP_VSN/bin/$APP_NAME daemon"
+  fi
+
+}
+
+clean_up() {
+  bold_echo "Removing local tar file..."
+  rm "$APP_NAME-"*.tar.gz
+}
+
+
+if [ "$1" = "build" ]; then
+  build_release
+else
+  build_release
+  deploy_release
+  clean_up
+fi
+```
+
+Running `./deploy.sh` now the second time _(initial green build)_ will now
+deploy another copy of our application with the latest changes. The initial
+build will still be running and nothing is impacted.
+
+## Promoting our green version to live
+
+The current live version is still blue. So, in order to promote our green
+version to live. All we need to do is to run:
+
+```bash
+sudo ln -sf /etc/nginx/sites-available/green /etc/nginx/sites-enabled/myapp.domain
+sudo systemctl reload nginx
+```
+
+Similar with how we start our release differently, we are going to rely on
+`/deployment_id` to get the current live version and user input to decide which
+version we want to promote to live. So here's how the bash script looks like
+now:
+
+```bash
+# Other code here...
+
+promote() {
+  bold_echo "Attempting to promote to $1..."
+  if [ "$LIVE_VERSION" = "$1" ]; then
+    echo "$1 is already the live version!"
+    return
+  elif [ "$1" = "green" ]; then
+    target_nginx_file="green"
+  else
+    target_nginx_file="blue"
+  fi
+
+  ssh $HOST "sudo ln -sf /etc/nginx/sites-available/$target_nginx_file /etc/nginx/sites-enabled/myapp.domain && sudo systemctl reload nginx"
+}
+
+
+if [ "$1" = "build" ]; then
+  build_release
+elif [ "$1" = "promote" ]; then
+  promote $2
+else
+  build_release
+  deploy_release
+  clean_up
+fi
+```
+
+To promote green version to live, all we have to run is:
+
+```bash
+./deploy.sh promote green
+```
+
+Now, visiting to `myapp.domain` and you shall see your latest changes for your application is live.
+
+Alternatively, if things went wrong and you decided to rollback to blue version, all you need
+to run is just:
+
+```bash
+./deploy.sh promote blue
+```
+
+Do note that, at this point, we are running **2 copies of our application** on
+our remote server, which means we are consuming twice as much resources as
+well.
 
 ## Blue Green Deployment manually
 
-Well, with all these setup
-
-- Deploy release
-- Start release
+- Promote live version to use blue/green.
 - Run Migration
 - Run remote console
+- Deploy new blue version
+- Deploy new green version
 
 ## Glue it all together with script
 
-- build
-- deploy
-- start
-- promote
-- clean
 
 ## Wrap Up
 
@@ -267,15 +404,14 @@ quite tricky to manage. In theory, you can just loop through and execute the
 script separately _(or together)_. However, as your needs grow, it will feel
 like you are reinventing the wheels.
 
-- What's the drawback?
-  - Multi node deployment
-  - Zero downtime not tested on Pheonix Channels
-  - Downtime with Database Migration
-  - Rollback version
+### Minimal downtime for Phoenix Channels
 
+While we might have zero downtime for our API requests, this setup is not
+tested on Phoenix Channels or websockets. In theory, there will be a minimal
+downtime.
 
-
-
+If you are looking for zero downtime deployment with this method, be sure to do
+your own testing.
 
 
 [0]: https://www.kimsereylam.com/gitlab/nginx/dotnetcore/ubuntu/2019/01/04/custom-blue-green-deployment-with-nginx-and-gitlab-ci.html
