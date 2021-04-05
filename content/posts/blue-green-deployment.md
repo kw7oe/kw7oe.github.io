@@ -6,8 +6,9 @@ draft: true
 ---
 
 In this post today, I'll share about how I setup blue green deployment for my
-Phoenix application using `nginx`. This post is made possible thanks to this
-article about [Custom Blue Green Deployment with Nginx And Gitlab CI][0].
+Phoenix application using `nginx` _running on a single machine_. This post is
+made possible thanks to this article about [Custom Blue Green Deployment with Nginx
+And Gitlab CI][0].
 
 The core idea to make blue green deployment possible for Elixir releases with
 `nginx` is through:
@@ -23,6 +24,21 @@ considering to offload this responsibility to something else.
 
 This post also reused majority of the `bash` script that I have written in the
 previous blog posts about building and deploying Elixir releases.
+
+_While this article is written specifically for Elixir/Phoenix deployment,
+similar approach and scripts can apply for any web application running behind
+nginx to achieve blue green deployment._
+
+_If you are running multiple instances (server) already, instead of modifying
+with nginx configuration, you could achieve the simlar things by writing some
+script to automate the modification of your load balancer to point to your
+instance that are hosting your "live" version._
+
+## TODO
+
+- Add assumption of running existing release
+- Add vagrant configuration and `/etc/hosts` changes needed to experiment
+  locally.
 
 ## Setting Up `nginx`
 
@@ -381,13 +397,102 @@ Do note that, at this point, we are running **2 copies of our application** on
 our remote server, which means we are consuming twice as much resources as
 well.
 
-## Blue Green Deployment manually
+## Running migration and console
 
-- Promote live version to use blue/green.
-- Run Migration
-- Run remote console
-- Deploy new blue version
-- Deploy new green version
+Assuming you have follow the [guide to setup ecto migration][2] on the official Phoenix Documentation,
+you should be able to run migration by running the following comamnd:
+
+```bash
+$ ~/$APP_NAME/$version/bin/$APP_NAME eval 'AppName.Release.migrate()'
+```
+
+similarly, to run the remote console is just as simple as:
+
+```bash
+$ ~/$APP_NAME/$version/bin/$APP_NAME remote
+```
+
+### Running migration
+
+Let's assume we have released both version `0.1.0` as `blue` and `0.1.1` as
+`green`. To run migration for the `0.1.0` release, it's the same as usual:
+
+```bash
+$ ~/app_name/0.1.0/bin/app_name eval 'AppName.Release.migrate()'
+```
+
+Pretty straightforward. For the latest `0.1.1` version,
+to run the migration is also the same as above:
+
+```bash
+$ ~/app_name/0.1.1/bin/app_name eval 'AppName.Release.migrate()'
+```
+
+### Running remote console
+
+Now, let's say that we want to run a remote console on our `0.1.0` deployed as
+`blue`. It is same as usual:
+
+```bash
+$ ~/app_name/0.1.0/bin/app_name remote
+```
+
+Pretty straightforward. However, if we want to do the same For the `0.1.1` version deployed as `green`,
+the following will not work as expected
+
+```bash
+$ ~/app_name/0.1.1/bin/app_name remote
+```
+
+and you'll get the following error message complaning that the node is down:
+
+```
+Erlang/OTP 23 [erts-11.1.8] [source] [64-bit] [smp:2:2] [ds:2:2:10] [async-threads:1] [hipe]
+
+Could not contact remote node life@prod-server, reason: :nodedown. Aborting...
+```
+
+Remember when we spin up our second copy and we specify `RELEASE_NODE=green`?
+
+It's because of that. So, in order to run remote console correctly, we need to
+specify our node name explicitly as we actually start it with that
+configuration in the first place:
+
+```bash
+RELEASE_NODE=green ~/app_name/0.1.1/bin/app_name remote
+```
+
+And voila, you are in again!
+
+### Why `eval` works without additional environment configuration?
+
+If you run:
+
+```bash
+$ ~/app_name/0.1.1/bin/app_name
+```
+
+You'll get a more detailed description of each command. And if you read about
+`eval`, you'll find that it actually execute the command on a new non booted
+system.
+
+```
+The known commands are:
+
+    ...
+    eval "EXPR"    Executes the given expression on a new, non-booted system
+    rpc "EXPR"     Executes the given expression remotely on the running system
+    remote         Connects to the running system via a remote shell
+    ...
+```
+
+Hence, unlike `remote` command that connected to our running system, `eval` is
+not affected as it run on a whole new system.
+
+
+## Deploying new blue and green version
+
+- Stop application and start new one
 
 ## Glue it all together with script
 
@@ -416,3 +521,4 @@ your own testing.
 
 [0]: https://www.kimsereylam.com/gitlab/nginx/dotnetcore/ubuntu/2019/01/04/custom-blue-green-deployment-with-nginx-and-gitlab-ci.html
 [1]: https://hexdocs.pm/phoenix/1.3.0-rc.1/phoenix_behind_proxy.html
+[2]: https://hexdocs.pm/phoenix/releases.html#ecto-migrations-and-custom-commands
