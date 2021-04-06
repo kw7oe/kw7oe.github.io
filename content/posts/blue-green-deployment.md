@@ -492,6 +492,13 @@ not affected as it run on a whole new system.
 
 ## Deploying new blue and green version
 
+That's not the end yet. We just cover the initial deployment part so far _(the
+first two deployments)_. Next up, we need to deployed new version for both
+`blue` and `green` copy of our application.
+
+The main difference between the subsequent and the initial deployment is is
+that we need to stop our running application before we start the newer version. The script and process is fairly similar to [the script to deploy new release in our previous blog post]({{< ref "deploying-elixir-phoenix-release-to-production.md#2-add-script-to-deploy-new-release" >}})
+
 - Stop application and start new one
 
 ## Glue it all together with script

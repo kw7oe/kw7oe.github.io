@@ -242,7 +242,7 @@ the details behind.
 
 ## Solution
 
-**1. Fixing our cookie**
+### 1. Fixing our cookie
 
 The first thing we need to resolve is to ensure that every time we start our
 release, the same cookie is used. Fortunately, this can be easily done by using
@@ -286,7 +286,7 @@ as my environment variable file `.env`:
 scp .env.production $HOST:~/$APP_NAME/.env
 ```
 
-**2. Add script to deploy new release**
+### 2. Add script to deploy new release
 
 The only difference between the
 script for initial release and subsequent release is the part where we start
