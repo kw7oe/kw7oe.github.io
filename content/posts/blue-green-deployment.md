@@ -496,10 +496,78 @@ That's not the end yet. We just cover the initial deployment part so far _(the
 first two deployments)_. Next up, we need to deployed new version for both
 `blue` and `green` copy of our application.
 
-The main difference between the subsequent and the initial deployment is is
+The main difference between the subsequent and the initial deployment is
 that we need to stop our running application before we start the newer version. The script and process is fairly similar to [the script to deploy new release in our previous blog post]({{< ref "deploying-elixir-phoenix-release-to-production.md#2-add-script-to-deploy-new-release" >}})
 
-- Stop application and start new one
+Hence, to deploy our new blue/green version, we need to first stop the old
+blue/green version. Once the old process is stop successfully then we can start
+the new one.
+
+For example:
+
+- If live version is green, we will stop old blue version, and start a new one
+  as blue version. Since we want to ensure zero downtime deployment, hence we
+  can't be stopping the existing live green version of the application.
+- If live version is blue, we will stop the old green version.
+
+The bash script for this part will looks like this:
+
+```bash
+start_release() {
+  LIVE_VERSION=$(curl -s -w "\n" "myapp.domain/deployment_id")
+
+  if [ "$LIVE_VERSION" = "blue" ]; then
+    deploy_version="green"
+    # Since we need to check if our process is running with pid command
+    env="RELEASE_NODE=green"
+  else
+    deploy_version="blue"
+    env=""
+  fi
+
+  get_current_version
+
+  set +e
+  # Don't exit onx error so we can caputure
+
+  ssh $HOST "$env ~/$APP_NAME/$CURRENT_VERSION/bin/$APP_NAME pid"
+
+  if [ $? -ne 0 ]; then
+    bold_echo "$APP_NAME $CURRENT_VERSION is not running anymore..."
+  else
+    bold_echo  "Stopping previous $deploy_version, release $CURRENT_VERSION..."
+    ssh $HOST "$env ~/$APP_NAME/$CURRENT_VERSION/bin/$APP_NAME stop"
+
+    bold_echo  "Waiting $deploy_version, release $CURRENT_VERSION to stop..."
+    ssh $HOST "$env ~/$APP_NAME/$CURRENT_VERSION/bin/$APP_NAME pid"
+
+    while [ $? -ne 1 ]
+    do
+      bold_echo  "Waiting $deploy_version, release $CURRENT_VERSION to stop..."
+      ssh $HOST "$env ~/$APP_NAME/$CURRENT_VERSION/bin/$APP_NAME pid"
+    done
+  fi
+  set -e
+
+  # Start Release code
+}
+```
+
+### Remarks for next writing
+The problem now is getting the previous version of our application. Since when
+we are extracting our release, we extract different version of our release to
+different directory. So in order to stop the old running application, we will
+need to know the version of the older running application. There are two ways
+to resolve this:
+
+- On deploy change a local file where we can read to get the blue/green
+  existing/old running version. This can cater both running/stopped
+  application.
+- One deploy, ssh to host and curl the application accordingly. Since we know
+  which port we are running as green/blue, we can curl and extract the version
+  from our /health or /version endpoint. However this does not cater the
+  scenario where one might just stop old blue/green version to reduce resource
+  consumption.
 
 ## Glue it all together with script
 
