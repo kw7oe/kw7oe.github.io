@@ -517,41 +517,135 @@ start_release() {
   LIVE_VERSION=$(curl -s -w "\n" "myapp.domain/deployment_id")
 
   if [ "$LIVE_VERSION" = "blue" ]; then
+    version_file="green_version.txt"
     deploy_version="green"
+
     # Since we need to check if our process is running with pid command
     env="RELEASE_NODE=green"
   else
+    version_file="blue_version.txt"
     deploy_version="blue"
     env=""
   fi
 
-  get_current_version
+  # Check if the file exist.
+  # If it doesn't exist, it means that we haven't deploy
+  # the initial version yet.
+  # Hence, we can skip the stopping phase entirely.
+  if [ -f $version_file ]; then
+    version=$(cat $version_file)
 
-  set +e
-  # Don't exit onx error so we can caputure
+    # Don't exit on error so we can caputure
+    set +e
+    ssh $HOST "$env ~/$APP_NAME/$version/bin/$APP_NAME pid"
 
-  ssh $HOST "$env ~/$APP_NAME/$CURRENT_VERSION/bin/$APP_NAME pid"
+    if [ $? -ne 0 ]; then
+      bold_echo "$APP_NAME $version is not running anymore..."
+    else
+      bold_echo  "Stopping previous $deploy_version, release $version..."
+      ssh $HOST "$env ~/$APP_NAME/$version/bin/$APP_NAME stop"
 
-  if [ $? -ne 0 ]; then
-    bold_echo "$APP_NAME $CURRENT_VERSION is not running anymore..."
-  else
-    bold_echo  "Stopping previous $deploy_version, release $CURRENT_VERSION..."
-    ssh $HOST "$env ~/$APP_NAME/$CURRENT_VERSION/bin/$APP_NAME stop"
-
-    bold_echo  "Waiting $deploy_version, release $CURRENT_VERSION to stop..."
-    ssh $HOST "$env ~/$APP_NAME/$CURRENT_VERSION/bin/$APP_NAME pid"
-
-    while [ $? -ne 1 ]
-    do
-      bold_echo  "Waiting $deploy_version, release $CURRENT_VERSION to stop..."
-      ssh $HOST "$env ~/$APP_NAME/$CURRENT_VERSION/bin/$APP_NAME pid"
-    done
+      bold_echo  "Waiting $deploy_version, release $version to stop..."
+      ssh $HOST "$env ~/$APP_NAME/$version/bin/$APP_NAME pid"
+      while [ $? -ne 1 ]
+      do
+        bold_echo  "Waiting $deploy_version, release $version to stop..."
+        ssh $HOST "$env ~/$APP_NAME/$version/bin/$APP_NAME pid"
+      done
+    fi
+    set -e
   fi
-  set -e
 
-  # Start Release code
+
+  # Start Release
+  if [ "$deploy_version" = "blue" ]; then
+    ssh $HOST "export $(cat .env.production | xargs)  && PORT=4000 ~/$APP_NAME/$APP_VSN/bin/$APP_NAME daemon"
+  else
+    ssh $HOST "export $(cat .env.production | xargs)  && PORT=4001 ELIXIR_ERL_OPTIONS='-sname green' ~/$APP_NAME/$APP_VSN/bin/$APP_NAME daemon"
+  fi
+
+  # Update our version in our version file.
+  # So that next time, we know this is the version we are currently
+  # running
+  echo $APP_VSN > $version_file
 }
 ```
+
+Notice that, on top of adding the logic to stop the previously running
+application, we also added logic to get and update the previosly running
+version.
+
+### Problems
+This is because, unlike our previous build script in this post, in this post
+our build script actually extract our release into `$APP_NAME/$APP_VSN` format
+instead:
+
+```bash
+# Old build script
+ssh $HOST tar -xzf $APP_NAME/releases/$TAR_FILENAME -C $APP_NAME
+
+# New build script
+ssh $HOST tar -xzf "$APP_NAME/$TAR_FILENAME" -C "$APP_NAME/$APP_VSN"
+```
+
+which, allow us to run multiple version of our application at the same time.
+
+### Solution
+
+To resolve this, the general approach is to store our old blue/green version
+somewhere else everytime we deploy.
+
+
+#### Alternative
+
+While we can extract our blue/green running version by doing something like:
+
+```
+if live_version == "blue" do
+  curl localhost:5000/version
+else
+  curl localhost:4000/version
+end
+```
+
+_(ignore my shitty code here, just a pseudocode for proof of concept)_
+
+We would also need to handle cases where none of blue/green is deployed before,
+which can be quite tricky to write that code in bash script.
+
+On top of that, if we want to stop the non-live version manually, instead of
+having our server to run two copies of our application all the time, the above
+approach won't work as well. Technically, I think is still possible to do
+something like, if the connection to the server failed, we skip the stopping
+phase. But for now, I'll just leave it to you all if you prefer to do it this
+way.
+
+#### Final
+Hence, in this post, I am going to just write it to a file directly. As you can
+see with `echo $APP_VSN > $version_file`:
+
+```bash
+# Deploying to blue with 1.0.0
+echo 1.0.0 > blue_version.txt
+
+# Deploying to green with 1.0.1
+echo 1.0.1 > green_version.txt
+```
+
+using `>` will overwrite the file instead of appending here.
+
+Alternatively, you can also write it to a object storage like AWS S3 or Google
+Cloud Storage.
+
+Since, we are writing to a file here, to check if we have deployed before is as
+simple as using bash specific operator to check if a file exist:
+
+```bash
+if [ -f filename ]; then
+  echo "filename exist"
+fi
+```
+
 
 ### Remarks for next writing
 The problem now is getting the previous version of our application. Since when
