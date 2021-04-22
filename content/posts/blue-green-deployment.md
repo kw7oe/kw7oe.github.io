@@ -40,6 +40,15 @@ instance that are hosting your "live" version._
 - Add vagrant configuration and `/etc/hosts` changes needed to experiment
   locally.
 
+## Following along
+
+While writing this post, I have gone through a few iteration to setting up and
+down with Vagrant. So if you are interested to follow along with it or
+experiment it locally, you can use the following example repository.
+
+- GitHub Repository
+
+
 ## Setting Up `nginx`
 
 Before we go into details on how we can setup our Blue Green deployment, it's
@@ -104,14 +113,15 @@ configuration:
 sudo systemctl reload nginx
 ```
 
-Now, go to your `myapp.domain/deployment_id`, you should see a `blue` text as a
+Now, in the local machine, `curl myapp.domain/deployment_id`, you should see a `blue` text as a
 result.  These will act as the blue of our blue green deployment.
 
 ### Green Nginx configuration
 
 To be able to blue green deploy, we would need another nginx configuration that
 point to our green application server. It would look very similar with the
-above configuration with some minor changes as follow:
+above configuration with some minor changes as follow in
+`/etc/nginx/sites-available/green`:
 
 ```nginx
 # Define another upstream and point to a different PORT
@@ -161,7 +171,7 @@ follow by reloading our nginx service configuration:
 sudo systemctl reload nginx
 ```
 
-Now, visit to `myapp.domain/deployment_id` and you'll see a `green`
+Now, `curl myapp.domain/deployment_id` and you'll see a `green`
 text returned.  However, if you try to visit `myapp.domain` and visit
 other path of your application, you might get a 502 Bad Gateway.
 
@@ -182,6 +192,26 @@ green%
 That's because we
 haven't run any copy of our application on port `5000` yet as specified in
 our `nginx` configuration.
+
+**Not Found**
+
+If you curl and get `Not Found` instead as follow:
+```bash
+╰─➤  curl myapp.domain/deployment_id
+<html>
+<head><title>404 Not Found</title></head>
+<body>
+<center><h1>404 Not Found</h1></center>
+<hr><center>nginx/1.18.0 (Ubuntu)</center>
+</body>
+</html>
+```
+
+Try removing the default nginx config which are
+`/etc/nginx/sites-available/default` and
+`/etc/nginx/sites-enabled/default`. Then, try again.
+
+
 
 
 ## Running two copies of our application
@@ -510,7 +540,103 @@ For example:
   can't be stopping the existing live green version of the application.
 - If live version is blue, we will stop the old green version.
 
-The bash script for this part will looks like this:
+Sounds straightforward right? However, it's not without its own problem.
+
+### Problem Faced
+Since, we might have 2 application _(with different version)_ running on our
+server, we cannot just extract our release into `$APP_NAME` format as
+before.
+
+Instead, we need to extract the release for different version to different
+folder in this format `$APP_NAME/$APP_VSN`:
+
+```bash
+# Old build script
+ssh $HOST tar -xzf $APP_NAME/releases/$TAR_FILENAME -C $APP_NAME
+
+# New build script
+ssh $HOST tar -xzf "$APP_NAME/$TAR_FILENAME" -C "$APP_NAME/$APP_VSN"
+```
+
+which, allow us to run multiple version of our application at the same time.
+
+With this changes, stopping application is not as straightforward as calling:
+
+```bash
+ssh $HOST "~/$APP_NAME/$version/bin/$APP_NAME stop"
+```
+
+Since now, we need to keep track of which are the last version we are running
+on blue/green version of our application.
+
+### Solution
+
+To resolve this, is to store our last deployed blue/green version
+somewhere else everytime we deploy. There are two ways we can get the version
+data:
+
+- Expose a API endpoint `/version` to return the running version.
+- Store our deployed version somewhere in a data store
+
+
+**Using `/version`**
+
+We can extract our blue/green running version in our bash script by doing
+something like:
+
+```ruby
+if live_version == "blue" do
+  curl "localhost:5000/version"
+else
+  curl "localhost:4000/version"
+end
+```
+
+_(ignore my shitty code here, just a pseudocode for proof of concept)_
+
+We would also need to handle cases where none of blue/green is deployed before,
+which can be quite tricky to write that code in bash script.
+
+On top of that, if we want to stop the non-live version manually,
+the approach won't work as well.
+
+Technically, I think is still possible to solve it with:
+
+- if the connection to the server failed, we skip the stopping
+  phase.
+
+But for now, I'll just leave it to you all if you prefer to do it this way.
+
+**Store version in a file**
+
+Hence, in this post, I am going to just write it to a file directly.
+
+```bash
+# Deploying to blue with 1.0.0
+echo 1.0.0 > blue_version.txt
+
+# Deploying to green with 1.0.1
+echo 1.0.1 > green_version.txt
+```
+
+using `>` will overwrite the file instead of appending here.
+
+Alternatively, you can also write it to a object storage like AWS S3 or Google
+Cloud Storage.
+
+Since, we are writing to a file here, to check if we have deployed before is as
+simple as using bash specific operator to check if a file exist:
+
+```bash
+if [ -f filename ]; then
+  echo "filename exist"
+fi
+```
+
+**Final Solution**
+
+Combining the above, the final bash script for this part
+will looks like this:
 
 ```bash
 start_release() {
@@ -561,7 +687,7 @@ start_release() {
   if [ "$deploy_version" = "blue" ]; then
     ssh $HOST "export $(cat .env.production | xargs)  && PORT=4000 ~/$APP_NAME/$APP_VSN/bin/$APP_NAME daemon"
   else
-    ssh $HOST "export $(cat .env.production | xargs)  && PORT=4001 ELIXIR_ERL_OPTIONS='-sname green' ~/$APP_NAME/$APP_VSN/bin/$APP_NAME daemon"
+    ssh $HOST "export $(cat .env.production | xargs)  && PORT=4001 RELEASE_NODE=green ~/$APP_NAME/$APP_VSN/bin/$APP_NAME daemon"
   fi
 
   # Update our version in our version file.
@@ -571,99 +697,157 @@ start_release() {
 }
 ```
 
-Notice that, on top of adding the logic to stop the previously running
-application, we also added logic to get and update the previosly running
-version.
+## Glue it all together with script
 
-### Problems
-This is because, unlike our previous build script in this post, in this post
-our build script actually extract our release into `$APP_NAME/$APP_VSN` format
-instead:
+Finally, the outcome of it is as follow:
 
 ```bash
-# Old build script
-ssh $HOST tar -xzf $APP_NAME/releases/$TAR_FILENAME -C $APP_NAME
+#!/bin/bash
+set -e
 
-# New build script
-ssh $HOST tar -xzf "$APP_NAME/$TAR_FILENAME" -C "$APP_NAME/$APP_VSN"
-```
+# Getting your app name from mix.exs
+# I probably copy the code from somewhere so...
+APP_NAME="$(grep 'app:' mix.exs | sed -e 's/\[//g' -e 's/ //g' -e 's/app://' -e 's/[:,]//g')"
+APP_VSN="$(grep 'version:' mix.exs | cut -d '"' -f2)"
+TAR_FILENAME=${APP_NAME}-${APP_VSN}.tar.gz
 
-which, allow us to run multiple version of our application at the same time.
+# I'm using vagrant to test out the application.
+# So change this to your own host.
+HOST="vagrant@192.168.33.40"
 
-### Solution
+# The domain name to curl the blue/green version of your
+# service.
+DOMAIN="myapp.domain"
 
-To resolve this, the general approach is to store our old blue/green version
-somewhere else everytime we deploy.
+bold_echo() {
+  echo -e "\033[1m---> $1\033[0m"
+}
 
+build_release() {
+  bold_echo "Building Docker images..."
+  docker build -t life_app .
 
-#### Alternative
+  bold_echo "Extracting release tar file..."
+  ID=$(docker create life_app)
+  docker cp "$ID:/app/$TAR_FILENAME" .
+  docker rm "$ID"
+}
 
-While we can extract our blue/green running version by doing something like:
+deploy_release() {
+  bold_echo "Creating directory if not exist..."
+  ssh $HOST mkdir -p "$APP_NAME/$APP_VSN"
 
-```
-if live_version == "blue" do
-  curl localhost:5000/version
+  bold_echo "Copying environment variables..."
+
+  # I'm storing my production environment variable in my local machine
+  # and scp it over to the host every time.
+  # Not the recommended way to manage your sercret.
+  scp .env.production $HOST:"~/$APP_NAME/.env"
+
+  bold_echo "Copying release to remote..."
+  scp "$TAR_FILENAME" $HOST:"~/$APP_NAME/$TAR_FILENAME"
+  ssh $HOST tar -xzf "$APP_NAME/$TAR_FILENAME" -C "$APP_NAME/$APP_VSN"
+
+  start_release
+
+  bold_echo "Removing remote tar file..."
+  ssh $HOST rm "~/$APP_NAME/$TAR_FILENAME"
+}
+
+start_release() {
+  LIVE_VERSION=$(curl -s -w "\n" "$DOMAIN/deployment_id")
+
+  if [ "$LIVE_VERSION" = "blue" ]; then
+    version_file="green_version.txt"
+    deploy_version="green"
+
+    # Since we need to check if our process is running with pid command
+    env="RELEASE_NODE=green"
+  else
+    version_file="blue_version.txt"
+    deploy_version="blue"
+    env=""
+  fi
+
+  # Check if the file exist.
+  # If it doesn't exist, it means that we haven't deploy
+  # the initial version yet.
+  # Hence, we can skip the stopping phase entirely.
+  if [ -f $version_file ]; then
+    version=$(cat $version_file)
+
+    # Don't exit on error so we can caputure
+    set +e
+    ssh $HOST "$env ~/$APP_NAME/$version/bin/$APP_NAME pid"
+
+    if [ $? -ne 0 ]; then
+      bold_echo "$APP_NAME $version is not running anymore..."
+    else
+      bold_echo  "Stopping previous $deploy_version, release $version..."
+      ssh $HOST "$env ~/$APP_NAME/$version/bin/$APP_NAME stop"
+
+      bold_echo  "Waiting $deploy_version, release $version to stop..."
+      ssh $HOST "$env ~/$APP_NAME/$version/bin/$APP_NAME pid"
+      while [ $? -ne 1 ]
+      do
+        bold_echo  "Waiting $deploy_version, release $version to stop..."
+        ssh $HOST "$env ~/$APP_NAME/$version/bin/$APP_NAME pid"
+      done
+    fi
+    set -e
+  fi
+
+  # Start Release
+  if [ "$deploy_version" = "blue" ]; then
+    ssh $HOST "export $(cat .env.production | xargs)  && PORT=4000 ~/$APP_NAME/$APP_VSN/bin/$APP_NAME daemon"
+  else
+    ssh $HOST "export $(cat .env.production | xargs)  && PORT=4001 ELIXIR_ERL_OPTIONS='-sname green' ~/$APP_NAME/$APP_VSN/bin/$APP_NAME daemon"
+  fi
+
+  # Update our version in our version file.
+  # So that next time, we know this is the version we are currently
+  # running
+  echo $APP_VSN > $version_file
+}
+
+promote() {
+  LIVE_VERSION=$(curl -s -w "\n" "$DOMAIN.domain/deployment_id")
+
+  bold_echo "Attempting to promote to $1..."
+  if [ "$LIVE_VERSION" = "$1" ]; then
+    echo "$1 is already the live version!"
+    return
+  elif [ "$1" = "green" ]; then
+    target_nginx_file="green"
+  else
+    target_nginx_file="blue"
+  fi
+
+  ssh $HOST "sudo ln -sf /etc/nginx/sites-available/$target_nginx_file /etc/nginx/sites-enabled/$DOMAIN && sudo systemctl reload nginx"
+
+  LIVE_VERSION=$(curl -s -w "\n" "$DOMAIN/deployment_id")
+  bold_echo "Promoted live to $LIVE_VERSION"
+}
+
+clean_up() {
+  bold_echo "Removing local tar file..."
+  rm "$APP_NAME-"*.tar.gz
+}
+
+if [ "$1" = "build" ]; then
+  build_release
+elif [ "$1" = "start" ]; then
+  start_release
+elif [ "$1" = "promote" ]; then
+  promote "$2"
 else
-  curl localhost:4000/version
-end
-```
-
-_(ignore my shitty code here, just a pseudocode for proof of concept)_
-
-We would also need to handle cases where none of blue/green is deployed before,
-which can be quite tricky to write that code in bash script.
-
-On top of that, if we want to stop the non-live version manually, instead of
-having our server to run two copies of our application all the time, the above
-approach won't work as well. Technically, I think is still possible to do
-something like, if the connection to the server failed, we skip the stopping
-phase. But for now, I'll just leave it to you all if you prefer to do it this
-way.
-
-#### Final
-Hence, in this post, I am going to just write it to a file directly. As you can
-see with `echo $APP_VSN > $version_file`:
-
-```bash
-# Deploying to blue with 1.0.0
-echo 1.0.0 > blue_version.txt
-
-# Deploying to green with 1.0.1
-echo 1.0.1 > green_version.txt
-```
-
-using `>` will overwrite the file instead of appending here.
-
-Alternatively, you can also write it to a object storage like AWS S3 or Google
-Cloud Storage.
-
-Since, we are writing to a file here, to check if we have deployed before is as
-simple as using bash specific operator to check if a file exist:
-
-```bash
-if [ -f filename ]; then
-  echo "filename exist"
+  build_release
+  deploy_release
+  clean_up
 fi
 ```
 
 
-### Remarks for next writing
-The problem now is getting the previous version of our application. Since when
-we are extracting our release, we extract different version of our release to
-different directory. So in order to stop the old running application, we will
-need to know the version of the older running application. There are two ways
-to resolve this:
-
-- On deploy change a local file where we can read to get the blue/green
-  existing/old running version. This can cater both running/stopped
-  application.
-- One deploy, ssh to host and curl the application accordingly. Since we know
-  which port we are running as green/blue, we can curl and extract the version
-  from our /health or /version endpoint. However this does not cater the
-  scenario where one might just stop old blue/green version to reduce resource
-  consumption.
-
-## Glue it all together with script
 
 
 ## Wrap Up
