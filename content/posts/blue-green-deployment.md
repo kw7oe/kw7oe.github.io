@@ -17,52 +17,65 @@ The core idea to make blue green deployment possible for Elixir releases with
 - Switching traffic to new release through linking to a different `nginx`
   configuration to `/site-enabled` and reload `nginx`.
 
-Again, this approach is only suitable for smaller scale system or hobby
-projects where you just want to explore different things. When you have more
-than one node, things become more complicated with this approach and you should
-considering to offload this responsibility to something else.
-
-This post also reused majority of the `bash` script that I have written in the
-previous blog posts about building and deploying Elixir releases.
+This approach is only suitable for smaller scale system or hobby
+projects. I have never operate any serious production system with this setup.
+Hence, I'll advise you to offload this to something more battle tested for
+your real world high traffic production sytem.
 
 _While this article is written specifically for Elixir/Phoenix deployment,
 similar approach and scripts can apply for any web application running behind
 nginx to achieve blue green deployment._
 
-_If you are running multiple instances (server) already, instead of modifying
-with nginx configuration, you could achieve the simlar things by writing some
-script to automate the modification of your load balancer to point to your
-instance that are hosting your "live" version._
+## Prerequisite
 
-## TODO
+Before we begin, this post assume you know how to:
 
-- Add assumption of running existing release
-- Add vagrant configuration and `/etc/hosts` changes needed to experiment
-  locally.
+- Configure Elixir/Phoenix application for production release
+- Setup nginx on production machine to be used as a reverse proxy to direct traffic to our application.
+- Build and deploy your Elixir/Phoenix application
 
-## Following along
+This post also reused majority of the `bash` script that I have written in the
+previous blog posts about [building]({{< ref "building-phoenix-release-with-docker.md" >}}) and [deploying Elixir releases]({{< ref
+"deploying-elixir-phoenix-release-to-production.md" >}}) _(with some changes to
+cater the needs to make blue green deployment happen)_.
+
+
+## Following Along
 
 While writing this post, I have gone through a few iteration to setting up and
 down with Vagrant. So if you are interested to follow along with it or
 experiment it locally, you can use the following example repository.
 
-- GitHub Repository
+The README in the repository will contain more details on the required setup
+to follow along in this article.
 
 
-## Setting Up `nginx`
+# Setting Up `nginx`
 
 Before we go into details on how we can setup our Blue Green deployment, it's
-important for us to understand the building blocks that make it possible. We'll
+important for us to understand the building blocks that make it possible. Let's
 start with understanding how `nginx` can help us with that.
 
-Here, we assumed you have the basic knowledge of nginx and how it's used as a
-reverse proxy to direct traffic to our application.
+![Blue Green Deployment with nginx architecture
+diagram](/images/nginx-bg-deployment.png)
 
-So, first of all, we are going to start with setting up the `nginx`
-configuration for our blue and green application.
+<figcaption class="text-center italic mb-4">Using nginx for Blue Green Deployment</figcaption>
 
-### Initial Nginx Configuration
-Let's start by writing our initial Nginx configuration file
+To summarise:
+
+- we use nginx as a reverse proxy to forward requests received from
+  internet to our application process.
+- nginx forward the traffic differently
+  based on our configuration at `/etc/nginx/site-enabled/domain.app`.
+- which are symlinked with `/etc/nginx/site-available/{blue,green}`.
+- Each configuration file tell nginx to direct the traffic to the blue/green
+  version of our application process at different port.
+
+Let's setup our nginx as above.
+
+## Blue Nginx Configuration
+
+Let's start by writing our blue _(also our initial one)_ nginx configuration file
 _([as refer from Phoenix Documentation][1])_ and placed it
 under `/etc/nginx/sites-available/blue`:
 
@@ -73,7 +86,7 @@ upstream phoenix-blue {
 }
 
 server {
-  server_name myapp.domain;
+  server_name domain.app;
   listen 80;
 
   location /deployment_id {
@@ -98,12 +111,13 @@ server {
 }
 ```
 
-We are putting it in `sites-available` instead of `sites-enabled` because we
-would need to symlink different configuration file to our domain. Now we can
-symlink our configuration file to `sites-enabled` with the following command:
+We are putting it in `sites-available` instead of `sites-enabled` because as
+demonstrated above,  we would need to symlink different configuration file to
+our domain. Now we can symlink our configuration file to `sites-enabled`
+with:
 
 ```sh
-sudo ln -sf /etc/nginx/sites-available/blue /etc/nginx/sites-enabled/myapp.domain
+sudo ln -sf /etc/nginx/sites-available/blue /etc/nginx/sites-enabled/domain.app
 ```
 
 then, we can reload our nginx services to have it use our updated
@@ -113,14 +127,39 @@ configuration:
 sudo systemctl reload nginx
 ```
 
-Now, in the local machine, `curl myapp.domain/deployment_id`, you should see a `blue` text as a
-result.  These will act as the blue of our blue green deployment.
+Now, in your machine, `curl domain.app/deployment_id`, you should see a `blue` text as a
+result. Now, we have setup the blue version of nginx for our application.
 
-### Green Nginx configuration
+
+<div class="callout callout-info">
+  <p class="font-bold">I don't own domain.app. How can I curl that?</p>
+
+  <p>
+    To do that, it is as simple as modifying your <code>/etc/hosts</code> file
+    in your local machine. <em>(Or any equivalent file/configuration in
+    Windows)</em>
+  </p>
+
+  <p>
+    Here is how my hosts file looks like in my local machine,
+    where I'm poiting <code>domain.app</code> to the local IP of my Vagrant VM.
+  </p>
+
+  <div class="highlight"><pre class="chroma"><code><span>192.168.33.40 domain.app</span></code></pre>
+  </div>
+
+  <p>
+    This work because by default, our local machine will first hit
+    <code>/etc/hosts</code> to get the hostnames to IP address mapping before
+    hitting any DNS.
+  </p>
+</div>
+
+## Green Nginx configuration
 
 To be able to blue green deploy, we would need another nginx configuration that
-point to our green application server. It would look very similar with the
-above configuration with some minor changes as follow in
+point to our green application process. It would look very similar with the
+blue version configuration with some minor changes as follow in
 `/etc/nginx/sites-available/green`:
 
 ```nginx
@@ -131,7 +170,7 @@ upstream phoenix-green {
 }
 
 server {
-  server_name my-app.domain;
+  server_name domain.app;
   listen 80;
 
   # Return 'green' instead.
@@ -162,7 +201,7 @@ Similar with above, to _promote_ our green application to live, all we need
 to do is to symlink it to be used as our domain configuration with the
 following command:
 ```sh
-sudo ln -sf /etc/nginx/sites-available/green /etc/nginx/sites-enabled/myapp.domain
+sudo ln -sf /etc/nginx/sites-available/green /etc/nginx/sites-enabled/domain.app
 ```
 
 follow by reloading our nginx service configuration:
@@ -171,15 +210,16 @@ follow by reloading our nginx service configuration:
 sudo systemctl reload nginx
 ```
 
-Now, `curl myapp.domain/deployment_id` and you'll see a `green`
-text returned.  However, if you try to visit `myapp.domain` and visit
+Now, `curl domain.app/deployment_id` and you'll see a `green`
+text returned.  However, if you try to visit `domain.app` and visit
 other path of your application, you might get a 502 Bad Gateway.
 
+
 ```bash
-╰─➤  curl myapp.domain/deployment_id
+╰─➤  curl domain.app/deployment_id
 green%
 ╭─kai at KW.local ~/Desktop/mini-hackathon/life ‹1.11.3-otp-23› ‹main*›
-╰─➤  curl myapp.domain/health
+╰─➤  curl domain.app/health
 <html>
 <head><title>502 Bad Gateway</title></head>
 <body>
@@ -197,7 +237,7 @@ our `nginx` configuration.
 
 If you curl and get `Not Found` instead as follow:
 ```bash
-╰─➤  curl myapp.domain/deployment_id
+╰─➤  curl domain.app/deployment_id
 <html>
 <head><title>404 Not Found</title></head>
 <body>
@@ -211,10 +251,7 @@ Try removing the default nginx config which are
 `/etc/nginx/sites-available/default` and
 `/etc/nginx/sites-enabled/default`. Then, try again.
 
-
-
-
-## Running two copies of our application
+# Running two copies of our application
 
 Since we have been relying on environment variable for our port value, to
 deploy another copies of our application on a different port, would be as
@@ -238,7 +275,7 @@ Remember that `/deployment_id`? That's how we can get our current live
 version:
 
 ```bash
-LIVE_VERSION=$(curl -s -w "\n" "https://myapp.domain/deployment_id")
+LIVE_VERSION=$(curl -s -w "\n" "https://domain.app/deployment_id")
 
 if [ "$LIVE_VERSION" = "blue" ]; then
   deploy_version="green"
@@ -328,7 +365,7 @@ deploy_release() {
 }
 
 start_release() {
-  LIVE_VERSION=$(curl -s -w "\n" "myapp.domain/deployment_id")
+  LIVE_VERSION=$(curl -s -w "\n" "domain.app/deployment_id")
 
   if [ "$LIVE_VERSION" = "blue" ]; then
     deploy_version="green"
@@ -370,7 +407,7 @@ The current live version is still blue. So, in order to promote our green
 version to live. All we need to do is to run:
 
 ```bash
-sudo ln -sf /etc/nginx/sites-available/green /etc/nginx/sites-enabled/myapp.domain
+sudo ln -sf /etc/nginx/sites-available/green /etc/nginx/sites-enabled/domain.app
 sudo systemctl reload nginx
 ```
 
@@ -393,7 +430,7 @@ promote() {
     target_nginx_file="blue"
   fi
 
-  ssh $HOST "sudo ln -sf /etc/nginx/sites-available/$target_nginx_file /etc/nginx/sites-enabled/myapp.domain && sudo systemctl reload nginx"
+  ssh $HOST "sudo ln -sf /etc/nginx/sites-available/$target_nginx_file /etc/nginx/sites-enabled/domain.app && sudo systemctl reload nginx"
 }
 
 
@@ -414,7 +451,7 @@ To promote green version to live, all we have to run is:
 ./deploy.sh promote green
 ```
 
-Now, visiting to `myapp.domain` and you shall see your latest changes for your application is live.
+Now, visiting to `domain.app` and you shall see your latest changes for your application is live.
 
 Alternatively, if things went wrong and you decided to rollback to blue version, all you need
 to run is just:
@@ -427,7 +464,7 @@ Do note that, at this point, we are running **2 copies of our application** on
 our remote server, which means we are consuming twice as much resources as
 well.
 
-## Running migration and console
+# Running migration and console
 
 Assuming you have follow the [guide to setup ecto migration][2] on the official Phoenix Documentation,
 you should be able to run migration by running the following comamnd:
@@ -442,7 +479,7 @@ similarly, to run the remote console is just as simple as:
 $ ~/$APP_NAME/$version/bin/$APP_NAME remote
 ```
 
-### Running migration
+## Running migration
 
 Let's assume we have released both version `0.1.0` as `blue` and `0.1.1` as
 `green`. To run migration for the `0.1.0` release, it's the same as usual:
@@ -458,7 +495,7 @@ to run the migration is also the same as above:
 $ ~/app_name/0.1.1/bin/app_name eval 'AppName.Release.migrate()'
 ```
 
-### Running remote console
+## Running remote console
 
 Now, let's say that we want to run a remote console on our `0.1.0` deployed as
 `blue`. It is same as usual:
@@ -494,7 +531,7 @@ RELEASE_NODE=green ~/app_name/0.1.1/bin/app_name remote
 
 And voila, you are in again!
 
-### Why `eval` works without additional environment configuration?
+## Why `eval` works without additional environment configuration?
 
 If you run:
 
@@ -520,7 +557,7 @@ Hence, unlike `remote` command that connected to our running system, `eval` is
 not affected as it run on a whole new system.
 
 
-## Deploying new blue and green version
+# Deploying new blue and green version
 
 That's not the end yet. We just cover the initial deployment part so far _(the
 first two deployments)_. Next up, we need to deployed new version for both
@@ -542,7 +579,7 @@ For example:
 
 Sounds straightforward right? However, it's not without its own problem.
 
-### Problem Faced
+## Problem Faced
 Since, we might have 2 application _(with different version)_ running on our
 server, we cannot just extract our release into `$APP_NAME` format as
 before.
@@ -569,7 +606,7 @@ ssh $HOST "~/$APP_NAME/$version/bin/$APP_NAME stop"
 Since now, we need to keep track of which are the last version we are running
 on blue/green version of our application.
 
-### Solution
+## Solution
 
 To resolve this, is to store our last deployed blue/green version
 somewhere else everytime we deploy. There are two ways we can get the version
@@ -633,14 +670,14 @@ if [ -f filename ]; then
 fi
 ```
 
-**Final Solution**
+## Final Solution
 
 Combining the above, the final bash script for this part
 will looks like this:
 
 ```bash
 start_release() {
-  LIVE_VERSION=$(curl -s -w "\n" "myapp.domain/deployment_id")
+  LIVE_VERSION=$(curl -s -w "\n" "domain.app/deployment_id")
 
   if [ "$LIVE_VERSION" = "blue" ]; then
     version_file="green_version.txt"
@@ -697,7 +734,7 @@ start_release() {
 }
 ```
 
-## Glue it all together with script
+# Glue it all together with script
 
 Finally, the outcome of it is as follow:
 
@@ -717,7 +754,7 @@ HOST="vagrant@192.168.33.40"
 
 # The domain name to curl the blue/green version of your
 # service.
-DOMAIN="myapp.domain"
+DOMAIN="domain.app"
 
 bold_echo() {
   echo -e "\033[1m---> $1\033[0m"
@@ -847,10 +884,7 @@ else
 fi
 ```
 
-
-
-
-## Wrap Up
+# Wrap Up
 
 While this blue green deployment works for our simple use case, there are a few
 drawbacks that one need to be aware of.
