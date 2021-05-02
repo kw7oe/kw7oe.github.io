@@ -61,7 +61,7 @@ diagram](/images/nginx-bg-deployment.png)
 
 <figcaption class="text-center italic mb-4">Using nginx for Blue Green Deployment</figcaption>
 
-To summarise:
+Basically:
 
 - we use nginx as a reverse proxy to forward requests received from
   internet to our application process.
@@ -127,8 +127,14 @@ configuration:
 sudo systemctl reload nginx
 ```
 
-Now, in your machine, `curl domain.app/deployment_id`, you should see a `blue` text as a
-result. Now, we have setup the blue version of nginx for our application.
+In your machine, `curl domain.app/deployment_id`, you should see a `blue` text as a
+result.
+
+Assuming you have your application process listening to port 400, visiting to
+`domain.app` will display your application correctly.
+
+We have now setup the blue version of nginx for our application. Let's
+proceed to setup the green version next!
 
 
 <div class="callout callout-info">
@@ -197,9 +203,8 @@ server {
 }
 ```
 
-Similar with above, to _promote_ our green application to live, all we need
-to do is to symlink it to be used as our domain configuration with the
-following command:
+To _promote_ our green application to live, is to symlink
+it to be used as our domain configuration with the following command:
 ```sh
 sudo ln -sf /etc/nginx/sites-available/green /etc/nginx/sites-enabled/domain.app
 ```
@@ -210,7 +215,7 @@ follow by reloading our nginx service configuration:
 sudo systemctl reload nginx
 ```
 
-Now, `curl domain.app/deployment_id` and you'll see a `green`
+`curl domain.app/deployment_id` and you'll see a `green`
 text returned.  However, if you try to visit `domain.app` and visit
 other path of your application, you might get a 502 Bad Gateway.
 
@@ -233,28 +238,20 @@ That's because we
 haven't run any copy of our application on port `5000` yet as specified in
 our `nginx` configuration.
 
-**Not Found**
+<div class="callout callout-info">
+  <p class="font-bold">Getting Not Found</p>
 
-If you curl and get `Not Found` instead as follow:
-```bash
-╰─➤  curl domain.app/deployment_id
-<html>
-<head><title>404 Not Found</title></head>
-<body>
-<center><h1>404 Not Found</h1></center>
-<hr><center>nginx/1.18.0 (Ubuntu)</center>
-</body>
-</html>
-```
-
-Try removing the default nginx config which are
-`/etc/nginx/sites-available/default` and
-`/etc/nginx/sites-enabled/default`. Then, try again.
+  <p>
+    If you curl and get `Not Found`, try removing the default nginx config
+    which are <code>/etc/nginx/sites-available/default</code> and
+    <code>/etc/nginx/sites-enabled/default</code>. Then, try again.
+  </p>
+</div>
 
 # Running two copies of our application
 
 Since we have been relying on environment variable for our port value, to
-deploy another copies of our application on a different port, would be as
+deploy another copy of our application on a different port, should be as
 simple as changing the `PORT` value right?
 
 So, all we need to do is to just update part of our bash script to
@@ -269,10 +266,10 @@ else
 fi
 ```
 
-Well, now we have one problem, how do we know about our current live version?
+But, how do we know about our current live version?
 
-Remember that `/deployment_id`? That's how we can get our current live
-version:
+Remember that `/deployment_id` in our nginx configuration? That's how we can
+get our current live version:
 
 ```bash
 LIVE_VERSION=$(curl -s -w "\n" "https://domain.app/deployment_id")
@@ -287,8 +284,8 @@ fi
 # continue here...
 ```
 
-We are done right? Not quite. If we go into our instance and check with
-`lsof` _(list open file description)_:
+We are done right? Not quite. If we run our deploy script and go into our
+server and check with `lsof` _(list open file description)_:
 
 ```bash
 $ lsof -i :5000
@@ -300,25 +297,54 @@ beam.smp 5162 vagrant   20u  IPv6  39660      0t0  TCP *:4000 (LISTEN)
 ```
 
 You'll see that our application release doesn't get started successfully.
-Attempting to start it manually while in the remote instance will result
-in the following error:
+
+## Run multiple copies of same Elixir release in a single server
+
+Let's attempt to start it manually and see what actually happen:
 
 ```bash
 $ source .env && PORT=5000 <app_version>/bin/<app_name> start
 Protocol 'inet_tcp': the name <app_name>@<hostname> seems to be in use by another Erlang node
 ```
 
-What is this error about? Well everytime, our release is started, a node name
-for our release is actually provided a default node name according on our
-application name.
+Seems like it failed to start.
 
-So if we do this instead when starting our release, it will then work:
+What is this error about? Well everytime, our release is started, a default
+node name is actually provided according on our application name. And in a
+single server, you can't have two same release running with the same node name.
+
+You can replicate the above behaviour very easily in your local machine by
+running the following in two different terminals:
+
+```bash
+iex --cookie 1234 --sname apple
+```
+
+which will result in:
+
+```bash
+# In terminal one
+╰─➤  iex --cookie 1234 --sname apple
+Erlang/OTP 23 [erts-11.1.1] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [hipe]
+
+Interactive Elixir (1.11.3) - press Ctrl+C to exit (type h() ENTER for help)
+iex(apple@KW)1>
+
+# In terminal two
+╰─➤  iex --cookie 1234 --sname apple
+Protocol 'inet_tcp': the name apple@KW seems to be in use by another Erlang node
+```
+
+To resolve this, we need to specify a different node name when starting our
+release:
 
 ```bash
 $ source .env && PORT=5000 RELEASE_NODE=green <app_version>/bin/<app_name> start
 15:46:40.449 [info] Running Web.Endpoint with cowboy 2.8.0 at :::5000 (http)
 15:46:40.450 [info] Access Web.Endpoint at http://example.com
 ```
+
+## Bash Script for deploying multiple Elixir releases
 
 At this point, this is how our `./deploy.sh` script looks like:
 
@@ -349,6 +375,7 @@ build_release() {
 
 deploy_release() {
   bold_echo "Creating directory if not exist..."
+
   ssh $HOST mkdir -p "$APP_NAME/$APP_VSN"
 
   bold_echo "Copying environment variables..."
@@ -356,6 +383,12 @@ deploy_release() {
 
   bold_echo "Copying release to remote..."
   scp "$TAR_FILENAME" $HOST:"~/$APP_NAME/$TAR_FILENAME"
+
+  # Notice that we are extracting the tar file to it respective version
+  # folder instead of replacing it at $APP_NAME as previois blog posts.
+
+  # The reason of doing so is explained in the section of
+  # "Deploying new blue and green version" of this post later on.
   ssh $HOST tar -xzf "$APP_NAME/$TAR_FILENAME" -C "$APP_NAME/$APP_VSN"
 
   start_release
@@ -401,7 +434,7 @@ Running `./deploy.sh` now the second time _(initial green build)_ will now
 deploy another copy of our application with the latest changes. The initial
 build will still be running and nothing is impacted.
 
-## Promoting our green version to live
+# Promoting our green version to live
 
 The current live version is still blue. So, in order to promote our green
 version to live. All we need to do is to run:
@@ -479,6 +512,8 @@ similarly, to run the remote console is just as simple as:
 $ ~/$APP_NAME/$version/bin/$APP_NAME remote
 ```
 
+More details and edge cases will be cover below.
+
 ## Running migration
 
 Let's assume we have released both version `0.1.0` as `blue` and `0.1.1` as
@@ -511,19 +546,18 @@ the following will not work as expected
 $ ~/app_name/0.1.1/bin/app_name remote
 ```
 
-and you'll get the following error message complaning that the node is down:
+and you'll get the following error message complaining that the node is down:
 
 ```
 Erlang/OTP 23 [erts-11.1.8] [source] [64-bit] [smp:2:2] [ds:2:2:10] [async-threads:1] [hipe]
 
-Could not contact remote node life@prod-server, reason: :nodedown. Aborting...
+Could not contact remote node app_name@hostname, reason: :nodedown. Aborting...
 ```
 
 Remember when we spin up our second copy and we specify `RELEASE_NODE=green`?
+It's because of that.
 
-It's because of that. So, in order to run remote console correctly, we need to
-specify our node name explicitly as we actually start it with that
-configuration in the first place:
+To resolve it, we need to specify our node name explicitly again as follow:
 
 ```bash
 RELEASE_NODE=green ~/app_name/0.1.1/bin/app_name remote
@@ -531,7 +565,7 @@ RELEASE_NODE=green ~/app_name/0.1.1/bin/app_name remote
 
 And voila, you are in again!
 
-## Why `eval` works without additional environment configuration?
+### Why `eval` works without additional environment configuration?
 
 If you run:
 
@@ -579,7 +613,7 @@ For example:
 
 Sounds straightforward right? However, it's not without its own problem.
 
-## Problem Faced
+## What are the current version running for blue/green version?
 Since, we might have 2 application _(with different version)_ running on our
 server, we cannot just extract our release into `$APP_NAME` format as
 before.
@@ -597,23 +631,23 @@ ssh $HOST tar -xzf "$APP_NAME/$TAR_FILENAME" -C "$APP_NAME/$APP_VSN"
 
 which, allow us to run multiple version of our application at the same time.
 
-With this changes, stopping application is not as straightforward as calling:
+With this changes, we can stop the running application with:
 
 ```bash
 ssh $HOST "~/$APP_NAME/$version/bin/$APP_NAME stop"
 ```
 
-Since now, we need to keep track of which are the last version we are running
-on blue/green version of our application.
+However, it's not as straightforward as it seems. We need to know the current
+version running for our blue/green version of our application.
 
 ## Solution
 
 To resolve this, is to store our last deployed blue/green version
-somewhere else everytime we deploy. There are two ways we can get the version
+somewhere else every time we deploy. There are two ways we can get the version
 data:
 
 - Expose a API endpoint `/version` to return the running version.
-- Store our deployed version somewhere in a data store
+- Store our deployed version somewhere in a data store when we deploy
 
 
 **Using `/version`**
@@ -622,6 +656,7 @@ We can extract our blue/green running version in our bash script by doing
 something like:
 
 ```ruby
+# ignore my shitty code here, just a pseudocode for proof of concept
 if live_version == "blue" do
   curl "localhost:5000/version"
 else
@@ -629,13 +664,7 @@ else
 end
 ```
 
-_(ignore my shitty code here, just a pseudocode for proof of concept)_
-
-We would also need to handle cases where none of blue/green is deployed before,
-which can be quite tricky to write that code in bash script.
-
-On top of that, if we want to stop the non-live version manually,
-the approach won't work as well.
+We would also need to handle cases where none of blue/green version is deployed before. This can be quite tricky to write in bash script.
 
 Technically, I think is still possible to solve it with:
 
@@ -646,7 +675,7 @@ But for now, I'll just leave it to you all if you prefer to do it this way.
 
 **Store version in a file**
 
-Hence, in this post, I am going to just write it to a file directly.
+Instead, I am going to just write it to a file directly.
 
 ```bash
 # Deploying to blue with 1.0.0
@@ -670,7 +699,7 @@ if [ -f filename ]; then
 fi
 ```
 
-## Final Solution
+## Bash script for deploying new blue/green version
 
 Combining the above, the final bash script for this part
 will looks like this:
@@ -889,14 +918,22 @@ fi
 While this blue green deployment works for our simple use case, there are a few
 drawbacks that one need to be aware of.
 
-### Multiple Nodes
+### 1. Multiple Nodes
 
-When you scale beyond multiple nodes, while it could still work, it becomes
+When you scale beyond a single node, while it could still work, it becomes
 quite tricky to manage. In theory, you can just loop through and execute the
-script separately _(or together)_. However, as your needs grow, it will feel
-like you are reinventing the wheels.
+script separately _(or together)_. But it becomes tricky when you consider the
+possibilities with multiple servers:
 
-### Minimal downtime for Phoenix Channels
+- What if we successfully deploy to server A but fail at server B, C and D?
+- How do we keep track of different version of our blue/green application on N
+  different servers?
+- When you deploy to multiple servers, the next step you might want to consider
+  is to do rolling release. How would you handle that?
+
+As your needs grow, it will feel like you are reinventing the wheels.
+
+### 2. Zero downtime for Phoenix Channels
 
 While we might have zero downtime for our API requests, this setup is not
 tested on Phoenix Channels or websockets. In theory, there will be a minimal
@@ -905,7 +942,32 @@ downtime.
 If you are looking for zero downtime deployment with this method, be sure to do
 your own testing.
 
+### 3. Zero downtime for Database Migration
+
+Zero downtime in your application deployment does not mean you'll have zero
+downtime service. If you have a database migration that lock your whole table,
+you're going to definitely have some downtime _(this would be brief if you have a
+small dataset)_.
+
+So make sure, you understand your system well and the database migration that
+you'll be running. I also recommend this [blog post][3] from Braintree
+regarding safe operations for high volume PostgreSQL if you wish to learn more
+regarding that area.
+
+---
+
+Key takeaway here is, it's important to understand different parts of your
+systems and how they affect each other. While blue green deployment ensure
+minimal downtime for your application process, there are still other subsystems
+in your system that will caused your service down.
+
+More importantly, it's to understand what do your users of your system care
+about. Even [Google doesn't strive for 100% uptime][4].
+
+
 
 [0]: https://www.kimsereylam.com/gitlab/nginx/dotnetcore/ubuntu/2019/01/04/custom-blue-green-deployment-with-nginx-and-gitlab-ci.html
 [1]: https://hexdocs.pm/phoenix/1.3.0-rc.1/phoenix_behind_proxy.html
 [2]: https://hexdocs.pm/phoenix/releases.html#ecto-migrations-and-custom-commands
+[3]: https://www.braintreepayments.com/blog/safe-operations-for-high-volume-postgresql/
+[4]: https://sre.google/sre-book/embracing-risk/
