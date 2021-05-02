@@ -52,20 +52,20 @@ Instead, we can utilize the functionality of `Vue.js`, by using `v-for` and `v-o
 
 1. Declare a counter
 
-- We first declare a data `count` with the initial value of 1.
+  - We first declare a data `count` with the initial value of 1.
 
 2. Use `v-for` to generate components
 
-- In our `template` tag, We loop through the component with `v-for="index in count"`.
-- With the `v-for` shorthands, `vue` will generate from `count` times of the component. In this case, `count` act like range. For more detailed explanation, refer to the official documetation: [v-for with a Range](https://vuejs.org/v2/guide/list.html#v-for-with-a-Range){:target="\_blank"}).
+  - In our `template` tag, We loop through the component with `v-for="index in count"`.
+  - With the `v-for` shorthands, `vue` will generate from `count` times of the component. In this case, `count` act like range. For more detailed explanation, refer to the official documetation: [v-for with a Range](https://vuejs.org/v2/guide/list.html#v-for-with-a-Range){:target="\_blank"}).
 
 3. Button to increase `count`
 
-- Then we create a `Add` button that execute `addComponent` on click. The `addComponent` method is fairly straightforward, just increase the `count` by 1.
-- When the user click the `Add` button, the `count` will be increased by 1, thus cause `Vue.js` to render additional component in our view.
+  - Then we create a `Add` button that execute `addComponent` on click. The `addComponent` method is fairly straightforward, just increase the `count` by 1.
+  - When the user click the `Add` button, the `count` will be increased by 1, thus cause `Vue.js` to render additional component in our view.
 
 ### Conclusion
 
 With the combination of, `count` act as counter. `v-for` to generate the components, and `addComponent` method to increase the `count`, we are able to render new component into our view when the user click the button.
 
-P.S. The solution is inspired by this [forum post](https://forum-archive.vuejs.org/topic/747/clone-component-when-click-add-more/3){:target="\_blank"}
+P.S. The solution is inspired by this [forum post](https://forum-archive.vuejs.org/topic/747/clone-component-when-click-add-more/3)
