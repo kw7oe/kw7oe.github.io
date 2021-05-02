@@ -310,7 +310,7 @@ the details behind.</p>
 
 <h2 id="solution">Solution</h2>
 
-<p><strong>1. Fixing our cookie</strong></p>
+<h3 id="1-fixing-our-cookie">1. Fixing our cookie</h3>
 
 <p>The first thing we need to resolve is to ensure that every time we start our
 release, the same cookie is used. Fortunately, this can be easily done by using
@@ -339,7 +339,7 @@ it would be placing it in my local <code>.env.production</code> file:</p>
 as my environment variable file <code>.env</code>:</p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># scp &lt;source&gt; &lt;host&gt;:&lt;destination&gt;</span>
 scp .env.production <span class="nv">$HOST</span>:~/<span class="nv">$APP_NAME</span>/.env</code></pre></div>
-<p><strong>2. Add script to deploy new release</strong></p>
+<h3 id="2-add-script-to-deploy-new-release">2. Add script to deploy new release</h3>
 
 <p>The only difference between the
 script for initial release and subsequent release is the part where we start

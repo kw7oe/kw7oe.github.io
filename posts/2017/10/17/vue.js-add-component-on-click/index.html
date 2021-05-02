@@ -112,36 +112,32 @@ Vue.js: Add component on click | kw7oe
   <span class="p">};</span>
 <span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span></code></pre></div>
 <ol>
-<li>Declare a counter</li>
-</ol>
+<li><p>Declare a counter</p>
 
 <ul>
 <li>We first declare a data <code>count</code> with the initial value of 1.</li>
-</ul>
+</ul></li>
 
-<ol>
-<li>Use <code>v-for</code> to generate components</li>
-</ol>
+<li><p>Use <code>v-for</code> to generate components</p>
 
 <ul>
 <li>In our <code>template</code> tag, We loop through the component with <code>v-for=&quot;index in count&quot;</code>.</li>
 <li>With the <code>v-for</code> shorthands, <code>vue</code> will generate from <code>count</code> times of the component. In this case, <code>count</code> act like range. For more detailed explanation, refer to the official documetation: <a href="https://vuejs.org/v2/guide/list.html#v-for-with-a-Range">v-for with a Range</a>{:target=&rdquo;_blank&rdquo;}).</li>
-</ul>
+</ul></li>
 
-<ol>
-<li>Button to increase <code>count</code></li>
-</ol>
+<li><p>Button to increase <code>count</code></p>
 
 <ul>
 <li>Then we create a <code>Add</code> button that execute <code>addComponent</code> on click. The <code>addComponent</code> method is fairly straightforward, just increase the <code>count</code> by 1.</li>
 <li>When the user click the <code>Add</code> button, the <code>count</code> will be increased by 1, thus cause <code>Vue.js</code> to render additional component in our view.</li>
-</ul>
+</ul></li>
+</ol>
 
 <h3 id="conclusion">Conclusion</h3>
 
 <p>With the combination of, <code>count</code> act as counter. <code>v-for</code> to generate the components, and <code>addComponent</code> method to increase the <code>count</code>, we are able to render new component into our view when the user click the button.</p>
 
-<p>P.S. The solution is inspired by this <a href="https://forum-archive.vuejs.org/topic/747/clone-component-when-click-add-more/3">forum post</a>{:target=&rdquo;_blank&rdquo;}</p>
+<p>P.S. The solution is inspired by this <a href="https://forum-archive.vuejs.org/topic/747/clone-component-when-click-add-more/3">forum post</a></p>
 
 </article>
 
