@@ -275,8 +275,7 @@ Building the release and getting the tarball is the very first step of deploymen
 - Running the release
 - Cleaning up the tar file both in production and local machine _(Optional)_
 
-I'll write up a upcoming post in the future to cover on all these steps in the
-future. Stay tuned.
+which are cover in the [next post]({{< ref "deploying-elixir-phoenix-release-to-production.md" >}}).
 
 <div class="callout callout-info">
   <p>
