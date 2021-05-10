@@ -53,7 +53,7 @@ AWS EC2 Disk Space Full | kw7oe
 <header class="mb-8">
   <h1 class="title">AWS EC2 Disk Space Full</h1>
   <p class="text-sm font-gray-700 mb-1">Mar 16, 2020</p>
-  <p class="text-sm mb-4 font-gray-700 italic">Estimated Reading Time: 8 minutes (1492 words)</p>
+  <p class="text-sm mb-4 font-gray-700 italic">Estimated Reading Time: 8 minutes (1561 words)</p>
 
    
   <div id="tags">
@@ -107,7 +107,13 @@ up most of the space.</p>
 <p>To do this, you&rsquo;ll probably need to have the <code>sudo</code> access. First, run the
 following command:</p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">cd</span> /
-du -ah . <span class="p">|</span> sort -rh <span class="p">|</span> head -20</code></pre></div>
+sudo du -ah . <span class="p">|</span> sort -rh <span class="p">|</span> head -20
+
+<span class="c1"># In rare cases, where your disk is really really full and sort</span>
+<span class="c1"># doesn&#39;t work due to that, you can run the following to</span>
+<span class="c1"># clean up apt-get cache. Alternatively, you can remove certain</span>
+<span class="c1"># files/folders that you are sure unused.</span>
+sudo apt-get clean</code></pre></div>
 <p>Let&rsquo;s have a quick breakdown on what the commands above are doing:</p>
 
 <ul>
@@ -116,6 +122,8 @@ du -ah . <span class="p">|</span> sort -rh <span class="p">|</span> head -20</co
 <li><code>sort -rh</code> sort the result in the reverse order (<code>-r</code>) by comparing
 human readable numbers, e.g., 2K 1G (<code>-h</code>)</li>
 <li><code>head -20</code> basically take the top 20 results of the sorted list.</li>
+<li><code>sudo apt-get clean</code> to clean up apt package cache if the above command can&rsquo;t
+be run due to disk space being too full.</li>
 </ul>
 
 <p>After running this, you might see something like:</p>
