@@ -75,8 +75,8 @@ Let's setup our nginx as above.
 
 ## Blue Nginx Configuration
 
-Let's start by writing our blue _(also our initial one)_ nginx configuration file
-_([as refer from Phoenix Documentation][1])_ and placed it
+Let's start by writing our blue _(also our initial)_ nginx configuration file
+_([refer from Phoenix Documentation][1])_ and placed it
 under `/etc/nginx/sites-available/blue`:
 
 ```nginx
@@ -141,7 +141,7 @@ proceed to setup the green version next!
   <p class="font-bold">I don't own domain.app. How can I curl that?</p>
 
   <p>
-    To do that, it is as simple as modifying your <code>/etc/hosts</code> file
+    To do that, you can modify your <code>/etc/hosts</code> file
     in your local machine. <em>(Or any equivalent file/configuration in
     Windows)</em>
   </p>
@@ -238,6 +238,18 @@ That's because we
 haven't run any copy of our application on port `5000` yet as specified in
 our `nginx` configuration.
 
+Let's revert our changes here by promoting our blue
+version to live at this moment first:
+
+```bash
+sudo ln -sf /etc/nginx/sites-available/blue /etc/nginx/sites-enabled/domain.app
+sudo systemctl reload nginx
+```
+
+We will be [promoting our green version to
+live](#promoting-our-green-version-to-live) after we run the green copy of
+our application successfully.
+
 <div class="callout callout-info">
   <p class="font-bold">Getting Not Found</p>
 
@@ -260,9 +272,9 @@ got:
 
 ```bash
 if [ "$deploy_version" = "blue" ]; then
-  ssh $HOST "export $(cat .env.production | xargs)  && PORT=4000 ~/$APP_NAME/$APP_VSN/bin/$APP_NAME daemon"
+  ssh $HOST "source ~/$APP_NAME/.env && PORT=4000 ~/$APP_NAME/$APP_VSN/bin/$APP_NAME daemon"
 else
-  ssh $HOST "export $(cat .env.production | xargs)  && PORT=5000 ~/$APP_NAME/$APP_VSN/bin/$APP_NAME daemon"
+  ssh $HOST "source ~/$APP_NAME/.env && PORT=5000 ~/$APP_NAME/$APP_VSN/bin/$APP_NAME daemon"
 fi
 ```
 
@@ -310,10 +322,10 @@ Protocol 'inet_tcp': the name <app_name>@<hostname> seems to be in use by anothe
 Seems like it failed to start.
 
 What is this error about? Well everytime, our release is started, a default
-node name is actually provided according on our application name. And in a
-single server, you can't have two same release running with the same node name.
+node name is actually provided according to our application name. Furthermore, in a
+single server, we can't have two same release running with the same node name.
 
-You can replicate the above behaviour very easily in your local machine by
+You can replicate the above behaviour easily in your local machine by
 running the following in two different terminals:
 
 ```bash
@@ -344,7 +356,7 @@ $ source .env && PORT=5000 RELEASE_NODE=green <app_version>/bin/<app_name> start
 15:46:40.450 [info] Access Web.Endpoint at http://example.com
 ```
 
-## Bash Script for deploying multiple Elixir releases
+## Bash script for deploying multiple Elixir releases
 
 At this point, this is how our `./deploy.sh` script looks like:
 
@@ -523,7 +535,7 @@ Let's assume we have released both version `0.1.0` as `blue` and `0.1.1` as
 $ ~/app_name/0.1.0/bin/app_name eval 'AppName.Release.migrate()'
 ```
 
-Pretty straightforward. For the latest `0.1.1` version,
+For the latest `0.1.1` version,
 to run the migration is also the same as above:
 
 ```bash
@@ -539,7 +551,7 @@ Now, let's say that we want to run a remote console on our `0.1.0` deployed as
 $ ~/app_name/0.1.0/bin/app_name remote
 ```
 
-Pretty straightforward. However, if we want to do the same For the `0.1.1` version deployed as `green`,
+However, if we want to do the same For the `0.1.1` version deployed as `green`,
 the following will not work as expected
 
 ```bash
@@ -557,13 +569,14 @@ Could not contact remote node app_name@hostname, reason: :nodedown. Aborting...
 Remember when we spin up our second copy and we specify `RELEASE_NODE=green`?
 It's because of that.
 
-To resolve it, we need to specify our node name explicitly again as follow:
+To resolve it, we need to specify our node name explicitly again when running
+the command:
 
 ```bash
 RELEASE_NODE=green ~/app_name/0.1.1/bin/app_name remote
 ```
 
-And voila, you are in again!
+And voila, it works!
 
 ### Why `eval` works without additional environment configuration?
 
@@ -616,7 +629,7 @@ Sounds straightforward right? However, it's not without its own problem.
 ## What are the current version running for blue/green version?
 Since, we might have 2 application _(with different version)_ running on our
 server, we cannot just extract our release into `$APP_NAME` format as
-before.
+[before]({{< ref "deploying-elixir-phoenix-release-to-production.md#steps-for-initial-release" >}}).
 
 Instead, we need to extract the release for different version to different
 folder in this format `$APP_NAME/$APP_VSN`:
@@ -637,13 +650,13 @@ With this changes, we can stop the running application with:
 ssh $HOST "~/$APP_NAME/$version/bin/$APP_NAME stop"
 ```
 
-However, it's not as straightforward as it seems. We need to know the current
-version running for our blue/green version of our application.
+However, it's not as straightforward as it seems. We still need
+to know the current blue/green version our applications are running.
 
 ## Solution
 
-To resolve this, is to store our last deployed blue/green version
-somewhere else every time we deploy. There are two ways we can get the version
+To resolve this, we need to get our last deployed blue/green version from
+somewhere every time we deploy. There are two ways we can get the version
 data:
 
 - Expose a API endpoint `/version` to return the running version.
@@ -656,7 +669,6 @@ We can extract our blue/green running version in our bash script by doing
 something like:
 
 ```ruby
-# ignore my shitty code here, just a pseudocode for proof of concept
 if live_version == "blue" do
   curl "localhost:5000/version"
 else
@@ -664,12 +676,10 @@ else
 end
 ```
 
-We would also need to handle cases where none of blue/green version is deployed before. This can be quite tricky to write in bash script.
+We would need to handle cases where none of blue/green version is deployed before. This can be quite tricky to write in bash.
 
-Technically, I think is still possible to solve it with:
-
-- if the connection to the server failed, we skip the stopping
-  phase.
+Technically, I think is still possible to solve it with, _"if the connection to the server failed, we skip the stopping
+  phase"_.
 
 But for now, I'll just leave it to you all if you prefer to do it this way.
 
@@ -685,7 +695,7 @@ echo 1.0.0 > blue_version.txt
 echo 1.0.1 > green_version.txt
 ```
 
-using `>` will overwrite the file instead of appending here.
+We are using `>` to overwrite the file instead of appending it.
 
 Alternatively, you can also write it to a object storage like AWS S3 or Google
 Cloud Storage.
@@ -751,9 +761,9 @@ start_release() {
 
   # Start Release
   if [ "$deploy_version" = "blue" ]; then
-    ssh $HOST "export $(cat .env.production | xargs)  && PORT=4000 ~/$APP_NAME/$APP_VSN/bin/$APP_NAME daemon"
+    ssh $HOST "source ~/$APP_NAME/.env && PORT=4000 ~/$APP_NAME/$APP_VSN/bin/$APP_NAME daemon"
   else
-    ssh $HOST "export $(cat .env.production | xargs)  && PORT=4001 RELEASE_NODE=green ~/$APP_NAME/$APP_VSN/bin/$APP_NAME daemon"
+    ssh $HOST "source ~/$APP_NAME/.env  && PORT=4001 RELEASE_NODE=green ~/$APP_NAME/$APP_VSN/bin/$APP_NAME daemon"
   fi
 
   # Update our version in our version file.
@@ -865,9 +875,9 @@ start_release() {
 
   # Start Release
   if [ "$deploy_version" = "blue" ]; then
-    ssh $HOST "export $(cat .env.production | xargs)  && PORT=4000 ~/$APP_NAME/$APP_VSN/bin/$APP_NAME daemon"
+    ssh $HOST "source ~/$APP_NAME/.env && PORT=4000 ~/$APP_NAME/$APP_VSN/bin/$APP_NAME daemon"
   else
-    ssh $HOST "export $(cat .env.production | xargs)  && PORT=4001 ELIXIR_ERL_OPTIONS='-sname green' ~/$APP_NAME/$APP_VSN/bin/$APP_NAME daemon"
+    ssh $HOST "source ~/$APP_NAME/.env && PORT=4001 ELIXIR_ERL_OPTIONS='-sname green' ~/$APP_NAME/$APP_VSN/bin/$APP_NAME daemon"
   fi
 
   # Update our version in our version file.
@@ -920,8 +930,8 @@ drawbacks that one need to be aware of.
 
 ### 1. Multiple Nodes
 
-When you scale beyond a single node, while it could still work, it becomes
-quite tricky to manage. In theory, you can just loop through and execute the
+When you scale beyond a single node, while it could work, it becomes
+tricky to manage. In theory, you can just loop through and execute the
 script separately _(or together)_. But it becomes tricky when you consider the
 possibilities with multiple servers:
 
@@ -952,14 +962,14 @@ small dataset)_.
 So make sure, you understand your system well and the database migration that
 you'll be running. I also recommend this [blog post][3] from Braintree
 regarding safe operations for high volume PostgreSQL if you wish to learn more
-regarding that area.
+regarding this area.
 
 ---
 
 Key takeaway here is, it's important to understand different parts of your
 systems and how they affect each other. While blue green deployment ensure
 minimal downtime for your application process, there are still other subsystems
-in your system that will caused your service down.
+in your system that will cause your service downtime.
 
 More importantly, it's to understand what do your users of your system care
 about. Even [Google doesn't strive for 100% uptime][4].
