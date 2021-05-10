@@ -34,7 +34,13 @@ following command:
 
 ```bash
 cd /
-du -ah . | sort -rh | head -20
+sudo du -ah . | sort -rh | head -20
+
+# In rare cases, where your disk is really really full and sort
+# doesn't work due to that, you can run the following to
+# clean up apt-get cache. Alternatively, you can remove certain
+# files/folders that you are sure unused.
+sudo apt-get clean
 ```
 
 Let's have a quick breakdown on what the commands above are doing:
@@ -44,6 +50,8 @@ Let's have a quick breakdown on what the commands above are doing:
 - `sort -rh` sort the result in the reverse order (`-r`) by comparing
   human readable numbers, e.g., 2K 1G (`-h`)
 - `head -20` basically take the top 20 results of the sorted list.
+- `sudo apt-get clean` to clean up apt package cache if the above command can't
+  be run due to disk space being too full.
 
 
 After running this, you might see something like:
