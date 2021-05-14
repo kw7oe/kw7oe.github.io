@@ -44,7 +44,9 @@ cater the needs to make blue green deployment happen)_.
 
 While writing this post, I have gone through a few iteration to setting up and
 down with Vagrant. So if you are interested to follow along with it or
-experiment it locally, you can use the following example repository.
+experiment it locally, you can use the
+[repository][5].
+
 
 The README in the repository will contain more details on the required setup
 to follow along in this article.
@@ -515,7 +517,7 @@ Assuming you have follow the [guide to setup ecto migration][2] on the official 
 you should be able to run migration by running the following comamnd:
 
 ```bash
-$ ~/$APP_NAME/$version/bin/$APP_NAME eval 'AppName.Release.migrate()'
+$ source ~/$APP_NAME/.env && ~/$APP_NAME/$version/bin/$APP_NAME eval 'AppName.Release.migrate()'
 ```
 
 similarly, to run the remote console is just as simple as:
@@ -524,7 +526,10 @@ similarly, to run the remote console is just as simple as:
 $ ~/$APP_NAME/$version/bin/$APP_NAME remote
 ```
 
-More details and edge cases will be cover below.
+Notice that we don't need to `source .env` while running `remote` command
+because it is  connecting to our running process.
+
+More details will be cover below.
 
 ## Running migration
 
@@ -532,14 +537,38 @@ Let's assume we have released both version `0.1.0` as `blue` and `0.1.1` as
 `green`. To run migration for the `0.1.0` release, it's the same as usual:
 
 ```bash
-$ ~/app_name/0.1.0/bin/app_name eval 'AppName.Release.migrate()'
+$ source ~/app_name/.env && ~/app_name/0.1.0/bin/app_name eval 'AppName.Release.migrate()'
 ```
 
 For the latest `0.1.1` version,
 to run the migration is also the same as above:
 
 ```bash
-$ ~/app_name/0.1.1/bin/app_name eval 'AppName.Release.migrate()'
+$ source ~/app_name/.env && ~/app_name/0.1.1/bin/app_name eval 'AppName.Release.migrate()'
+```
+
+To simplify things, we can write a bash script to do this:
+
+```bash
+migrate() {
+  if [ -z "$1" ]; then
+    bold_echo "Setting blue green version to $LIVE_VERSION since none specified."
+    blue_green_version=$LIVE_VERSION
+  else
+    bold_echo "Setting blue green version to $1"
+    blue_green_version=$1
+  fi
+
+  version=$(cat $blue_green_version)
+  bold_echo "Running migration for database for release $version..."
+
+  if [ "$blue_green_version" = "blue" ]; then
+    env="source ~/$APP_NAME/.env && PORT=4000 "
+  else
+    env="source ~/$APP_NAME/.env && RELEASE_NODE=green PORT=5000 "
+  fi
+
+  ssh $HOST "$env ~/$APP_NAME/$version/bin/$APP_NAME eval 'MyApp.Release.migrate()'"
 ```
 
 ## Running remote console
@@ -602,6 +631,9 @@ The known commands are:
 
 Hence, unlike `remote` command that connected to our running system, `eval` is
 not affected as it run on a whole new system.
+
+That also explain why we need to `source .env` for `eval` because its running
+on another new system.
 
 
 # Deploying new blue and green version
@@ -763,7 +795,7 @@ start_release() {
   if [ "$deploy_version" = "blue" ]; then
     ssh $HOST "source ~/$APP_NAME/.env && PORT=4000 ~/$APP_NAME/$APP_VSN/bin/$APP_NAME daemon"
   else
-    ssh $HOST "source ~/$APP_NAME/.env  && PORT=4001 RELEASE_NODE=green ~/$APP_NAME/$APP_VSN/bin/$APP_NAME daemon"
+    ssh $HOST "source ~/$APP_NAME/.env  && PORT=5000 RELEASE_NODE=green ~/$APP_NAME/$APP_VSN/bin/$APP_NAME daemon"
   fi
 
   # Update our version in our version file.
@@ -801,10 +833,10 @@ bold_echo() {
 
 build_release() {
   bold_echo "Building Docker images..."
-  docker build -t life_app .
+  docker build -t $APP_NAME .
 
   bold_echo "Extracting release tar file..."
-  ID=$(docker create life_app)
+  ID=$(docker create $APP_NAME)
   docker cp "$ID:/app/$TAR_FILENAME" .
   docker rm "$ID"
 }
@@ -877,7 +909,7 @@ start_release() {
   if [ "$deploy_version" = "blue" ]; then
     ssh $HOST "source ~/$APP_NAME/.env && PORT=4000 ~/$APP_NAME/$APP_VSN/bin/$APP_NAME daemon"
   else
-    ssh $HOST "source ~/$APP_NAME/.env && PORT=4001 ELIXIR_ERL_OPTIONS='-sname green' ~/$APP_NAME/$APP_VSN/bin/$APP_NAME daemon"
+    ssh $HOST "source ~/$APP_NAME/.env && PORT=5000 ELIXIR_ERL_OPTIONS='-sname green' ~/$APP_NAME/$APP_VSN/bin/$APP_NAME daemon"
   fi
 
   # Update our version in our version file.
@@ -887,7 +919,7 @@ start_release() {
 }
 
 promote() {
-  LIVE_VERSION=$(curl -s -w "\n" "$DOMAIN.domain/deployment_id")
+  LIVE_VERSION=$(curl -s -w "\n" "$DOMAIN/deployment_id")
 
   bold_echo "Attempting to promote to $1..."
   if [ "$LIVE_VERSION" = "$1" ]; then
@@ -928,7 +960,17 @@ fi
 While this blue green deployment works for our simple use case, there are a few
 drawbacks that one need to be aware of.
 
-### 1. Multiple Nodes
+### 1. Every new deployment need to have their version bump.
+
+Since when we deploy, we are extracting the tar release and overriding the
+version folder, everytime we deploy a new code, we need to bump our version so
+that older version code _(that might be running)_ won't get replaced.
+
+If you forget to bump your version when deploying new code, weird things might
+happen. I haven't find out the possible consequences yet, but will probably
+update it here once I have a clearer idea.
+
+### 2. Multiple Nodes
 
 When you scale beyond a single node, while it could work, it becomes
 tricky to manage. In theory, you can just loop through and execute the
@@ -943,7 +985,7 @@ possibilities with multiple servers:
 
 As your needs grow, it will feel like you are reinventing the wheels.
 
-### 2. Zero downtime for Phoenix Channels
+### 3. Zero downtime for Phoenix Channels
 
 While we might have zero downtime for our API requests, this setup is not
 tested on Phoenix Channels or websockets. In theory, there will be a minimal
@@ -952,7 +994,7 @@ downtime.
 If you are looking for zero downtime deployment with this method, be sure to do
 your own testing.
 
-### 3. Zero downtime for Database Migration
+### 4. Zero downtime for Database Migration
 
 Zero downtime in your application deployment does not mean you'll have zero
 downtime service. If you have a database migration that lock your whole table,
@@ -981,3 +1023,4 @@ about. Even [Google doesn't strive for 100% uptime][4].
 [2]: https://hexdocs.pm/phoenix/releases.html#ecto-migrations-and-custom-commands
 [3]: https://www.braintreepayments.com/blog/safe-operations-for-high-volume-postgresql/
 [4]: https://sre.google/sre-book/embracing-risk/
+[5]: https://github.com/kw7oe/phoenix-bg-sample-app
