@@ -1,5 +1,8 @@
 /* Tailwind base - put variables under: tailwind.config.js */
+/* purgecss start ignore */
 @import "node_modules/tailwindcss/base";
+/* purgecss end ignore */
+
 /* Tailwind component classes registered by plugins*/
 @import "node_modules/tailwindcss/components";
 /* Site Specific */
