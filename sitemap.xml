@@ -3,6 +3,41 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://kaiwern.com/posts/2021/05/15/blue-green-deployment-with-nginx-for-elixir-phoenix-release/</loc>
+    <lastmod>2021-05-15T19:30:41+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kaiwern.com/tags/deployment/</loc>
+    <lastmod>2021-05-15T19:30:41+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kaiwern.com/tags/elixir/</loc>
+    <lastmod>2021-05-15T19:30:41+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kaiwern.com/tags/nginx/</loc>
+    <lastmod>2021-05-15T19:30:41+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kaiwern.com/tags/phoenix/</loc>
+    <lastmod>2021-05-15T19:30:41+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kaiwern.com/posts/</loc>
+    <lastmod>2021-05-15T19:30:41+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kaiwern.com/tags/</loc>
+    <lastmod>2021-05-15T19:30:41+08:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://kaiwern.com/categories/</loc>
     <lastmod>2021-03-23T22:54:52+08:00</lastmod>
   </url>
@@ -18,11 +53,6 @@
   </url>
   
   <url>
-    <loc>https://kaiwern.com/posts/</loc>
-    <lastmod>2021-03-23T22:54:52+08:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://kaiwern.com/posts/2021/01/19/2020-in-review/</loc>
     <lastmod>2021-01-19T22:33:41+08:00</lastmod>
   </url>
@@ -34,16 +64,6 @@
   
   <url>
     <loc>https://kaiwern.com/posts/2020/11/02/debugging-with-tracing-in-elixir/</loc>
-    <lastmod>2020-11-02T20:45:48+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://kaiwern.com/tags/elixir/</loc>
-    <lastmod>2020-11-02T20:45:48+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://kaiwern.com/tags/</loc>
     <lastmod>2020-11-02T20:45:48+08:00</lastmod>
   </url>
   
@@ -64,16 +84,6 @@
   
   <url>
     <loc>https://kaiwern.com/posts/2020/07/20/deploying-elixir/phoenix-release-to-production/</loc>
-    <lastmod>2020-07-20T20:09:01+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://kaiwern.com/tags/deployment/</loc>
-    <lastmod>2020-07-20T20:09:01+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://kaiwern.com/tags/phoenix/</loc>
     <lastmod>2020-07-20T20:09:01+08:00</lastmod>
   </url>
   

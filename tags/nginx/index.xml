@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>nginx on kw7oe</title>
+    <link>https://kaiwern.com/tags/nginx/</link>
+    <description>Recent content in nginx on kw7oe</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 15 May 2021 19:30:41 +0800</lastBuildDate>
+    
+	<atom:link href="https://kaiwern.com/tags/nginx/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Blue Green Deployment with Nginx for Elixir/Phoenix Release</title>
+      <link>https://kaiwern.com/posts/2021/05/15/blue-green-deployment-with-nginx-for-elixir-phoenix-release/</link>
+      <pubDate>Sat, 15 May 2021 19:30:41 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2021/05/15/blue-green-deployment-with-nginx-for-elixir-phoenix-release/</guid>
+      <description>In this post today, I&amp;rsquo;ll share about how I setup blue green deployment for my Phoenix application using nginx running on a single machine. This post is made possible thanks to this article about Custom Blue Green Deployment with Nginx And Gitlab CI.
+The core idea to make blue green deployment possible for Elixir releases with nginx is through:</description>
+    </item>
+    
+  </channel>
+</rss>
