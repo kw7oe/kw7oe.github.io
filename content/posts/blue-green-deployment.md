@@ -26,6 +26,18 @@ _While this article is written specifically for Elixir/Phoenix deployment,
 similar approach and scripts can apply for any web application running behind
 nginx to achieve blue green deployment._
 
+## Table of Content
+
+- [Prerequisite](#prerequisite)
+- [Following Along](#following-along)
+- [Setting Up `nginx`](#setting-up-nginx)
+- [Running two copies of our apllication](#running-two-copies-of-our-application)
+- [Promoting our green version to live](#promoting-our-green-version-to-live)
+- [Running migration and console](#running-migration-and-console)
+- [Deploying new blue and green version](#deploying-new-blue-and-green-version)
+- [Glue it all together](#glue-it-all-together)
+- [Wrap Up](#wrap-up)
+
 ## Prerequisite
 
 Before we begin, this post assume you know how to:
@@ -39,18 +51,15 @@ previous blog posts about [building]({{< ref "building-phoenix-release-with-dock
 "deploying-elixir-phoenix-release-to-production.md" >}}) _(with some changes to
 cater the needs to make blue green deployment happen)_.
 
-
 ## Following Along
 
 While writing this post, I have gone through a few iteration to setting up and
-down with Vagrant. So if you are interested to follow along with it or
+down the environment with Vagrant. So if you are interested to follow along with it or
 experiment it locally, you can use the
 [repository][5].
 
-
 The README in the repository will contain more details on the required setup
 to follow along in this article.
-
 
 # Setting Up `nginx`
 
@@ -61,7 +70,7 @@ start with understanding how `nginx` can help us with that.
 ![Blue Green Deployment with nginx architecture
 diagram](/images/nginx-bg-deployment.png)
 
-<figcaption class="text-center italic mb-4">Using nginx for Blue Green Deployment</figcaption>
+<figcaption class="mb-4 italic text-center">Using nginx for Blue Green Deployment</figcaption>
 
 Basically:
 
@@ -551,24 +560,33 @@ To simplify things, we can write a bash script to do this:
 
 ```bash
 migrate() {
+  LIVE_VERSION=$(curl -s -w "\n" "$DOMAIN/deployment_id")
+
   if [ -z "$1" ]; then
     bold_echo "Setting blue green version to $LIVE_VERSION since none specified."
-    blue_green_version=$LIVE_VERSION
+    deploy_version=$LIVE_VERSION
   else
     bold_echo "Setting blue green version to $1"
-    blue_green_version=$1
+    deploy_version=$1
   fi
 
-  version=$(cat $blue_green_version)
+  if [ "$deploy_version" = "green" ]; then
+    version_file="green_version.txt"
+    env="source ~/$APP_NAME/.env && RELEASE_NODE=green PORT=5000 "
+  else
+    env="source ~/$APP_NAME/.env && PORT=4000 "
+    version_file="blue_version.txt"
+  fi
+
+  version=$(cat $version_file)
   bold_echo "Running migration for database for release $version..."
 
-  if [ "$blue_green_version" = "blue" ]; then
-    env="source ~/$APP_NAME/.env && PORT=4000 "
-  else
-    env="source ~/$APP_NAME/.env && RELEASE_NODE=green PORT=5000 "
-  fi
+  ssh $HOST "$env ~/$APP_NAME/$version/bin/$APP_NAME eval 'AppName.Release.migrate()'"
+}
 
-  ssh $HOST "$env ~/$APP_NAME/$version/bin/$APP_NAME eval 'MyApp.Release.migrate()'"
+if [ "$1" = "migrate" ]; then
+  migrate "$2"
+fi
 ```
 
 ## Running remote console
@@ -805,7 +823,7 @@ start_release() {
 }
 ```
 
-# Glue it all together with script
+# Glue it all together
 
 Finally, the outcome of it is as follow:
 
@@ -942,12 +960,39 @@ clean_up() {
   rm "$APP_NAME-"*.tar.gz
 }
 
+migrate() {
+  LIVE_VERSION=$(curl -s -w "\n" "$DOMAIN/deployment_id")
+
+  if [ -z "$1" ]; then
+    bold_echo "Setting blue green version to $LIVE_VERSION since none specified."
+    deploy_version=$LIVE_VERSION
+  else
+    bold_echo "Setting blue green version to $1"
+    deploy_version=$1
+  fi
+
+  if [ "$deploy_version" = "green" ]; then
+    version_file="green_version.txt"
+    env="source ~/$APP_NAME/.env && RELEASE_NODE=green PORT=5000 "
+  else
+    env="source ~/$APP_NAME/.env && PORT=4000 "
+    version_file="blue_version.txt"
+  fi
+
+  version=$(cat $version_file)
+  bold_echo "Running migration for database for release $version..."
+
+  ssh $HOST "$env ~/$APP_NAME/$version/bin/$APP_NAME eval 'AppName.Release.migrate()'"
+}
+
 if [ "$1" = "build" ]; then
   build_release
 elif [ "$1" = "start" ]; then
   start_release
 elif [ "$1" = "promote" ]; then
   promote "$2"
+elif [ "$1" = "migrate" ]; then
+  migrate "$2"
 else
   build_release
   deploy_release
@@ -1015,7 +1060,6 @@ in your system that will cause your service downtime.
 
 More importantly, it's to understand what do your users of your system care
 about. Even [Google doesn't strive for 100% uptime][4].
-
 
 
 [0]: https://www.kimsereylam.com/gitlab/nginx/dotnetcore/ubuntu/2019/01/04/custom-blue-green-deployment-with-nginx-and-gitlab-ci.html
