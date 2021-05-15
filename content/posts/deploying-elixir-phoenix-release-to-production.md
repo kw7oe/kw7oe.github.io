@@ -500,8 +500,13 @@ projects, I found it to be sufficient as I only have a single production server
 and I am the only one who deployed it.
 
 But is that all for my deployment process for Elixir/Phoenix release? Of
-course not! The next one I would share in the future  would be deploying our
-release using Blue Green Deployment strategy with `nginx`. So do stay tuned!
+course not! ~~The next one I would share in the future  would be deploying our
+release using Blue Green Deployment strategy with `nginx`. So do stay tuned!~~
+
+_Update (15 May 2021): I have finally completed my writing on deploying
+Elixir/Phoenix release using Blue Green Deployment with Nginx. If you are
+interested, continue to [read it here]({{< ref
+"blue-green-deployment.md" >}})._
 
 [1]: https://askubuntu.com/questions/25347/what-command-do-i-need-to-unzip-extract-a-tar-gz-file
 [2]: https://erlang.org/doc/reference_manual/distributed.html

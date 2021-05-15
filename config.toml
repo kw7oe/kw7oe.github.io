@@ -9,7 +9,7 @@ pygmentsCodeFences = true
 summaryLength = 50
 
 [permalinks]
-posts = "/:sections/:year/:month/:day/:title/"
+posts = "/:sections/:year/:month/:day/:slug/"
 
 [markup]
   [markup.goldmark]
