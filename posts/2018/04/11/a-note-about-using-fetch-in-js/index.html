@@ -7,11 +7,11 @@ A note about using &#39;fetch&#39; in JS | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.58.3" />
+<meta name="generator" content="Hugo 0.83.1" />
 
 
     
-    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.ae808e0d5578f73e14219baf9b24d430658b5a84b80857ae04cd82aca4e34c7b.css" integrity="sha256-roCODVV49z4UIZuvmyTUMGWLWoS4CFeuBM2CrKTjTHs=">
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.483f2b7fe73b5eb560f77c41f26a28e5cf4c7dad0435ae9ae9021897b810e8c4.css" integrity="sha256-SD8rf&#43;c7XrVg93xB8moo5c9Mfa0ENa6a6QIYl7gQ6MQ=">
     <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -71,33 +71,23 @@ A note about using &#39;fetch&#39; in JS | kw7oe
 <article class="markdown mb-8 text-gray-800">
   
 
-  
-
-<p>Another story about fixing bug. This story is related to the native web
+  <p>Another story about fixing bug. This story is related to the native web
 API <code>fetch</code>, which is used to make request.</p>
-
 <h3 id="backstory">Backstory</h3>
-
 <p>After serveral days of having my first production application online,
 my client inform me that, the application has a bug, <em>again</em>.
 The button was not working as expected for one of the users.
 Long story short, we found out that the bug occurs in iOS 10.2.1.
 So, I downloaded the Simulator for iOS 10.2 to start debugging.</p>
-
 <h3 id="issue">Issue</h3>
-
 <p>It turns out that <code>fetch</code> is not supported in iOS 10.2. In this
 case, I can:</p>
-
 <ul>
 <li>replace <code>fetch</code> with <code>axios</code></li>
 <li>use <code>fetch</code> polyfill</li>
 </ul>
-
 <p>to solve the issue.</p>
-
 <h3 id="lesson-learned">Lesson Learned</h3>
-
 <ol>
 <li><code>fetch</code> is not supported for iOS 10.2 and below.</li>
 <li>How to debug a web application using Simulator.</li>

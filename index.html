@@ -9,11 +9,11 @@ Home | kw7oe
 
 <meta name="author" content="Choong Kai Wern" />
 
-<meta name="generator" content="Hugo 0.58.3" />
+<meta name="generator" content="Hugo 0.83.1" />
 
 
     
-    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.ae808e0d5578f73e14219baf9b24d430658b5a84b80857ae04cd82aca4e34c7b.css" integrity="sha256-roCODVV49z4UIZuvmyTUMGWLWoS4CFeuBM2CrKTjTHs=">
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.483f2b7fe73b5eb560f77c41f26a28e5cf4c7dad0435ae9ae9021897b810e8c4.css" integrity="sha256-SD8rf&#43;c7XrVg93xB8moo5c9Mfa0ENa6a6QIYl7gQ6MQ=">
     <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -208,6 +208,7 @@ In my previous post &ldquo;Building Elixir/Phoenix Release With Docker&rdquo;, I
 
     <p class="text-lg leading-relaxed mb-8">
     This is a short post about how I build my Elixir/Phoenix releases with Docker and extract the tarball that will be deployed to production. In this approach, we are just building the release with Docker. We are not building the image to run our application in a Docker container.
+This post assume that you have the basic knowledge of Docker, building Elixir release and using Elixir 1.
     </p>
 
     
@@ -301,7 +302,7 @@ Sometimes, if our engineers are unlucky, their build process will failed because
     <p class="text-lg leading-relaxed mb-8">
     While migrating this website from Jekyll of Hugo, I faced an issue where my /tags resulting in a 404 Not Found after deployment. It turned out that /tags is ignored by git when I build my site.
 I then found out the following line in my ~/.gitignore_global:
-tags  This is the file that I ignore after start using ctags in vim.
+tags This is the file that I ignore after start using ctags in vim.
     </p>
 
     
@@ -348,7 +349,7 @@ At the time of writing this blog post, there is no native binding of Tesseract O
 
     <p class="text-lg leading-relaxed mb-8">
     TLDR: Use Phoenix.Controller.send_download/3 to send binary as download to your users.
-In Phoenix, there are a couple ways of to send file to your users. The most straightforward one is to programmatically create a file and send it to user using Plug.Conn.send_file/5.
+ In Phoenix, there are a couple ways of to send file to your users. The most straightforward one is to programmatically create a file and send it to user using Plug.Conn.send_file/5.
 For example:
 def export(conn, _params) do # Create file filename = &#34;test.
     </p>
@@ -397,7 +398,7 @@ Keeping track of tasks in all of your side projects isn&rsquo;t easy without usi
     <p class="text-lg leading-relaxed mb-8">
     Oracle database does not index a row if all the indexed columns are NULL
 For instance, let say we have a users table where we index role column to improve the query performance.
-SELECT * from users WHERE role IS NULL The index does not work for such query in Oracle database.
+SELECT*fromusersWHEREroleISNULLThe index does not work for such query in Oracle database. This is because when Oracle database is inserting the new record of user where the role is NULL, it does not add the created row to the index.
     </p>
 
     
@@ -490,6 +491,7 @@ While developing web applications, there will be static pages such as about page
     <p class="text-lg leading-relaxed mb-8">
     It is interesting to learn things from scratch. Coming from Ruby background, I was curious what is the equivalent of Sinatra in Elixir. It&rsquo;s called Plug. It is what Phoenix build on top of.
 Using Sinatra, we can write a quick and simple web server with the following code:
+require &#39;sinatra&#39; require &#39;json&#39; get &#39;/&#39; do content_type :json JSON({message: &#34;Hello World&#34;}) end How can we achive that in Elixir?
     </p>
 
     
@@ -626,7 +628,7 @@ I go ahead, and make the changes.
     </div>
 
     <p class="text-lg leading-relaxed mb-8">
-    For the past months, I have started to use vim in some occasions. One day, I came across a vim video, &ldquo;Let Vim Do the Typing&rdquo;{:target=&rdquo;_blank&rdquo;}, and discover the use of register in vim. Basically, the concept of register in vim is very similar to the register in our computer.
+    For the past months, I have started to use vim in some occasions. One day, I came across a vim video, &ldquo;Let Vim Do the Typing&rdquo;{:target=&quot;_blank&quot;}, and discover the use of register in vim. Basically, the concept of register in vim is very similar to the register in our computer. It is a temporary memory space for vim to store text.
     </p>
 
     

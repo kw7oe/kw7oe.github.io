@@ -7,11 +7,11 @@ Ignoring file instead of folder with the same name in .gitignore | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.58.3" />
+<meta name="generator" content="Hugo 0.83.1" />
 
 
     
-    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.ae808e0d5578f73e14219baf9b24d430658b5a84b80857ae04cd82aca4e34c7b.css" integrity="sha256-roCODVV49z4UIZuvmyTUMGWLWoS4CFeuBM2CrKTjTHs=">
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.483f2b7fe73b5eb560f77c41f26a28e5cf4c7dad0435ae9ae9021897b810e8c4.css" integrity="sha256-SD8rf&#43;c7XrVg93xB8moo5c9Mfa0ENa6a6QIYl7gQ6MQ=">
     <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -74,25 +74,17 @@ Ignoring file instead of folder with the same name in .gitignore | kw7oe
   <p>While migrating this website from Jekyll of Hugo, I faced an issue where my
 <code>/tags</code> resulting in a <code>404 Not Found</code> after deployment. It turned out that
 <code>/tags</code> is ignored by <code>git</code> when I build my site.</p>
-
 <p>I then found out the following line in my <code>~/.gitignore_global</code>:</p>
-
 <pre><code>tags
-</code></pre>
-
-<p>This is the file that I ignore after start using <code>ctags</code> in <code>vim</code>. Knowing the
+</code></pre><p>This is the file that I ignore after start using <code>ctags</code> in <code>vim</code>. Knowing the
 root cause, I knew that I&rsquo;ll need to only ignore <code>tags</code> file and not <code>tags</code>
 directory.</p>
-
 <p>A quick google search regarding how to do this lead me to this
 <a href="https://stackoverflow.com/questions/49420785/git-ignore-file-but-not-folder-with-the-same-name">stackoverflow</a>, where the solution is changing my <code>~/.gitignore_global</code> as
 shown below:</p>
-
 <pre><code>tags
 !tags/
-</code></pre>
-
-<p>Basically, this is how we tell <code>git</code> to ignore <code>tags</code> file only and <strong>not to ignore</strong>
+</code></pre><p>Basically, this is how we tell <code>git</code> to ignore <code>tags</code> file only and <strong>not to ignore</strong>
 <code>tags/</code> folder.</p>
 
 </article>

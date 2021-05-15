@@ -7,11 +7,11 @@ Advent of Code 2018: Day 1 Part 1 | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.58.3" />
+<meta name="generator" content="Hugo 0.83.1" />
 
 
     
-    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.ae808e0d5578f73e14219baf9b24d430658b5a84b80857ae04cd82aca4e34c7b.css" integrity="sha256-roCODVV49z4UIZuvmyTUMGWLWoS4CFeuBM2CrKTjTHs=">
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.483f2b7fe73b5eb560f77c41f26a28e5cf4c7dad0435ae9ae9021897b810e8c4.css" integrity="sha256-SD8rf&#43;c7XrVg93xB8moo5c9Mfa0ENa6a6QIYl7gQ6MQ=">
     <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -78,43 +78,28 @@ Advent of Code 2018: Day 1 Part 1 | kw7oe
 <article class="markdown mb-8 text-gray-800">
   
 
-  
-
-<p>Advent of Code (AOC) 2018 has finally arrived. This is the first time I participate
+  <p>Advent of Code (AOC) 2018 has finally arrived. This is the first time I participate
 in AOC. Last year, when I first heard of AOC, I wanted to participate in it.
 But due to heavy workload from university, I just give up on doing it.</p>
-
 <p>This year, it&rsquo;s different, I had graduated and working remotely. Hence, this
 year, I can schedule some time to work on this event. I am going to use
 <code>Elixir</code> to solve the puzzles this year. The codes will be available to
 my <a href="https://github.com/kw7oe/advent-of-code-2018">GitHub repo</a>.</p>
-
 <p>If things go well, I might continue writing down my journey on solving
 the puzzles of AOC 2018.</p>
-
 <p>Without further ado, let&rsquo;s start discussing the <a href="https://adventofcode.com/2018/day/1">puzzles of Day 1</a>.</p>
-
 <h2 id="part-1">Part 1</h2>
-
 <p>Part 1 is straightforward. A list of frequencies will given, and we have to sum up
 the frequencies. For example, from the problem descriptions:</p>
-
 <pre><code>Here are other example situations:
 
     +1, +1, +1 results in  3
     +1, +1, -2 results in  0
     -1, -2, -3 results in -6
-</code></pre>
-
-<p>So, the question of part 1 is:</p>
-
+</code></pre><p>So, the question of part 1 is:</p>
 <pre><code>Starting with a frequency of zero, what is the resulting frequency after all of the changes in frequency have been applied?
-</code></pre>
-
-<p>Straight forward and easy right?</p>
-
+</code></pre><p>Straight forward and easy right?</p>
 <p><strong>So here is the puzzle inputs:</strong></p>
-
 <pre><code>-9
 +7
 +5
@@ -126,10 +111,8 @@ the frequencies. For example, from the problem descriptions:</p>
 -27
 -11
 -75223
-</code></pre>
-
-<p><strong>Solution:</strong></p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">case</span> <span class="nc">File</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&#34;input.txt&#34;</span><span class="p">)</span> <span class="n">do</span>
+</code></pre><p><strong>Solution:</strong></p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="k">case</span> <span class="nc">File</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&#34;input.txt&#34;</span><span class="p">)</span> <span class="k">do</span>
   <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">content</span><span class="p">}</span> <span class="o">-&gt;</span>
     <span class="n">content</span>
     <span class="o">|&gt;</span> <span class="nc">String</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
@@ -137,8 +120,8 @@ the frequencies. For example, from the problem descriptions:</p>
     <span class="o">|&gt;</span> <span class="nc">Enum</span><span class="o">.</span><span class="n">sum</span>
     <span class="o">|&gt;</span> <span class="nc">IO</span><span class="o">.</span><span class="n">inspect</span>
   <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="n">_</span><span class="p">}</span> <span class="o">-&gt;</span> <span class="nc">IO</span><span class="o">.</span><span class="n">puts</span> <span class="s2">&#34;Error opening files&#34;</span>
-<span class="n">end</span></code></pre></div>
-<ol>
+<span class="k">end</span>
+</code></pre></div><ol>
 <li>First, we read in the input from <code>input.txt</code> using <code>File.read/1</code></li>
 <li>Next, we split the content by newline using <code>String.split/1</code>.
 Now, we have a list of string representing the frequency.</li>
@@ -147,21 +130,15 @@ to integer using <code>String.to_integer/1</code>.</li>
 <li>Lastly, we call <code>Enum.sum/2</code> to sum frequencies, which loops through every
 element in the list and add it up.</li>
 </ol>
-
 <p><strong>Performance:</strong>
 It takes around 0.3 seconds to compute the answer.</p>
-
 <pre><code>$ time elixir part-1.ex
 
 real	0m0.350s
 user	0m0.321s
 sys	0m0.155s
-</code></pre>
-
-<p>Day 1 Part 1, Done.</p>
-
-<hr />
-
+</code></pre><p>Day 1 Part 1, Done.</p>
+<hr>
 <p><em>Read Part 2 <a href="/aoc/elixir/2018/12/01/advent-of-code-2018-day-1-part-2.html">here</a>.</em></p>
 
 </article>

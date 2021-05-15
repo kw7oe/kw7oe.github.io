@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>javascript on kw7oe</title>
@@ -6,11 +6,7 @@
     <description>Recent content in javascript on kw7oe</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 11 Apr 2018 22:43:41 +0800</lastBuildDate>
-    
-	<atom:link href="https://kaiwern.com/tags/javascript/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Wed, 11 Apr 2018 22:43:41 +0800</lastBuildDate><atom:link href="https://kaiwern.com/tags/javascript/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>A note about using &#39;fetch&#39; in JS</title>
       <link>https://kaiwern.com/posts/2018/04/11/a-note-about-using-fetch-in-js/</link>

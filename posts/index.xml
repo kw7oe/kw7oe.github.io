@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts on kw7oe</title>
@@ -6,11 +6,7 @@
     <description>Recent content in Posts on kw7oe</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 15 May 2021 19:30:41 +0800</lastBuildDate>
-    
-	<atom:link href="https://kaiwern.com/posts/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Sat, 15 May 2021 19:30:41 +0800</lastBuildDate><atom:link href="https://kaiwern.com/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Blue Green Deployment with Nginx for Elixir/Phoenix Release</title>
       <link>https://kaiwern.com/posts/2021/05/15/blue-green-deployment-with-nginx-for-elixir-phoenix-release/</link>
@@ -81,7 +77,8 @@ In my previous post &amp;ldquo;Building Elixir/Phoenix Release With Docker&amp;r
       <pubDate>Sat, 20 Jun 2020 14:17:08 +0800</pubDate>
       
       <guid>https://kaiwern.com/posts/2020/06/20/building-elixir/phoenix-release-with-docker/</guid>
-      <description>This is a short post about how I build my Elixir/Phoenix releases with Docker and extract the tarball that will be deployed to production. In this approach, we are just building the release with Docker. We are not building the image to run our application in a Docker container.</description>
+      <description>This is a short post about how I build my Elixir/Phoenix releases with Docker and extract the tarball that will be deployed to production. In this approach, we are just building the release with Docker. We are not building the image to run our application in a Docker container.
+This post assume that you have the basic knowledge of Docker, building Elixir release and using Elixir 1.</description>
     </item>
     
     <item>
@@ -123,7 +120,7 @@ Sometimes, if our engineers are unlucky, their build process will failed because
       <guid>https://kaiwern.com/posts/2020/02/23/ignoring-file-instead-of-folder-with-the-same-name-in-.gitignore/</guid>
       <description>While migrating this website from Jekyll of Hugo, I faced an issue where my /tags resulting in a 404 Not Found after deployment. It turned out that /tags is ignored by git when I build my site.
 I then found out the following line in my ~/.gitignore_global:
-tags  This is the file that I ignore after start using ctags in vim.</description>
+tags This is the file that I ignore after start using ctags in vim.</description>
     </item>
     
     <item>
@@ -144,7 +141,7 @@ At the time of writing this blog post, there is no native binding of Tesseract O
       
       <guid>https://kaiwern.com/posts/2019/05/28/send-temporary-file-in-phoenix/</guid>
       <description>TLDR: Use Phoenix.Controller.send_download/3 to send binary as download to your users.
-In Phoenix, there are a couple ways of to send file to your users. The most straightforward one is to programmatically create a file and send it to user using Plug.Conn.send_file/5.
+ In Phoenix, there are a couple ways of to send file to your users. The most straightforward one is to programmatically create a file and send it to user using Plug.Conn.send_file/5.
 For example:
 def export(conn, _params) do # Create file filename = &amp;#34;test.</description>
     </item>
@@ -167,7 +164,7 @@ Keeping track of tasks in all of your side projects isn&amp;rsquo;t easy without
       <guid>https://kaiwern.com/posts/2019/02/18/til-indexing-null-in-oracle-database/</guid>
       <description>Oracle database does not index a row if all the indexed columns are NULL
 For instance, let say we have a users table where we index role column to improve the query performance.
-SELECT * from users WHERE role IS NULL The index does not work for such query in Oracle database.</description>
+SELECT*fromusersWHEREroleISNULLThe index does not work for such query in Oracle database. This is because when Oracle database is inserting the new record of user where the role is NULL, it does not add the created row to the index.</description>
     </item>
     
     <item>
@@ -207,7 +204,8 @@ While developing web applications, there will be static pages such as about page
       
       <guid>https://kaiwern.com/posts/2018/10/14/minimal-elixir-web-application-with-plug-and-cowboy/</guid>
       <description>It is interesting to learn things from scratch. Coming from Ruby background, I was curious what is the equivalent of Sinatra in Elixir. It&amp;rsquo;s called Plug. It is what Phoenix build on top of.
-Using Sinatra, we can write a quick and simple web server with the following code:</description>
+Using Sinatra, we can write a quick and simple web server with the following code:
+require &amp;#39;sinatra&amp;#39; require &amp;#39;json&amp;#39; get &amp;#39;/&amp;#39; do content_type :json JSON({message: &amp;#34;Hello World&amp;#34;}) end How can we achive that in Elixir?</description>
     </item>
     
     <item>
@@ -266,7 +264,7 @@ I go ahead, and make the changes.</description>
       <pubDate>Tue, 24 Oct 2017 22:05:00 +0800</pubDate>
       
       <guid>https://kaiwern.com/posts/2017/10/24/register-in-vim/</guid>
-      <description>For the past months, I have started to use vim in some occasions. One day, I came across a vim video, &amp;ldquo;Let Vim Do the Typing&amp;rdquo;{:target=&amp;rdquo;_blank&amp;rdquo;}, and discover the use of register in vim. Basically, the concept of register in vim is very similar to the register in our computer.</description>
+      <description>For the past months, I have started to use vim in some occasions. One day, I came across a vim video, &amp;ldquo;Let Vim Do the Typing&amp;rdquo;{:target=&amp;quot;_blank&amp;quot;}, and discover the use of register in vim. Basically, the concept of register in vim is very similar to the register in our computer. It is a temporary memory space for vim to store text.</description>
     </item>
     
     <item>

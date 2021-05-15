@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>elixir on kw7oe</title>
@@ -6,11 +6,7 @@
     <description>Recent content in elixir on kw7oe</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 15 May 2021 19:30:41 +0800</lastBuildDate>
-    
-	<atom:link href="https://kaiwern.com/tags/elixir/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Sat, 15 May 2021 19:30:41 +0800</lastBuildDate><atom:link href="https://kaiwern.com/tags/elixir/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Blue Green Deployment with Nginx for Elixir/Phoenix Release</title>
       <link>https://kaiwern.com/posts/2021/05/15/blue-green-deployment-with-nginx-for-elixir-phoenix-release/</link>
@@ -49,7 +45,8 @@ In my previous post &amp;ldquo;Building Elixir/Phoenix Release With Docker&amp;r
       <pubDate>Sat, 20 Jun 2020 14:17:08 +0800</pubDate>
       
       <guid>https://kaiwern.com/posts/2020/06/20/building-elixir/phoenix-release-with-docker/</guid>
-      <description>This is a short post about how I build my Elixir/Phoenix releases with Docker and extract the tarball that will be deployed to production. In this approach, we are just building the release with Docker. We are not building the image to run our application in a Docker container.</description>
+      <description>This is a short post about how I build my Elixir/Phoenix releases with Docker and extract the tarball that will be deployed to production. In this approach, we are just building the release with Docker. We are not building the image to run our application in a Docker container.
+This post assume that you have the basic knowledge of Docker, building Elixir release and using Elixir 1.</description>
     </item>
     
     <item>
@@ -99,7 +96,8 @@ This year, it&amp;rsquo;s different, I had graduated and working remotely.</desc
       
       <guid>https://kaiwern.com/posts/2018/10/14/minimal-elixir-web-application-with-plug-and-cowboy/</guid>
       <description>It is interesting to learn things from scratch. Coming from Ruby background, I was curious what is the equivalent of Sinatra in Elixir. It&amp;rsquo;s called Plug. It is what Phoenix build on top of.
-Using Sinatra, we can write a quick and simple web server with the following code:</description>
+Using Sinatra, we can write a quick and simple web server with the following code:
+require &amp;#39;sinatra&amp;#39; require &amp;#39;json&amp;#39; get &amp;#39;/&amp;#39; do content_type :json JSON({message: &amp;#34;Hello World&amp;#34;}) end How can we achive that in Elixir?</description>
     </item>
     
   </channel>

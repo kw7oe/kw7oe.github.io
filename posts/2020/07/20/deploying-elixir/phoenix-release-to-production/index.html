@@ -7,11 +7,11 @@ Deploying Elixir/Phoenix Release to Production | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.58.3" />
+<meta name="generator" content="Hugo 0.83.1" />
 
 
     
-    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.ae808e0d5578f73e14219baf9b24d430658b5a84b80857ae04cd82aca4e34c7b.css" integrity="sha256-roCODVV49z4UIZuvmyTUMGWLWoS4CFeuBM2CrKTjTHs=">
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.483f2b7fe73b5eb560f77c41f26a28e5cf4c7dad0435ae9ae9021897b810e8c4.css" integrity="sha256-SD8rf&#43;c7XrVg93xB8moo5c9Mfa0ENa6a6QIYl7gQ6MQ=">
     <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -85,36 +85,26 @@ Deploying Elixir/Phoenix Release to Production | kw7oe
 <article class="markdown mb-8 text-gray-800">
   
 
-  
-
-<p><em>Updates (12th August 2020): Fix my mistake on using <code>bin/app restart</code>.</em></p>
-
+  <p><em>Updates (12th August 2020): Fix my mistake on using <code>bin/app restart</code>.</em></p>
 <p><em>Updates (7th October 2020): Include the reason why <code>bin/app restart</code> doesn&rsquo;t
 work</em></p>
-
 <p>In my previous post <a href="https://kaiwern.com/posts/2020/06/20/building-elixir/phoenix-release-with-docker/">&ldquo;Building Elixir/Phoenix Release With Docker&rdquo;</a>, I wrote
 about how I build Elixir release with Docker and extract the tarball. Today,
 I am going to share how I deploy Elixir release to the production server.</p>
-
 <p><em>Do note that, the way I deploy <strong>works best for hobby or small projects</strong>. For
 larger scale system, consider using other tools.</em></p>
-
 <p><em>For the sake of simplicity, this post assume that your remote server
 has reverse proxy like <code>nginx</code> setup and pointing port 80 towards your
 application port 4000. If you depend on the database, it&rsquo;s assumed that the database
 is up and running.</em></p>
-
 <h1 id="steps-for-initial-release">Steps for initial release</h1>
-
 <p>Before we start, let&rsquo;s briefly talk about the steps involved to deploy our
 release:</p>
-
 <ol>
 <li>Copy the release tarball to the remote server.</li>
 <li>Extract the tarball on the remote server.</li>
 <li>Start your application by running <code>/bin/app_name daemon</code></li>
 </ol>
-
 <p>This is equivalent to the following bash script:</p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="cp">#!/bin/bash
 </span><span class="cp"></span>
@@ -143,9 +133,8 @@ ssh <span class="nv">$HOST</span> tar -xzf <span class="nv">$APP_NAME</span>/rel
 ssh <span class="nv">$HOST</span> <span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env  &amp;&amp; ~/</span><span class="nv">$APP_NAME</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> daemon&#34;</span>
 
 <span class="c1"># Remove tarfile that is copied in the 2nd step.</span>
-ssh <span class="nv">$HOST</span> rm <span class="s2">&#34;~/</span><span class="nv">$APP_NAME</span><span class="s2">/releases/</span><span class="nv">$TAR_FILENAME</span><span class="s2">&#34;</span></code></pre></div>
-<p>Here we used some of the common command such as:</p>
-
+ssh <span class="nv">$HOST</span> rm <span class="s2">&#34;~/</span><span class="nv">$APP_NAME</span><span class="s2">/releases/</span><span class="nv">$TAR_FILENAME</span><span class="s2">&#34;</span>
+</code></pre></div><p>Here we used some of the common command such as:</p>
 <ul>
 <li><code>scp</code> to copy our tarball securely to the remote server.</li>
 <li><code>tar</code> to extract the tarball, refer to this <a href="https://askubuntu.com/questions/25347/what-command-do-i-need-to-unzip-extract-a-tar-gz-file">StackOverflow Question</a>
@@ -153,55 +142,41 @@ for more details.</li>
 <li><code>source</code> to load our environment variables required by our application.
 <em>(which assume your remote server have the <code>.env</code> located at <code>~/$APP_NAME/</code>)</em></li>
 </ul>
-
 <p>If you save this file as <code>./deploy</code> in your application root directory locally <em>(or
 where your tarball is available)</em> and run <code>chmod +x ./deploy</code>, you should be
 able to deploy your initial release by simply running <code>./deploy</code>. Simple and
 straightforward right?</p>
-
 <h3 id="side-topic-ssh-tips-and-tricks">Side Topic: SSH Tips and Tricks</h3>
-
 <p>Notice the pattern we use here in <code>ssh $HOST &lt;command to run&gt;</code>. We are essentially
 running the command on our remote server by first ssh into the server and
 executing the command.</p>
-
 <p>If you&rsquo;re new to this, go ahead and run <code>ssh &lt;user&gt;@&lt;ip&gt; &quot;ls -la&quot;</code> on your local
 machine. You should be able to see the same result as running <code>ls -la</code> in your
 remote server.</p>
-
 <p>If you frequently ssh to a particular IP, you can add the following to
 your <code>~/.ssh/config</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-ssh" data-lang="ssh">Host prod-server # Host Name
+<pre><code class="language-ssh" data-lang="ssh">Host prod-server # Host Name
   user kai # SSH as user kai
-  Hostname 192.168.1.1 # IP address</code></pre></div>
-<p>With this configuration, you can now directly <code>ssh prod-server</code> instead of
+  Hostname 192.168.1.1 # IP address
+</code></pre><p>With this configuration, you can now directly <code>ssh prod-server</code> instead of
 using <code>ssh kai@192.168.1.1</code>.</p>
-
 <h1 id="steps-for-updating-subsequent-release">Steps for updating subsequent release</h1>
-
 <p>Subsequent release involves the similar steps as the above. The difference is
 before starting the new version, we need to stop our old version server first.
 However, there is a couple of things that is good to know before we proceed.</p>
-
 <h2 id="stopping-application-take-some-times">Stopping application take some times</h2>
-
 <p>Script like this won&rsquo;t work:</p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">bin/app stop
-bin/app start</code></pre></div>
-<p>This is because it takes time for the old application to shutdown
+bin/app start
+</code></pre></div><p>This is because it takes time for the old application to shutdown
 gracefully. Hence, running start command immediately would likely to cause
 the following error:</p>
-
 <pre><code>Protocol 'inet_tcp': the name app@hostname seems to be in use by another Erlang node
-</code></pre>
-
-<p>To overcome this issue, we need to either:</p>
-
+</code></pre><p>To overcome this issue, we need to either:</p>
 <ul>
 <li>Repeatedly try to start the application until there is no error faced.</li>
 <li>Or, ensure that the application is stopped before we run the start command.</li>
 </ul>
-
 <div class="callout callout-info">
   <p class="font-bold">Why can't we just use <code>bin/app restart</code>?</p>
   <p>
@@ -210,19 +185,16 @@ the following error:</p>
     project, I realized that by using `<code>bin/app restart</code>`, the
     application will <strong>not be started as the latest version</strong>.
   </p>
-
   <p>
     It is restarted as the previous version of the application, which is not what
     we expected when we want to update our application right. Hence, we will
     need to write some custom logic as mentioned above.
   </p>
-
   <p><s>
     I haven't figure out why it behave like this. If you happen to know,
     please let me know! If I manage to find out why, I'll update this part once
     again.
   </s></p>
-
   <p>
     One of the reader commented on the
     <a href="https://github.com/kw7oe/kw7oe.github.io/commit/e272a559388f26206643cc386198c410c2364f2a">
@@ -234,54 +206,37 @@ the following error:</p>
     still getting the old version.
   </p>
 </div>
-
-<h2 id="replacing-old-release-with-new-release-will-cause-bin-app-command-not-working-expectedly">Replacing old release with new release will cause <code>bin/app</code> command not working expectedly</h2>
-
+<h2 id="replacing-old-release-with-new-release-will-cause-binapp-command-not-working-expectedly">Replacing old release with new release will cause <code>bin/app</code> command not working expectedly</h2>
 <p>That&rsquo;s not the only thing we need to overcome. Another tricky one would be, if
 we were extract our new release tarball, which then replace our old release,
 <code>bin/app pid</code> would not work as expected at the time of writing (11th July,
 2020) <em>without any additional configuration</em>. You&rsquo;ll get the following error
 instead:</p>
-
 <pre><code>--rpc-eval : RPC failed with reason :nodedown
-</code></pre>
-
-<p>Why would this occur? After some experimentation, I have found out that this
+</code></pre><p>Why would this occur? After some experimentation, I have found out that this
 happen because every time we build a new release in Docker, as we run <code>mix release</code>,
 it would generate a new random cookie.</p>
-
 <p>Which is then written to our <code>releases/COOKIE</code> file, and if we don&rsquo;t have
 <code>RELEASE_COOKIE</code> set in our environment, this cookie would be used.</p>
-
 <p>Every time we extract our new release tarball, the <code>releases/COOKIE</code> might
 be updated to a different cookie and cause the command unable to talk to our
 running application.</p>
-
 <p>Here&rsquo;s what the <a href="https://erlang.org/doc/reference_manual/distributed.html">Erlang documentation</a> mentioned:</p>
-
 <blockquote>
 <p>When a node tries to connect to another node, the magic cookies are compared.
 If they do not match, the connected node rejects the connection.</p>
 </blockquote>
-
 <p>Our new release cookie doesn&rsquo;t match with our old release <em>(running
 application)</em> cookie. Thus, they are not able to talk to each other.</p>
-
 <p>But, how is it related to our <code>bin/app pid</code> command? Isn&rsquo;t it just a normal
 command that get the process id of the application?</p>
-
 <p>It is, but internally, the command is using <code>rpc</code> mechanism to talk to the node,
 which spin up a hidden node and evaluate some code on the remote node
 <em>(our running application)</em> <em>(refer to <code>elixir --help</code>, Distribution options for
 more details)</em>.</p>
-
 <p>Here is the command executed underneath every time we run <code>bin/app pid</code>:</p>
-
 <pre><code>/home/kai/app/releases/0.1.1/elixir --hidden --cookie COOKIE --sname rpc-29e0-app --boot /home/kai/app/releases/0.1.1/start_clean --boot-var RELEASE_LIB /home/kai/app/lib --rpc-eval app IO.puts System.pid()
-</code></pre>
-
-<h3 id="side-note-how-can-we-know-the-command-running-underneath">Side Note: How can we know the command running underneath?</h3>
-
+</code></pre><h3 id="side-note-how-can-we-know-the-command-running-underneath">Side Note: How can we know the command running underneath?</h3>
 <p>An easy way to know what&rsquo;s the command running underneath of a executable
 script is adding <code>set -x</code> on top of the script file. Instead of having the
 original <code>bin/app</code> script that looks like this:</p>
@@ -291,8 +246,8 @@ original <code>bin/app</code> script that looks like this:</p>
 <span class="nv">SELF</span><span class="o">=</span><span class="k">$(</span>readlink <span class="s2">&#34;</span><span class="nv">$0</span><span class="s2">&#34;</span> <span class="o">||</span> <span class="nb">true</span><span class="k">)</span>
 <span class="k">if</span> <span class="o">[</span> -z <span class="s2">&#34;</span><span class="nv">$SELF</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span> <span class="nv">SELF</span><span class="o">=</span><span class="s2">&#34;</span><span class="nv">$0</span><span class="s2">&#34;</span><span class="p">;</span> <span class="k">fi</span>
 <span class="nv">RELEASE_ROOT</span><span class="o">=</span><span class="s2">&#34;</span><span class="k">$(</span><span class="nb">cd</span> <span class="s2">&#34;</span><span class="k">$(</span>dirname <span class="s2">&#34;</span><span class="nv">$SELF</span><span class="s2">&#34;</span><span class="k">)</span><span class="s2">/..&#34;</span> <span class="o">&amp;&amp;</span> <span class="nb">pwd</span> -P<span class="k">)</span><span class="s2">&#34;</span>
-...</code></pre></div>
-<p>We can modified the script to get more details by adding a single character:</p>
+...
+</code></pre></div><p>We can modified the script to get more details by adding a single character:</p>
 <div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh"><span class="cp">#!/bin/sh
 </span><span class="cp"></span><span class="c1"># Just add extra x here</span>
 <span class="nb">set</span> -ex
@@ -300,23 +255,19 @@ original <code>bin/app</code> script that looks like this:</p>
 <span class="nv">SELF</span><span class="o">=</span><span class="k">$(</span>readlink <span class="s2">&#34;</span><span class="nv">$0</span><span class="s2">&#34;</span> <span class="o">||</span> <span class="nb">true</span><span class="k">)</span>
 <span class="k">if</span> <span class="o">[</span> -z <span class="s2">&#34;</span><span class="nv">$SELF</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span> <span class="nv">SELF</span><span class="o">=</span><span class="s2">&#34;</span><span class="nv">$0</span><span class="s2">&#34;</span><span class="p">;</span> <span class="k">fi</span>
 <span class="nv">RELEASE_ROOT</span><span class="o">=</span><span class="s2">&#34;</span><span class="k">$(</span><span class="nb">cd</span> <span class="s2">&#34;</span><span class="k">$(</span>dirname <span class="s2">&#34;</span><span class="nv">$SELF</span><span class="s2">&#34;</span><span class="k">)</span><span class="s2">/..&#34;</span> <span class="o">&amp;&amp;</span> <span class="nb">pwd</span> -P<span class="k">)</span><span class="s2">&#34;</span>
-...</code></pre></div>
-<p>With a simple change, now every time when we execute the <code>bin/app</code> command,
+...
+</code></pre></div><p>With a simple change, now every time when we execute the <code>bin/app</code> command,
 a detailed log will be output to show what is being run underneath.</p>
-
 <p>I actually came across this while going through Buildkite documentation for
 <a href="https://buildkite.com/docs/pipelines/writing-build-scripts#configuring-bash">writing build scripts</a>. Go ahead and read about it if you&rsquo;re interested in
 the details behind.</p>
-
 <h2 id="solution">Solution</h2>
-
 <h3 id="1-fixing-our-cookie">1. Fixing our cookie</h3>
-
 <p>The first thing we need to resolve is to ensure that every time we start our
 release, the same cookie is used. Fortunately, this can be easily done by using
 <code>RELEASE_COOKIE</code> environment variable or putting the cookie in our release
 configuration in <code>mix.exs</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">def</span> <span class="n">project</span> <span class="n">do</span>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">def</span> <span class="n">project</span> <span class="k">do</span>
   <span class="p">[</span>
     <span class="ss">app</span><span class="p">:</span> <span class="ss">:app_name</span><span class="p">,</span>
     <span class="n">...</span>
@@ -327,27 +278,25 @@ configuration in <code>mix.exs</code>:</p>
       <span class="p">]</span>
     <span class="p">]</span>
   <span class="p">]</span>
-<span class="n">end</span></code></pre></div>
-<p>The <a href="https://hexdocs.pm/mix/Mix.Tasks.Release.html#module-options">documentation</a> recommend to use a long and randomly
+<span class="k">end</span>
+</code></pre></div><p>The <a href="https://hexdocs.pm/mix/Mix.Tasks.Release.html#module-options">documentation</a> recommend to use a long and randomly
 generated string for your cookie, which can be generated using the following
 code:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="nc">Base</span><span class="o">.</span><span class="n">url_encode64</span><span class="p">(</span><span class="ss">:crypto</span><span class="o">.</span><span class="n">strong_rand_bytes</span><span class="p">(</span><span class="mi">40</span><span class="p">))</span></code></pre></div>
-<p>Alternatively, you can use the <code>RELEASE_COOKIE</code> environment variable. In my case,
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="nc">Base</span><span class="o">.</span><span class="n">url_encode64</span><span class="p">(</span><span class="ss">:crypto</span><span class="o">.</span><span class="n">strong_rand_bytes</span><span class="p">(</span><span class="mi">40</span><span class="p">))</span>
+</code></pre></div><p>Alternatively, you can use the <code>RELEASE_COOKIE</code> environment variable. In my case,
 it would be placing it in my local <code>.env.production</code> file:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">export</span> <span class="nv">RELEASE_COOKIE</span><span class="o">=</span>&lt;YOUR COOKIE&gt;</code></pre></div>
-<p>where later on, I have the following command that copy it to the remote machine
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">export</span> <span class="nv">RELEASE_COOKIE</span><span class="o">=</span>&lt;YOUR COOKIE&gt;
+</code></pre></div><p>where later on, I have the following command that copy it to the remote machine
 as my environment variable file <code>.env</code>:</p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># scp &lt;source&gt; &lt;host&gt;:&lt;destination&gt;</span>
-scp .env.production <span class="nv">$HOST</span>:~/<span class="nv">$APP_NAME</span>/.env</code></pre></div>
-<h3 id="2-add-script-to-deploy-new-release">2. Add script to deploy new release</h3>
-
+scp .env.production <span class="nv">$HOST</span>:~/<span class="nv">$APP_NAME</span>/.env
+</code></pre></div><h3 id="2-add-script-to-deploy-new-release">2. Add script to deploy new release</h3>
 <p>The only difference between the
 script for initial release and subsequent release is the part where we start
 the application:</p>
-
 <p>So, instead of:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">source</span> ~/<span class="nv">$APP_NAME</span>/.env  <span class="o">&amp;&amp;</span> ~/<span class="nv">$APP_NAME</span>/bin/<span class="nv">$APP_NAME</span> daemon</code></pre></div>
-<p>This is how it looks like:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">source</span> ~/<span class="nv">$APP_NAME</span>/.env  <span class="o">&amp;&amp;</span> ~/<span class="nv">$APP_NAME</span>/bin/<span class="nv">$APP_NAME</span> daemon
+</code></pre></div><p>This is how it looks like:</p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># ==========================================</span>
 <span class="c1"># Copying .env.production to remote as .env</span>
 <span class="c1"># ==========================================</span>
@@ -408,9 +357,8 @@ ssh <span class="nv">$HOST</span> <span class="s2">&#34;source </span><span clas
 <span class="c1"># ===================</span>
 <span class="c1"># Stop trapping error</span>
 <span class="c1"># ===================</span>
-<span class="nb">set</span> -e</code></pre></div>
-<p>These code basically done the following through <code>ssh</code>:</p>
-
+<span class="nb">set</span> -e
+</code></pre></div><p>These code basically done the following through <code>ssh</code>:</p>
 <ul>
 <li>Copy our environment variable files to remote machine.</li>
 <li>Copy our release tarball to remote machine and extract it.</li>
@@ -426,11 +374,9 @@ running <code>bin/app daemon</code>.</li>
 application by using <code>bin/app rpc</code>. Alternatively, you can also <code>curl</code>
 your health check endpoint.</li>
 </ul>
-
 <p>This is good enough if you have only one production server. If you have more
 than one, consider looping through the IP addresses  and extract the code
 into function.</p>
-
 <div class="callout callout-info">
   <p>
   You might be wondering why  instead of using <code>bin/app eval IO.puts("health-check")</code>,
@@ -439,12 +385,9 @@ into function.</p>
     execution will still be successful.
   </p>
 </div>
-
 <h3 id="side-note-not-the-best-way-to-health-check">Side Note: Not the best way to health check</h3>
-
 <p>This is not the best way to health check your application. For the following
 reasons:</p>
-
 <ul>
 <li>We only check if the application is up and running. We didn&rsquo;t really health
 check if our database connection is working correctly. Or, if it
@@ -459,9 +402,7 @@ for another day.</li>
 only suitable for small projects. Cluster schedulers like Kubernetes, Nomad or ECS
 have already solve this issue for you, as far as I know.</li>
 </ul>
-
 <h1 id="glue-it-all-together">Glue it all together</h1>
-
 <p>To sum up, this is the bash script <code>./deploy</code> that I used for deploying initial or
 subsequent release of my side projects:</p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="cp">#!/bin/bash
@@ -517,36 +458,29 @@ bold_echo <span class="s2">&#34;Removing remote tar file...&#34;</span>
 ssh <span class="nv">$HOST</span> rm <span class="s2">&#34;~/</span><span class="nv">$APP_NAME</span><span class="s2">/releases/</span><span class="nv">$TAR_FILENAME</span><span class="s2">&#34;</span>
 
 bold_echo <span class="s2">&#34;Removing local tar file...&#34;</span>
-rm <span class="nv">$TAR_FILENAME</span></code></pre></div>
-<p>Don&rsquo;t forget to make it executable by running <code>chmod +x ./deploy</code>, and now you
+rm <span class="nv">$TAR_FILENAME</span>
+</code></pre></div><p>Don&rsquo;t forget to make it executable by running <code>chmod +x ./deploy</code>, and now you
 can deploy your Elixir release by running <code>./deploy</code> locally.</p>
-
 <p>Here, I didn&rsquo;t cover how I run my migration but a quick way is just adding the
 following command after we start the application <em>(assuming you have added the
 code mentioned in the <a href="https://hexdocs.pm/phoenix/releases.html#ecto-migrations-and-custom-commands">Phoenix Release Documentation</a>)</em>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">ssh <span class="nv">$HOST</span> <span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; ~/</span><span class="nv">$APP_NAME</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> eval &#39;App.Release.migrate()&#39;&#34;</span></code></pre></div>
-<p>The reason we need to source the <code>.env</code> is because our runtime require some
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">ssh <span class="nv">$HOST</span> <span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; ~/</span><span class="nv">$APP_NAME</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> eval &#39;App.Release.migrate()&#39;&#34;</span>
+</code></pre></div><p>The reason we need to source the <code>.env</code> is because our runtime require some
 environment variable to be available in order to execute it.</p>
-
 <p>Also, some additional notes on the extra stuff added in the scripts:</p>
-
 <ul>
 <li>Added <code>bold_echo</code> to print out each step in bold and formatted text.</li>
 <li>Added clean up code after our release.</li>
 </ul>
-
 <h1 id="wrap-up">Wrap Up</h1>
-
 <p>That&rsquo;s all. Building and deploying Elixir release can be simple once you know
 the building blocks. However, do remember that this might not be the best
 approach to deploy. It really depends on your context. For my personal
 projects, I found it to be sufficient as I only have a single production server
 and I am the only one who deployed it.</p>
-
 <p>But is that all for my deployment process for Elixir/Phoenix release? Of
 course not! <del>The next one I would share in the future  would be deploying our
 release using Blue Green Deployment strategy with <code>nginx</code>. So do stay tuned!</del></p>
-
 <p><em>Update (15 May 2021): I have finally completed my writing on deploying
 Elixir/Phoenix release using Blue Green Deployment with Nginx. If you are
 interested, continue to <a href="https://kaiwern.com/posts/2021/05/15/blue-green-deployment-with-nginx-for-elixir-phoenix-release/">read it here</a>.</em></p>

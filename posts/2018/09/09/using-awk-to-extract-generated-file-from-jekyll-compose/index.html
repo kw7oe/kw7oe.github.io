@@ -7,11 +7,11 @@ Using AWK to extract generated file from jekyll-compose | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.58.3" />
+<meta name="generator" content="Hugo 0.83.1" />
 
 
     
-    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.ae808e0d5578f73e14219baf9b24d430658b5a84b80857ae04cd82aca4e34c7b.css" integrity="sha256-roCODVV49z4UIZuvmyTUMGWLWoS4CFeuBM2CrKTjTHs=">
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.483f2b7fe73b5eb560f77c41f26a28e5cf4c7dad0435ae9ae9021897b810e8c4.css" integrity="sha256-SD8rf&#43;c7XrVg93xB8moo5c9Mfa0ENa6a6QIYl7gQ6MQ=">
     <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -53,7 +53,7 @@ Using AWK to extract generated file from jekyll-compose | kw7oe
 <header class="mb-8">
   <h1 class="title">Using AWK to extract generated file from jekyll-compose</h1>
   <p class="text-sm font-gray-700 mb-1">Sep 09, 2018</p>
-  <p class="text-sm mb-4 font-gray-700 italic">Estimated Reading Time: 3 minutes (499 words)</p>
+  <p class="text-sm mb-4 font-gray-700 italic">Estimated Reading Time: 3 minutes (498 words)</p>
 
    
   <div id="tags">
@@ -71,119 +71,83 @@ Using AWK to extract generated file from jekyll-compose | kw7oe
 <article class="markdown mb-8 text-gray-800">
   
 
-  
-
-<p>Recently, I have been using <code>jekyll</code> to make notes. I use <code>jekyll-compose</code>
+  <p>Recently, I have been using <code>jekyll</code> to make notes. I use <code>jekyll-compose</code>
 gem to create post using command line. However, the auto open generated file
 features isn&rsquo;t working in my machine after the setup.</p>
-
 <p>After a few times on manually opening the generated files in <code>vim</code>, I decided
 to write a quick shell script to solve this issue.</p>
-
 <h3 id="scenario">Scenario</h3>
-
 <p>To generate a new post with <code>jekyll-compose</code>, we can run the following command:</p>
-
 <pre><code>bundle exec jekyll post &lt;TITLE&gt;
-</code></pre>
-
-<p>and it will output the following:</p>
-
+</code></pre><p>and it will output the following:</p>
 <pre><code>Configuration file: /Users/kai/Desktop/notes/_config.yml
 New post created at _posts/&lt;DATE&gt;-&lt;TITLE&gt;
-</code></pre>
-
-<p>So, to generate and open the file involves the following steps:</p>
-
+</code></pre><p>So, to generate and open the file involves the following steps:</p>
 <ul>
 <li>Run the command to generate post</li>
 <li>Extract the file path</li>
 <li>Open the file using <code>vim</code></li>
 </ul>
-
 <h3 id="awk">awk</h3>
-
 <p>I came across <code>AWK</code> from <a href="https://twitter.com/b0rk/status/1000604334026055681">Julia Evans zine</a>. It came to my mind again when I want
 to extract the file path from the output of the command.</p>
-
 <p><code>AWK</code> is a programming language designed for text-processing. It has very basic
 yet important command <code>print</code> to output the text. What makes <code>AWK</code> different is
 it breaks each line into columns <em>(seperated by space, which can be configure)</em>, where:</p>
-
 <pre><code>print $1
-</code></pre>
-
-<p>means output the first column.</p>
-
+</code></pre><p>means output the first column.</p>
 <p>We can also add in a specific condition in front of the <code>print</code> command so that
 it only execute if the condition is true.</p>
-
 <pre><code>CONDITION {print $1}
-</code></pre>
-
-<h3 id="implementation">Implementation</h3>
-
+</code></pre><h3 id="implementation">Implementation</h3>
 <p>After knowing some basic of <code>AWK</code>, we can extract the file path with the
 following actions.</p>
-
 <h4 id="1-extraction">1. Extraction</h4>
-
 <p>Hence, to extract out the file path from the line <code>New post created at _posts/&lt;DATE&gt;-&lt;TITLE&gt;</code>,
 we can use the following command:</p>
-
 <pre><code>echo 'New post created at _posts/&lt;DATE&gt;-&lt;TITLE&gt;' | awk '{print $5}'
-</code></pre>
-
-<p><code>$5</code> is used since the file path is the fifth column of the line.</p>
-
+</code></pre><p><code>$5</code> is used since the file path is the fifth column of the line.</p>
 <h4 id="2-only-extract-second-line">2. Only Extract Second Line</h4>
-
 <p>Since we just wanted to extract the second line of the command output, the
 command above is not enough. What we really wanted is to say:</p>
-
 <p><em>if the line is second row, then we extract it</em></p>
-
 <p>To achieve that in <code>AWK</code>, we can use <code>AWK</code> built-in variables <code>FNR</code>, which
 refers to the current line number of the file, to form a condition.</p>
-
 <pre><code>echo -e &quot;Configuration file: /Users/kai/Desktop/notes/_config.yml\nNew post created at _posts/&lt;DATE&gt;-&lt;TITLE&gt;&quot; | awk 'FNR==2{ print $5 }'
-</code></pre>
-
-<h3 id="summary">Summary</h3>
-
+</code></pre><h3 id="summary">Summary</h3>
 <ol>
 <li>You can use <code>AWK</code> to print specific column of lines with <code>awk {print $N}</code></li>
 <li>You can add condition in front of the <code>print</code> command if needed.</li>
 <li><code>AWK</code> contains a handful of built-in variables that are useful for
 text-processing.</li>
-
-<li><p>Code snippet to generate and open the file.</p>
+<li>Code snippet to generate and open the file.</li>
+</ol>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="k">function</span> newpost<span class="o">()</span> <span class="o">{</span>
-vim <span class="k">$(</span>
-bundle <span class="nb">exec</span> jekyll post <span class="nv">$1</span> <span class="p">|</span>
-<span class="c1"># substr is used to remove the ending &#39;.&#39; of the extracted string</span>
-awk <span class="s1">&#39;FNR == 2{print substr($5, 1, length($5) - 1)}&#39;</span>
-<span class="k">)</span>
-<span class="o">}</span></code></pre></div></li>
-</ol>
-
-<hr />
-
+  vim <span class="k">$(</span>
+    bundle <span class="nb">exec</span> jekyll post <span class="nv">$1</span> <span class="p">|</span>
+    <span class="c1"># substr is used to remove the ending &#39;.&#39; of the extracted string</span>
+    awk <span class="s1">&#39;FNR == 2{print substr($5, 1, length($5) - 1)}&#39;</span>
+  <span class="k">)</span>
+<span class="o">}</span>
+</code></pre></div><hr>
 <ol>
-<li><p>If you are interested in more command line tools, you can consider purchase
-<a href="https://twitter.com/b0rk">Julia Evans</a> <a href="https://gumroad.com/l/bite-size-command-line">Byte Size Command Line</a> zine series.</p></li>
-
-<li><p>It turns out the reason why my <code>jekyll-compose</code> configuration doesn&rsquo;t work is
+<li>
+<p>If you are interested in more command line tools, you can consider purchase
+<a href="https://twitter.com/b0rk">Julia Evans</a> <a href="https://gumroad.com/l/bite-size-command-line">Byte Size Command Line</a> zine series.</p>
+</li>
+<li>
+<p>It turns out the reason why my <code>jekyll-compose</code> configuration doesn&rsquo;t work is
 because of a single typo of <code>-</code>. Instead of:</p>
-<div class="highlight"><pre class="chroma"><code class="language-yml" data-lang="yml"><span class="c"># The correct one</span><span class="w">
-</span><span class="w"></span>jekyll_compose<span class="p">:</span><span class="w">
-</span><span class="w"></span>auto_open<span class="p">:</span><span class="w"> </span><span class="kc">true</span></code></pre></div></li>
+</li>
 </ol>
-
-<p>I use:</p>
+<div class="highlight"><pre class="chroma"><code class="language-yml" data-lang="yml"><span class="c"># The correct one</span><span class="w">
+</span><span class="w"></span><span class="nt">jekyll_compose</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">auto_open</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></code></pre></div><p>I use:</p>
 <div class="highlight"><pre class="chroma"><code class="language-yml" data-lang="yml"><span class="c"># The wrong one</span><span class="w">
-</span><span class="w"></span>jekyll-compose<span class="p">:</span><span class="w">
-</span><span class="w">  </span>auto_open<span class="p">:</span><span class="w"> </span><span class="kc">true</span></code></pre></div>
+</span><span class="w"></span><span class="nt">jekyll-compose</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">auto_open</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></code></pre></div>
 </article>
 
     </main><footer class="w-full text-center border-t border-gray-200 p-4 pin-b text-xs text-gray-400">

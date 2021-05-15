@@ -7,11 +7,11 @@ Send temporary file in Phoenix | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.58.3" />
+<meta name="generator" content="Hugo 0.83.1" />
 
 
     
-    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.ae808e0d5578f73e14219baf9b24d430658b5a84b80857ae04cd82aca4e34c7b.css" integrity="sha256-roCODVV49z4UIZuvmyTUMGWLWoS4CFeuBM2CrKTjTHs=">
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.483f2b7fe73b5eb560f77c41f26a28e5cf4c7dad0435ae9ae9021897b810e8c4.css" integrity="sha256-SD8rf&#43;c7XrVg93xB8moo5c9Mfa0ENa6a6QIYl7gQ6MQ=">
     <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -71,19 +71,14 @@ Send temporary file in Phoenix | kw7oe
 <article class="markdown mb-8 text-gray-800">
   
 
-  
-
-<p><strong>TLDR:</strong> Use <code>Phoenix.Controller.send_download/3</code> to send binary as download
+  <p><strong>TLDR:</strong> Use <code>Phoenix.Controller.send_download/3</code> to send binary as download
 to your users.</p>
-
-<hr />
-
+<hr>
 <p>In Phoenix, there are a couple ways of to send file to your users.
 The most straightforward one is to programmatically create a file and send
 it to user using <code>Plug.Conn.send_file/5</code>.</p>
-
 <p>For example:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">def</span> <span class="n">export</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">_params</span><span class="p">)</span> <span class="n">do</span>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">def</span> <span class="n">export</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">_params</span><span class="p">)</span> <span class="k">do</span>
   <span class="c1"># Create file</span>
   <span class="n">filename</span> <span class="o">=</span> <span class="s2">&#34;test.md&#34;</span>
   <span class="nc">File</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&#34;Hello World&#34;</span><span class="p">)</span>
@@ -92,27 +87,22 @@ it to user using <code>Plug.Conn.send_file/5</code>.</p>
   <span class="n">conn</span>
   <span class="o">|&gt;</span> <span class="n">put_resp_header</span><span class="p">(</span><span class="s2">&#34;content-disposition&#34;</span><span class="p">,</span> <span class="sx">~s(attachment; filename=&#34;</span><span class="si">#{</span><span class="n">filename</span><span class="si">}</span><span class="sx">&#34;)</span><span class="p">)</span>
   <span class="o">|&gt;</span> <span class="n">send_file</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
-<span class="n">end</span></code></pre></div>
-<p>However, this approach <strong>creates a file locally in your production server
+<span class="k">end</span>
+</code></pre></div><p>However, this approach <strong>creates a file locally in your production server
 and require some clean up</strong> after that. <em>(I don&rsquo;t really know how to delete a file only after the request succeed)</em></p>
-
-<h2 id="introducing-send-download-3">Introducing <code>send_download/3</code></h2>
-
+<h2 id="introducing-send_download3">Introducing <code>send_download/3</code></h2>
 <p>Luckily, there is another approach, which is using <code>Phoenix.Controller.send_download/3</code>.
 This function allow us to send binary directly as a download. Hence, file creation is not needed.</p>
-
 <p>For example:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">def</span> <span class="n">export</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">_params</span><span class="p">)</span> <span class="n">do</span>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">def</span> <span class="n">export</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">_params</span><span class="p">)</span> <span class="k">do</span>
   <span class="n">filename</span> <span class="o">=</span> <span class="s2">&#34;test.md&#34;</span>
 
   <span class="c1"># Send file</span>
   <span class="n">conn</span>
   <span class="o">|&gt;</span> <span class="n">send_download</span><span class="p">({</span><span class="ss">:binary</span><span class="p">,</span> <span class="s2">&#34;Hello World&#34;</span><span class="p">},</span> <span class="ss">filename</span><span class="p">:</span> <span class="n">filename</span><span class="p">)</span>
-<span class="n">end</span></code></pre></div>
-<p>For more, refer to the <a href="https://hexdocs.pm/plug/Plug.Conn.html#send_file/5"><code>send_file/5</code></a> and <a href="https://hexdocs.pm/phoenix/Phoenix.Controller.html#send_download/3"><code>send_download/3</code></a> documentation.</p>
-
-<hr />
-
+<span class="k">end</span>
+</code></pre></div><p>For more, refer to the <a href="https://hexdocs.pm/plug/Plug.Conn.html#send_file/5"><code>send_file/5</code></a> and <a href="https://hexdocs.pm/phoenix/Phoenix.Controller.html#send_download/3"><code>send_download/3</code></a> documentation.</p>
+<hr>
 <p><small>This post was first appeared in my <a href="https://til.kaiwern.com/posts/54">TIL web application</a>.</p>
 
 </article>

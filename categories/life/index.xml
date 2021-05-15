@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>life on kw7oe</title>
@@ -6,11 +6,7 @@
     <description>Recent content in life on kw7oe</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 23 Mar 2021 22:54:52 +0800</lastBuildDate>
-    
-	<atom:link href="https://kaiwern.com/categories/life/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Tue, 23 Mar 2021 22:54:52 +0800</lastBuildDate><atom:link href="https://kaiwern.com/categories/life/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Don&#39;t Be Too Hard on Yourself</title>
       <link>https://kaiwern.com/posts/2021/03/23/dont-be-too-hard-on-yourself/</link>

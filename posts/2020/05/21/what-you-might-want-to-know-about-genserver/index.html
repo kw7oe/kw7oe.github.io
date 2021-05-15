@@ -7,11 +7,11 @@ What you might want to know about GenServer | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.58.3" />
+<meta name="generator" content="Hugo 0.83.1" />
 
 
     
-    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.ae808e0d5578f73e14219baf9b24d430658b5a84b80857ae04cd82aca4e34c7b.css" integrity="sha256-roCODVV49z4UIZuvmyTUMGWLWoS4CFeuBM2CrKTjTHs=">
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.483f2b7fe73b5eb560f77c41f26a28e5cf4c7dad0435ae9ae9021897b810e8c4.css" integrity="sha256-SD8rf&#43;c7XrVg93xB8moo5c9Mfa0ENa6a6QIYl7gQ6MQ=">
     <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -71,325 +71,252 @@ What you might want to know about GenServer | kw7oe
 <article class="markdown mb-8 text-gray-800">
   
 
-  
-
-<p>I once gave a talk about GenServer in a local Elixir meet up in 2019.
+  <p>I once gave a talk about GenServer in a local Elixir meet up in 2019.
 To prepare for the talk, I have done a lot of research and readings. With
 additional experience working with GenServer in a production environment, I
 have come to realize that there are a lot of caveats when using GenServer.</p>
-
 <p>While GenServer is easy to use, there are actually a couple challenges when
 using GenServer in a production environment. So, in this post, I&rsquo;ll attempt
 to write down <em>my findings</em> about GenServer.</p>
-
 <p>The post will be break down into following sections:</p>
-
 <ul>
 <li><a href="#quick-introduction-to-genserver">Quick Introduction to GenServer</a></li>
 <li><a href="#when-you-should-and-shouldn-t-use-genserver">When you should and shouldn&rsquo;t use GenServer</a></li>
 <li><a href="#limitations-of-genserver">Limitations of GenServer</a></li>
 <li><a href="#do-and-don-t-of-genserver">Do and Don&rsquo;t of GenServer</a></li>
 </ul>
-
 <p><em>Disclaimer: I am no expert in Elixir, Erlang and GenServer. What I wrote,
 might be wrong too. However, I tried my best to cross check multiple sources
 on what I wrote to ensure the correctness. I have attached the relevant links
 I referred to while writing this article for further references. Some of the
 points are purely my opinion based on my limited knowledge and experience. Do
 take it as a grain of salt.</em></p>
-
 <h1 id="quick-introduction-to-genserver">Quick Introduction to GenServer</h1>
-
 <p>What is GenServer? For someone new to Elixir, GenServer usually came up to
 their mind when they need to implement a server process or stateful process.</p>
-
 <p>However, diving a bit deeper, GenServer is actually an OTP behaviour that
 implement a client-server relation.</p>
-
 <p>But, what is an OTP behaviour? Behaviour is basically common pattern that
 abstract generic and specific logic into different modules, such as behaviour module
 and callback module. All of these behaviours are derived from years of
 battle-tested production system. The OTP behaviours also take care of some
 of the edge cases for you.</p>
-
 <p>When we <code>use GenServer</code>, we are using GenServer behaviour and
 implementing our own callback modules.</p>
 <div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="c1"># Our own callback module</span>
-<span class="n">def</span> <span class="nc">MyServer</span> <span class="n">do</span>
-  <span class="n">use</span> <span class="nc">GenServer</span>
+<span class="kd">def</span> <span class="nc">MyServer</span> <span class="k">do</span>
+  <span class="kn">use</span> <span class="nc">GenServer</span>
 
-  <span class="n">def</span> <span class="n">init</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="n">do</span>
+  <span class="kd">def</span> <span class="n">init</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">do</span>
     <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="p">[]}</span>
-  <span class="n">end</span>
+  <span class="k">end</span>
 
-  <span class="n">def</span> <span class="n">handle_call</span><span class="p">(</span><span class="ss">:ping</span><span class="p">,</span> <span class="n">_from</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span> <span class="n">do</span>
+  <span class="kd">def</span> <span class="n">handle_call</span><span class="p">(</span><span class="ss">:ping</span><span class="p">,</span> <span class="n">_from</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span> <span class="k">do</span>
     <span class="p">{</span><span class="ss">:reply</span><span class="p">,</span> <span class="ss">:pong</span><span class="p">,</span> <span class="n">state</span><span class="p">}</span>
-  <span class="n">end</span>
-<span class="n">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
 
 <span class="c1"># Using GenServer generic behaviour to interact with our own callback modules</span>
 <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">pid</span><span class="p">}</span> <span class="o">=</span> <span class="nc">GenServer</span><span class="o">.</span><span class="n">start_link</span><span class="p">(</span><span class="nc">MyServer</span><span class="p">,</span> <span class="p">[])</span>
 <span class="nc">GenServer</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="ss">:ping</span><span class="p">)</span>
-<span class="c1">#=&gt; :pong</span></code></pre></div>
-<p>When using GenServer, we don&rsquo;t need to know the internal implementation of
+<span class="c1">#=&gt; :pong</span>
+</code></pre></div><p>When using GenServer, we don&rsquo;t need to know the internal implementation of
 GenServer. All we need to is to implement the behaviour callbacks. The callbacks
 act as the interface between GenServer and our module. This decouple the
 logic of managing process <em>(what GenServer do)</em> from our business logic <em>(what
 our callback modules do)</em>.</p>
-
 <h3 id="why-not-implementing-our-own-genserver-behavior">Why not implementing our own GenServer behavior?</h3>
-
 <p>If GenServer is just a pattern that decouple the logic, can&rsquo;t we write
 our own one and use it?</p>
-
 <p>You can, but GenServer do a lot more than just decoupling these logic. GenServer
 take care of some of the cases that we are not aware of in a concurrent system. A
 few notable one are:</p>
-
 <ul>
 <li>Handling system messages</li>
 <li>Handling timeout</li>
 </ul>
-
 <p>The edge cases handled by GenServer are worth writing another separate posts. If
 you would like to know more, there is this <a href="https://dockyard.com/blog/2016/11/18/how-genserver-helps-to-handle-errors">article</a> by DockYard
 about how GenServer handle some of the concurrent conditions and edge
 cases. More details is also layout at the end of the Chapter 3 of
 the book <a href="http://shop.oreilly.com/product/0636920024149.do">&ldquo;Designing for Scalability with Erlang/OTP</a>.</p>
-
 <div class="callout callout-info">
-
 <p>I only learn about how OTP behaviour is designed to extract common and business
 logic behaviour and the edge cases in implementing your own GenServer after
 reading the book <a href="http://shop.oreilly.com/product/0636920024149.do">
 "Designing for Scalability with Erlang/OTP"</a>.</p>
-
 </div>
-
-<h1 id="when-you-should-and-shouldn-t-use-genserver">When you should and shouldn&rsquo;t use GenServer?</h1>
-
+<h1 id="when-you-should-and-shouldnt-use-genserver">When you should and shouldn&rsquo;t use GenServer?</h1>
 <p>Coming from a Ruby/Rails background, when I first know about GenServer, I have
 no idea on how I can use that in my application, especially in a web application.</p>
-
 <p>It&rsquo;s a cool new amazing concept for me,</p>
-
 <blockquote>
 <p>but how can I utilize it?</p>
 </blockquote>
-
 <p>That often came up to my mind when I first starting to learn Elixir.</p>
-
 <p>Before we talk about when it&rsquo;s a good time to use GenServer, let&rsquo;s focus on
- when we <em>shouldn&rsquo;t use</em> GenServer.</p>
-
-<p><div class="callout callout-info">
+when we <em>shouldn&rsquo;t use</em> GenServer.</p>
+ <div class="callout callout-info">
    <p>
    On a side note, There is also an article <a href="https://www.theerlangelist.com/article/spawn_or_not">
-   &ldquo;To spawn, or not to spawn?&rdquo;</a> that talk about when you should spawn a process.
+   "To spawn, or not to spawn?"</a> that talk about when you should spawn a process.
    The lessons from the article still applied on GenServer <em>(since inherently,
    GenServer is just a process)</em>.
    </p>
- </div></p>
-
-<h2 id="when-you-shouldn-t-use-genserver">When you <em>shouldn&rsquo;t use</em> GenServer</h2>
-
+ </div>
+<h2 id="when-you-_shouldnt-use_-genserver">When you <em>shouldn&rsquo;t use</em> GenServer</h2>
 <p>If you have read through the <a href="https://hexdocs.pm/elixir/GenServer.html#module-when-not-to-use-a-genserver">Elixir documentation of GenServer</a>, you might come
 across this:</p>
-
 <blockquote>
 <p>A GenServer, or a process in general, must be used to model runtime characteristics of your system.
 A GenServer must never be used for code organization purposes.</p>
 </blockquote>
-
 <p>As mentioned above, our GenServer is just another stateful process. It&rsquo;s a
 pattern to write stateful process. Hence, it <strong>should never be use for code
 organization</strong>. Use module for that instead.</p>
-
 <p>While it is possible to do the following with GenServer too, it&rsquo;s not really
 recommended as there are better alternatives:</p>
-
 <p><strong>1. Use it to execute simple asynchronous task/job</strong></p>
-
 <p>For this, using <code>Task</code> module is recommended instead. Depending on your
 requirement, rolling out your own <code>GenServer</code> just to execute asynchronous job
 can be too much.</p>
-
 <p>Implementing a <code>GenServer</code> with <code>Task.Supervisor</code> is <strong>reasonable when you need
 more control over the task execution</strong> such as error handling, monitoring and
 job retry.</p>
-
 <p>However do note that <code>GenServer</code> is a single process and will inherently become
 your bottleneck when the load increase.</p>
-
 <p>On a side note, there is this <a href="https://dockyard.com/blog/2019/04/02/three-simple-patterns-for-retrying-jobs-in-elixir">article</a> from DockYard where the author demonstrated
 on how we can implement job retry with <code>GenServer</code> and <code>Task.Supervisor</code>.</p>
-
 <p><strong>2. Storing state.</strong></p>
-
 <p>Start by using <code>Agent</code>. If it provides what you need, that&rsquo;s great. A rule of
 thumb is to reach for tool that have a higher level abstraction. Only reach out
 to GenServer when you need extra customization.</p>
-
 <p>If <code>Agent</code> doesn&rsquo;t fit your requirement, then look into the combination of
 GenServer and <code>ETS</code> instead. Avoid writing your own GenServer to track key
 value pair, or other kind of state, unless it is a short term state. E.g. state
 of a game match.</p>
-
 <p>Also, try to <strong>avoid storing global state</strong> with GenServer <em>unless you are
 100% sure that you won&rsquo;t run the application on multiple nodes</em>. When you start
 running GenServer process that store state in multiple nodes, things get
 really tricky. Chris Keathley wrote about the reasons really well in his
 article <a href="https://keathley.io/blog/sgp.html">&ldquo;The dangers of the Single Global Process&rdquo;</a>.</p>
-
 <p>Well again, <em>it really depends on your system requirements</em> and you&rsquo;ll have to
 make the design decision.</p>
-
-<h2 id="when-you-should-use-genserver">When you <em>should</em> use GenServer?</h2>
-
+<h2 id="when-you-_should_-use-genserver">When you <em>should</em> use GenServer?</h2>
 <p>It&rsquo;s a bit irony isn&rsquo;t it. We have just go through a few use cases of GenServer in
 the previous section.</p>
-
 <p>But that&rsquo;s the reality of design decision. There is no silver bullet to every problems,
 it really depends on the context. The same apply for when and when you shouldn&rsquo;t use
 GenServer.</p>
-
 <p>So here are a list of scenario where it make sense to bring it GenServer:</p>
-
 <p><strong>1. To send periodic message, or to schedule tasks</strong></p>
-
 <p>When you need to send periodic message, using GenServer make sense as it
 allow you to utilize <code>Process.send_after</code> to send periodic message or schedule
 one off tasks.</p>
-
 <p>Depending on your needs, consider using existing libarry like  <a href="https://hexdocs.pm/parent/Periodic.html#content"><code>periodic</code></a>
 by Saša Jurić <em>(the author of Elixir in Action)</em> instead of rolling out your own
 solution. <em>(You can also read this <a href="https://www.theerlangelist.com/article/periodic">article</a> on the design behind the library)</em></p>
-
 <p>If you need a more full-fledged solution for scheduling jobs, consider
 <a href="https://github.com/quantum-elixir/quantum-core"><code>quantum</code></a> that allow the use of cron like syntax to schedule jobs.</p>
-
 <p><strong>2. To gain more control over task execution of <code>Task</code> module.</strong></p>
-
 <p>As mentioned in previous section, bring in GenServer with
 <code>Task.Supervisor</code> <strong>when you need more control over task execution</strong>.
 For example, to ensure that a task is really executed and retry
 if there is failures <em>(E.g. network failures where retry make sense)</em>.</p>
-
 <p><strong>3. To use <code>ets</code> as store.</strong></p>
-
 <p><code>ets</code> is a good built-in in memory storage for BEAM. No doubt, there will
 be times when you&rsquo;ll need this for your production application.
 Starting <code>ets</code> table in a <code>GenServer</code> is definitely the way to go.</p>
-
 <p>This is because <code>ets</code> table is owned by the process create it. If the process
 is terminated, the <code>ets</code> table is also deleted. However, do avoid wrapping
 <code>ets</code> call with <code>GenServer</code> callbacks as follows:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">defmodule</span> <span class="nc">MyETS</span> <span class="n">do</span>
-  <span class="n">use</span> <span class="nc">GenServer</span>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">MyETS</span> <span class="k">do</span>
+  <span class="kn">use</span> <span class="nc">GenServer</span>
   <span class="na">@table_name</span> <span class="ss">:table</span>
 
-  <span class="n">def</span> <span class="n">init</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="n">do</span>
-    <span class="ss">:ets</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="na">@table_name</span><span class="p">,</span> <span class="p">[</span><span class="ss">:set</span><span class="p">,</span> <span class="ss">:named_table</span><span class="p">,</span> <span class="ss">:public</span><span class="p">,</span> <span class="ss">read_concurrency</span><span class="p">:</span> <span class="n">true</span><span class="p">])</span>
+  <span class="kd">def</span> <span class="n">init</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">do</span>
+    <span class="ss">:ets</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="na">@table_name</span><span class="p">,</span> <span class="p">[</span><span class="ss">:set</span><span class="p">,</span> <span class="ss">:named_table</span><span class="p">,</span> <span class="ss">:public</span><span class="p">,</span> <span class="ss">read_concurrency</span><span class="p">:</span> <span class="no">true</span><span class="p">])</span>
     <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="p">[]}</span>
-  <span class="n">end</span>
+  <span class="k">end</span>
 
   <span class="c1"># AVOID THIS</span>
   <span class="c1"># Wrapping look up in a GenServer.call</span>
-  <span class="n">def</span> <span class="n">lookup</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="n">do</span>
+  <span class="kd">def</span> <span class="n">lookup</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="k">do</span>
     <span class="nc">GenServer</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">__MODULE__</span><span class="p">,</span> <span class="p">{</span><span class="ss">:lookup</span><span class="p">,</span> <span class="n">key</span><span class="p">})</span>
-  <span class="n">end</span>
+  <span class="k">end</span>
 
   <span class="c1"># DO THIS instead</span>
   <span class="c1"># Call :ets.lookup directly</span>
-  <span class="n">def</span> <span class="n">lookup_v2</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="n">do</span>
-    <span class="n">case</span> <span class="ss">:ets</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="na">@table_name</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="n">do</span>
+  <span class="kd">def</span> <span class="n">lookup_v2</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="k">do</span>
+    <span class="k">case</span> <span class="ss">:ets</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="na">@table_name</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="k">do</span>
       <span class="p">[{</span><span class="o">^</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">}]</span> <span class="o">-&gt;</span> <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">value</span><span class="p">}</span>
       <span class="n">_</span> <span class="o">-&gt;</span> <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="ss">:not_found</span><span class="p">}</span>
-    <span class="n">end</span>
-  <span class="n">end</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
 
-  <span class="n">def</span> <span class="n">handle_call</span><span class="p">({</span><span class="ss">:lookup</span><span class="p">,</span> <span class="n">key</span><span class="p">},</span> <span class="n">_from</span><span class="p">,</span> <span class="n">_state</span><span class="p">)</span> <span class="n">do</span>
-    <span class="n">case</span> <span class="ss">:ets</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="na">@table_name</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="n">do</span>
+  <span class="kd">def</span> <span class="n">handle_call</span><span class="p">({</span><span class="ss">:lookup</span><span class="p">,</span> <span class="n">key</span><span class="p">},</span> <span class="n">_from</span><span class="p">,</span> <span class="n">_state</span><span class="p">)</span> <span class="k">do</span>
+    <span class="k">case</span> <span class="ss">:ets</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="na">@table_name</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="k">do</span>
       <span class="p">[{</span><span class="o">^</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">}]</span> <span class="o">-&gt;</span> <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">value</span><span class="p">}</span>
       <span class="n">_</span> <span class="o">-&gt;</span> <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="ss">:not_found</span><span class="p">}</span>
-    <span class="n">end</span>
-  <span class="n">end</span>
-<span class="n">end</span></code></pre></div>
-<p>This is because if we are wrapping <code>:ets.lookup</code> in the <code>GenServer.call</code>, we
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div><p>This is because if we are wrapping <code>:ets.lookup</code> in the <code>GenServer.call</code>, we
 are losing the performance gained from using <code>ets</code> and limiting our usage of
 <code>ets</code>, like reading and writing concurrently with <code>ets</code>.</p>
-
 <p>The <code>GenServer.call</code>
 will become the bottleneck as every lookup is going through the
 single <code>GenServer</code> process. Avoid that, <em>unless you are doing this intentionally to act as a back pressure mechanism.</em></p>
-
 <h1 id="limitations-of-genserver">Limitations of GenServer</h1>
-
 <p>As mentioned, GenServer is just a process. Every process in BEAM
 has one mailbox, where the messages are processed <em>synchronously</em>. This is the
 reason why it can become the bottleneck of your system when the load increased.</p>
-
 <p>As <code>GenServer</code> messages in the mailbox increased, it will start performing
 even slower due to the internal mechanism on how it process the messages.
 As your process mailbox get larger, the process will need to go through all the
 messages in the mailbox to match the message in the <code>receive</code> pattern again.</p>
-
 <p>Here is how the <a href="https://erlang.org/doc/getting_started/conc_prog.html#processes">Erlang documentation</a> describe the mechanism of Process
 processing the messages:</p>
-
 <blockquote>
 <p>Each process has its own input queue for messages it receives. New messages
 received are put at the end of the queue. When a process executes a receive,
 the first message in the queue is matched against the first pattern in the receive.
 If this matches, the message is removed from the queue and the actions
 corresponding to the pattern are executed.</p>
-
 <p>However, if the first pattern does not match, the second pattern is tested.
 If this matches, the message is removed from the queue and the actions
 corresponding to the second pattern are executed. If the second pattern
 does not match, the third is tried and so on until there are no more patterns to test.</p>
 </blockquote>
-
 <p>Using GenServer is fine until your load increases
 and it become the bottleneck. People commonly use <code>ets</code> or
 having a pool of <code>GenServer</code> processes to cope with the high load.</p>
-
 <p>But, how do you know your GenServer process have too many messages in their
 mailbox?  A quick way to check the messages length in your process mailbox is
 to use <code>Process.info(genserver_process, :message_queue_len)</code>, which
 return the total number messages in the process mailbox.</p>
-
 <p>If you would like to know more about it, here are some of the resources where I
 refer to and that are related:</p>
-
 <ul>
 <li><a href="https://www.cogini.com/blog/avoiding-genserver-bottlenecks/">Avoiding GenServer bottlenecks</a></li>
 <li><a href="https://groups.google.com/forum/#!msg/elixir-lang-talk/PY4n1qsI3vU/DZNpHfpxqD8J">GenServer and scaling</a></li>
 <li><a href="https://stackoverflow.com/questions/36216246/in-erlang-when-a-processs-mailbox-growth-bigger-it-runs-slower-why">StackOverflow Question</a></li>
 </ul>
-
-<h1 id="do-and-don-t-of-genserver">Do and Don&rsquo;t of GenServer</h1>
-
+<h1 id="do-and-dont-of-genserver">Do and Don&rsquo;t of GenServer</h1>
 <p>Here are some of the do and don&rsquo;ts when you use GenServer:</p>
-
 <h2 id="1-do-have-a-separate-supervisor-for-your-genserver-process-instead-of-using-the-root-supervisor">1. Do have a separate supervisor for your <code>GenServer</code> process, instead of using the root supervisor.</h2>
-
 <p>Ideally, it&rsquo;s always better to have different <code>Supervisor</code> for your GenServer
 process, instead of using the root application <code>Supervisor</code>. This allow us to
 avoid edge scenario where repeating failures of your GenServer process bring
 down your whole application.</p>
-
 <p>The idea behind is to always <strong>design your supervision tree and think about how
 you need your system to behave when things go wrong</strong>.</p>
-
 <p>According to <a href="https://erlang.org/doc/design_principles/des_princ.html#supervision-trees">Erlang documentation</a>, OTP design principles define how we
 structure code in terms of processes, modules and directories, and <em>supervision
 trees is introduced to help us model our processes based on the idea of
 workers and supervisors</em>.</p>
-
 <p>I guess, the takeaway is: <strong>think about the supervision tree of your
 GenServer whenever you use GenServer</strong>.</p>
-
 <div class="callout callout-info">
 <p>I recently came across this article on <a
 href="https://moosecode.nl/blog/why_supervise_every_process">
@@ -397,96 +324,74 @@ why process should be supervised</a>, which I think is relevant to this point
 too.
 </p>
 </div>
-
-<h2 id="2-do-add-a-catch-all-for-your-custom-handle-info-callback">2. Do add a catch all for your custom <code>handle_info</code> callback.</h2>
-
+<h2 id="2-do-add-a-catch-all-for-your-custom-handle_info-callback">2. Do add a catch all for your custom <code>handle_info</code> callback.</h2>
 <p>When we <code>use GenServer</code>, Elixir actually include a default catch all
 <code>handle_info</code> implementation <em>(from the source code <a href="https://github.com/elixir-lang/elixir/blob/master/lib/elixir/lib/gen_server.ex#L781">here</a>)</em>. However,
 when you start overwriting by defining your own callback:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">def</span> <span class="n">handle_info</span><span class="p">(</span><span class="n">...</span><span class="p">)</span> <span class="n">do</span>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">def</span> <span class="n">handle_info</span><span class="p">(</span><span class="n">...</span><span class="p">)</span> <span class="k">do</span>
   <span class="n">...</span>
-<span class="n">end</span></code></pre></div>
-<p>The default callback is then overridden.</p>
-
+<span class="k">end</span>
+</code></pre></div><p>The default callback is then overridden.</p>
 <p>If you don&rsquo;t want unmatch message to raise error in your GenServer, don&rsquo;t
 forget to implement a catch all <code>handle_info</code>.</p>
-
 <h2 id="3-do-understand-when-to-use-cast-and-when-to-use-call">3. Do understand when to use <code>cast</code> and when to use <code>call</code>.</h2>
-
 <p>As a newcomer to Elixir, the only difference I know about <code>cast</code> and <code>call</code> is:</p>
-
 <ul>
 <li><code>cast</code> is asynchronous. Use it when you don&rsquo;t care about the result, or
 whether it has been executed.</li>
 <li><code>call</code> is synchronous. Use it when you need the result, or ensure it has been
 executed.</li>
 </ul>
-
 <p>But when I dive deeper, I found that calling <code>cast</code> on a GenServer
 process that doesn&rsquo;t exists still return you <code>:ok</code>. With <code>cast</code>, there is
 no guarantee that it is executed. <em>(Well it&rsquo;s actually
 written clearly in the docs but I never read it in detail&hellip;)</em></p>
-
 <p>There is also this <a href="https://elixirforum.com/t/genserver-docs-handle-cast-should-be-used-sparingly-why">Elixir forum threads</a> which discuss about why we should use <code>cast</code>
 sparingly according to the documentation. Some people recommended to always use <code>call</code>
 and avoid <code>cast</code> even you don&rsquo;t need the reply, so that it act as a back pressure and
 prevent overloading from the clients <em>(and also ensure it&rsquo;s really been processed)</em>.</p>
-
 <p>Again, it really depends the nature of your system. But, do keep in mind of the
 trade offs of the decision. And, <strong>when in doubt, use <code>call</code></strong> <em>(Not the inventor of this quote,
 I probably read it somewhere else in the internet)</em>.</p>
-
-<h2 id="4-don-t-use-atom-for-dynamically-allocated-name-for-genserver-name-registration">4. Don’t use atom for dynamically allocated name for GenServer name registration.</h2>
-
+<h2 id="4-dont-use-atom-for-dynamically-allocated-name-for-genserver-name-registration">4. Don’t use atom for dynamically allocated name for GenServer name registration.</h2>
 <p>This is also mentioned clearly in <a href="https://hexdocs.pm/elixir/GenServer.html#module-name-registration">Elixir GenServer documentation</a>:</p>
-
 <blockquote>
 <p>If there is an interest to register dynamic names locally, do not use atoms,
 as atoms are never garbage-collected and therefore dynamically generated atoms
 won&rsquo;t be garbage-collected.</p>
 </blockquote>
-
 <p>As mentioned, atoms are never garbage-collected. So, you could end up crashing
 your BEAM VM if your code happens to create <em>too much</em> dynamic naming
 GenServer.</p>
-
 <p>The documentation suggested to setup our own local registry with <code>Registry</code>
 module. I have not much experience on this so I&rsquo;ll probably stop here.</p>
-
 <h1 id="wrap-up">Wrap Up</h1>
-
 <p>Before I wrap up, There are a couple of well known Elixir library that is build
 on top of GenServer. To named a few:</p>
-
 <ul>
 <li><a href="https://github.com/elixir-lang/gen_stage">GenStage</a></li>
 <li><a href="https://github.com/dashbitco/flow">Flow</a></li>
 <li><a href="https://github.com/dashbitco/broadway">Broadway</a></li>
 </ul>
-
 <p>All these libraries are build on top of plain OTP behaviour like GenServer and
 Supervisor, which then allow more specific use case. The authors take care of
 the generic behavior and allow us to implement application specific logic and
 code.</p>
-
 <p>I also tried to look up a few real world use case of plain GenServer behaviour
 and here are what I found over the internet:</p>
-
 <ul>
 <li><a href="https://dockyard.com/blog/2017/05/19/optimizing-elixir-and-phoenix-with-ets">Rate Limiter with GenServer and ETS</a></li>
 <li>Key Value Cache with GenServer and ETS
-
 <ul>
 <li><a href="https://github.com/sasa1977/con_cache">con_cache</a></li>
 <li><a href="https://github.com/whitfin/cachex">cachex</a></li>
-</ul></li>
+</ul>
+</li>
 <li><a href="https://blog.discord.com/scaling-elixir-f9b8e1e7c29b">Discord usage of GenServer</a></li>
 </ul>
-
 <p>Hopefully, this post covers all the things you need to know about GenServer
 before using it in production. Again, I am no expert in this area and I am just
 presenting my findings <em>(which could be wrong)</em>.</p>
-
 <p>Different systems have different requirements. It is important to understand
 why one have a different approach in their context before following blindly.
 The same applies to some of the opinion here. I might say don&rsquo;t do this and
