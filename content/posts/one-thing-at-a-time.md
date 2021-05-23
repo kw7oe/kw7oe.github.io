@@ -5,13 +5,7 @@ draft: true
 categories: life
 ---
 
-Lately, I have been struggling to accomplish anything I set out to do. I wanted
-to:
-
-- Wake up at 7:30 am every day.
-- Have a consistent morning routine _(workout and meditate)_.
-- Publish a post that I have been writing for weeks.
-- Learn C++ and Database Systems
+Lately, I have been struggling to accomplish anything I set out to do.
 
 I want to do a lot of things. Yet, I accomplished nothing.
 
@@ -23,23 +17,43 @@ Let me tell you the single trick I use to get better.
 
 # The fallacy of having many goals
 
-See, I was ambitious and wanting to do ten thousands different things given the
-limited time I have per day.
+Lately, I have been so ambitious that I wanted to do a lot of different
+things, even though I only have at most 8 hours per day _(excluding work and
+sleep)_.
 
-That's bad.
+That's bad. Throughout the last few weeks, I'm not feeling satisfied nor proud
+of the work that I did. I'm always struggling about: _"What should I do now?"_
+whenever I have free time.
 
-Have you heard of Paradox of Choice? When we are having too many goals set out
-for ourselves, we have inherently fallen into the prey of having too many
-choices.
+My inner self is constantly reprioritizing the things that I wanted to do. Some
+time, A win, while other time, B, C and D win. So given that scenario guess
+how's my progress for each goal looks like?
+
+<insert diagram here maybe>
+
+Have you heard of Paradox of Choice? This is a perfect example for that.
+
+When we are having too many goals set out for ourselves,
+we have inherently fallen into the prey of having too many choices.
+
+When you have too many goals, that are equally important, nothing is important.
+When nothing is important, every single time, you have to go through the inner
+conflict, to decide what's the goal you want to work on that particular day.
+You have more noise, more cognito effort needed to prioritize your goals
+_(repeatedly everyday)_,
+
+On top of that, to "feel accomplished", you wanted to work a bit on everything.
+When that happen, your attention span, effort are spread across all the goals
+you have.
 
 When you set out to have too many goals, it becomes harder to prioritize and
 focus on on your goals. Now you have your attention span and effort spread
 across all these.
 
-```
-More goals -> More noise -> More cognitive effort to prioritize -> Less big
-chunk of time for focus
-```
+<might be able to insert chopstick story?>
+
+> The whole is greater than the sum of its parts.
+
 
 # Why one thing at a time?
 
