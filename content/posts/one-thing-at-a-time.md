@@ -9,7 +9,7 @@ Lately, I have been struggling to accomplish anything I set out to do.
 
 I want to do a lot of things. Yet, I accomplished nothing.
 
-Do you have the similar experience? Are you struggling with this as well?
+Do you have the similar experience and struggling as well?
 
 Let me tell you the single trick I use to get better.
 
@@ -22,7 +22,7 @@ Sound simple right? But simple is not easy.
 I wanted to do a lot of different things, even though I only have
 at most 8 hours per day _(excluding work and sleep)_.
 
-Throughout the last few weeks, I'm not feeling satisfied nor proud
+Throughout the last few weeks, I'm not satisfied nor proud
 of the work that I did. I'm always struggling about: _"What should I do now?"_
 whenever I have free time.
 
@@ -33,7 +33,7 @@ So given that scenario guess how's my progress for each goal looks like?
 
 Have you heard of Paradox of Choice? This is a perfect example for that.
 
-When we are having too many goals set out for ourselves,
+When we have too many goals set out for ourselves,
 we have inherently fallen into the prey of having too many choices.
 
 When we have _too many goals, that are equally important, nothing is important._
@@ -45,25 +45,18 @@ We now have more noise, thus, more cognito effort needed to prioritize our goals
 _(repeatedly everyday)_,
 
 On top of that, to "feel accomplished", we wanted to work a bit on everything.
-When that happen, our attention span, effort are spread across all the goals
+When that happen, our attention span and effort are spread across all the goals
 we have.
 
-When we set out to have too many goals, it becomes harder to prioritize and
-focus on on our goals. Now we have our attention span and effort spread
-across all these.
-
-> might be able to insert chopstick story?
+It becomes harder to prioritize and focus on on our goals.
 
 > The whole is greater than the sum of its parts.
 
-
 # Why one thing at a time?
 
-First and foremost, by focusing on one thing at a time,
-I have less **context switching**.
+First and foremost, by focusing on one thing at a time, I have less **context switching**.
 
-Less context switch also means I can get into the flow easier, and hence have
-a better focus and involvement in the activity as well.
+I can get into the flow easier, and hence have a better focus in the activity as well.
 
 With laser like focus, I get to accomplish my goal earlier as well.
 
@@ -71,13 +64,8 @@ By focusing on one thing at a time, I'm also 100% clear that this is the right
 thing to work on. Since, I have done the prioritization with myself when
 deciding that what are the one thing I want to focus on.
 
-Once I have completed one thing, I repeat the process of prioritization
+Once I have completed the one thing, I repeat the process of prioritization
 and to decide the next _one thing_ I would like to focus on.
-
-```
-insert example of how focusing on one can help you finish
-your goal in a shorter amount of time vs trying to do 3-4 items at once
-```
 
 # What if I get bored!?
 
@@ -86,13 +74,13 @@ Focusing on doing one thing the whole month is hard.
 You might get bored with the tasks on hand easily. You might just want to
 switch to work on a different thing.
 
-When that happen, it's important to understand:
+When that happen, it's important to understand the why.
 
 > Why do I get bored? Is this still the thing I really wanted to do?
-> If so, why do you feel bored?
+> If so, why do I feel bored?
 
-Take some time, to think about this. It's crucial because it helps us to
-understand what we really want. _Know thyself._
+Take some time, to think about it. It's crucial because it helps us to
+understand what we really want. _Know thyself_, they said.
 
 There could be a couple of reasons:
 
@@ -104,31 +92,35 @@ There could be a couple of reasons:
   everything where you can't stop yourself from feeling curious and wanting to
   get your hands dirty.
 
-Practically, while I advocate you to focus on one thing at a time, the scope of
-the application depends on you.
+Practically, while I advocate you to focus on one thing at a time, you can
+apply it differently according to your context.
 
 - If focusing on one thing the whole month is hard, start with focusing on one
-  thing every week. For example, for each week of the month, spend the whole
-  week to write, and another week to build your side project. With this, you
-  are probably more likely to complete writing your article and publish it.
+  thing every week.
 - If focusing on one thing the whole week is hard, start with focusing on one
-  thing per day. For example, instead of writing the whole week, for Monday,
-  Wednesday and Friday, you only aim to spend your time writing. On the other
-  days of the week, you can spend your time building your side project. Even
-  with this approach, you'll have a better output and not being bored of doing
-  the same thing the whole week.
+  thing per day.
 - If focusing on one thing the whole day is hard, start with focusing on one
-  thing per hour. For example, every day, you'll probably have around 2-3 hours
-  for your personal time. Instead of focusing on writing that day, allocate an
-  hour where you focus your time on actually writing.
+  thing per hour.
 - If focusing on one thing an hour is hard, start with, stop
-  multitasking on whatever you are doing. For example, I always have some
-  YouTube video playing my monitor when I work on something _(even at this time
-  of writing, I have a YouTube video playing in my monitor)_. One small change
-  is to just stop having the YouTube playing and have all my 5 senses focusing
-  on the task on hand.
+  multitasking on whatever you are doing.
 
-Did you get the idea behind? We are applying the practice at different scope.
+For example:
+- For each week of the month, spend the whole week to write, and another week to
+  build your side project. With this, you are probably more likely to complete
+  writing your article and publish it.
+- Instead of writing the whole week, for Monday, Wednesday and Friday,
+  you only aim to spend your time writing. On the other days of the week,
+  you can spend your time building your side project. Even with this approach,
+  you'll have a better output and not being bored of doing the same thing the whole week.
+- Every day, you'll probably have around 2-3 hours for your personal time.
+  Instead of focusing on writing that day, allocate an hour where you focus
+  your time on actually writing.
+- I always have some YouTube video playing my monitor when I work
+  on something _(even at this time of writing, I have a YouTube video playing in my monitor)_.
+  One small change is to just stop having the YouTube playing and have all my 5 senses
+  focusing on the task on hand.
+
+Did you get the idea behind?
 
 I'm scoping it to different time aspect above, but you can also apply
 it by category. For example, focusing on only one hobby project at a time
@@ -138,18 +130,19 @@ instead of having 2-3 hobby projects, where you end up shipping nothing.
 
 1. Get a paper and write down all the things that you want to do.
 2. Figure out your evaluation criteria for your prioritization. For example,
-   happiness, value, knowledge, financial, or a mixed of these. But the simpler
-   the better, especially when you just get started.
+happiness, value, knowledge, financial, or a mixed of these. But the simpler
+the better, especially when you just get started.
 3. Based on your criteria, choose the top 3 things that ranked the highest.
-   That is if your criteria is about happiness, pick the 3 things that bring
-   you the most happiness. _(Why 3 things, because I'm assuming you'll probably
-   get bored doing the same thing the whole week?)_
-4. Scheduled the time blocks to work on the 3 things _throughout your week_.
-   Choosing weekly here is because, at this stage, we probably don't need
-   ourselves that well yet, and our prioritization might be wrong, so by
-   limiting to a week, the worst case is you spend a week of your life to
-   try out something that you think is valuable for you but turn out don't.
-5. Rinse and repeat from step 1 to 4 every week.
+That is if your criteria is about happiness, pick the 3 things that bring
+you the most happiness. _(Why 3 things, because I'm assuming you'll probably
+get bored doing the same thing the whole week)_
+4. Scheduled the time blocks to work on the 3 things _**throughout your week**_.
+We choose weekly here because, at this stage, we probably don't know
+ourselves that well and our prioritization might be wrong, so by
+limiting to a week, the worst case is you spend a week of your life to
+try out something that you think is valuable for you but turn out not to be
+valuable as you thought.
+5. Rinse and repeat from step 1 to 4 **every week**.
 
 **Other tips and tricks:**
 
@@ -159,7 +152,7 @@ instead of having 2-3 hobby projects, where you end up shipping nothing.
   example, when I started building the habit of reading, I scheduled a 20
   minutes time block to read every day and it works out well for me. However,
   if I want to learn a new programming language or to build a side project, 20
-   minutes is not enough to get me in the zone and get stuff done for real.
+  minutes is not enough to get me in the zone and get stuff done for real.
 - If focusing on a thing per hour is hard, just try to avoid multitasking as
   the very first step. This is what I have been trying out for this week and
   it work pretty well for me. Even sometime I do multitask, the frequency of
@@ -198,4 +191,4 @@ References:
 
 Quotes:
 
-> ... the answer to all future distractions is “no” until you finish what you started. It’s saying yes to one thing, and no to absolutely everything else.
+  > ... the answer to all future distractions is “no” until you finish what you started. It’s saying yes to one thing, and no to absolutely everything else.
