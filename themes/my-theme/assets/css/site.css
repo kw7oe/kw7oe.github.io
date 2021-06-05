@@ -115,6 +115,10 @@ nav#TableOfContents > ul > li {
   @apply mt-4;
 }
 
+.markdown li > ul {
+  list-style-type: circle;
+}
+
 .markdown ul, ul.disc {
   @apply list-disc;
   @apply ml-8;
