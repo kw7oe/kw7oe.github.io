@@ -29,7 +29,7 @@ whenever I have free time.
 My inner self is constantly prioritizing the things that I wanted to do.
 So given that scenario guess how's my progress for each goal looks like?
 
-> insert diagram here maybe
+# Paradox of Choice
 
 Have you heard of Paradox of Choice? This is a perfect example for that.
 
@@ -39,25 +39,43 @@ we have inherently fallen into the prey of having too many choices.
 When we have _too many goals, that are equally important, nothing is important._
 
 When nothing is important, every single time, we have to go through the inner
-conflict, to decide what's the goal we want to work on that particular day.
+conflict, to decide what we want to work on that particular day.
 
-We now have more noise, thus, more cognito effort needed to prioritize our goals
-_(repeatedly everyday)_,
+We also have more noise, which required more cognito effort to prioritize our goals everyday.
 
-On top of that, to "feel accomplished", we wanted to work a bit on everything.
+To make things worse, to "feel accomplished", we try to work a bit on everything.
+
 When that happen, our attention span and effort are spread across all the goals
-we have.
-
-It becomes harder to prioritize and focus on on our goals.
+we have. Remember the saying:
 
 > The whole is greater than the sum of its parts.
+
+In short, having too many goals make it harder for us to prioritize and
+focus on on our goals.
+
+# Elimination of Choices
+
+When that happen, we need to start to say no to ourselves.
+
+> ... the answer to all future distractions is “no” until you finish what you started. It’s saying yes to one thing, and no to absolutely everything else.
+
+Derek Sivers sum it up pretty well in his [article][0], "Saying no to
+everything else".
+
+When we are overloaded by all the possibilities we have in our life, and we
+can't decide, it's time for us to stop deciding. One last decision we need to
+make is just pick the _one thing_ that:
+
+- excite you the most, _or_
+- you'll feel the most regret if you didn't do it
+
+And start focusing on doing that one thing.
 
 # Why one thing at a time?
 
 First and foremost, by focusing on one thing at a time, I have less **context switching**.
 
-I can get into the flow easier, and hence have a better focus in the activity as well.
-
+I can get into the flow easier, and hence have a better focus in the activity.
 With laser like focus, I get to accomplish my goal earlier as well.
 
 By focusing on one thing at a time, I'm also 100% clear that this is the right
@@ -66,6 +84,13 @@ deciding that what are the one thing I want to focus on.
 
 Once I have completed the one thing, I repeat the process of prioritization
 and to decide the next _one thing_ I would like to focus on.
+
+To sum up, by working on one thing at a time:
+
+- I prioritize my goals ahead. Hence, no more time spent every day to decide
+  what I want to do.
+- I have less context switch. I focus on one thing every single day.
+
 
 # What if I get bored!?
 
@@ -86,7 +111,7 @@ There could be a couple of reasons:
 
 - The thing you are focusing on might require intense effort. It's more
   mentally/physically draining where it's not feasible to work on it every
-  single day the whole month. This means that you want to balance out your day
+  day the whole month. This means that you want to balance out your day
   with something less intensive.
 - You just can't work on a single thing the whole month. You are so curious of
   everything where you can't stop yourself from feeling curious and wanting to
@@ -132,11 +157,11 @@ instead of having 2-3 hobby projects, where you end up shipping nothing.
 2. Figure out your evaluation criteria for your prioritization. For example,
 happiness, value, knowledge, financial, or a mixed of these. But the simpler
 the better, especially when you just get started.
-3. Based on your criteria, choose the top 3 things that ranked the highest.
-That is if your criteria is about happiness, pick the 3 things that bring
+3. Based on your criteria, choose the top 2-3 things that ranked the highest.
+That is if your criteria is about happiness, pick the 2-3 things that bring
 you the most happiness. _(Why 3 things, because I'm assuming you'll probably
 get bored doing the same thing the whole week)_
-4. Scheduled the time blocks to work on the 3 things _**throughout your week**_.
+4. Scheduled the time blocks to work on the 2-3 things _**throughout your week**_.
 We choose weekly here because, at this stage, we probably don't know
 ourselves that well and our prioritization might be wrong, so by
 limiting to a week, the worst case is you spend a week of your life to
@@ -152,7 +177,7 @@ valuable as you thought.
   example, when I started building the habit of reading, I scheduled a 20
   minutes time block to read every day and it works out well for me. However,
   if I want to learn a new programming language or to build a side project, 20
-  minutes is not enough to get me in the zone and get stuff done for real.
+  minutes is not enough to get me in the zone and get stuff done.
 - If focusing on a thing per hour is hard, just try to avoid multitasking as
   the very first step. This is what I have been trying out for this week and
   it work pretty well for me. Even sometime I do multitask, the frequency of
@@ -163,32 +188,4 @@ better and understanding yourself and the process of prioritization, you can
 apply the practice on monthly. But it would not be 100% similar to the process
 above.
 
-## Metadata
-Questions:
-
-- How to complete the things that you have procrastinated all along.
-- How to stop juggling around so many things and get nothing accomplished by
-  the end of your month.
-- Why you should focus on one thing at a time for your personal development.
-- Why you should probably drop the other 3 things that you set out to achieve
-  by the end of this month.
-- Have too many goals you set out for your month? Consider dropping all of them
-  other than the most important one.
-- Why you shouldn't try to accomplished everything at once.
-- How to chill and focus on one thing at a time.
-
-Supporting Points:
-
-- Chinese Chopstick example
-- Paradox of Choice
-- Diagram of how your time/energy will be split out
-- Minimum regret
-
-References:
-
-- James Clear keystone habit article.
-- Derek Sivers: https://sive.rs/no2
-
-Quotes:
-
-  > ... the answer to all future distractions is “no” until you finish what you started. It’s saying yes to one thing, and no to absolutely everything else.
+[0]: https://sive.rs/no2
