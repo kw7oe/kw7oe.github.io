@@ -1,5 +1,5 @@
 ---
-title: "One thing at a time"
+title: "The one simple trick to accomplish your (so many) goals"
 date: 2021-05-16T20:53:50+08:00
 draft: true
 categories: life
@@ -17,6 +17,15 @@ Let me tell you the single trick I use to get better.
 
 Sound simple right? But simple is not easy.
 
+In this post, I'll cover:
+
+- [The fallacy of having many goals](#the-fallacy-of-having-many-goals)
+- [Paradox of Choice](#paradox-of-choice)
+- [Elimination of Choice](#elimination-of-choice)
+- [Why one thing at a time?](#why-one-thing-at-a-time)
+- [What if I get bored!?](#what-if-i-get-bored)
+- [How to get started?](#how-to-get-started)
+
 # The fallacy of having many goals
 
 I wanted to do a lot of different things, even though I only have
@@ -27,7 +36,11 @@ of the work that I did. I'm always struggling about: _"What should I do now?"_
 whenever I have free time.
 
 My inner self is constantly prioritizing the things that I wanted to do.
+
 So given that scenario guess how's my progress for each goal looks like?
+
+Not great. My focus and time is distributed across different things and I ended up
+not feeling satisfied with my output.
 
 # Paradox of Choice
 
@@ -41,7 +54,7 @@ When we have _too many goals, that are equally important, nothing is important._
 When nothing is important, every single time, we have to go through the inner
 conflict, to decide what we want to work on that particular day.
 
-We also have more noise, which required more cognito effort to prioritize our goals everyday.
+We also have more noise, which required more cognitive effort to prioritize our goals everyday.
 
 To make things worse, to "feel accomplished", we try to work a bit on everything.
 
@@ -53,7 +66,7 @@ we have. Remember the saying:
 In short, having too many goals make it harder for us to prioritize and
 focus on on our goals.
 
-# Elimination of Choices
+# Elimination of Choice
 
 When that happen, we need to start to say no to ourselves.
 
@@ -80,10 +93,10 @@ With laser like focus, I get to accomplish my goal earlier as well.
 
 By focusing on one thing at a time, I'm also 100% clear that this is the right
 thing to work on. Since, I have done the prioritization with myself when
-deciding that what are the one thing I want to focus on.
+deciding the one thing I want to focus on.
 
 Once I have completed the one thing, I repeat the process of prioritization
-and to decide the next _one thing_ I would like to focus on.
+to decide the next _one thing_ I would like to focus on.
 
 To sum up, by working on one thing at a time:
 
@@ -109,12 +122,13 @@ understand what we really want. _Know thyself_, they said.
 
 There could be a couple of reasons:
 
-- The thing you are focusing on might require intense effort. It's more
-  mentally/physically draining where it's not feasible to work on it every
-  day the whole month. This means that you want to balance out your day
+- The thing you are focusing on require intense effort. It's more
+  mentally/physically draining. Hence, it's not feasible to work on it every
+  day the whole month. For such scenario, you want to balance out your day
   with something less intensive.
-- You just can't work on a single thing the whole month. You are so curious of
-  everything where you can't stop yourself from feeling curious and wanting to
+- You just can't work on a single thing the whole month. You are so curious
+  about
+  everything where you can't stop yourself to
   get your hands dirty.
 
 Practically, while I advocate you to focus on one thing at a time, you can
@@ -126,24 +140,17 @@ apply it differently according to your context.
   thing per day.
 - If focusing on one thing the whole day is hard, start with focusing on one
   thing per hour.
-- If focusing on one thing an hour is hard, start with, stop
-  multitasking on whatever you are doing.
+- If focusing on one thing an hour is hard, start with, **stop
+  multitasking on whatever you are doing**.
 
 For example:
-- For each week of the month, spend the whole week to write, and another week to
-  build your side project. With this, you are probably more likely to complete
-  writing your article and publish it.
-- Instead of writing the whole week, for Monday, Wednesday and Friday,
-  you only aim to spend your time writing. On the other days of the week,
-  you can spend your time building your side project. Even with this approach,
-  you'll have a better output and not being bored of doing the same thing the whole week.
-- Every day, you'll probably have around 2-3 hours for your personal time.
-  Instead of focusing on writing that day, allocate an hour where you focus
-  your time on actually writing.
-- I always have some YouTube video playing my monitor when I work
+- For each week of the month, spend a week to write, and another to build your side project.
+- Instead of writing the whole week, you spend your time writing on Monday, Wednesday and Friday.  On the other days, you spend your time building your side project.
+- Instead of focusing on writing for a day, allocate an hour where you focus your time on writing.
+- I always have some YouTube video playing in my monitor when I work
   on something _(even at this time of writing, I have a YouTube video playing in my monitor)_.
-  One small change is to just stop having the YouTube playing and have all my 5 senses
-  focusing on the task on hand.
+  One small change is to just stop having the YouTube video playing and focus
+  on a single task at hand.
 
 Did you get the idea behind?
 
@@ -152,6 +159,14 @@ it by category. For example, focusing on only one hobby project at a time
 instead of having 2-3 hobby projects, where you end up shipping nothing.
 
 # How to get started?
+
+A straightforward way to get started is:
+
+> to say no to everything and say yes to the one and only thing that excite you
+
+as mentioned in ["Elimination of Choice"](#elimination-of-choice) section.
+
+If that's hard to do the above, here's a more structural approach:
 
 1. Get a paper and write down all the things that you want to do.
 2. Figure out your evaluation criteria for your prioritization. For example,
@@ -188,4 +203,14 @@ better and understanding yourself and the process of prioritization, you can
 apply the practice on monthly. But it would not be 100% similar to the process
 above.
 
+# Closing
+
+Does this mean I have figure it all out? Hell no. It's a simple trick, but also a hard one to stick with. It takes practice and reflection over and over again until you find the process that work for you. **Give it a try. Who know what it will lead to?**
+
+Imagine how your world will
+become, if you just stop multitasking _(on things that shouldn't be
+multitask)_.
+
+
 [0]: https://sive.rs/no2
+
