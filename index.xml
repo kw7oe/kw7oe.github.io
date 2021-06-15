@@ -8,6 +8,19 @@
     <language>en-us</language>
     <lastBuildDate>Wed, 15 May 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://kaiwern.com/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>The one simple trick to accomplish your (so many) goals</title>
+      <link>https://kaiwern.com/posts/2021/06/15/the-one-simple-trick-to-accomplish-your-so-many-goals/</link>
+      <pubDate>Tue, 15 Jun 2021 22:00:00 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2021/06/15/the-one-simple-trick-to-accomplish-your-so-many-goals/</guid>
+      <description>Lately, I have been struggling to accomplish anything I set out to do.
+I want to do a lot of things. Yet, I accomplished nothing.
+Do you have the similar experience and struggling as well?
+Let me tell you the single trick I use to get better.
+ Focus on one thing at a time.</description>
+    </item>
+    
+    <item>
       <title>Blue Green Deployment with Nginx for Elixir/Phoenix Release</title>
       <link>https://kaiwern.com/posts/2021/05/15/blue-green-deployment-with-nginx-for-elixir-phoenix-release/</link>
       <pubDate>Sat, 15 May 2021 19:30:41 +0800</pubDate>

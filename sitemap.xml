@@ -2,6 +2,18 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://kaiwern.com/categories/</loc>
+    <lastmod>2021-06-15T22:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/categories/life/</loc>
+    <lastmod>2021-06-15T22:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/posts/</loc>
+    <lastmod>2021-06-15T22:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/posts/2021/06/15/the-one-simple-trick-to-accomplish-your-so-many-goals/</loc>
+    <lastmod>2021-06-15T22:00:00+08:00</lastmod>
+  </url><url>
     <loc>https://kaiwern.com/posts/2021/05/15/blue-green-deployment-with-nginx-for-elixir-phoenix-release/</loc>
     <lastmod>2021-05-15T19:30:41+08:00</lastmod>
   </url><url>
@@ -17,19 +29,10 @@
     <loc>https://kaiwern.com/tags/phoenix/</loc>
     <lastmod>2021-05-15T19:30:41+08:00</lastmod>
   </url><url>
-    <loc>https://kaiwern.com/posts/</loc>
-    <lastmod>2021-05-15T19:30:41+08:00</lastmod>
-  </url><url>
     <loc>https://kaiwern.com/tags/</loc>
     <lastmod>2021-05-15T19:30:41+08:00</lastmod>
   </url><url>
-    <loc>https://kaiwern.com/categories/</loc>
-    <lastmod>2021-03-23T22:54:52+08:00</lastmod>
-  </url><url>
     <loc>https://kaiwern.com/posts/2021/03/23/dont-be-too-hard-on-yourself/</loc>
-    <lastmod>2021-03-23T22:54:52+08:00</lastmod>
-  </url><url>
-    <loc>https://kaiwern.com/categories/life/</loc>
     <lastmod>2021-03-23T22:54:52+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/posts/2021/01/19/2020-in-review/</loc>
