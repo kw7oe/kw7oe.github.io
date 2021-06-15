@@ -1,7 +1,6 @@
 ---
 title: "The one simple trick to accomplish your (so many) goals"
-date: 2021-05-16T20:53:50+08:00
-draft: true
+date: 2021-06-15T22:00:00+08:00
 categories: life
 ---
 
