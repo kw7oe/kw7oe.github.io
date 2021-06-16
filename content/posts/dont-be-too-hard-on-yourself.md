@@ -120,8 +120,7 @@ To be able to cope with this, is to:
 - learn to be good to yourself
 
 
-
-[0]: https://lethain.com/limiting-wipx)
+[0]: https://lethain.com/limiting-wipx
 [1]: https://www.eferro.net/2021/01/small-batches-for-win-continuous.html
 [2]: https://blog.stephsmith.io/how-to-be-great/
 [3]: https://youtu.be/KjpuxiV-_Es?t=404
