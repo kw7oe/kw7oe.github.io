@@ -1,31 +1,42 @@
 ---
 author: Choong Kai Wern
 title: About
-date: 2019-05-13
+date: 2021-06-19
 description: A short description about me.
 keywords: []
 ---
 
-Hi, I am Kai Wern Choong, a software engineer at Naluri. I like to read, learn, code and cook.
-Welcome to my blog. Here I write about technology and life.
+Hi, I am Kai Wern.  Welcome to my blog. Here I write about
+software engineering and [life](/categories/life/).
 
-Some of the technologies I used day to day are:
+Some of the tools I used day to day are:
 
 - vim
 - Elixir/Phoenix
 - JavaScript/TypeScript
+- PostgreSQL
 
-So, you can expect posts about these technologies from my blog.
+So, you can expect posts about these tools from my blog. I also like
+to cook and am currently trying to write more and post consistently.
 
-Lately, due to work schedule, I have not been able to write a lot. Hopefully, I
-can write consistently in the coming month. ~~I have been writing a bit more
-lately and manage to publish around one article per month.~~
+## Now
 
+Currently, I am:
 
-## Projects
+- Trying out different breakfast recipe 🌮🥪🍕🧀🍳 every weekend.
+- Trying to publish one post per month in this blog.
+- Learning C++ so I can work on the project of the [CMU CS
+  14-445](https://15445.courses.cs.cmu.edu) while following along the lectures
+  in YouTube. _(Hopefully I can finish this course...)_
+- Playing around with:
+  - [LiveBook](https://github.com/elixir-nx/livebook)
+  - [OpenTelemetry](https://github.com/open-telemetry/opentelemetry-erlang)
+  - Grafana, Loki, and Tempo
+- Thinking about what's some "cool" project I can build.
 
-I work on some side projects to learn and solve my personal problems in my
-spare time. Here are some of them:
+## Abandoned Projects
+
+These are some of the side projects that I worked on in the past to learn, which now has been abandoned by me:
 
 - [TIL][1]: A Today I learned web application developed
 with Phoenix. It includes basic features like adding post with Markdown and tagging.
