@@ -11,6 +11,9 @@ summaryLength = 50
 [permalinks]
 posts = "/:sections/:year/:month/:day/:slug/"
 
+[build]
+  writeStats = true
+
 [markup]
   [markup.goldmark]
     [markup.goldmark.renderer]
