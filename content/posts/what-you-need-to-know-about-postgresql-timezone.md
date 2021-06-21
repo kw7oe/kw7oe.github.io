@@ -1,5 +1,5 @@
 ---
-title: "What You Need to Know About Postgresql Timezone"
+title: "What You Need to Know About PostgreSQL Timezone"
 date: 2021-06-19T23:22:41+08:00
 draft: true
 ---
@@ -17,6 +17,7 @@ Let's open a `psql` session to try out.
 psql -U postgres
 ```
 
+### Show Database Timezone
 To show the current timezone of our PostgreSQL, it is as simple as:
 
 ```postgres
@@ -31,6 +32,8 @@ SHOW timezone;
 (1 row)
 ```
 
+### Set Database Timezone
+
 To change our timezone, we can use the `SET timezone` command:
 
 ```postgres
@@ -42,6 +45,7 @@ That's all right? Now our database timezone is updated to `Asia/Kuala_Lumpur`
 right?
 
 Let's exit our `psql` session, and reenter into it again:
+
 ```
 postgres#= \q
 psql -U postgres
@@ -57,21 +61,58 @@ postgres=# SHOW timezone;
 (1 row)
 ```
 
-Wait what? Didn't we just set our timezone? Yeah, but `SET timezone` is
-actually setting the timezone for your `psql` session. It's not changing the
-underlying timezone for the database. In order to do that, there are two
-approach:
+Wait what? Didn't we just set our timezone? Yeah, but **`SET timezone` is
+actually setting the timezone for your `psql` session**. It's not changing the
+underlying timezone for the database.
 
-- `ALTER DATABASE postgres SET timezone TO 'Asia/Kuala_Lumpur';`
-- Update `postgresql.conf` file, and reload your configuration.
+In order to do that, there are two approach:
 
-```
-timezone = 'Etc/GMT+8'
-```
+1. **Use `ALTER DATABASE` command**
 
-```sql
-select pg_reload_conf();
-```
+    We can alter our database timezone by using the following command:
+
+    ```sql
+    ALTER DATABASE postgres SET timezone TO 'Asia/Kuala_Lumpur';
+    ```
+
+    In this case, we are setting the timezone of our `postgres` database.
+    You might want to change the value to your database name.
+
+2. **Update `postgresql.conf` file, and reload your configuration.**
+
+    Alternatively, you can update your PostgreSQL configuration file. If you
+    are not sure where does the file located at, you can use the following
+    command to find out:
+
+    ```sql
+    postgres=# SHOW config_file;
+                                   config_file
+    -------------------------------------------------------------------------
+     /Users/kai/Library/Application Support/Postgres/var-9.6/postgresql.conf
+    (1 row)
+    ```
+
+    Then you can go over that file and edit the timezone by searching for the
+    `timezone` keyword. You should see something like this and make the changes
+    needed:
+
+    ```
+    timezone = 'Asia/Kuala_Lumpur'
+    ```
+
+    However, the changes will not reflect until you manually commnd PostgreSQL
+    to reload the new configuration. This can be done with:
+
+    ```sql
+    select pg_reload_conf();
+    ```
+
+    Now `show timezone` will reflect the updated timezone.
+
+    _Note that this will not work if you have previously run the `ALTER DATABASE`
+    command to set the database timezone._ You can undo the action by running
+    another `ALTER DATABASE postgres SET timezone TO DEFAULT;` command.
+
 
 ## Understanding the difference between `timestamptz` and `timestamp`
 
