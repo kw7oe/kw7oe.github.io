@@ -118,6 +118,8 @@ nav#TableOfContents > ul > li {
 
 .markdown li > ul {
   list-style-type: circle;
+  @apply mb-0;
+  @apply mt-0;
 }
 
 .markdown ul, ul.disc {
