@@ -26,6 +26,19 @@ use the options I share below...)_
 
 Today, I am going to cover `:dbg`, where I came across recently
 while trying to debug my code.
+Here's what you can expect from this post:
+
+- [Introduction](#introduction)
+  - [Starting `:dbg`](#starting-dbg)
+  - [Specifying what to trace](#specifying-what-to-trace)
+  - [Tracing in action](#tracing-in-action)
+  - [Stopping the tracing](#stopping-the-tracing)
+  - [All together](#all-together)
+- [Customization](#customization)
+  - [Getting return trace/value](#getting-return-tracevalue)
+  - [Include timestamps of function call](#include-timestamps-of-function-call)
+  - [Tracing more specific function call](#tracing-more-specific-function-call)
+  - [Writing match spec](#writing-match-spec)
 
 _All of the stuff written here are referenced from the following StackOverflow
 questions:_
@@ -158,11 +171,28 @@ To get the return trace, we can specify more options in `:dbg.tpl` as follow:
 
 ```elixir
 :dbg.tpl(Enum, :map, 2, [{:_, [], [{:return_trace}]}])
-# (<0.106.0>) call 'Elixir.Enum':map([1,2,3],#Fun<erl_eval.44.97283095>)
-# (<0.106.0>) returned from 'Elixir.Enum':map/2 -> [2,3,4]
 ```
 
-The additional options we provide is called the [`MatchSpec`][4].
+The additional options we provide is called the [`MatchSpec`][4], which we will
+cover further later.
+
+**Example:**
+
+```elixir
+:dbg.start
+:dbg.tracer
+
+:dbg.tpl(Enum, :map, 2, [{:_, [], [{:return_trace}]}])
+
+:dbg.p(:all, :c)
+
+Enum.map([1,2,3], & &1 + 1)
+# (<0.106.0>) call 'Elixir.Enum':map([1,2,3],#Fun<erl_eval.44.97283095>)
+# (<0.106.0>) returned from 'Elixir.Enum':map/2 -> [2,3,4]
+# [2,3,4]
+
+:dbg.stop
+```
 
 ## Include timestamps of function call
 
@@ -171,13 +201,24 @@ calling `:dbg.p`:
 
 ```elixir
 :dbg.p(:all, [:c, :timestamp])
+```
+
+**Example:**
+
+```elixir
+:dbg.start
+:dbg.tracer
+:dbg.tpl(Enum, :map, 2, [{:_, [], [{:return_trace}]}])
+
+:dbg.p(:all, [:c, :timestamp])
 
 Enum.map([1,2,3,4], & &1 + 1)
-#=> [2, 3, 4, 5]
-#=> {:trace_ts, #PID<0.106.0>, :call,
-#=> {Enum, :map, [[1, 2, 3, 4], #Function<44.97283095/1 in :erl_eval.expr/5>]},
-#=> Erlang Timestamp tuple here
-#=> {1603, 377071, 478813}}
+# [2, 3, 4, 5]
+# (<0.105.0>) call 'Elixir.Enum':map([1,2,3,4],#Fun<erl_eval.44.40011524>) (Timestamp: {1624, 687361, 187278})
+# (<0.105.0>) returned from 'Elixir.Enum':map/2 -> [2,3,4,5] (Timestamp: {1624, 687361, 187303})
+# ^ The timestmap is in Erlang Timestamp tuple format.
+
+:dbg.stop
 ```
 
 ## Tracing more specific function call
@@ -187,14 +228,7 @@ arguments, for example a user id, or specific category. You could do this by
 modifying the match spec for `:dbg.tpl`:
 
 ```elixir
-:dbg.tpl(Enum, :map, 2, [{[[1, 2, 3], :_], [], [:return_trace]}])
-
-Enum.map([1,2,3], & &1 + 1)
-# (<0.106.0>) call 'Elixir.Enum':map([1,2,3],#Fun<erl_eval.44.97283095>)
-# (<0.106.0>) returned from 'Elixir.Enum':map/2 -> [2,3,4]
-
-Enum.map([1,2], & &1 + 1)
-# Nothing is logged
+:dbg.tpl(Enum, :map, 2, [{[[1, 2, 3], :_], [], [{:return_trace}]}])
 ```
 
 The first argument in the first tuple of the match spec, is the
@@ -204,27 +238,99 @@ function parameter that we want to match. Here, we want to match
 - first parameter matching `[1,2,3]`
 - second parameter matching `:_` which is anything.
 
+Do note the enclosing `{}` for `:return_trace`. It is crucial to have it for
+the tracer to trace your return value as well _(which is missing from the
+previous version of this post)_.
+
+**Example:**
+```elixir
+:dbg.start
+:dbg.tracer
+
+:dbg.tpl(Enum, :map, 2, [{[[1, 2, 3], :_], [], [{:return_trace}]}])
+
+:dbg.p(:all, :c)
+
+Enum.map([1,2,3], & &1 + 1)
+# (<0.106.0>) call 'Elixir.Enum':map([1,2,3],#Fun<erl_eval.44.97283095>)
+# (<0.106.0>) returned from 'Elixir.Enum':map/2 -> [2,3,4]
+# [2, 3, 4]
+
+Enum.map([1,2], & &1 + 1)
+# Nothing is logged
+# [2, 3]
+```
+
 _"How do I write those complicated match spec?"_, you might be wondering. Rest
 assure, that's what we cover next.
 
-## Writing a match spec
+## Writing match spec
 
-Sometimes, it is hard to write match spec for complicated scenario.
+It can be hard to write match spec for complicated scenario.
 Luckily, `:dbg.fun2ms` can be used to help you transform your function to a
 match spec:
 
 ```elixir
 :dbg.fun2ms(fn [[1,2,3], _] -> :return_trace end)
-#=> [{[1, 2, 3], [], [:return_trace]}]
+# [{[1, 2, 3], [], [:return_trace]}]
 ```
 
 Notice that the function parameter is expecting a list of parameter `[]`
 instead of multiple parameter values. If you attempt to do multiple parameters
-like this:
+like this, you'll get an error:
 
 ```elixir
 :dbg.fun2ms(fn [1,2,3], _ -> :return_trace end)
-#=> Error: dbg:fun2ms requires fun with single variable or list parameter #=> {:error, :transform_error}
+# Error: dbg:fun2ms requires fun with single variable or list parameter
+# {:error, :transform_error}
+```
+
+However, the match spec is not entirely correct. To have your return trace
+working correctly, it need to be wrapped in `{}`. So this won't work:
+
+```elixir
+:dbg.start
+:dbg.tracer
+
+match_spec = :dbg.fun2ms(fn [[1,2,3], _] -> :return_trace end)
+:dbg.tpl(Enum, :map, match_spec)
+:dbg.p(:all, :c)
+
+# With trace of function call but no return value
+Enum.map([1,2,3], & &1 + 1)
+# (<0.105.0>) call 'Elixir.Enum':map([1,2,3],#Fun<erl_eval.44.40011524>)
+# [2, 3, 4]
+
+:dbg.stop
+```
+
+Hence, you'll have to transform the match spec abit. Here's how we can do it:
+
+```elixir
+match_spec = :dbg.fun2ms(fn [[1,2,3], _] -> :return_trace end)
+match_spec = Enum.map(match_spec, fn {args, guards, [:return_trace]} ->
+  {args, guards, [{:return_trace}]}
+end)
+```
+
+So, the full working example looks like this:
+```elixir
+:dbg.start
+:dbg.tracer
+
+match_spec = :dbg.fun2ms(fn [[1,2,3], _] -> :return_trace end)
+match_spec = Enum.map(match_spec, fn {args, guards, [:return_trace]} ->
+  {args, guards, [{:return_trace}]}
+end)
+
+:dbg.tpl(Enum, :map, match_spec)
+:dbg.p(:all, :c)
+
+# With trace of function call and return value.
+Enum.map([1,2,3], & &1 + 1)
+# (<0.105.0>) call 'Elixir.Enum':map([1,2,3],#Fun<erl_eval.44.40011524>)
+# (<0.105.0>) returned from 'Elixir.Enum':map/2 -> [2,3,4]
+# [2, 3, 4]
 ```
 
 # Wrap Up
@@ -244,6 +350,16 @@ also consider get yourself a free copy of [`Erlang in Anger`][5] where the
 author of `recon` wrote about diagnosing BEAM application with `recon` and many
 more.
 
+---
+
+_Updated (26th June 2021):_
+  - Add Table of Content for better navigation.
+  - Organize code example so that it can be copy and paste to run locally
+    easily.
+  - Fix missing `{}` for `:return_trace` in `Tracing more specific function call` section.
+  - Fix misguided `Writing a match spec` session as using `:dbg.fun2ms` will
+    not work out of the box and need some modification to get the return value
+    of the trace correctly.
 
 [0]: https://stackoverflow.com/questions/50364530/elixir-trace-function-call
 [1]: https://www.youtube.com/watch?v=OR2Gc6_Le2U
