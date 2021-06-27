@@ -6,22 +6,40 @@
     <description>Recent content in Tags on kw7oe</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 15 May 2021 19:30:41 +0800</lastBuildDate><atom:link href="https://kaiwern.com/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 27 Jun 2021 18:42:02 +0800</lastBuildDate><atom:link href="https://kaiwern.com/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>deployment</title>
-      <link>https://kaiwern.com/tags/deployment/</link>
-      <pubDate>Sat, 15 May 2021 19:30:41 +0800</pubDate>
+      <title>debugging</title>
+      <link>https://kaiwern.com/tags/debugging/</link>
+      <pubDate>Sun, 27 Jun 2021 18:42:02 +0800</pubDate>
       
-      <guid>https://kaiwern.com/tags/deployment/</guid>
+      <guid>https://kaiwern.com/tags/debugging/</guid>
       <description></description>
     </item>
     
     <item>
       <title>elixir</title>
       <link>https://kaiwern.com/tags/elixir/</link>
-      <pubDate>Sat, 15 May 2021 19:30:41 +0800</pubDate>
+      <pubDate>Sun, 27 Jun 2021 18:42:02 +0800</pubDate>
       
       <guid>https://kaiwern.com/tags/elixir/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>tracing</title>
+      <link>https://kaiwern.com/tags/tracing/</link>
+      <pubDate>Sun, 27 Jun 2021 18:42:02 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/tags/tracing/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>deployment</title>
+      <link>https://kaiwern.com/tags/deployment/</link>
+      <pubDate>Sat, 15 May 2021 19:30:41 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/tags/deployment/</guid>
       <description></description>
     </item>
     
@@ -40,24 +58,6 @@
       <pubDate>Sat, 15 May 2021 19:30:41 +0800</pubDate>
       
       <guid>https://kaiwern.com/tags/phoenix/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>debugging</title>
-      <link>https://kaiwern.com/tags/debugging/</link>
-      <pubDate>Mon, 02 Nov 2020 20:45:48 +0800</pubDate>
-      
-      <guid>https://kaiwern.com/tags/debugging/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>tracing</title>
-      <link>https://kaiwern.com/tags/tracing/</link>
-      <pubDate>Mon, 02 Nov 2020 20:45:48 +0800</pubDate>
-      
-      <guid>https://kaiwern.com/tags/tracing/</guid>
       <description></description>
     </item>
     

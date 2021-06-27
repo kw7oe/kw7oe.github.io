@@ -6,7 +6,17 @@
     <description>Recent content in Posts on kw7oe</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 15 Jun 2021 22:00:00 +0800</lastBuildDate><atom:link href="https://kaiwern.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 27 Jun 2021 18:42:02 +0800</lastBuildDate><atom:link href="https://kaiwern.com/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Debugging with tracing in Elixir with recon_trace</title>
+      <link>https://kaiwern.com/posts/2021/06/27/debugging-with-tracing-in-elixir-with-recon_trace/</link>
+      <pubDate>Sun, 27 Jun 2021 18:42:02 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2021/06/27/debugging-with-tracing-in-elixir-with-recon_trace/</guid>
+      <description>In my previous blog post, Debugging with Tracing in Elixir, I mentioned about using recon_trace from recon to trace your function calls in your live system.
+After using recon_trace a few times and always needing to going back to the documentation to figure out how to use it correctly, I decided to write this post to document the common usage I came across.</description>
+    </item>
+    
     <item>
       <title>The one simple trick to accomplish your (so many) goals</title>
       <link>https://kaiwern.com/posts/2021/06/15/the-one-simple-trick-to-accomplish-your-so-many-goals/</link>
