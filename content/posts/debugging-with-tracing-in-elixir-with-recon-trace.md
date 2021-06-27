@@ -1,7 +1,7 @@
 ---
 title: "Debugging with tracing in Elixir with recon_trace"
-date: 2021-06-27T16:42:02+08:00
-draft: true
+date: 2021-06-27T18:42:02+08:00
+tags: ["elixir", "tracing", "debugging"]
 ---
 
 In my previous blog post, [Debugging with Tracing in Elixir]({{< ref "debugging-with-tracing-in-elixir" >}}),
@@ -21,9 +21,9 @@ This is what you can expect from this posts, hopefully it helps!
   - [Tracing more specific function calls](#tracing-more-specific-function-calls)
   - [Writing match spec](#writing-match-spec)
 
-If you want to get hands on, I have setup a [Livebook][0] notebook with all the
-code examples below. So, spin up your Livebook and import the notebook
-from this [link] to get started!
+_If you want to get hands on, I have written a [Livebook][0] notebook with all the
+code examples below.  So, headover to the [repository](https://github.com/kw7oe/livebook-notebooks)
+to follow the instruction to import the notebook url to your Livebook._
 
 # Installing `recon`
 
