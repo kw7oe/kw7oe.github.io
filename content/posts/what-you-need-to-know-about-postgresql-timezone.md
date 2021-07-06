@@ -58,19 +58,27 @@ To change our timezone, we can use the `SET timezone` command:
 ```postgres
 SET timezone="UTC";
 SET TIME ZONE 'Asia/Kuala_Lumpur';
+SHOW timezone;
 ```
 
-That's all right? Now our database timezone is updated to `Asia/Kuala_Lumpur`
-right?
-
-Let's exit our `psql` session, and reenter into it again:
-
+**Output:**
 ```
-postgres#= \q
-psql -U postgres
+     TimeZone
+-------------------
+ Asia/Kuala_Lumpur
+ (1 row)
+ ```
+
+You can check all of the supported timezone names by using the following query:
+
+```sql
+select * from pg_timezone_names;
 ```
 
-Now if we run `SHOW timezone`, it would be `Asia/Kuala_Lumpur` right? Nope.
+---
+
+Let's exit our `psql` session, and reenter into it again. If
+we run `SHOW timezone`, it would be `Asia/Kuala_Lumpur` right? Nope.
 
 ```
 postgres=# SHOW timezone;
@@ -80,9 +88,9 @@ postgres=# SHOW timezone;
 (1 row)
 ```
 
-Wait what? Didn't we just set our timezone? Yeah, but **`SET timezone` is
-actually setting the timezone for your `psql` session**. It's not changing the
-underlying timezone for the database.
+**`SET timezone` is actually setting the timezone for your
+`psql` session**. It's not changing the underlying timezone
+for the database.
 
 In order to do that, there are two approach:
 
@@ -95,7 +103,6 @@ In order to do that, there are two approach:
     ```
 
     In this case, we are setting the timezone of our `postgres` database.
-    You might want to change the value to your database name.
 
 2. **Update `postgresql.conf` file, and reload your configuration.**
 
@@ -341,17 +348,53 @@ understand. In reality, the behavior can be sum up as:
   is in and which timezone our input is, the value is always consistently shown
   as: `2020-01-01 00:00:00`.
 - For `timestamptz`, PostgreSQL always convert the value into the database
-  timezone. Here are the possible example:
-  - Given datetime without timezone info: `2020-01-01 00:00:00`, no conversion is
-    carried out and PostgreSQL assume the input to have the same timezone with
-    the database. Hence the output is: `2020-01-01 00:00:00+00`.
-  - Given datetime with timezone info that is the same with the database
-    timezone: `2020-01-01 00:00:00+00`, no conversion is carried out.
-  - Given datetime with timezone info that is different than the database
-    timezone: `2020-01-01 00:00:00+08`, conversion is carried out.
+  timezone. There are 3 possible type of datetime given:
+
+  | Input Type | Conversion |
+  | --- | --- |
+  | Datetime without timezone | No |
+  | Datetime with same timezone | No |
+  | Datetime wiht different timezone | Yes |
+
 - For input, without any explicit casting of type, the behaviour depends on the
   input format. Input with timezone info, is casted to `timestamptz`, while
   input without timezone, is casted to `timestamp`
+
+# Behaviour of `AT TIME ZONE`
+
+As mentioned above, we can use `AT TIME ZONE` to convert the date time stored
+to a different timezone. Sounds easy to understand right? But, always always
+refer to the documentation first to understand the behavior.
+
+According to [PostgreSQL documentation][2]:
+> The AT TIME ZONE converts time stamp without time zone to/from time stamp with time zone, and time values to different time zones.
+
+Basically, this can be summarized into `AT TIME ZONE`:
+
+- convert datetime of `timestamp` to `timestamptz`.
+- convert datetime of `timestamptz` to `timestamp` by shifting the time
+  according to the given timezone.
+
+
+**Examples**
+
+```sql
+SET TIME ZONE 'UTC';
+SELECT
+  '2020-01-01 00:00:00+00'::timestamptz AT TIME ZONE 'Asia/Kuala_Lumpur' as
+  timestamptz_at_utc,
+  '2020-01-01 00:00:00'::timestamp AT TIME ZONE 'Asia/Kuala_Lumpur' as timestamp_at_utc;
+```
+
+**Output:**
+```
+-[ RECORD 1 ]------+-----------------------
+timestamptz_at_utc | 2020-01-01 08:00:00
+timestamp_at_utc   | 2019-12-31 16:00:00+00
+```
+
+
+
 
 
 
@@ -360,3 +403,4 @@ References:
 - https://stackoverflow.com/questions/6663765/postgres-default-timezone
 
 [1]: https://www.postgresql.org/docs/12/datatype-datetime.html
+[2]: https://www.postgresql.org/docs/12/functions-datetime.html#FUNCTIONS-DATETIME-ZONECONVERT
