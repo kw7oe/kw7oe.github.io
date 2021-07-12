@@ -372,8 +372,8 @@ According to [PostgreSQL documentation][2]:
 Basically, this can be summarized into `AT TIME ZONE`:
 
 - convert datetime of `timestamp` to `timestamptz`.
-- convert datetime of `timestamptz` to `timestamp` by shifting the time
-  according to the given timezone.
+- convert datetime of `timestamptz` to `timestamp`.
+- convert time with timezone to a different timezone.
 
 
 **Examples**
@@ -393,14 +393,100 @@ timestamptz_at_utc | 2020-01-01 08:00:00
 timestamp_at_utc   | 2019-12-31 16:00:00+00
 ```
 
+Confusing? Let me break it down for you.
 
+```sql
+SELECT '2020-01-01 00:00:00+00'::timestamptz AT TIME ZONE 'Asia/Kuala_Lumpur';
+```
 
+This is essentially saying that, given the datetime `2020-01-01 00:00:00+00`,
+what are the datatime value of it in `Asia/Kuala_Lumpur` timezone?
+Since, Kuala Lumpur is 8 hours ahead UTC, it shift the datetime forward.
 
+This behaviour is the same as what most of us expect PostgreSQL to do for us.
+
+However, when we are using `AT TIME ZONE` on `timestamp`, the behavior is
+totally different.
+
+```sql
+SELECT '2020-01-01 00:00:00'::timestamp AT TIME ZONE 'Asia/Kuala_Lumpur';
+--         timezone
+-- ------------------------
+-- 2019-12-31 16:00:00+00
+-- (1 row)
+```
+
+This is essentially saying that, assuming `2020-01-01 00:00:00` is in
+`Asia/Kuala_Lumpur` timezone, which is `2020-01-01 00:00:00+08`, what are the
+datetime value of it in our current database timezone _(which is in UTC)_?
+Hence, to convert that, since UTC is 8 hours behind `Asia/Kuala_Lumpur`
+timezone, we will need to that shift the datetime backward.
+
+So, in other words the above SQL command is similar to:
+
+```sql
+SELECT '2020-01-01 00:00:00+08' AT TIME ZONE 'UTC';
+--       timezone
+-- ---------------------
+-- 2019-12-31 16:00:00
+--(1 row)
+```
+
+## Summary
+
+Assuming that:
+- **`given timezone`**: `Asia/Kuala Lumpur`
+- **`current database timezone`**: `UTC`
+
+| input | output | explanation |
+| --- | --- | --- |
+| 2020-01-01 00:00:00+00 | 2020-01-01 08:00:00 | Given the input, what are the datetime value after converting to the `given timezone`?
+| 2020-01-01 00:00:00 | 2019-12-31 16:00:00+00 | Given the input, assuming it is in the `given timezone`, what are the datetime value after converting to our `current database timezone`?
+
+# POSIX timezone
+
+Last but not least, is knowing about POSIX timezone. If you notice,
+throughout the post, I'm avoiding using `Etc/GMT+8` even though that would
+convey the hours different clearer.
+
+If you try to replace all of the example query with `Etc/GMT+8`, you'll realize
+why.
+
+```sql
+SELECT
+  '2020-01-01 00:00:00+00' AT TIME ZONE 'Etc/GMT+8',
+  '2020-01-01 00:00:00+00' AT TIME ZONE 'Asia/Kuala_Lumpur';
+```
+
+```
+-[ RECORD 1 ]-----------------
+timezone | 2019-12-31 16:00:00
+timezone | 2020-01-01 08:00:00
+```
+
+How `Etc/GMT+8` behave on PostgreSQL is totally different from what I expected.
+At least before I understand POSIX timezone.
+
+Basically, what most of us understand of is based on `ISO-8601` sign
+convention, where `+` indicate the timezone east (to the right) of Greenwich.
+
+However, in POSIX standard, it's completely opposite, where `+` indicate the
+zones west (to the left) of Greenwich.
+
+> The offset fields specify the hours, and optionally minutes and seconds, difference from UTC. They have the format hh[:mm[:ss]] optionally with a leading sign (+ or -). The positive sign is used for zones west of Greenwich. (Note that this is the opposite of the ISO-8601 sign convention used elsewhere in PostgreSQL.) hh can have one or two digits; mm and ss (if used) must have two.
+
+And in this case, `Etc/GMT+8` is interpreted in POSIX standard.
+
+So, rule of thumb, avoid `Etc/GMT**` if you don't to get yourself confuse.
 
 
 References:
 
 - https://stackoverflow.com/questions/6663765/postgres-default-timezone
+- https://unix.stackexchange.com/questions/104088/why-does-tz-utc-8-produce-dates-that-are-utc8
+- https://www.postgresql.org/docs/13/datetime-posix-timezone-specs.html
+- https://en.wikipedia.org/wiki/Tz_database#Area
 
 [1]: https://www.postgresql.org/docs/12/datatype-datetime.html
 [2]: https://www.postgresql.org/docs/12/functions-datetime.html#FUNCTIONS-DATETIME-ZONECONVERT
+
