@@ -23,6 +23,9 @@ Throughout this post, you'll learn about:
 - `Etc/GMT+8` doesn't work as expected? Learn about POSIX timezone will tell
   you why.
 
+I'm going to use `Asia/Kuala_Lumpur` and `UTC` timezone through the post
+when demonstrating the behaviour. `Asia/Kuala_Lumpur` is 8 hours ahead UTC (+08).
+So just keep that in mind.
 
 
 # Getting and setting your database timezone.
@@ -363,7 +366,7 @@ understand. In reality, the behavior can be sum up as:
 # Behaviour of `AT TIME ZONE`
 
 As mentioned above, we can use `AT TIME ZONE` to convert the date time stored
-to a different timezone. Sounds easy to understand right? But, always always
+to a different timezone. Sounds easy to understand right? But, always
 refer to the documentation first to understand the behavior.
 
 According to [PostgreSQL documentation][2]:
@@ -375,62 +378,133 @@ Basically, this can be summarized into `AT TIME ZONE`:
 - convert datetime of `timestamptz` to `timestamp`.
 - convert time with timezone to a different timezone.
 
+Hence, given different input type, PostgreSQL will behave differently. Let's
+take a look at a few simple examples.
 
-**Examples**
+## Using with `timestamptz`
+
+Let's start with converting the timezone using `AT TIME ZONE` for `timestamptz`
+input.
 
 ```sql
 SET TIME ZONE 'UTC';
-SELECT
-  '2020-01-01 00:00:00+00'::timestamptz AT TIME ZONE 'Asia/Kuala_Lumpur' as
-  timestamptz_at_utc,
-  '2020-01-01 00:00:00'::timestamp AT TIME ZONE 'Asia/Kuala_Lumpur' as timestamp_at_utc;
-```
-
-**Output:**
-```
--[ RECORD 1 ]------+-----------------------
-timestamptz_at_utc | 2020-01-01 08:00:00
-timestamp_at_utc   | 2019-12-31 16:00:00+00
-```
-
-Confusing? Let me break it down for you.
-
-```sql
 SELECT '2020-01-01 00:00:00+00'::timestamptz AT TIME ZONE 'Asia/Kuala_Lumpur';
 ```
 
-This is essentially saying that, given the datetime `2020-01-01 00:00:00+00`,
-what are the datatime value of it in `Asia/Kuala_Lumpur` timezone?
-Since, Kuala Lumpur is 8 hours ahead UTC, it shift the datetime forward.
+Before looking at the return value below, let's try to answer yourself.
 
-This behaviour is the same as what most of us expect PostgreSQL to do for us.
+...
 
-However, when we are using `AT TIME ZONE` on `timestamp`, the behavior is
-totally different.
+...
 
-```sql
-SELECT '2020-01-01 00:00:00'::timestamp AT TIME ZONE 'Asia/Kuala_Lumpur';
---         timezone
--- ------------------------
--- 2019-12-31 16:00:00+00
--- (1 row)
+**Output:**
+
+```
+      timezone
+---------------------
+ 2020-01-01 08:00:00
+(1 row)
 ```
 
-This is essentially saying that, assuming `2020-01-01 00:00:00` is in
-`Asia/Kuala_Lumpur` timezone, which is `2020-01-01 00:00:00+08`, what are the
-datetime value of it in our current database timezone _(which is in UTC)_?
-Hence, to convert that, since UTC is 8 hours behind `Asia/Kuala_Lumpur`
+So it's your answer correct?
+
+Our SQL query is basically asking:
+
+> What are the datetime of `2020-01-01 00:00:00` in `UTC (+00)` timezone when we are converting it to `Asia/Kuala_Lumpur (+08)` timezone?
+
+Since, Kuala Lumpur is 8 hours ahead UTC, it shift the datetime forward.
+
+Notice that as mentioned in the documentation, when we use `AT TIME ZONE` to
+change the timezone of a `timestamptz`, the return value will be in `timestamp`.
+
+There shouldn't be any surprise for this use case as it is behaving as what we
+expected. Let's take a look at another example.
+
+## Using with `timestamp`
+
+Using `AT TIME ZONE` with input of `timestamp` will behave differently.
+However, it's not clear for us in the first sight.
+
+```sql
+SET TIME ZONE 'UTC';
+SELECT '2020-01-01 00:00:00'::timestamp AT TIME ZONE 'Asia/Kuala_Lumpur';
+```
+
+Again, try to answer this yourself first, before looking at the output.
+
+...
+
+...
+
+**Output:**
+
+```
+        timezone
+------------------------
+ 2019-12-31 16:00:00+00
+(1 row)
+ ```
+
+Did you answer `2020-01-01 08:00:00` for this one as well? Don't be ashamed of
+getting wrong on this one. I made the same mistakes too. But why PostgreSQL
+shift the time backward instead of forward when `Asia/Kuala_Lumpur` is 8 hours
+ahead UTC?
+
+With this query, we are basically asking:
+
+> What are the datetime of `2020-01-01 00:00:00` in `Asia/Kuala_Lumpur`
+> timezone when we are converting it to \<timezone\>?
+
+But notice that, we didn't specify which timezone we are converting to in our
+query.
+
+Unlike using with `timestamptz`, where the timezone of the datetime
+input is from the `00:00:00+00` and the timezone to be converted to is from `AT
+TIME ZONE 'Asia/Kuala_Lumpur`, for `timestamp` we never specified which
+timezone we want PostgreSQL to convert to.
+
+So, what PostgreSQL do, is converting it to the current database timezone,
+which we set as `UTC` using `SET TIME ZONE 'UTC';`. So the whole query is
+equivalent to asking:
+
+> What are the datetime of `2020-01-01 00:00:00` in `Asia/Kuala_Lumpur`
+> timezone when we are converting it to UTC timezone?
+
+Since UTC is 8 hours behind `Asia/Kuala_Lumpur`
 timezone, we will need to that shift the datetime backward.
 
 So, in other words the above SQL command is similar to:
 
 ```sql
 SELECT '2020-01-01 00:00:00+08' AT TIME ZONE 'UTC';
---       timezone
--- ---------------------
--- 2019-12-31 16:00:00
---(1 row)
 ```
+
+```
+      timezone
+---------------------
+2019-12-31 16:00:00
+1 row)
+```
+
+### Summary
+
+To summarized, when we use `AT TIME ZONE` with `timestamp`, we are saying given
+this datetime assuming it is in this timezone. So we essentially convert:
+
+```
+2020-01-01 00:00:00
+```
+
+to
+
+```
+2020-01-01 00:00:00+08
+```
+
+with `AT TIME ZONE 'Asia/Kuala_Lumpur`. However, since PostgreSQL need to
+display the datetime with the current database timezone, it will convert the
+timezone again.
+
 
 ## Summary
 
