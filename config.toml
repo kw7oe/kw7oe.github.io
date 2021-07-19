@@ -15,6 +15,9 @@ posts = "/:sections/:year/:month/:day/:slug/"
   writeStats = true
 
 [markup]
+  [markup.tableOfContents]
+    endLevel = 1
+    startLevel = 1
   [markup.goldmark]
     [markup.goldmark.renderer]
       unsafe = true

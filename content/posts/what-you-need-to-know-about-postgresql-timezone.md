@@ -7,7 +7,7 @@ draft: true
 How many time have you been bitten up by timezone in PostgreSQL?
 
 I'm not sure about you but every time I work with timezone, I get f*cked by it.
-Every single time, I have to reread certain resources and google search again to
+Every single time, I have to reread [certain resources][7] and google search again to
 make sure I am understanding the behavior of it correctly.
 
 It's time for me to a put a stop on this now. Hence, I'm writing this post to
@@ -16,19 +16,18 @@ timezone.
 
 Throughout this post, you'll learn about:
 
-- Getting and setting your database timezone
-- Understanding the difference between `timestamp` and `timestamptz` _(with
-  examples)_
-- Behaviour of `AT TIME ZONE` with `timestamp` and `timestamptz`
-- `Etc/GMT+8` doesn't work as expected? Learn about POSIX timezone will tell
-  you why.
+- [Getting and setting your database
+  timezone](#getting-and-setting-your-database-timezone)
+- [Understanding the difference between timestamp and timestamptz](#understanding-the-difference-between-timestamp-and-timestamptz)
+- [Behaviour of `AT TIME ZONE`](#behaviour-of-at-time-zone)
+- [POSIX timezone](#posix-timezone)
 
 I'm going to use `Asia/Kuala_Lumpur` and `UTC` timezone through the post
 when demonstrating the behaviour. `Asia/Kuala_Lumpur` is 8 hours ahead UTC (+08).
-So just keep that in mind.
+Do keep that in mind.
 
 
-# Getting and setting your database timezone.
+# Getting and setting your database timezone
 
 First and foremost, we need to know how to get and set our current database
 timezone.
@@ -142,6 +141,7 @@ In order to do that, there are two approach:
     command to set the database timezone._ You can undo the action by running
     another `ALTER DATABASE postgres SET timezone TO DEFAULT;` command.
 
+_I am able to wrote this up thanks to this [StackOverflow question][8]._
 
 # Understanding the difference between `timestamp` and `timestamptz`
 
@@ -506,16 +506,19 @@ display the datetime with the current database timezone, it will convert the
 timezone again.
 
 
-## Summary
+## Summary for `AT TIME ZONE`
 
 Assuming that:
 - **`given timezone`**: `Asia/Kuala Lumpur`
 - **`current database timezone`**: `UTC`
 
-| input | output | explanation |
-| --- | --- | --- |
-| 2020-01-01 00:00:00+00 | 2020-01-01 08:00:00 | Given the input, what are the datetime value after converting to the `given timezone`?
-| 2020-01-01 00:00:00 | 2019-12-31 16:00:00+00 | Given the input, assuming it is in the `given timezone`, what are the datetime value after converting to our `current database timezone`?
+Calling `AT TIME ZONE` with the above info can be summarized as:
+
+| Input | Query | Explanation | Output |
+| --- | --- | --- | --- |
+| 2020-01-01 00:00:00+00 (timestamptz) | `SELECT '2020-01-01 00:00:00+00'::timestamptz AT TIME ZONE 'Asia/Kuala_Lumpur';` | Given the input, what are the datetime value after converting to the `given timezone`? | 2020-01-01 08:00:00 (timestamp) |
+| 2020-01-01 00:00:00 (timestamp) | `SELECT '2020-01-01 00:00:00'::timestamp AT TIME ZONE 'Asia/Kuala_Lumpur';` | Given the input, assuming it is in the `given timezone`, what are the datetime value after converting to our `current database timezone`? | 2019-12-31 16:00:00+00 (timestamptz) |
+
 
 # POSIX timezone
 
@@ -539,28 +542,46 @@ timezone | 2020-01-01 08:00:00
 ```
 
 How `Etc/GMT+8` behave on PostgreSQL is totally different from what I expected.
-At least before I understand POSIX timezone.
+At least before I understand POSIX timezone _(thanks to this [StackOverflow
+question][5])_.
 
-Basically, what most of us understand of is based on `ISO-8601` sign
-convention, where `+` indicate the timezone east (to the right) of Greenwich.
+In this case, `Etc/GMT+8` is interpreted in POSIX standard.
 
-However, in POSIX standard, it's completely opposite, where `+` indicate the
-zones west (to the left) of Greenwich.
+## What is POSIX timezone standard?
+
+According to [PostgreSQL documentation here][3]:
 
 > The offset fields specify the hours, and optionally minutes and seconds, difference from UTC. They have the format hh[:mm[:ss]] optionally with a leading sign (+ or -). The positive sign is used for zones west of Greenwich. (Note that this is the opposite of the ISO-8601 sign convention used elsewhere in PostgreSQL.) hh can have one or two digits; mm and ss (if used) must have two.
 
-And in this case, `Etc/GMT+8` is interpreted in POSIX standard.
+
+Basically, what most of us understand of, is based on `ISO-8601` sign
+convention, where `+` indicate the timezone east _(to the right)_ of Greenwich.
+
+However, in POSIX standard, it's completely opposite, where `+` indicate the
+zones west _(to the left)_ of Greenwich.
 
 So, rule of thumb, avoid `Etc/GMT**` if you don't to get yourself confuse.
 
+_If you want to understand about the naming of `Etc/..`, you can refer to this
+[Wikipedia article about tz database][4]._
 
-References:
+# Wrap Up
 
-- https://stackoverflow.com/questions/6663765/postgres-default-timezone
-- https://unix.stackexchange.com/questions/104088/why-does-tz-utc-8-produce-dates-that-are-utc8
-- https://www.postgresql.org/docs/13/datetime-posix-timezone-specs.html
-- https://en.wikipedia.org/wiki/Tz_database#Area
+Hopefully that's helpful to you. While in this post we cover about PostgreSQL
+specifically, it's also important to understand the behaviour of the driver you
+are using.
+
+For example, `node-postgres` converts date and timestamp columns into **local**
+time based on `process.env.TZ` according to the [documentation][6 ].
+
+So make sure, to stop assuming the behaviour and double check the documentation
+when something doesn't behave the way you expected.
 
 [1]: https://www.postgresql.org/docs/12/datatype-datetime.html
 [2]: https://www.postgresql.org/docs/12/functions-datetime.html#FUNCTIONS-DATETIME-ZONECONVERT
-
+[3]: https://www.postgresql.org/docs/13/datetime-posix-timezone-specs.html
+[4]: https://en.wikipedia.org/wiki/Tz_database#Area
+[5]: https://unix.stackexchange.com/questions/104088/why-does-tz-utc-8-produce-dates-that-are-utc8
+[6]: https://node-postgres.com/features/types
+[7]: https://blog.untrod.com/2016/08/actually-understanding-timezones-in-postgresql.html
+[8]: https://stackoverflow.com/questions/6663765/postgres-default-timezone
