@@ -11,14 +11,14 @@ Every single time, I have to reread [certain resources][7] and google search aga
 make sure I am understanding the behavior of it correctly.
 
 It's time for me to a put a stop on this now. Hence, I'm writing this post to
-layout what everyone need to understand and know when dealing with PostgreSQL
+lay out what everyone need to understand and know when dealing with PostgreSQL
 timezone.
 
 Throughout this post, you'll learn about:
 
 - [Getting and setting your database
   timezone](#getting-and-setting-your-database-timezone)
-- [Understanding the difference between timestamp and timestamptz](#understanding-the-difference-between-timestamp-and-timestamptz)
+- [Understanding the difference between `timestamp` and `timestamptz`](#understanding-the-difference-between-timestamp-and-timestamptz)
 - [Behaviour of `AT TIME ZONE`](#behaviour-of-at-time-zone)
 - [POSIX timezone](#posix-timezone)
 
@@ -221,7 +221,7 @@ Expanded display is on
 ### When input timezone is the same with database timezone
 When you are storing your timestamp in the same timezone as your
 database timezone, there are no difference between `timestamptz`
-and `timestamp` in the final tiemstamp value stored.
+and `timestamp` in the final timestamp value stored.
 
 The only difference is that the `timestamptz` data will include
 the offset (`+00`) with them.
@@ -271,8 +271,10 @@ differently:
 Let's first take a look about what happen when we use the input without
 timezone and input with a different timezone.
 
+**Input without timezone in `UTC` database timezone:**
+
 ```sql
-SET timezone="UTC";
+SET timezone="Asia/Kuala_Lumpur";
 SELECT
   '2020-01-01 00:00:00' as timestamp_wtc,
   '2020-01-01 00:00:00'::timestamp as timestamp,
@@ -286,7 +288,10 @@ timestamptz   | 2020-01-01 00:00:00+00
 Here you can see that, no conversion is carried out  when the
 timezone is in UTC and the input is without timezone.
 
-Here's what happen when the input have a timezone of `+08`:
+Since our timezone is `Asia/Kuala_Lumpur`, PostgreSQL just assume the given
+timezone is the same as well.
+
+**Input with `+08` timezone in `UTC` database timezone:**
 
 ```sql
 SET timezone="UTC";
@@ -303,6 +308,8 @@ timestamptz   | 2019-12-31 16:00:00+00
 This time for `timestamptz`, PostgreSQL will convert the given time to UTC.
 So, `2020-01-01 00:00:00` at Kuala Lumpur, is actually just `2019-12-31
 16:00:00` in UTC, since Kuala Lumpur timezone is ahead of UTC by 8 hours.
+
+**Input without timezone in `Asia/Kuala_Lumpur` database timezone:**
 
 Let's take a look about what happen if our database timezone is in
 `Asia/Kuala_Lumpur` when we input date time without timezone.
@@ -322,6 +329,8 @@ timestamptz   | 2020-01-01 00:00:00+08
 Similar with the above, no conversion is carried out, the difference with our
 UTC example is, instead of saving as `+00` it is saved as `+08` for
 `timestamptz`.
+
+**Input with `+08` timezone in `Asia/Kuala_Lumpur` database timezone:**
 
 For input with timezone, in this case, we are inputting date time with UTC
 timezone:
@@ -357,17 +366,17 @@ understand. In reality, the behavior can be sum up as:
   | --- | --- |
   | Datetime without timezone | No |
   | Datetime with same timezone | No |
-  | Datetime wiht different timezone | Yes |
+  | Datetime with different timezone | Yes |
 
 - For input, without any explicit casting of type, the behaviour depends on the
-  input format. Input with timezone info, is casted to `timestamptz`, while
-  input without timezone, is casted to `timestamp`
+  input format. Input with timezone info, is cast to `timestamptz`, while
+  input without timezone, is cast to `timestamp`
 
 # Behaviour of `AT TIME ZONE`
 
 As mentioned above, we can use `AT TIME ZONE` to convert the date time stored
-to a different timezone. Sounds easy to understand right? But, always
-refer to the documentation first to understand the behavior.
+to a different timezone. Looks straightforward to apply it right? But, always
+good to refer to the documentation first to understand the behavior.
 
 According to [PostgreSQL documentation][2]:
 > The AT TIME ZONE converts time stamp without time zone to/from time stamp with time zone, and time values to different time zones.
@@ -443,12 +452,15 @@ Again, try to answer this yourself first, before looking at the output.
 ------------------------
  2019-12-31 16:00:00+00
 (1 row)
- ```
+```
 
-Did you answer `2020-01-01 08:00:00` for this one as well? Don't be ashamed of
-getting wrong on this one. I made the same mistakes too. But why PostgreSQL
-shift the time backward instead of forward when `Asia/Kuala_Lumpur` is 8 hours
-ahead UTC?
+Did you get the answer right? If yes, that's great.
+
+If your answer is `2020-01-01 08:00:00`, don't be ashamed of
+getting wrong. I made the same mistakes too.
+
+But why PostgreSQL shift the time backward instead of forward
+when `Asia/Kuala_Lumpur` is 8 hours ahead UTC?
 
 With this query, we are basically asking:
 
@@ -486,10 +498,24 @@ SELECT '2020-01-01 00:00:00+08' AT TIME ZONE 'UTC';
 1 row)
 ```
 
+Try substituting the query with different database timezone and see how it
+behave. For example, try out how does it behave when the database timezone
+is the same:
+
+```sql
+SET TIME ZONE 'Asia/Kuala_Lumpur';
+SELECT '2020-01-01 00:00:00'::timestamp AT TIME ZONE 'Asia/Kuala_Lumpur';
+```
+
+This will help you to understand and remember the behaviour much better.
+
+
+
 ### Summary
 
 To summarized, when we use `AT TIME ZONE` with `timestamp`, we are saying given
-this datetime assuming it is in this timezone. So we essentially convert:
+this datetime assuming it is in this timezone. So, with `AT TIME ZONE 'Asia/Kuala_Lumpur`,
+we essentially convert:
 
 ```
 2020-01-01 00:00:00
@@ -501,9 +527,8 @@ to
 2020-01-01 00:00:00+08
 ```
 
-with `AT TIME ZONE 'Asia/Kuala_Lumpur`. However, since PostgreSQL need to
-display the datetime with the current database timezone, it will convert the
-timezone again.
+However, since PostgreSQL need to display the datetime with the current database timezone,
+it will convert the timezone again.
 
 
 ## Summary for `AT TIME ZONE`
@@ -516,7 +541,7 @@ Calling `AT TIME ZONE` with the above info can be summarized as:
 
 | Input | Query | Explanation | Output |
 | --- | --- | --- | --- |
-| 2020-01-01 00:00:00+00 (timestamptz) | `SELECT '2020-01-01 00:00:00+00'::timestamptz AT TIME ZONE 'Asia/Kuala_Lumpur';` | Given the input, what are the datetime value after converting to the `given timezone`? | 2020-01-01 08:00:00 (timestamp) |
+| 2020-01-01 00:00:00+00 (timestamptz) | `SELECT '2020-01-01 00:00:00+00'::timestamptz AT TIME ZONE 'Asia/Kuala_Lumpur';` | Given the input with the `timezone` from the input timezone offset, what are the datetime value after converting to the `given timezone`? | 2020-01-01 08:00:00 (timestamp) |
 | 2020-01-01 00:00:00 (timestamp) | `SELECT '2020-01-01 00:00:00'::timestamp AT TIME ZONE 'Asia/Kuala_Lumpur';` | Given the input, assuming it is in the `given timezone`, what are the datetime value after converting to our `current database timezone`? | 2019-12-31 16:00:00+00 (timestamptz) |
 
 
@@ -559,6 +584,9 @@ convention, where `+` indicate the timezone east _(to the right)_ of Greenwich.
 
 However, in POSIX standard, it's completely opposite, where `+` indicate the
 zones west _(to the left)_ of Greenwich.
+
+In our `Etc/GMT+8` example, is actually refer to `UTC-8`. So the equivalent of
+`Asia/Kuala_Lumpur`, which have the `+08` offset, is `Etc/GMT-8` instead.
 
 So, rule of thumb, avoid `Etc/GMT**` if you don't to get yourself confuse.
 
