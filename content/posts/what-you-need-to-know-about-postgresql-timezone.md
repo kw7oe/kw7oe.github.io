@@ -1,7 +1,7 @@
 ---
 title: "What You Need to Know About PostgreSQL Timezone"
-date: 2021-06-19T23:22:41+08:00
-draft: true
+date: 2021-07-20T20:30:00+08:00
+tags: ["postgresql", "timezone"]
 ---
 
 How many time have you been bitten up by timezone in PostgreSQL?
