@@ -1,5 +1,5 @@
 ---
-title: "What You Need to Know About PostgreSQL Timezone"
+title: "What you need to know about PostgreSQL timezone"
 date: 2021-07-20T20:30:00+08:00
 tags: ["postgresql", "timezone"]
 ---
