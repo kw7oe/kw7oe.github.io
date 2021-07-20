@@ -6,7 +6,17 @@
     <description>Recent content in postgresql on kw7oe</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 14 Apr 2020 18:43:08 +0800</lastBuildDate><atom:link href="https://kaiwern.com/tags/postgresql/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 20 Jul 2021 20:30:00 +0800</lastBuildDate><atom:link href="https://kaiwern.com/tags/postgresql/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>What you need to know about PostgreSQL timezone</title>
+      <link>https://kaiwern.com/posts/2021/07/20/what-you-need-to-know-about-postgresql-timezone/</link>
+      <pubDate>Tue, 20 Jul 2021 20:30:00 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2021/07/20/what-you-need-to-know-about-postgresql-timezone/</guid>
+      <description>How many time have you been bitten up by timezone in PostgreSQL?
+I&amp;rsquo;m not sure about you but every time I work with timezone, I get f*cked by it. Every single time, I have to reread certain resources and google search again to make sure I am understanding the behavior of it correctly.</description>
+    </item>
+    
     <item>
       <title>Essential Date Functions for Grouping in PostgreSQL</title>
       <link>https://kaiwern.com/posts/2020/04/14/essential-date-functions-for-grouping-in-postgresql/</link>
