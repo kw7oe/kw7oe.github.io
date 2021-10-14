@@ -350,6 +350,9 @@ also consider get yourself a free copy of [`Erlang in Anger`][5] where the
 author of `recon` wrote about diagnosing BEAM application with `recon` and many
 more.
 
+_If you would like to learn more about using tracing with recon, you can read
+[here]({{< ref "debugging-with-tracing-in-elixir-with-recon-trace" >}}) as well._
+
 ---
 
 _Updated (26th June 2021):_
