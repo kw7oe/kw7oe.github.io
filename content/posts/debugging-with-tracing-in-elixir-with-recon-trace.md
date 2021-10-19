@@ -22,8 +22,13 @@ This is what you can expect from this posts, hopefully it helps!
   - [Writing match spec](#writing-match-spec)
 
 _If you want to get hands on, I have written a [Livebook][0] notebook with all the
-code examples below.  So, headover to the [repository](https://github.com/kw7oe/livebook-notebooks)
-to follow the instruction to import the notebook url to your Livebook._
+code examples below._  ~~So, headover to the [repository](https://github.com/kw7oe/livebook-notebooks)
+to follow the instruction to import the notebook url to your Livebook.~~
+
+Just click the button below to run it!
+
+[![Run in Livebook](https://livebook.dev/badge/v1/blue.svg)](https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2Fkw7oe%2Flivebook-notebooks%2Fblob%2Fmain%2Fdebugging-with-tracing-in-elixir-with-recon_trace.livemd)
+
 
 # Installing `recon`
 
