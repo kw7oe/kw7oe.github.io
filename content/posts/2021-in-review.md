@@ -1,7 +1,6 @@
 ---
 title: "2021 in Review"
-date: 2021-11-23T20:30:06+08:00
-draft: true
+date: 2021-12-13T21:52:06+08:00
 ---
 
 I thought 2021 will great as usual for me. Turn out it didn't.
@@ -35,19 +34,21 @@ achieved a couple of good things:
 - Being vaccinated.
 - Completed Nioh 2 up to Dream of the Nioh.
 - Still have a job.
-- Cleaned up a couple of technical debts in Naluri.
+- Cleaned up a couple of technical debts in Naluri that I have wanted to do for
+so long.
   - Migrated our Elixir/Phoenix monolith from EC2 instances to ECS.
   - Updated our Elixir/Phoenix monolith dependencies to latest and N - 1. _Yes, all
   dependencies, including Elixir and OTP version as well_
   - Updated our main PostgreSQL from 9.6 to 13.3, of course with some downtime _(around 30 minutes)_.
 - Took a solo trip to Sabah _(where I started to write this piece)_.
-- Lost in life.
+- Took a vacation to Sabah with my girlfriend. And away from laptop for a
+whole week.
+- Lost in life and getting back at it.
 
-Some of these achievements aren't planned out.
-Those are extra wins for me.
+There are some extra wins for me as those achievements aren't planned out.
 
 Looking back, it's not really as bad as I think it is, but part of me feel
-there's so much things I can do better in 2021. Let's talk about those.
+that, there's more things I can do better in 2021. Let's talk about those.
 
 # Failures
 
@@ -64,12 +65,12 @@ It's not because I have ran out of topics to write about. It's just I lost the
 "motivation" to write. I became lazy to write. Unmotivated, lazy, whatever it
 is.
 
-I might also because of, I'm burnout and am taking a break for doing anything. I
+It might also be that I'm burnout and am taking a break for doing anything. I
 feel less strongly than before to write down my learnings.
 
 ## Sharing more of what I know
 
-One of my goals in 2021, is to share knowledge more often. Be it writing more
+One of my goals in 2021 is to share knowledge more often. Be it writing more
 articles, producing screen cast or sharing useful tips in Twitter.
 
 I ended up either doing poorly or not doing at all for all of that. Same as the
@@ -85,7 +86,7 @@ For learning, I categorized into tech and non tech learning. Failed at both.
 ### The Bad
 
 I actually started to pick back playing Ukulele and learnt to play 1 or 2
-instrumental finger style music. It went really well initially, I can play
+instrumental finger style music. It went really well initially. I can play
 the first two verses. Shit happen and I stopped.
 
 For learning, I set out to complete [CMU Database System course][1] by the end
@@ -146,7 +147,7 @@ there before I release it.
 Then, it get abandoned.
 
 This is because I see no value of continuing it as I don't need a tab manager
-anymore, which is partly because I stop writing and don't need
+anymore, which is partly because of I have stop writing and don't need
 to manage multiple tabs _(as references for my writing)_.
 
 This happen to all of my side projects.
