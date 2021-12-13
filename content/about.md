@@ -23,16 +23,10 @@ to cook and am currently trying to write more and post consistently.
 
 Currently, I am:
 
-- Trying out different breakfast recipe 🌮🥪🍕🧀🍳 every weekend.
+- Working on Advent of Code 2021 with Rust.
+- Learning more about Database System.
+- Trying to workout more intensely than the past years.
 - Trying to publish one post per month in this blog.
-- Learning C++ so I can work on the project of the [CMU CS
-  14-445](https://15445.courses.cs.cmu.edu) while following along the lectures
-  in YouTube. _(Hopefully I can finish this course...)_
-- Playing around with:
-  - [LiveBook](https://github.com/elixir-nx/livebook)
-  - [OpenTelemetry](https://github.com/open-telemetry/opentelemetry-erlang)
-  - Grafana, Loki, and Tempo
-- Thinking about what's some "cool" project I can build.
 
 ## Abandoned Projects
 
