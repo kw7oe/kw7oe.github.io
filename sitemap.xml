@@ -2,10 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://kaiwern.com/tags/postgresql/</loc>
-    <lastmod>2021-07-20T20:30:00+08:00</lastmod>
+    <loc>https://kaiwern.com/posts/2021/12/13/2021-in-review/</loc>
+    <lastmod>2021-12-13T21:52:06+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/posts/</loc>
+    <lastmod>2021-12-13T21:52:06+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/tags/postgresql/</loc>
     <lastmod>2021-07-20T20:30:00+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/tags/</loc>
