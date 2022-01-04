@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>
+Writing a simple Redis Protocol parser in Elixir | kw7oe
+</title>
+
+
+
+<meta name="generator" content="Hugo 0.83.1" />
+
+
+    
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.e6401725b28e8144bf65f7ccc205a50ad68ac136faa19a19e45ccd9b71512cfa.css" integrity="sha256-5kAXJbKOgUS/ZffMwgWlCtaKwTb6oZoZ5FzNm3FRLPo=">
+    <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
+
+
+
+
+<link rel="stylesheet" href="https://kaiwern.com/css/syntax.min.css">
+
+
+<body class="flex flex-col min-h-screen px-4 max-w-screen-md md:w-2/3 m-auto"><nav class="mt-8">
+  <ul id="nav-menu" class="w-full flex items-center list-reset">
+    
+    <li>
+      <a href="https://kaiwern.com/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Home</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/about/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">About</a>
+    </li>
+    
+
+    
+    
+    <li>
+      <a href="https://kaiwern.com/categories/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Categories</a>
+    </li>
+    
+    
+    
+    <li>
+      <a href="https://kaiwern.com/tags/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Tags</a>
+    </li>
+    
+    
+  </ul>
+</nav>
+<main class="flex-1 mt-4 sm:mt-12">
+<header class="mb-8">
+  <h1 class="title">Writing a simple Redis Protocol parser in Elixir</h1>
+  <p class="text-sm font-gray-700 mb-1">Jan 04, 2022</p>
+  <p class="text-sm mb-4 font-gray-700 italic">Estimated Reading Time: 8 minutes (1590 words)</p>
+
+   
+  <div id="tags">
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/elixir/">elixir</a>
+    </span>
+    
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/redis/">redis</a>
+    </span>
+    
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/parser/">parser</a>
+    </span>
+    
+    
+  </div>
+</header>
+
+<article class="markdown mb-8 text-gray-800">
+  
+
+  <p>Today, we are going to write a parser that parse
+<a href="https://redis.io/topics/protocol">Redis Protocol</a> in Elixir.</p>
+<p>There are tons of supported <a href="https://redis.io/commands">commands</a> in Redis.
+Since this is our first attempt on implementing it, we will only be focusing
+on the <a href="https://redis.io/commands/get"><code>GET</code></a> and
+<a href="https://redis.io/commands/set"><code>SET</code></a>.</p>
+<p>At the end of this post, you should be able to <strong>write a simple parser to
+parse request/response by Redis client/server</strong>. Here&rsquo;s how this post is structured:</p>
+<ul>
+<li><a href="#redis-protocol-specification">Redis Protocol Specification</a></li>
+<li><a href="#writing-our-parser">Writing our Parser</a></li>
+</ul>
+<p>Before getting into the implementation, let&rsquo;s learn about the
+Redis Protocol Specification first.</p>
+<hr>
+<p><em>This post assume you have
+prior knowledge of setting up Elixir project with <code>mix</code> as the post only
+includes code snippets instead of full fledge working example.</em></p>
+<p><em>I am working on the Livebook notebook, and will update the post with <code>Run in Livebook</code> once it&rsquo;s up.</em></p>
+<p><em>This post is inspired by <a href="https://tokio.rs/tokio/tutorial/setup">Rust Tokio Mini-Redis Tutorial</a>,
+where it walks through the reader to implement a mini Redis with
+<a href="https://tokio.rs/"><code>tokio</code></a>. If things go well, this would also be a similar
+series.</em></p>
+<hr>
+<h1 id="redis-protocol-specification">Redis Protocol Specification</h1>
+<p>Redis Protocol Specification (<strong>RESP</strong>) is the protocol Redis client and server
+used to communicate with each other.</p>
+<p>As mentioned aboved, it consists of multiple commands, and it&rsquo;s not ideal
+to go through every of them in this post. Hence, I&rsquo;ll just cover the basic we need
+to know for this post.</p>
+<h2 id="supported-types">Supported Types</h2>
+<p>RESP basically support the following types. To allow us to differentiate
+different types, the protocol use the first byte as an identifier:</p>
+<ul>
+<li><strong>Simple Strings</strong>, where the first byte of the reply is &ldquo;+&rdquo;</li>
+<li><strong>Errors</strong>, where the first byte of the reply is &ldquo;-&rdquo;</li>
+<li><strong>Integers</strong>, where the first byte of the reply is &ldquo;:&rdquo;</li>
+<li><strong>Bulk Strings</strong>, where the first byte of the reply is &ldquo;$&rdquo;</li>
+<li><strong>Arrays</strong>, where the first byte of the reply is &ldquo;*&rdquo;</li>
+</ul>
+<p>Most importantly, all of it will be ending with <code>\r\n</code>.</p>
+<p>Types such as array and bulk strings might contain multiple lines and <code>\r\n</code>.
+In order to get the full data, we will need to parse through multiple lines.</p>
+<p>In general, this is what you need to know about each type:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Simple Strings</td>
+<td>Used by the server as it&rsquo;s reply.</td>
+</tr>
+<tr>
+<td>Errors</td>
+<td>Used by the server to indicate errors.</td>
+</tr>
+<tr>
+<td>Integers</td>
+<td>Used by the server to return integer results such as <code>INCR</code>.</td>
+</tr>
+<tr>
+<td>Bulk Strings</td>
+<td>Used by the client/server for string inputs and results.</td>
+</tr>
+<tr>
+<td>Arrays</td>
+<td>Used by client to send commands to server or server to return a collections to clients</td>
+</tr>
+</tbody>
+</table>
+<p>To know more, read the <a href="https://redis.io/topics/protocol">documentation from
+the Redis website</a>.</p>
+<h2 id="simple-strings-vs-bulk-strings">Simple Strings vs Bulk Strings</h2>
+<p>Simple Strings is used to represent non binary safe string. It has less overhead
+since it doesn&rsquo;t require the length of the string to be known. Normally this is
+used as a return result from the server. For example, many result of Redis command
+return <code>+OK\r\n</code> on success.</p>
+<p>Bulk Strings, on the other hand, is used to represent binary safe string, up to 512MB in length.
+To aids with parsing the string, a length is required to be included. This mean that, we are
+able to parse the string correctly as the length is provided. An example of bulk string
+is as follow:</p>
+<pre><code>$6\r\nfoobar\r\n
+</code></pre><p>To represent an empty string, the following is used:</p>
+<pre><code>$0\r\n\r\n
+</code></pre><p>In the case where you need to represent <code>nil</code>, the following format can be used:</p>
+<pre><code>$-1\r\n
+</code></pre><p>where a <code>-1</code> length is used, which is also called Null Bulk String. This is what we need
+to return from the server if a <code>GET</code> command should return <code>nil</code>.</p>
+<h3 id="but-what-is-binary-safe-and-non-binary-safe-string">But what is binary safe and non binary safe string?</h3>
+<p>Binary safe string means that the string can contain any character, including characters like
+<code>\0</code> that used to indicate a string is terminated in <code>C</code>.</p>
+<p>Non binary safe string means the string cannot contain those character that might be used
+to indicate a termination.</p>
+<p>To understand more, you can refer to the answers in this
+<a href="https://stackoverflow.com/questions/19990140/what-is-the-difference-between-binary-safe-strings-and-binary-unsafe-strings">StackOverflow question</a>.</p>
+<h2 id="how-to-send-commands-to-server">How to send commands to server?</h2>
+<p>Now that we know the basic structure of how our reply would looks like, let&rsquo;s talk about
+how a command is represented in RESP, especially <code>GET</code> and <code>SET</code> command.</p>
+<h3 id="get-command"><code>GET</code> command</h3>
+<p>From the <code>GET</code> command <a href="https://redis.io/commands/get">documentation</a>, we know that
+the command support one argument. So to represent it as arrays, it will look something as follow:</p>
+<pre><code>[&quot;GET&quot;, &quot;key&quot;]
+</code></pre><p>But, what would the raw command looks like if we were to send to the server as a client encoded it as RESP?</p>
+<p>Let&rsquo;s apply what we know about RESP. We know that we need to:</p>
+<ul>
+<li>Encode the above to represent 2 data type, <code>Array</code>
+and <code>Bulk String</code>. Hence, it will contain multiple parts.</li>
+</ul>
+<p>This is what we need to send to the server to represent a <code>GET</code> command:</p>
+<pre><code>*2\r\n$3\r\nGET\r\n$3\r\nkey\r\n
+</code></pre><p>To make it easier to understand, let&rsquo;s break down each parts into separate lines:</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">// Indicate an array with <span class="m">2</span> elements
+*2<span class="se">\r\n</span>
+
+// Indicate the first element is a Bulk String of <span class="m">3</span> character
+<span class="nv">$3</span><span class="se">\r\n</span>
+
+// Actual content of the first element
+GET<span class="se">\r\n</span>
+
+// Indicate the second element is a Bulk String of <span class="m">3</span> character
+<span class="nv">$3</span><span class="se">\r\n</span>
+
+// Actual content of the second element
+key<span class="se">\r\n</span>
+</code></pre></div><h3 id="set-command"><code>SET</code> command</h3>
+<p>For <code>SET</code> command, we will be focusing on the basic one without supporting the
+additional options:</p>
+<pre><code>[&quot;SET&quot;, &quot;key&quot;, &quot;value&quot;]
+</code></pre><p>I&rsquo;ll leave it as an exercise for you to come up with the raw reply. If you have
+trouble coming up with it, try to break it into multiple parts first, and then
+encode it with RESP.</p>
+<p>Divide and Conquer.</p>
+<!-- livebook:{"livebook_object":"cell_input","name":"SET Input","reactive":true,"type":"text","value":"*3\\r\\n$3\\r\\nSET\\r\\n$3\\r\\nkey\\r\\n$5\\r\\nvalue\\r\\n"} -->
+<h2 id="are-you-correct">Are you correct?</h2>
+<p>How do we know if we have the correct answer? Let&rsquo;s pull in <code>redix</code>, a Elixir Redis client.</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="nc">Mix</span><span class="o">.</span><span class="n">install</span><span class="p">([</span><span class="ss">:redix</span><span class="p">])</span>
+</code></pre></div><p>Since <code>redix</code> library include the <code>Redix.Protocol</code> module that is in charge
+of parsing the protocol, we will use it to verify our answer.</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="p">[</span><span class="s2">&#34;SET&#34;</span><span class="p">,</span> <span class="s2">&#34;key&#34;</span><span class="p">,</span> <span class="s2">&#34;value&#34;</span><span class="p">]</span>
+<span class="o">|&gt;</span> <span class="nc">Redix.Protocol</span><span class="o">.</span><span class="n">pack</span><span class="p">()</span>
+<span class="o">|&gt;</span> <span class="nc">IO</span><span class="o">.</span><span class="n">iodata_to_binary</span><span class="p">()</span>
+
+<span class="c1">#=&gt; &#34;*3\r\n$3\r\nSET\r\n$3\r\nkey\r\n$5\r\nvalue\r\n&#34;</span>
+</code></pre></div><p>By now, we should able to understand how RESP works. So let&rsquo;s proceed to the next stage
+where we write our code to encode and decode the raw input to a data structure and vice versa.</p>
+<h1 id="writing-our-parser">Writing our Parser</h1>
+<p>Before we started to write our own parser, let&rsquo;s write some test case to help with us to verify
+our implementation easily. Note that, we are using <code>redix</code> here as well to
+verify our implementation.</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">ParserTest</span> <span class="k">do</span>
+  <span class="kn">use</span> <span class="nc">ExUnit.Case</span><span class="p">,</span> <span class="ss">async</span><span class="p">:</span> <span class="no">true</span>
+
+  <span class="n">describe</span> <span class="s2">&#34;GET&#34;</span> <span class="k">do</span>
+    <span class="n">test</span> <span class="s2">&#34;GET is encoded correctly&#34;</span> <span class="k">do</span>
+      <span class="n">input</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;GET&#34;</span><span class="p">,</span> <span class="s2">&#34;key&#34;</span><span class="p">]</span>
+
+      <span class="n">our_output</span> <span class="o">=</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">input</span><span class="p">)</span>
+
+      <span class="n">redix_output</span> <span class="o">=</span>
+        <span class="n">input</span>
+        <span class="o">|&gt;</span> <span class="nc">Redix.Protocol</span><span class="o">.</span><span class="n">pack</span><span class="p">()</span>
+        <span class="o">|&gt;</span> <span class="nc">IO</span><span class="o">.</span><span class="n">iodata_to_binary</span><span class="p">()</span>
+
+      <span class="n">assert</span> <span class="n">our_output</span> <span class="o">==</span> <span class="n">redix_output</span>
+    <span class="k">end</span>
+
+    <span class="n">test</span> <span class="s2">&#34;GET is decoded correctly&#34;</span> <span class="k">do</span>
+      <span class="n">input</span> <span class="o">=</span> <span class="s2">&#34;*2</span><span class="se">\r\n</span><span class="s2">$3</span><span class="se">\r\n</span><span class="s2">GET</span><span class="se">\r\n</span><span class="s2">$3</span><span class="se">\r\n</span><span class="s2">key</span><span class="se">\r\n</span><span class="s2">&#34;</span>
+      <span class="n">our_output</span> <span class="o">=</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">input</span><span class="p">)</span>
+      <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">redix_output</span><span class="p">,</span> <span class="s2">&#34;&#34;</span><span class="p">}</span> <span class="o">=</span> <span class="nc">Redix.Protocol</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">input</span><span class="p">)</span>
+
+      <span class="n">assert</span> <span class="n">our_output</span> <span class="o">==</span> <span class="n">redix_output</span>
+    <span class="k">end</span>
+
+    <span class="n">test</span> <span class="s2">&#34;encode and decode&#34;</span> <span class="k">do</span>
+      <span class="n">reply</span> <span class="o">=</span> <span class="s2">&#34;*2</span><span class="se">\r\n</span><span class="s2">$3</span><span class="se">\r\n</span><span class="s2">GET</span><span class="se">\r\n</span><span class="s2">$3</span><span class="se">\r\n</span><span class="s2">key</span><span class="se">\r\n</span><span class="s2">&#34;</span>
+      <span class="n">assert</span> <span class="n">reply</span> <span class="o">==</span> <span class="n">reply</span> <span class="o">|&gt;</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span> <span class="o">|&gt;</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+
+      <span class="n">list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;GET&#34;</span><span class="p">,</span> <span class="s2">&#34;KEY&#34;</span><span class="p">]</span>
+      <span class="n">assert</span> <span class="n">list</span> <span class="o">==</span> <span class="n">list</span> <span class="o">|&gt;</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span> <span class="o">|&gt;</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="nc">ExUnit</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</code></pre></div><p>If you run the code above, you&rsquo;ll get <code>Parser.decode/1</code> undefined error since we haven&rsquo;t
+implement our module yet. So let&rsquo;s write some code!</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">Parser</span> <span class="k">do</span>
+  <span class="kd">def</span> <span class="n">encode</span><span class="p">(</span><span class="n">_commands</span><span class="p">)</span> <span class="k">do</span>
+    <span class="c1"># your impl</span>
+  <span class="k">end</span>
+
+  <span class="kd">def</span> <span class="n">decode</span><span class="p">(</span><span class="n">_string</span><span class="p">)</span> <span class="k">do</span>
+    <span class="c1"># your impl</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="nc">ExUnit</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</code></pre></div><p>If you&rsquo;re up to the challenge, implement the above first and utilize
+the existing test to verify your implementation.</p>
+<hr>
+<p><em>Purposely left blank for those who want to implement it themselves first</em></p>
+<p>&hellip;</p>
+<p>&hellip;</p>
+<p>&hellip;</p>
+<p>&hellip;</p>
+<p>&hellip;</p>
+<hr>
+<p>Are you ready for my version of implmentation? Here it is.</p>
+<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">Parser</span> <span class="k">do</span>
+  <span class="kd">def</span> <span class="n">encode</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span> <span class="ow">when</span> <span class="n">is_list</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="s2">&#34;*</span><span class="si">#{</span><span class="n">length</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span><span class="si">}</span><span class="se">\r\n</span><span class="s2">&#34;</span>
+
+    <span class="nc">Enum</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="k">fn</span> <span class="n">command</span><span class="p">,</span> <span class="n">result</span> <span class="o">-&gt;</span>
+      <span class="n">result</span> <span class="o">&lt;&gt;</span> <span class="s2">&#34;$</span><span class="si">#{</span><span class="nc">String</span><span class="o">.</span><span class="n">length</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="si">}</span><span class="se">\r\n</span><span class="si">#{</span><span class="n">command</span><span class="si">}</span><span class="se">\r\n</span><span class="s2">&#34;</span>
+    <span class="k">end</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="kd">def</span> <span class="n">decode</span><span class="p">(</span><span class="n">string</span><span class="p">)</span> <span class="ow">when</span> <span class="n">is_binary</span><span class="p">(</span><span class="n">string</span><span class="p">)</span> <span class="k">do</span>
+    <span class="p">%{</span><span class="ss">commands</span><span class="p">:</span> <span class="n">commands</span><span class="p">}</span> <span class="o">=</span>
+      <span class="n">string</span>
+      <span class="o">|&gt;</span> <span class="nc">String</span><span class="o">.</span><span class="n">trim</span><span class="p">()</span>
+      <span class="o">|&gt;</span> <span class="nc">String</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&#34;</span><span class="se">\r\n</span><span class="s2">&#34;</span><span class="p">)</span>
+      <span class="o">|&gt;</span> <span class="nc">Enum</span><span class="o">.</span><span class="n">reduce</span><span class="p">(%{},</span> <span class="k">fn</span> <span class="n">reply</span><span class="p">,</span> <span class="n">state</span> <span class="o">-&gt;</span>
+        <span class="k">case</span> <span class="n">reply</span> <span class="k">do</span>
+          <span class="s2">&#34;*&#34;</span> <span class="o">&lt;&gt;</span> <span class="n">length</span> <span class="o">-&gt;</span>
+            <span class="n">state</span>
+            <span class="o">|&gt;</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="ss">:type</span><span class="p">,</span> <span class="s2">&#34;array&#34;</span><span class="p">)</span>
+            <span class="o">|&gt;</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="ss">:array_length</span><span class="p">,</span> <span class="nc">String</span><span class="o">.</span><span class="n">to_integer</span><span class="p">(</span><span class="n">length</span><span class="p">))</span>
+
+          <span class="s2">&#34;$&#34;</span> <span class="o">&lt;&gt;</span> <span class="n">length</span> <span class="o">-&gt;</span>
+            <span class="n">state</span>
+            <span class="o">|&gt;</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="ss">:type</span><span class="p">,</span> <span class="s2">&#34;bulk_string&#34;</span><span class="p">)</span>
+            <span class="o">|&gt;</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="ss">:bulk_string_length</span><span class="p">,</span> <span class="nc">String</span><span class="o">.</span><span class="n">to_integer</span><span class="p">(</span><span class="n">length</span><span class="p">))</span>
+
+          <span class="n">value</span> <span class="o">-&gt;</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nc">String</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="nc">Map</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="ss">:commands</span><span class="p">,</span> <span class="p">[</span><span class="n">value</span><span class="p">],</span> <span class="k">fn</span> <span class="n">list</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">value</span> <span class="o">|</span> <span class="n">list</span><span class="p">]</span> <span class="k">end</span><span class="p">)</span>
+        <span class="k">end</span>
+      <span class="k">end</span><span class="p">)</span>
+
+    <span class="nc">Enum</span><span class="o">.</span><span class="n">reverse</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="nc">ExUnit</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</code></pre></div><h3 id="encode">Encode</h3>
+<p>Writing the <code>encode/1</code> is fairly straightforward since we already know how to represent
+arrays and bulk string in RESP. All we need to do is to first specify the <code>Array</code> type and then
+concantenate it with all the <code>Bulk String</code> type we have by looping through it with <code>Enum.reduce/2</code>.</p>
+<h3 id="decode">Decode</h3>
+<p><code>decode/1</code> can be quite tricky to write.  Here, we are not utilizing the type and length
+information from our input.</p>
+<p>I am kind of making a lot of assumption in the implementation as we know that we are only interested
+in any value that is not starting with type definition (*, $ and etc).</p>
+<p>The implementation turn the following from:</p>
+<pre><code>*3\r\n$3\r\nSET\r\n$5\r\nmykey\r\n$3\r\nfoo\r\n
+</code></pre><p>into:</p>
+<pre><code>*3
+$3
+SET &lt;-- What we want
+$5
+mykey &lt;-- What we want
+$3
+foo &lt;-- What we want
+</code></pre><p>and further convert it into:</p>
+<pre><code>[&quot;SET&quot;, &quot;mykey&quot;, &quot;foo&quot;]
+</code></pre><p>by ignoring any line that indicate the type.</p>
+<p>It can also be implemented as a recursive function that might result in a better readability.
+Is this the ideal implementation? Definitely not! But this is a good start.</p>
+<h1 id="wrap-up">Wrap Up</h1>
+<p>It isn&rsquo;t as hard as you think, right? Obviously, there are space of improvements of our parser.
+But once you understand the building blocks of how Redis Protocol works it wouldn&rsquo;t be hard to
+write a <em>simple</em> one.</p>
+<p>However, what we have done here is not perfect. There are tons of use cases and potential error
+cases that we didn&rsquo;t handle. My implementation could be improved to utilize the length included
+in <code>Array</code> and <code>Bulk String</code> type.</p>
+<p>Next up, we would be integrating this parser into our TCP server so that we can write a mini
+Redis server. With that, do you think our current parser implementation would
+still work?</p>
+<p>Stay tuned.</p>
+
+</article>
+
+    </main><footer class="w-full text-center border-t border-gray-200 p-4 pin-b text-xs text-gray-400">
+    <p>made with <a href="https://gohugo.io" class="underline hover:text-blue-400">Hugo</a> and <a href="https://tailwindcss.com" class="underline hover:text-blue-400">TailwindCSS</a></p>
+</footer></body>
+</html>
