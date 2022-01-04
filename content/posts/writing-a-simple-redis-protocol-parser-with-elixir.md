@@ -8,22 +8,37 @@ Today, we are going to write a parser that parse
 [Redis Protocol](https://redis.io/topics/protocol).
 
 There are tons of supported [commands](https://redis.io/commands) in Redis.
-Since this is our first attempt on doing it, we will only be focusing
+Since this is our first attempt on implementing it, we will only be focusing
 on the [`GET`](https://redis.io/commands/get) and
 [`SET`](https://redis.io/commands/set).
 
 At the end of this post, you should be able to **write a simple parser to
-parse request/response by Redis client/server**.
+parse request/response by Redis client/server**. Here's how this post is structured:
+
+- [Redis Protocol Specification](#redis-protocol-specification)
+- [Writing our Parser](#writing-our-parser)
 
 Before getting into the implementation, let's learn about the
 Redis Protocol Specification first.
 
+---
+
+_This post assume you have
+prior knowledge of setting up Elixir project with `mix` as the post only
+includes code snippets instead of full fledge working example._
+
+_I am working on the Livebook notebook, and will update the post with `Run in
+Livebook` once it's up._
+
+---
+
 # Redis Protocol Specification
 
-Redis client communicate with Redis server with the protocol called **RESP**
-_(Redis Serialization Prtocol)_.
+Redis Protocol Specification (**RESP**) is the protocol Redis client and server
+used to communicate with each other.
 
-We are not going to be super ambitious, so I'll just explain a bit on what we need
+As mentioned aboved, it consists of multiple commands, and it's not ideal
+to go through every of them in this post. Hence, I'll just cover the basic we need
 to know for this post.
 
 ## Supported Types
@@ -35,10 +50,12 @@ different types, the protocol use the first byte as an identifier:
 * **Errors**, where the first byte of the reply is "-"
 * **Integers**, where the first byte of the reply is ":"
 * **Bulk Strings**, where the first byte of the reply is "$"
-* **Arrays**, where the first byte of the reply is "*"
+* **Arrays**, where the first byte of the reply is "\*"
 
-Most importantly, all of it will be ending with `\r\n`. Types such as array and bulk strings
-might contain multiple `\r\n`, in this post, we will address it as **parts**.
+Most importantly, all of it will be ending with `\r\n`.
+
+Types such as array and bulk strings might contain multiple lines and `\r\n`.
+In order to get the full data, we will need to parse through multiple lines.
 
 In general, this is what you need to know about each type:
 
@@ -87,7 +104,7 @@ to return from the server if a `GET` command should return `nil`.
 ### But what is binary safe and non binary safe string?
 
 Binary safe string means that the string can contain any character, including characters like
-'\0' that used to indicate a string is terminated in `C`.
+`\0` that used to indicate a string is terminated in `C`.
 
 Non binary safe string means the string cannot contain those character that might be used
 to indicate a termination.
@@ -109,9 +126,12 @@ the command support one argument. So to represent it as arrays, it will look som
 ["GET", "key"]
 ```
 
-But, what would the raw reply looks like if we were to send to the server as a client? Let's apply
-what we know about RESP. We know that, we need to encode the above to represent 2 data type, Array
-and Bulk String, hence it will contain multiple parts.
+But, what would the raw command looks like if we were to send to the server as a client encoded it as RESP?
+
+Let's apply what we know about RESP. We know that we need to:
+
+- Encode the above to represent 2 data type, `Array`
+and `Bulk String`. Hence, it will contain multiple parts.
 
 This is what we need to send to the server to represent a `GET` command:
 
@@ -147,7 +167,11 @@ additional options:
 ["SET", "key", "value"]
 ```
 
-I'll leave it as an exercise for you to come up with the raw reply.
+I'll leave it as an exercise for you to come up with the raw reply. If you have
+trouble coming up with it, try to break it into multiple parts first, and then
+encode it with RESP.
+
+Divide and Conquer.
 
 <!-- livebook:{"livebook_object":"cell_input","name":"SET Input","reactive":true,"type":"text","value":"*3\\r\\n$3\\r\\nSET\\r\\n$3\\r\\nkey\\r\\n$5\\r\\nvalue\\r\\n"} -->
 
@@ -174,10 +198,11 @@ of parsing the protocol, we will use it to verify our answer.
 By now, we should able to understand how RESP works. So let's proceed to the next stage
 where we write our code to encode and decode the raw input to a data structure and vice versa.
 
-## Writing our Parser
+# Writing our Parser
 
 Before we started to write our own parser, let's write some test case to help with us to verify
-our implementation easily.
+our implementation easily. Note that, we are using `redix` here as well to
+verify our implementation.
 
 ```elixir
 defmodule ParserTest do
@@ -235,8 +260,8 @@ end
 ExUnit.run()
 ```
 
-If you're up to some coding challenge, you can try to implement the above first and
-utilize the existing test to verify your implementation.
+If you're up to the challenge, implement the above first and utilize
+the existing test to verify your implementation.
 
 ---
 
@@ -296,16 +321,19 @@ end
 ExUnit.run()
 ```
 
-Writing the `encode/1` is fairly straightforward since we already know how to represent
-arrays and bulk string in RESP. All we need to do is to first specify the Array type and then
-concantenate it with all the bulk string type we have by looping through it with `Enum.reduce/2`.
+### Encode
 
-`decode/1` can be quite tricky to write. It can also be implemented as a recursive function
-that might result in a better readability. Here, we are not actually utilizing the type and length
+Writing the `encode/1` is fairly straightforward since we already know how to represent
+arrays and bulk string in RESP. All we need to do is to first specify the `Array` type and then
+concantenate it with all the `Bulk String` type we have by looping through it with `Enum.reduce/2`.
+
+### Decode
+
+`decode/1` can be quite tricky to write.  Here, we are not utilizing the type and length
 information from our input.
 
 I am kind of making a lot of assumption in the implementation as we know that we are only interested
-in any value that is not starting with type definition (*, $ and etc).
+in any value that is not starting with type definition (\*, $ and etc).
 
 The implementation turn the following from:
 
@@ -318,11 +346,11 @@ into:
 ```
 *3
 $3
-SET
+SET <-- What we want
 $5
-mykey
+mykey <-- What we want
 $3
-foo
+foo <-- What we want
 ```
 
 and further convert it into:
@@ -333,17 +361,21 @@ and further convert it into:
 
 by ignoring any line that indicate the type.
 
+It can also be implemented as a recursive function that might result in a better readability.
 Is this the ideal implementation? Definitely not! But this is a good start.
 
 # Wrap Up
 
-It isn't as hard as you think right? Obviously, there are space of improvements of our parser.
+It isn't as hard as you think, right? Obviously, there are space of improvements of our parser.
 But once you understand the building blocks of how Redis Protocol works it wouldn't be hard to
 write a _simple_ one.
 
 However, what we have done here is not perfect. There are tons of use cases and potential error
-cases that we didn't handle. My implementation could probably be improved to utilized the length included it each type.
+cases that we didn't handle. My implementation could be improved to utilize the length included
+in `Array` and `Bulk String` type.
 
-Now that we are able to write a simple Redis Protocol Specification parser, how about
-writing a mini Redis server?
+Next up, we would be integrating this parser into our TCP server so that we can write a mini
+Redis server. With that, do you think our current parser implementation would
+still work?
 
+Stay tuned.
