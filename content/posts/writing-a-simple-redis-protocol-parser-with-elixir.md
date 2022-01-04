@@ -1,7 +1,7 @@
 ---
-title: "Writing a Simple Redis Protocol Parser With Elixir"
-date: 2022-01-02 02:01:05+08:00
-draft: true
+title: "Writing a simple Redis Protocol parser with Elixir"
+date: 2022-01-04 21:01:05+08:00
+tags: ["elixir", "redis", "parser"]
 ---
 
 Today, we are going to write a parser that parse
