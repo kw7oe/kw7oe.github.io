@@ -5,7 +5,7 @@ tags: ["elixir", "redis", "parser"]
 ---
 
 Today, we are going to write a parser that parse
-[Redis Protocol](https://redis.io/topics/protocol).
+[Redis Protocol](https://redis.io/topics/protocol) in Elixir.
 
 There are tons of supported [commands](https://redis.io/commands) in Redis.
 Since this is our first attempt on implementing it, we will only be focusing
@@ -29,6 +29,11 @@ includes code snippets instead of full fledge working example._
 
 _I am working on the Livebook notebook, and will update the post with `Run in
 Livebook` once it's up._
+
+_This post is inspired by [Rust Tokio Mini-Redis Tutorial](https://tokio.rs/tokio/tutorial/setup),
+where it walks through the reader to implement a mini Redis with
+[`tokio`](https://tokio.rs/). If things go well, this would also be a similar
+series._
 
 ---
 
