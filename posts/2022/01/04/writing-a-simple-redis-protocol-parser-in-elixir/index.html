@@ -53,7 +53,7 @@ Writing a simple Redis Protocol parser in Elixir | kw7oe
 <header class="mb-8">
   <h1 class="title">Writing a simple Redis Protocol parser in Elixir</h1>
   <p class="text-sm font-gray-700 mb-1">Jan 04, 2022</p>
-  <p class="text-sm mb-4 font-gray-700 italic">Estimated Reading Time: 8 minutes (1590 words)</p>
+  <p class="text-sm mb-4 font-gray-700 italic">Estimated Reading Time: 8 minutes (1523 words)</p>
 
    
   <div id="tags">
@@ -237,44 +237,18 @@ of parsing the protocol, we will use it to verify our answer.</p>
 where we write our code to encode and decode the raw input to a data structure and vice versa.</p>
 <h1 id="writing-our-parser">Writing our Parser</h1>
 <p>Before we started to write our own parser, let&rsquo;s write some test case to help with us to verify
-our implementation easily. Note that, we are using <code>redix</code> here as well to
-verify our implementation.</p>
+our implementation easily.</p>
 <div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">ParserTest</span> <span class="k">do</span>
   <span class="kn">use</span> <span class="nc">ExUnit.Case</span><span class="p">,</span> <span class="ss">async</span><span class="p">:</span> <span class="no">true</span>
 
-  <span class="n">describe</span> <span class="s2">&#34;GET&#34;</span> <span class="k">do</span>
-    <span class="n">test</span> <span class="s2">&#34;GET is encoded correctly&#34;</span> <span class="k">do</span>
-      <span class="n">input</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;GET&#34;</span><span class="p">,</span> <span class="s2">&#34;key&#34;</span><span class="p">]</span>
+  <span class="n">test</span> <span class="s2">&#34;encode and decode&#34;</span> <span class="k">do</span>
+    <span class="n">reply</span> <span class="o">=</span> <span class="s2">&#34;*2</span><span class="se">\r\n</span><span class="s2">$3</span><span class="se">\r\n</span><span class="s2">GET</span><span class="se">\r\n</span><span class="s2">$3</span><span class="se">\r\n</span><span class="s2">key</span><span class="se">\r\n</span><span class="s2">&#34;</span>
+    <span class="n">assert</span> <span class="n">reply</span> <span class="o">==</span> <span class="n">reply</span> <span class="o">|&gt;</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span> <span class="o">|&gt;</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
 
-      <span class="n">our_output</span> <span class="o">=</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">input</span><span class="p">)</span>
-
-      <span class="n">redix_output</span> <span class="o">=</span>
-        <span class="n">input</span>
-        <span class="o">|&gt;</span> <span class="nc">Redix.Protocol</span><span class="o">.</span><span class="n">pack</span><span class="p">()</span>
-        <span class="o">|&gt;</span> <span class="nc">IO</span><span class="o">.</span><span class="n">iodata_to_binary</span><span class="p">()</span>
-
-      <span class="n">assert</span> <span class="n">our_output</span> <span class="o">==</span> <span class="n">redix_output</span>
-    <span class="k">end</span>
-
-    <span class="n">test</span> <span class="s2">&#34;GET is decoded correctly&#34;</span> <span class="k">do</span>
-      <span class="n">input</span> <span class="o">=</span> <span class="s2">&#34;*2</span><span class="se">\r\n</span><span class="s2">$3</span><span class="se">\r\n</span><span class="s2">GET</span><span class="se">\r\n</span><span class="s2">$3</span><span class="se">\r\n</span><span class="s2">key</span><span class="se">\r\n</span><span class="s2">&#34;</span>
-      <span class="n">our_output</span> <span class="o">=</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">input</span><span class="p">)</span>
-      <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">redix_output</span><span class="p">,</span> <span class="s2">&#34;&#34;</span><span class="p">}</span> <span class="o">=</span> <span class="nc">Redix.Protocol</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">input</span><span class="p">)</span>
-
-      <span class="n">assert</span> <span class="n">our_output</span> <span class="o">==</span> <span class="n">redix_output</span>
-    <span class="k">end</span>
-
-    <span class="n">test</span> <span class="s2">&#34;encode and decode&#34;</span> <span class="k">do</span>
-      <span class="n">reply</span> <span class="o">=</span> <span class="s2">&#34;*2</span><span class="se">\r\n</span><span class="s2">$3</span><span class="se">\r\n</span><span class="s2">GET</span><span class="se">\r\n</span><span class="s2">$3</span><span class="se">\r\n</span><span class="s2">key</span><span class="se">\r\n</span><span class="s2">&#34;</span>
-      <span class="n">assert</span> <span class="n">reply</span> <span class="o">==</span> <span class="n">reply</span> <span class="o">|&gt;</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span> <span class="o">|&gt;</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
-
-      <span class="n">list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;GET&#34;</span><span class="p">,</span> <span class="s2">&#34;KEY&#34;</span><span class="p">]</span>
-      <span class="n">assert</span> <span class="n">list</span> <span class="o">==</span> <span class="n">list</span> <span class="o">|&gt;</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span> <span class="o">|&gt;</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
-    <span class="k">end</span>
+    <span class="n">list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;GET&#34;</span><span class="p">,</span> <span class="s2">&#34;KEY&#34;</span><span class="p">]</span>
+    <span class="n">assert</span> <span class="n">list</span> <span class="o">==</span> <span class="n">list</span> <span class="o">|&gt;</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span> <span class="o">|&gt;</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
   <span class="k">end</span>
 <span class="k">end</span>
-
-<span class="nc">ExUnit</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </code></pre></div><p>If you run the code above, you&rsquo;ll get <code>Parser.decode/1</code> undefined error since we haven&rsquo;t
 implement our module yet. So let&rsquo;s write some code!</p>
 <div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">Parser</span> <span class="k">do</span>
@@ -286,8 +260,6 @@ implement our module yet. So let&rsquo;s write some code!</p>
     <span class="c1"># your impl</span>
   <span class="k">end</span>
 <span class="k">end</span>
-
-<span class="nc">ExUnit</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </code></pre></div><p>If you&rsquo;re up to the challenge, implement the above first and utilize
 the existing test to verify your implementation.</p>
 <hr>
@@ -334,8 +306,6 @@ the existing test to verify your implementation.</p>
     <span class="nc">Enum</span><span class="o">.</span><span class="n">reverse</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span>
   <span class="k">end</span>
 <span class="k">end</span>
-
-<span class="nc">ExUnit</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </code></pre></div><h3 id="encode">Encode</h3>
 <p>Writing the <code>encode/1</code> is fairly straightforward since we already know how to represent
 arrays and bulk string in RESP. All we need to do is to first specify the <code>Array</code> type and then
