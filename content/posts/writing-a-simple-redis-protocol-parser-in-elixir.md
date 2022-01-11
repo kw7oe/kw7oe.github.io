@@ -206,46 +206,19 @@ where we write our code to encode and decode the raw input to a data structure a
 # Writing our Parser
 
 Before we started to write our own parser, let's write some test case to help with us to verify
-our implementation easily. Note that, we are using `redix` here as well to
-verify our implementation.
-
+our implementation easily.
 ```elixir
 defmodule ParserTest do
   use ExUnit.Case, async: true
 
-  describe "GET" do
-    test "GET is encoded correctly" do
-      input = ["GET", "key"]
+  test "encode and decode" do
+    reply = "*2\r\n$3\r\nGET\r\n$3\r\nkey\r\n"
+    assert reply == reply |> Parser.decode() |> Parser.encode()
 
-      our_output = Parser.encode(input)
-
-      redix_output =
-        input
-        |> Redix.Protocol.pack()
-        |> IO.iodata_to_binary()
-
-      assert our_output == redix_output
-    end
-
-    test "GET is decoded correctly" do
-      input = "*2\r\n$3\r\nGET\r\n$3\r\nkey\r\n"
-      our_output = Parser.decode(input)
-      {:ok, redix_output, ""} = Redix.Protocol.parse(input)
-
-      assert our_output == redix_output
-    end
-
-    test "encode and decode" do
-      reply = "*2\r\n$3\r\nGET\r\n$3\r\nkey\r\n"
-      assert reply == reply |> Parser.decode() |> Parser.encode()
-
-      list = ["GET", "KEY"]
-      assert list == list |> Parser.encode() |> Parser.decode()
-    end
+    list = ["GET", "KEY"]
+    assert list == list |> Parser.encode() |> Parser.decode()
   end
 end
-
-ExUnit.run()
 ```
 
 If you run the code above, you'll get `Parser.decode/1` undefined error since we haven't
@@ -261,8 +234,6 @@ defmodule Parser do
     # your impl
   end
 end
-
-ExUnit.run()
 ```
 
 If you're up to the challenge, implement the above first and utilize
@@ -322,8 +293,6 @@ defmodule Parser do
     Enum.reverse(commands)
   end
 end
-
-ExUnit.run()
 ```
 
 ### Encode
