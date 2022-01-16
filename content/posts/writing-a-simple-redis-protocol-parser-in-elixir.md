@@ -23,12 +23,18 @@ Redis Protocol Specification first.
 
 ---
 
-_This post assume you have
+_If you want to get hands on, I have also written a Livebook version of it. Just
+click the button below to run it:_
+
+[![Run in Livebook](https://livebook.dev/badge/v1/blue.svg)](https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2Fkw7oe%2Flivebook-notebooks%2Fblob%2Fmain%2Fwriting-a-simple-redis-protocol-parser-in-elixir.livemd)
+
+_Else, this post assume you have
 prior knowledge of setting up Elixir project with `mix` as the post only
 includes code snippets instead of full fledge working example._
 
-_I am working on the Livebook notebook, and will update the post with `Run in
-Livebook` once it's up._
+---
+
+
 
 _This post is inspired by [Rust Tokio Mini-Redis Tutorial](https://tokio.rs/tokio/tutorial/setup),
 where it walks through the reader to implement a mini Redis with
@@ -178,11 +184,10 @@ encode it with RESP.
 
 Divide and Conquer.
 
-<!-- livebook:{"livebook_object":"cell_input","name":"SET Input","reactive":true,"type":"text","value":"*3\\r\\n$3\\r\\nSET\\r\\n$3\\r\\nkey\\r\\n$5\\r\\nvalue\\r\\n"} -->
 
 ## Are you correct?
 
-How do we know if we have the correct answer? Let's pull in `redix`, a Elixir Redis client.
+How do we know if we have the correct answer? Let's pull in Elixir Redis client `redix`.
 
 
 ```elixir
@@ -211,6 +216,16 @@ our implementation easily.
 defmodule ParserTest do
   use ExUnit.Case, async: true
 
+  test "encode" do
+    list = ["SET", "key", "value"]
+    assert "*3\r\n$3\r\nSET\r\n$3\r\nkey\r\n$5\r\nvalue\r\n" == Parser.encode(list)
+  end
+
+  test "decode" do
+    reply = "*2\r\n$3\r\nGET\r\n$3\r\nkey\r\n"
+    assert ["GET", "key"] == Parser.decode(reply)
+  end
+
   test "encode and decode" do
     reply = "*2\r\n$3\r\nGET\r\n$3\r\nkey\r\n"
     assert reply == reply |> Parser.decode() |> Parser.encode()
@@ -221,7 +236,7 @@ defmodule ParserTest do
 end
 ```
 
-If you run the code above, you'll get `Parser.decode/1` undefined error since we haven't
+If we run the code above, we'll get `Parser.decode/1` undefined error since we haven't
 implement our module yet. So let's write some code!
 
 ```elixir
