@@ -217,8 +217,8 @@ Else, here's some the first few results I got from Google Search the
 questions above directly:
 
 - [Add a button to the toolbar - Mozilla | MDN](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Add_a_button_to_the_toolbar)
-- [Working with the Tabs API - Mozilla | MDN](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Working_with_the_Tabs_API)
-- [Interact with the clipboard - Mozilla | MDN](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Interact_with_the_clipboard)
+- [Working with the Tabs API - Mozilla | MDN][3]
+- [Interact with the clipboard - Mozilla | MDN][5]
 
 Go have a read and come back. By then, you should have enough information
 to write our first browser extension.
@@ -232,12 +232,13 @@ So let's start writing our actual implementation:
 
 In `index.js`:
 
-```js
-const titleToMarkdown = () => {
-  console.log("hello world")
-}
+```diff
+- console.log("hello world")
++ const titleToMarkdown = () => {
++  console.log("hello world")
++ }
 
-browser.browserAction.onClicked.addListener(titleToMarkdown);
++ browser.browserAction.onClicked.addListener(titleToMarkdown);
 ```
 
 Nothing hard and fancy here, we extract our `console.log` into the
@@ -254,8 +255,232 @@ toolbar button. You should see hello world being logged multiple time.
 
 ## Get the browser current active tab information
 
+By reading through the documentation about [working with the Tabs API][3], we know that
+we could use `browser.tabs.query({...})` to get information about user tabs in
+browser.
 
+However, since the documentation only mentioned about getting the current
+window active tabs by listing all the current window tabs and looping through
+each of it to find out which is active, let's see if there's a simpler way by
+looking at the API references of [`tabs.query`][4].
+
+Indeed there is, we can pass in `active: true` to get the current active tabs
+and `currentWindow: true` to get the active tab of our current window.
+
+The reason, we need to specify current window is because, a user might have
+multiple Firefox application open, but we are only interested in the current
+one they are looking at.
+
+So, here's how the code would look like in `index.js`:
+
+```diff
+const titleToMarkdown = async () => {
+- console.log("hello world");
++ let tabs = await browser.tabs.query({
++   active: true,
++   currentWindow: true,
++ });
+
++ console.log({ tabs });
+};
+
+browser.browserAction.onClicked.addListener(titleToMarkdown);
+```
+
+Now, reload our browser extension and play around with it and we will
+be able to see the information we get.
+
+Here's what I get:
+
+```js
+{
+  "tabs": [
+    {
+      "id": 326,
+      // other key value pairs ...
+      "url": "https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/query",
+      "title": "tabs.query() - Mozilla | MDN"
+    }
+  ]
+}
+```
+
+## Format it to Markdown
+
+Well, for formatting is pretty straighforwad.
+
+```diff
+const titleToMarkdown = async () => {
+  let tabs = await browser.tabs.query({
+    active: true,
+    currentWindow: true,
+  });
+
++ let result = `[${tabs[0].title}](${tabs[0].url})`;
+
+- console.log({ tabs });
++ console.log({ result });
+};
+
+browser.browserAction.onClicked.addListener(titleToMarkdown);
+```
+
+## Copy to clipboard
+
+Given the information we have from [here][5], it should be straighforwad for us
+as well. Is all about calling the right API.
+
+Let's first add `clipboardWrite` to our `permissions` in `manifest.json` as
+mentioned in the documentation:
+
+> Using the API requires the permission "clipboardRead" or "clipboardWrite" in your manifest.json file
+
+In `manifest.json`:
+```diff
+-  "permissions": ["tabs"]
++  "permissions": ["tabs", "clipboardWrite"]
+```
+
+Then all we have to do is called `navigator.clipboard.writeText` in `index.js`:
+
+```diff
+const titleToMarkdown = async () => {
+  let tabs = await browser.tabs.query({
+    active: true,
+    currentWindow: true,
+  });
+
+  let result = `[${tabs[0].title}](${tabs[0].url})`;
+
++ navigator.clipboard.writeText(result).then(
++   function () {
++     console.log("successfully copied to clipboard!");
++   },
++   function () {
++     console.log("failed copied to clipboard!");
++   }
++ );
+
+- console.log({ result });
+};
+
+browser.browserAction.onClicked.addListener(titleToMarkdown);
+```
+
+Be sure to reload your browser extension again every time you make the changes.
+Now by clicking our toolbar button, we should able to successfully copy the
+current active tab as Markdown link.
+
+🎉 In just 19 lines of code, we write our first web extension.
+
+_But something is lacking right? It's not obvious for our user to know if
+the Markdown link is successfully copied._
+
+Now it's your turn to implement that!
+
+---
+
+_Purposely left blank for those who want to implement the notification
+part without any spoilers or hint_
+
+...
+
+...
+
+...
+
+...
+
+...
+
+---
+
+# My approach to notify users
+
+Similar with the approach I took above, this is what I would Google search:
+
+- [how to alert in firefox browser extension - Google Search](https://www.google.com/search?client=firefox-b-d&q=how+to+alert+in+firefox+browser+extension)
+
+Your result may vary but the second result of it is what I'm looking for:
+
+- [notifications.create() - Mozilla | MDN](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/notifications/create)
+
+Given this information, if you haven't implement it your own as a practice,
+this is your last resort before I show my final code.
+
+---
+
+_Last resort to implement it for anyone who's interested to_
+
+...
+
+...
+
+...
+
+...
+
+...
+
+---
+
+So, here's how my final code looks like:
+
+In `manifest.json`:
+```diff
+- "permissions": ["tabs", "clipboardWrite"]
++ "permissions": ["tabs", "notifications", "clipboardWrite"]
+```
+
+In `index.js`:
+```diff
+const titleToMarkdown = async () => {
+  let tabs = await browser.tabs.query({
+    active: true,
+    currentWindow: true,
+  });
+
+  let result = `[${tabs[0].title}](${tabs[0].url})`;
+
+  navigator.clipboard.writeText(result).then(
++   async function () {
++     await browser.notifications.create({
++       type: "basic",
++       title: "🎉 Sucess!",
++       message:
++         " Successfully copy the title and URL for this page to your clipboard!",
++     });
+
+      console.log("successfully copied to clipboard!");
+    },
+    function () {
+      console.log("failed copied to clipboard!");
+    }
+  );
+};
+
+browser.browserAction.onClicked.addListener(titleToMarkdown);
+```
+
+That's all we have for today. If you implemented yourself, you might have
+a different implementation and that's okay. There's no right and wrong as
+long as we achieve our goal of notifiying the user.
+
+# Closing
+
+If you need the full code example, here's the [repository][6] to my implementation.
+It might have slight differences but majority of it should be the same.
+
+Hopefully, this open up the path to you all to the world of developing browser
+extension. Regardless, is always good to have another tool to your tool kit.
+
+Anyway, the key takeaways shouldn't be just the code we have written, but **the
+approach we took to learn and figure out the knowns and unknowns**.
 
 [0]: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/permissions
 [1]: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs
 [2]: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Your_second_WebExtension#testing_it_out
+[3]: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Working_with_the_Tabs_API
+[4]: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/query
+[5]: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Interact_with_the_clipboard
+[6]: https://github.com/kw7oe/ttmd/tree/main
