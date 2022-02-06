@@ -9,43 +9,68 @@ Every now and then, I'm always trying to build something that I would use.
 Coming from a web developer background, I'm always under the impression that I
 have to build a web application.
 
-While building web application is fun and challenging at first, it get boring
-overtime, not to mentioned it involves more efforts _(both financially
+While building web application is fun, it involves more efforts _(both financially
 and time)_.
 
-I'm not sure how, one day I have this "a ha" moment where I feel building
-web browser extension should always be your first choice if you want to build
-something for the web.
+One day I have this _"a ha"_ moment:
 
-It really depends on your use cases, but I would say if
-a web extension is a viable option, it should be the first choice?
-Assuming you are not creating a web extension that require interaction
+> Actually most of the time, I can just build a web extension instead of a
+web application for my needs!
+
+If a web extension is a viable option, it should be the first choice.
+
+Assuming that you are not creating a web extension that require interaction
 with a backend service or store data in the cloud, here's some of the benefits
 building a web extension over a web application:
 
 - No hosting fees. It will be running on the web browser.
-- Your user data is owned by them.
+- Your user data is owned by them. No need to deal with GDPR?
 - You have access to a tons of amazing web browser APIs.
 
 Through this post, you'll get more understanding on the anatomy of a Firefox
-web extension and by the end of the post you'll have write a simple one.
+web extension. By the end of it, you'll write a simple one.
 
-# Prerequisite
+<div class="callout callout-info">
+  <h3 style="margin-top: 0;">Prerequisite</h3>
+  <p>To build a web extension, all you need to know is the basic of:</p>
+  <ul>
+  <li>JavaScript</li>
+  <li>HTML & CSS <em>(optional, you don't need both for this post)</em></li>
+  </ul>
+</div>
 
-To build a web extension, all you need to know is some basic of:
 
-- HTML & CSS _(you don't even need to know CSS for this example)_
-- JavaScript
+Here's how this post will be structured:
 
-# Basic Structure of a web extension
+- [Basic structure of web extension](#basic-structure-of-web-extension)
+  - [Project structure](#project-structure)
+  - [High level architecture](#high-level-architecture)
+- [Our first web extension](#our-first-web-extension) - _Be sure to read this before to jump into any of the below
+  so that you have enough context._
+- [Setting up web extension](#setting-up-web-extension)
+  - [Initialize project folder](#initialize-project-folder)
+  - [Writing `manifest.json`](#writing-manifestjson)
+  - [Writing `index.js`](#writing-indexjs)
+  - [Testing browser extension](#testing-browser-extension)
+- [Actual implementation](#actual-implementation)
+- [Practice](#practice)
+- [Closing](#closing)
 
-Web extension, put it simply, is some HTML & CSS that run on the web
+
+
+
+# Basic structure of web extension
+
+Web extension is HTML, CSS and JavaScript that run on the web
 browser with some restrictions and permissions.
 
+Before writing any new kind of project, is always good to know the
+project structure and how it works at a high level.
 
-## Folder structure
 
-The most basic web extension folder structure will looks something like this:
+## Project structure
+
+The most basic web extension project structure will looks something like this:
 
 ```
 ├── index.js
@@ -60,38 +85,40 @@ According to [Mozilla browser extension documentation](https://developer.mozilla
 
 > This is the only file that must be present in every extension. It contains basic metadata such as its name, version, and the permissions it requires. It also provides pointers to other files in the extension.
 
-The others common things you will have is:
+The others common things you will have are:
 
-- `index.js`, your JavaScript file that contain the implementation of your web
+- `index.js`, your JavaScript file that contains the implementation of your web
 extension.
-- `index.html`, if your web extension happen to use a different page/tab in the
-browser, this HTML file will represent the UI of the page.
-- `icons/icon.png`, to allow the Web browser to display your extension icon.
+- `index.html`, if your web extension happens to use a different page/tab in the
+browser, this HTML file will represents the UI of the page.
+- `icons/icon.png`, to allow the web browser to display your extension icon.
 
-## Interaction with other system
+## High level architecture
 
-Most of the time, your web extension will interact with the [browser JavaScript APIs](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API) to achieve something you want..
+Most of the time, your web extension will interact with the [browser JavaScript APIs](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API) to achieve something you want.
 
-So simple architecture diagram of your web extension will look like this:
+Here's the high level architecture of web extension:
 
 ```
 User <-> Your Web Extension <-> Browser APIs
 ```
 
+_(this is not entirely accurate, but sufficient for now)_
+
 # Our first web extension
 
-As someone who use Markdown for note taking, and save links I
-browsed day to day, I often find myself having to copy the title and the URL of
-a web page, and manually note it down in my Markdown file.
+As someone who uses Markdown for note taking and saves links I
+browsed day to day, I often find myself copy the title and the URL of
+a web page and note it down in my Markdown file.
 
-After doing it again and again, I think that's the end of it, let me build a
-web extension to do just that. So, the first web extension we are going to
-build to day is `ttmd` _(short for title to markdown, what a creative name)_.
+After doing it again and again, I think I should build a
+web extension to do that. This is the web extension we are
+building today: `ttmd` _(short for title to markdown, what a creative name)_.
 
 > It converts the current active tab (web page) into
-Markdown format link and copy to user clipboard.
+Markdown link and copy it to user clipboard.
 
-So, for example if by using our web extension now, it should copy the following
+For example, by using our web extension now, it should copy the following
 to our clipboard:
 
 ```
@@ -100,11 +127,11 @@ to our clipboard:
 
 _(is in localhost:1313 because this is written in my local environment)_
 
-# Setting up our web extension
+# Setting up web extension
 
-## Initialize our project folder
+## Initialize project folder
 
-Let's create our web extension code folder:
+Let's create our web extension project folder:
 
 ```bash
 mkdir my-ttmd
@@ -112,7 +139,7 @@ cd my-ttmd
 touch manifest.json index.js
 ```
 
-## Writing our `manifest.json`
+## Writing `manifest.json`
 
 In `manifest.json`, add the following code:
 
@@ -133,20 +160,19 @@ In `manifest.json`, add the following code:
 }
 ```
 
-The first few keys is self explanatory. So let's talk about the following keys
-and what each means:
+The first few keys are self explanatory. I'll skip those and explain
+the following keys only:
 
 - `browser_action`, to specify button attached to the Firefox toolbar.
-- `background`, to specify your backgroud scripts, which is needed when we need
-to maintain long term state or long term operation independently of the
-lifetime of our browser tab.
+- `background`, to specify your backgroud scripts, which is where we write
+our code mainly.
 - `permissions`, to specify permissions we need to request from the user to use
 our browser extension. For more, you can read about it [here][0].
 
-For now, we are only requesting to access the [`tabs`][1] API, we will be requesting
-for more permissions down the road as we progress.
+Currently, we requested permissions for the [`tabs`][1] API. We will be
+requesting for more permissions as we needed.
 
-## Writing our `index.js`
+## Writing `index.js`
 
 Since we state in the manifest that we will have a background script called
 `index.js`, let's start writing some simple code:
@@ -157,22 +183,25 @@ console.log("hello world")
 ```
 
 Voila, our first extension is done. Classic hello world example. But how can we
-use it?
+test it?
 
-## Testing our browser extension (without publishing)
+## Testing browser extension
 
-As stated in [Mozilla tutorials][2], you can load your extension by:
+As stated in [Mozilla tutorials][2], you can test your extension by temporarily
+loading your extension. Here's the steps:
 
 1. Visit to `about:debugging` in Firefox.
 2. Click `This Firefox`.
 3. Click `Load Temporary Add-on`.
 4. Choose your browser extension `manifest.json`.
 
-And voila, you could see your browser extension icon by now.
+After that, you should see your browser extension icon in the toolbar.
 
 Now click our extension toolbar button and nothing will happen. Upon inspecting
-our console, you'll not see your `hello world` as well. So, how do we see our
-console log for our browser extension? Well, similar to above:
+our console, you'll not see your `hello world` as well.
+
+So, how do we see our console log for our browser extension?
+Well, similar to above:
 
 1. Visit to `about:debugging` and click `This Firefox`.
 2. Click `Inspect` of your extension.
@@ -184,15 +213,15 @@ write code and test the extension, we can now jump into the actual
 implementation.
 
 
-# Implementation walkthrough
+# Actual implementation
 
-Before we write our code, let's briefly talk about how we expect our browser
-extension to behave:
+Let's first describe in detail the behaviour of our browser extension
+before we jump into the implementation:
 
 >  When we click the toolbar button, it should copy the current active tab
-title and url as Markdown format into our clipboard.
+title and URL as Markdown link into our clipboard.
 
-Sound simple enough, but it consists four parts:
+Then, we can break it down further into four parts:
 
 1. Trigger an action when our toolbar button is clicked.
 2. Get the current tab title and URL.
@@ -200,7 +229,7 @@ Sound simple enough, but it consists four parts:
 4. Copy the Markdown format result to the user clipboard.
 
 Out of the four steps, all of them have some unknowns, except for the third
-step _(which is just a simple string manapulation)_.
+step _(which is just a simple string manipulation)_.
 
 Given that, all we have to do is figure out:
 
@@ -373,6 +402,8 @@ current active tab as Markdown link.
 
 🎉 In just 19 lines of code, we write our first web extension.
 
+# Practice
+
 _But something is lacking right? It's not obvious for our user to know if
 the Markdown link is successfully copied._
 
@@ -395,7 +426,7 @@ part without any spoilers or hint_
 
 ---
 
-# My approach to notify users
+# My solution
 
 Similar with the approach I took above, this is what I would Google search:
 
