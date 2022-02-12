@@ -2,19 +2,34 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://kaiwern.com/tags/firefox/</loc>
+    <lastmod>2022-02-12T20:30:11+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/tags/javascript/</loc>
+    <lastmod>2022-02-12T20:30:11+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/posts/</loc>
+    <lastmod>2022-02-12T20:30:11+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/tags/</loc>
+    <lastmod>2022-02-12T20:30:11+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/tags/tutorial/</loc>
+    <lastmod>2022-02-12T20:30:11+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/tags/web-extension/</loc>
+    <lastmod>2022-02-12T20:30:11+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/posts/2022/02/12/writing-a-simple-firefox-extension/</loc>
+    <lastmod>2022-02-12T20:30:11+08:00</lastmod>
+  </url><url>
     <loc>https://kaiwern.com/tags/elixir/</loc>
     <lastmod>2022-01-04T21:01:05+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/tags/parser/</loc>
     <lastmod>2022-01-04T21:01:05+08:00</lastmod>
   </url><url>
-    <loc>https://kaiwern.com/posts/</loc>
-    <lastmod>2022-01-04T21:01:05+08:00</lastmod>
-  </url><url>
     <loc>https://kaiwern.com/tags/redis/</loc>
-    <lastmod>2022-01-04T21:01:05+08:00</lastmod>
-  </url><url>
-    <loc>https://kaiwern.com/tags/</loc>
     <lastmod>2022-01-04T21:01:05+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/posts/2022/01/04/writing-a-simple-redis-protocol-parser-in-elixir/</loc>
@@ -170,9 +185,6 @@
     <loc>https://kaiwern.com/posts/2018/04/11/a-note-about-using-fetch-in-js/</loc>
     <lastmod>2018-04-11T22:43:41+08:00</lastmod>
   </url><url>
-    <loc>https://kaiwern.com/tags/javascript/</loc>
-    <lastmod>2018-04-11T22:43:41+08:00</lastmod>
-  </url><url>
     <loc>https://kaiwern.com/posts/2018/03/28/using-ruby-next-in-map/</loc>
     <lastmod>2018-03-28T22:43:41+08:00</lastmod>
   </url><url>
@@ -193,5 +205,7 @@
   </url><url>
     <loc>https://kaiwern.com/posts/2017/10/15/ruby-.-notation/</loc>
     <lastmod>2017-10-15T18:12:19+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/resume/</loc>
   </url>
 </urlset>

@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>
+Writing a simple Firefox Extension | kw7oe
+</title>
+
+
+
+<meta name="generator" content="Hugo 0.83.1" />
+
+
+    
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.9c9eb135389d62f7b6aea27ad59377b9a28fda7ea53b722707a20a2fd05b6cf1.css" integrity="sha256-nJ6xNTidYve2rqJ61ZN3uaKP2n6lO3InB6IKL9BbbPE=">
+    <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
+
+
+
+
+<link rel="stylesheet" href="https://kaiwern.com/css/syntax.min.css">
+
+
+<body class="flex flex-col min-h-screen px-4 max-w-screen-md md:w-2/3 m-auto"><nav class="mt-8">
+  <ul id="nav-menu" class="w-full flex items-center list-reset">
+    
+    <li>
+      <a href="https://kaiwern.com/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Home</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/about/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">About</a>
+    </li>
+    
+
+    
+    
+    <li>
+      <a href="https://kaiwern.com/categories/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Categories</a>
+    </li>
+    
+    
+    
+    <li>
+      <a href="https://kaiwern.com/tags/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Tags</a>
+    </li>
+    
+    
+  </ul>
+</nav>
+<main class="flex-1 mt-4 sm:mt-12">
+<header class="mb-8">
+  <h1 class="title">Writing a simple Firefox Extension</h1>
+  <p class="text-sm font-gray-700 mb-1">Feb 12, 2022</p>
+  <p class="text-sm mb-4 font-gray-700 italic">Estimated Reading Time: 10 minutes (2047 words)</p>
+
+   
+  <div id="tags">
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/javascript/">javascript</a>
+    </span>
+    
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/web-extension/">web-extension</a>
+    </span>
+    
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/firefox/">firefox</a>
+    </span>
+    
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/tutorial/">tutorial</a>
+    </span>
+    
+    
+  </div>
+</header>
+
+<article class="markdown mb-8 text-gray-800">
+  
+
+  <p>Every now and then, I want to build something that I would use.
+Coming from a web developer background, I&rsquo;m under the impression that I
+have to build a web application.</p>
+<p>One day I have this <em>&ldquo;a ha&rdquo;</em> moment:</p>
+<blockquote>
+<p>Actually most of the time, I can just build a web extension instead of a
+web application for my needs!</p>
+</blockquote>
+<p>Assuming that you are not creating a web extension that require backend,
+here&rsquo;s some of the benefits building a web extension over a web application:</p>
+<ul>
+<li>No hosting fees. It will be running on the web browser.</li>
+<li>Your user data is owned by them. No need to deal with GDPR?</li>
+<li>You have access to a tons of amazing web browser APIs.</li>
+</ul>
+<p>Through this post, you&rsquo;ll get more understanding on the anatomy of a Firefox
+web extension. By the end of it, you&rsquo;ll write a simple one.</p>
+<div class="callout callout-info">
+  <h3 style="margin-top: 0;">Prerequisite</h3>
+  <p>To build a web extension, all you need to know is the basic of:</p>
+  <ul>
+  <li>JavaScript</li>
+  <li>HTML & CSS <em>(optional, you don't need both for this post)</em></li>
+  </ul>
+</div>
+<p>Here&rsquo;s how this post will be structured:</p>
+<ul>
+<li><a href="#basic-structure-of-web-extension">Basic structure of web extension</a>
+<ul>
+<li><a href="#project-structure">Project structure</a></li>
+<li><a href="#high-level-architecture">High level architecture</a></li>
+</ul>
+</li>
+<li><a href="#our-first-web-extension">Our first web extension</a> - <em>Be sure to read this before to jump into any of the below
+so that you have enough context.</em></li>
+<li><a href="#setting-up-web-extension">Setting up web extension</a>
+<ul>
+<li><a href="#initialize-project-folder">Initialize project folder</a></li>
+<li><a href="#writing-manifestjson">Writing <code>manifest.json</code></a></li>
+<li><a href="#writing-indexjs">Writing <code>index.js</code></a></li>
+<li><a href="#testing-browser-extension">Testing browser extension</a></li>
+</ul>
+</li>
+<li><a href="#actual-implementation">Actual implementation</a></li>
+<li><a href="#practice">Practice</a></li>
+<li><a href="#closing">Closing</a></li>
+</ul>
+<h1 id="basic-structure-of-web-extension">Basic structure of web extension</h1>
+<p>Web extension is HTML, CSS and JavaScript that run on the web
+browser with some restrictions and permissions.</p>
+<p>Before writing any new kind of project, is always good to know the
+project structure and how it works at a high level.</p>
+<h2 id="project-structure">Project structure</h2>
+<p>The most basic web extension project structure will looks something like this:</p>
+<pre><code>├── index.js
+├── index.html (Optional)
+├── icons
+│   └── icon.png
+└── manifest.json
+</code></pre><p>According to <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Anatomy_of_a_WebExtension">Mozilla browser extension documentation</a>,
+<code>manifest.json</code> is the only one you need:</p>
+<blockquote>
+<p>This is the only file that must be present in every extension. It contains basic metadata such as its name, version, and the permissions it requires. It also provides pointers to other files in the extension.</p>
+</blockquote>
+<p>The others common files you will have are:</p>
+<ul>
+<li><code>index.js</code>, your JavaScript file that contains the implementation of your web
+extension.</li>
+<li><code>index.html</code>, if your web extension happens to use a pop-up/page/tab in the
+browser, this HTML file will represents the UI of the page.</li>
+<li><code>icons/icon.png</code>, to allow the web browser to display your extension icon.</li>
+</ul>
+<h2 id="high-level-architecture">High level architecture</h2>
+<p>Most of the time, your web extension will interact with the <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API">browser JavaScript APIs</a> to achieve something you want.</p>
+<p>Here&rsquo;s the high level architecture of web extension:</p>
+<pre><code>User &lt;-&gt; Your Web Extension &lt;-&gt; Browser APIs
+</code></pre><p><em>(this is not entirely accurate)</em></p>
+<h1 id="our-first-web-extension">Our first web extension</h1>
+<p>As someone who uses Markdown for note taking and saves links I
+browsed day to day, I often find myself copy the title and the URL of
+a web page and note it down to my Markdown file.</p>
+<p>After doing it again and again, I think I should build a
+web extension to do that. This is the web extension we are
+building today: <code>ttmd</code> <em>(short for title to markdown, what a creative name)</em>.</p>
+<blockquote>
+<p>It converts the current active tab (web page) into
+Markdown link and copy it to user clipboard.</p>
+</blockquote>
+<p>For example, by using our web extension now, it should copy the following
+to our clipboard:</p>
+<pre><code>[Writing a simple Firefox Extension | kw7oe](http://localhost:1313/posts/2022/01/31/writing-a-simple-firefox-extension/)
+</code></pre><p><em>(is in localhost:1313 because this is written in my local environment)</em></p>
+<h1 id="setting-up-web-extension">Setting up web extension</h1>
+<h2 id="initialize-project-folder">Initialize project folder</h2>
+<p>Let&rsquo;s create our web extension project folder:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">mkdir my-ttmd
+<span class="nb">cd</span> my-ttmd
+touch manifest.json index.js
+</code></pre></div><h2 id="writing-manifestjson">Writing <code>manifest.json</code></h2>
+<p>In <code>manifest.json</code>, add the following code:</p>
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
+  <span class="nt">&#34;manifest_version&#34;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+  <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;my-ttmd&#34;</span><span class="p">,</span>
+  <span class="nt">&#34;description&#34;</span><span class="p">:</span> <span class="s2">&#34;Title to Markdown&#34;</span><span class="p">,</span>
+  <span class="nt">&#34;version&#34;</span><span class="p">:</span> <span class="s2">&#34;0.0.1&#34;</span><span class="p">,</span>
+  <span class="nt">&#34;browser_action&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;default_icon&#34;</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="nt">&#34;default_title&#34;</span><span class="p">:</span> <span class="s2">&#34;Title to Markdown!&#34;</span>
+  <span class="p">},</span>
+  <span class="nt">&#34;background&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;scripts&#34;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&#34;index.js&#34;</span><span class="p">]</span>
+  <span class="p">},</span>
+  <span class="nt">&#34;permissions&#34;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&#34;tabs&#34;</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div><p>The first few keys are self explanatory. I&rsquo;ll skip those and explain
+the following keys only:</p>
+<ul>
+<li><code>browser_action</code>, to specify button attached to the Firefox toolbar.</li>
+<li><code>background</code>, to specify your backgroud scripts, which is where we write
+our code mainly.</li>
+<li><code>permissions</code>, to specify permissions we need to request from the user to use
+our browser extension. For more, you can read about it <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/permissions">here</a>.</li>
+</ul>
+<p>Currently, we requested permissions for the <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs"><code>tabs</code></a> API. We will be
+requesting for more permissions as we needed.</p>
+<h2 id="writing-indexjs">Writing <code>index.js</code></h2>
+<p>Since we state in the manifest that we will have a background script called
+<code>index.js</code>, let&rsquo;s start writing some simple code:</p>
+<p>In <code>index.js</code>:</p>
+<div class="highlight"><pre class="chroma"><code class="language-js" data-lang="js"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&#34;hello world&#34;</span><span class="p">)</span>
+</code></pre></div><p>Voila, our first extension is done. Classic hello world example. But how can we
+test it?</p>
+<h2 id="testing-browser-extension">Testing browser extension</h2>
+<p>As stated in <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Your_second_WebExtension#testing_it_out">Mozilla tutorials</a>, you can test your extension by temporarily
+loading your extension. Here&rsquo;s the steps:</p>
+<ol>
+<li>Visit to <code>about:debugging</code> in Firefox.</li>
+<li>Click <code>This Firefox</code>.</li>
+<li>Click <code>Load Temporary Add-on</code>.</li>
+<li>Choose your browser extension <code>manifest.json</code>.</li>
+</ol>
+<p>After that, you should see your browser extension icon in the toolbar.</p>
+<p>Now click our extension toolbar button and nothing will happen. Upon inspecting
+our console, you&rsquo;ll not see your <code>hello world</code> as well.</p>
+<p>So, how do we see our console log for our browser extension?
+Well, similar to above:</p>
+<ol>
+<li>Visit to <code>about:debugging</code> and click <code>This Firefox</code>.</li>
+<li>Click <code>Inspect</code> of your extension.</li>
+</ol>
+<p>Now you should be able to see your hello world logged!</p>
+<p>Given that we have gone through how to setup your first web extension project,
+write code and test the extension, we can now jump into the actual
+implementation.</p>
+<h1 id="actual-implementation">Actual implementation</h1>
+<p>Let&rsquo;s first describe in detail the behaviour of our browser extension
+before we jump into the implementation:</p>
+<blockquote>
+<p>When we click the toolbar button, it should copy the current active tab
+title and URL as Markdown link into our clipboard.</p>
+</blockquote>
+<p>Then, we can break it down further into four parts:</p>
+<ol>
+<li>Trigger an action when our toolbar button is clicked.</li>
+<li>Get the current tab title and URL.</li>
+<li>Format the title and URL into Markdown format.</li>
+<li>Copy the Markdown format result to the user clipboard.</li>
+</ol>
+<p>Out of the four steps, all of them have some unknowns, except for the third
+step <em>(which is just a simple string manipulation)</em>.</p>
+<p>Given that, all we have to do is figure out:</p>
+<ul>
+<li>How to execute some code when our browser extension toolbar button is
+clicked in Firefox?</li>
+<li>How to get the browser current active tab information such as title and URL
+in Firefox?</li>
+<li>How to copy some string to user clipboard in browser in Firefox?</li>
+</ul>
+<p>If you&rsquo;re up to some challenge, you can stop reading this article and proceed
+to find out the answer yourself.</p>
+<p>Else, here&rsquo;s some the first few results I got from Google Search the
+questions above directly:</p>
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Add_a_button_to_the_toolbar">Add a button to the toolbar - Mozilla | MDN</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Working_with_the_Tabs_API">Working with the Tabs API - Mozilla | MDN</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Interact_with_the_clipboard">Interact with the clipboard - Mozilla | MDN</a></li>
+</ul>
+<p>Go have a read and come back. By then, you should have enough information
+to write our first browser extension.</p>
+<h2 id="execute-code-when-toolbar-button-is-clicked">Execute code when toolbar button is clicked</h2>
+<p>From the first article, we learn that we can use <code>browser.browserAction.onClicked.addListener(&lt;function&gt;)</code> to
+execute code when our button is clicked.</p>
+<p>So let&rsquo;s start writing our actual implementation:</p>
+<p>In <code>index.js</code>:</p>
+<div class="highlight"><pre class="chroma"><code class="language-diff" data-lang="diff"><span class="gd">- console.log(&#34;hello world&#34;)
+</span><span class="gd"></span><span class="gi">+ const titleToMarkdown = () =&gt; {
+</span><span class="gi">+  console.log(&#34;hello world&#34;)
+</span><span class="gi">+ }
+</span><span class="gi"></span>
+<span class="gi">+ browser.browserAction.onClicked.addListener(titleToMarkdown);
+</span></code></pre></div><p>Nothing hard and fancy here, we extract our <code>console.log</code> into the
+<code>titleToMarkdown</code> function, and register our function with the browser action
+listener using the provided API.</p>
+<p>Now let&rsquo;s test it out whether it works as expected. Visit to <code>about:debugging</code>
+again and click <code>This Firefox</code>, under your browser extension click the <code>Reload</code>
+button.</p>
+<p>Now you can click <code>Inspect</code> button again and play around with your browser
+extension
+toolbar button. You should see hello world being logged multiple time.</p>
+<h2 id="get-the-browser-current-active-tab-information">Get the browser current active tab information</h2>
+<p>By reading through the documentation about <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Working_with_the_Tabs_API">working with the Tabs API</a>, we know that
+we could use <code>browser.tabs.query({...})</code> to get information about user tabs in
+browser.</p>
+<p>However, since the documentation only mentioned about getting the current
+window active tabs by listing all the current window tabs and looping through
+each of it to find out which is active, let&rsquo;s see if there&rsquo;s a simpler way by
+looking at the API references of <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/query"><code>tabs.query</code></a>.</p>
+<p>Indeed there is, we can pass in <code>active: true</code> to get the current active tabs
+and <code>currentWindow: true</code> to get the active tab of our current window.</p>
+<p>The reason, we need to specify current window is because, a user might have
+multiple Firefox application open, but we are only interested in the current
+one they are looking at.</p>
+<p>So, here&rsquo;s how the code would look like in <code>index.js</code>:</p>
+<div class="highlight"><pre class="chroma"><code class="language-diff" data-lang="diff">const titleToMarkdown = async () =&gt; {
+<span class="gd">- console.log(&#34;hello world&#34;);
+</span><span class="gd"></span><span class="gi">+ let tabs = await browser.tabs.query({
+</span><span class="gi">+   active: true,
+</span><span class="gi">+   currentWindow: true,
+</span><span class="gi">+ });
+</span><span class="gi"></span>
+<span class="gi">+ console.log({ tabs });
+</span><span class="gi"></span>};
+
+browser.browserAction.onClicked.addListener(titleToMarkdown);
+</code></pre></div><p>Now, reload our browser extension and play around with it and we will
+be able to see the information we get.</p>
+<p>Here&rsquo;s what I get:</p>
+<div class="highlight"><pre class="chroma"><code class="language-js" data-lang="js"><span class="p">{</span>
+  <span class="s2">&#34;tabs&#34;</span><span class="o">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&#34;id&#34;</span><span class="o">:</span> <span class="mi">326</span><span class="p">,</span>
+      <span class="c1">// other key value pairs ...
+</span><span class="c1"></span>      <span class="s2">&#34;url&#34;</span><span class="o">:</span> <span class="s2">&#34;https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs/query&#34;</span><span class="p">,</span>
+      <span class="s2">&#34;title&#34;</span><span class="o">:</span> <span class="s2">&#34;tabs.query() - Mozilla | MDN&#34;</span>
+    <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div><h2 id="format-it-to-markdown">Format it to Markdown</h2>
+<p>Well, for formatting is pretty straighforwad.</p>
+<div class="highlight"><pre class="chroma"><code class="language-diff" data-lang="diff">const titleToMarkdown = async () =&gt; {
+  let tabs = await browser.tabs.query({
+    active: true,
+    currentWindow: true,
+  });
+
+<span class="gi">+ let result = `[${tabs[0].title}](${tabs[0].url})`;
+</span><span class="gi"></span>
+<span class="gd">- console.log({ tabs });
+</span><span class="gd"></span><span class="gi">+ console.log({ result });
+</span><span class="gi"></span>};
+
+browser.browserAction.onClicked.addListener(titleToMarkdown);
+</code></pre></div><h2 id="copy-to-clipboard">Copy to clipboard</h2>
+<p>Given the information we have from <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Interact_with_the_clipboard">here</a>, it should be straighforwad for us
+as well. Is all about calling the right API.</p>
+<p>Let&rsquo;s first add <code>clipboardWrite</code> to our <code>permissions</code> in <code>manifest.json</code> as
+mentioned in the documentation:</p>
+<blockquote>
+<p>Using the API requires the permission &ldquo;clipboardRead&rdquo; or &ldquo;clipboardWrite&rdquo; in your manifest.json file</p>
+</blockquote>
+<p>In <code>manifest.json</code>:</p>
+<div class="highlight"><pre class="chroma"><code class="language-diff" data-lang="diff"><span class="gd">-  &#34;permissions&#34;: [&#34;tabs&#34;]
+</span><span class="gd"></span><span class="gi">+  &#34;permissions&#34;: [&#34;tabs&#34;, &#34;clipboardWrite&#34;]
+</span></code></pre></div><p>Then all we have to do is called <code>navigator.clipboard.writeText</code> in <code>index.js</code>:</p>
+<div class="highlight"><pre class="chroma"><code class="language-diff" data-lang="diff">const titleToMarkdown = async () =&gt; {
+  let tabs = await browser.tabs.query({
+    active: true,
+    currentWindow: true,
+  });
+
+  let result = `[${tabs[0].title}](${tabs[0].url})`;
+
+<span class="gi">+ navigator.clipboard.writeText(result).then(
+</span><span class="gi">+   function () {
+</span><span class="gi">+     console.log(&#34;successfully copied to clipboard!&#34;);
+</span><span class="gi">+   },
+</span><span class="gi">+   function () {
+</span><span class="gi">+     console.log(&#34;failed copied to clipboard!&#34;);
+</span><span class="gi">+   }
+</span><span class="gi">+ );
+</span><span class="gi"></span>
+<span class="gd">- console.log({ result });
+</span><span class="gd"></span>};
+
+browser.browserAction.onClicked.addListener(titleToMarkdown);
+</code></pre></div><p>Be sure to reload your browser extension again every time you make the changes.
+Now by clicking our toolbar button, we should able to successfully copy the
+current active tab as Markdown link.</p>
+<p>🎉 In just 19 lines of code, we write our first web extension.</p>
+<h1 id="practice">Practice</h1>
+<p><em>But something is lacking right? It&rsquo;s not obvious for our user to know if
+the Markdown link is successfully copied.</em></p>
+<p>Now it&rsquo;s your turn to implement that!</p>
+<hr>
+<p><em>Purposely left blank for those who want to implement the notification
+part without any spoilers or hint</em></p>
+<p>&hellip;</p>
+<p>&hellip;</p>
+<p>&hellip;</p>
+<p>&hellip;</p>
+<p>&hellip;</p>
+<hr>
+<h1 id="my-solution">My solution</h1>
+<p>Similar with the approach I took above, this is what I would Google search:</p>
+<ul>
+<li><a href="https://www.google.com/search?client=firefox-b-d&amp;q=how+to+alert+in+firefox+browser+extension">how to alert in firefox browser extension - Google Search</a></li>
+</ul>
+<p>Your result may vary but the second result of it is what I&rsquo;m looking for:</p>
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/notifications/create">notifications.create() - Mozilla | MDN</a></li>
+</ul>
+<p>Given this information, if you haven&rsquo;t implement it your own as a practice,
+this is your last resort before I show my final code.</p>
+<hr>
+<p><em>Last resort to implement it for anyone who&rsquo;s interested to</em></p>
+<p>&hellip;</p>
+<p>&hellip;</p>
+<p>&hellip;</p>
+<p>&hellip;</p>
+<p>&hellip;</p>
+<hr>
+<p>So, here&rsquo;s how my final code looks like:</p>
+<p>In <code>manifest.json</code>:</p>
+<div class="highlight"><pre class="chroma"><code class="language-diff" data-lang="diff"><span class="gd">- &#34;permissions&#34;: [&#34;tabs&#34;, &#34;clipboardWrite&#34;]
+</span><span class="gd"></span><span class="gi">+ &#34;permissions&#34;: [&#34;tabs&#34;, &#34;notifications&#34;, &#34;clipboardWrite&#34;]
+</span></code></pre></div><p>In <code>index.js</code>:</p>
+<div class="highlight"><pre class="chroma"><code class="language-diff" data-lang="diff">const titleToMarkdown = async () =&gt; {
+  let tabs = await browser.tabs.query({
+    active: true,
+    currentWindow: true,
+  });
+
+  let result = `[${tabs[0].title}](${tabs[0].url})`;
+
+  navigator.clipboard.writeText(result).then(
+<span class="gi">+   async function () {
+</span><span class="gi">+     await browser.notifications.create({
+</span><span class="gi">+       type: &#34;basic&#34;,
+</span><span class="gi">+       title: &#34;🎉 Sucess!&#34;,
+</span><span class="gi">+       message:
+</span><span class="gi">+         &#34; Successfully copy the title and URL for this page to your clipboard!&#34;,
+</span><span class="gi">+     });
+</span><span class="gi"></span>
+      console.log(&#34;successfully copied to clipboard!&#34;);
+    },
+    function () {
+      console.log(&#34;failed copied to clipboard!&#34;);
+    }
+  );
+};
+
+browser.browserAction.onClicked.addListener(titleToMarkdown);
+</code></pre></div><p>That&rsquo;s all we have for today. If you implemented yourself, you might have
+a different implementation and that&rsquo;s okay. There&rsquo;s no right and wrong as
+long as we achieve our goal of notifiying the user.</p>
+<h1 id="closing">Closing</h1>
+<p>If you need the full code example, here&rsquo;s the <a href="https://github.com/kw7oe/ttmd/tree/main">repository</a> to my implementation.
+It might have slight differences but majority of it should be the same.</p>
+<p>Hopefully, this open up the path to you all to the world of developing browser
+extension. It is always good to add another tool to your tool kit.</p>
+<p>Anyway, the key takeaways shouldn&rsquo;t be just the code we have written, but <strong>the
+approach we took to figure out the unknowns.</strong></p>
+
+</article>
+
+    </main><footer class="w-full text-center border-t border-gray-200 p-4 pin-b text-xs text-gray-400">
+    <p>made with <a href="https://gohugo.io" class="underline hover:text-blue-400">Hugo</a> and <a href="https://tailwindcss.com" class="underline hover:text-blue-400">TailwindCSS</a></p>
+</footer></body>
+</html>
