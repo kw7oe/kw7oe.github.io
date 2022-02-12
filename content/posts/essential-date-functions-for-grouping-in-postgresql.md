@@ -1,7 +1,7 @@
 ---
 title: "Essential Date Functions for Grouping in PostgreSQL"
 date: 2020-04-14T18:43:08+08:00
-tags: ["postgresql"]
+tags: ["postgresql", "tutorial"]
 ---
 
 The past months, I have been working on a feature which

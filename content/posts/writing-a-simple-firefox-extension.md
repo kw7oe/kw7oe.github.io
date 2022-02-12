@@ -1,27 +1,20 @@
 ---
 title: "Writing a simple Firefox Extension"
-date: 2022-01-31T19:51:11+08:00
-draft: true
-tags: ['javascript', 'web-extension', 'firefox']
+date: 2022-02-12T20:30:11+08:00
+tags: ['javascript', 'web-extension', 'firefox', 'tutorial']
 ---
 
-Every now and then, I'm always trying to build something that I would use.
-Coming from a web developer background, I'm always under the impression that I
+Every now and then, I want to build something that I would use.
+Coming from a web developer background, I'm under the impression that I
 have to build a web application.
-
-While building web application is fun, it involves more efforts _(both financially
-and time)_.
 
 One day I have this _"a ha"_ moment:
 
 > Actually most of the time, I can just build a web extension instead of a
 web application for my needs!
 
-If a web extension is a viable option, it should be the first choice.
-
-Assuming that you are not creating a web extension that require interaction
-with a backend service or store data in the cloud, here's some of the benefits
-building a web extension over a web application:
+Assuming that you are not creating a web extension that require backend,
+here's some of the benefits building a web extension over a web application:
 
 - No hosting fees. It will be running on the web browser.
 - Your user data is owned by them. No need to deal with GDPR?
@@ -81,15 +74,15 @@ The most basic web extension project structure will looks something like this:
 ```
 
 According to [Mozilla browser extension documentation](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Anatomy_of_a_WebExtension),
-`manifest.json` is the most important one to have:
+`manifest.json` is the only one you need:
 
 > This is the only file that must be present in every extension. It contains basic metadata such as its name, version, and the permissions it requires. It also provides pointers to other files in the extension.
 
-The others common things you will have are:
+The others common files you will have are:
 
 - `index.js`, your JavaScript file that contains the implementation of your web
 extension.
-- `index.html`, if your web extension happens to use a different page/tab in the
+- `index.html`, if your web extension happens to use a pop-up/page/tab in the
 browser, this HTML file will represents the UI of the page.
 - `icons/icon.png`, to allow the web browser to display your extension icon.
 
@@ -103,13 +96,13 @@ Here's the high level architecture of web extension:
 User <-> Your Web Extension <-> Browser APIs
 ```
 
-_(this is not entirely accurate, but sufficient for now)_
+_(this is not entirely accurate)_
 
 # Our first web extension
 
 As someone who uses Markdown for note taking and saves links I
 browsed day to day, I often find myself copy the title and the URL of
-a web page and note it down in my Markdown file.
+a web page and note it down to my Markdown file.
 
 After doing it again and again, I think I should build a
 web extension to do that. This is the web extension we are
@@ -503,10 +496,10 @@ If you need the full code example, here's the [repository][6] to my implementati
 It might have slight differences but majority of it should be the same.
 
 Hopefully, this open up the path to you all to the world of developing browser
-extension. Regardless, is always good to have another tool to your tool kit.
+extension. It is always good to add another tool to your tool kit.
 
 Anyway, the key takeaways shouldn't be just the code we have written, but **the
-approach we took to learn and figure out the knowns and unknowns**.
+approach we took to figure out the unknowns.**
 
 [0]: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/permissions
 [1]: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/tabs

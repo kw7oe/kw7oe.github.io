@@ -1,7 +1,7 @@
 ---
 title: Using Tesseract OCR in Elixir/Phoenix
 date: 2019-06-03T18:04:00+0800
-tags: ["elixir", "phoenix"]
+tags: ["elixir", "phoenix", "tutorial"]
 aliases: [
   '/elixir/phoenix/2019/06/03/using-tesseract-ocr-in-elixir-phoenix.html'
 ]

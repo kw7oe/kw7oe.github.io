@@ -1,7 +1,7 @@
 ---
 title: "Building Elixir/Phoenix Release With Docker"
 date: 2020-06-20T14:17:08+08:00
-tags: ['elixir', 'phoenix', 'docker', 'deployment']
+tags: ['elixir', 'phoenix', 'docker', 'deployment', 'tutorial']
 ---
 
 This is a short post about how I build my Elixir/Phoenix releases with
