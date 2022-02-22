@@ -271,7 +271,7 @@ it as it is without timezone provided.</li>
 <p>Let&rsquo;s first take a look about what happen when we use the input without
 timezone and input with a different timezone.</p>
 <p><strong>Input without timezone in <code>UTC</code> database timezone:</strong></p>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SET</span><span class="w"> </span><span class="n">timezone</span><span class="o">=</span><span class="s2">&#34;Asia/Kuala_Lumpur&#34;</span><span class="p">;</span><span class="w">
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SET</span><span class="w"> </span><span class="n">timezone</span><span class="o">=</span><span class="s2">&#34;UTC&#34;</span><span class="p">;</span><span class="w">
 </span><span class="w"></span><span class="k">SELECT</span><span class="w">
 </span><span class="w">  </span><span class="s1">&#39;2020-01-01 00:00:00&#39;</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">timestamp_wtc</span><span class="p">,</span><span class="w">
 </span><span class="w">  </span><span class="s1">&#39;2020-01-01 00:00:00&#39;</span><span class="p">::</span><span class="k">timestamp</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="k">timestamp</span><span class="p">,</span><span class="w">
