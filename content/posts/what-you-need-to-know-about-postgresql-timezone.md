@@ -274,7 +274,7 @@ timezone and input with a different timezone.
 **Input without timezone in `UTC` database timezone:**
 
 ```sql
-SET timezone="Asia/Kuala_Lumpur";
+SET timezone="UTC";
 SELECT
   '2020-01-01 00:00:00' as timestamp_wtc,
   '2020-01-01 00:00:00'::timestamp as timestamp,
