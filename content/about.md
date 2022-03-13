@@ -13,8 +13,9 @@ Some of the tools I used day to day are:
 
 - vim
 - Elixir/Phoenix
-- JavaScript/TypeScript
+- Rust
 - PostgreSQL
+- JavaScript/TypeScript
 
 So, you can expect posts about these tools from my blog. I also like
 to cook and am currently trying to write more and post consistently.
@@ -23,7 +24,9 @@ to cook and am currently trying to write more and post consistently.
 
 Currently, I am:
 
-- Working on Advent of Code 2021 with Rust.
+- Writing [`sqlite` in Rust](https://github.com/kw7oe/sqlite-rust), inspired by
+[Let's Build a Simple Database](https://cstack.github.io/db_tutorial/) tutorial.
+- Attending RC soon, starting from 28th March 2022.
 - Learning more about Database System.
 - Trying to workout more intensely than the past years.
 - Trying to publish one post per month in this blog.
