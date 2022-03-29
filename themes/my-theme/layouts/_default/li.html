@@ -1,4 +1,4 @@
-  <li class="flex flex-row">
-    <time class="mr-4">{{ .Date.Format "Jan 02, 2006" }}</time>
-    <a class="w-2/3" href="{{ .Permalink }}">{{ .Title }}</a>
+  <li class="grid grid-cols-5">
+    <time class="col-span-1">{{ .Date.Format "Jan 02, 2006" }}</time>
+    <a class="col-span-4" href="{{ .Permalink }}">{{ .Title }}</a>
   </li>
