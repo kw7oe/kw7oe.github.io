@@ -7,11 +7,11 @@ Using Ruby next in map | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.83.1" />
+<meta name="generator" content="Hugo 0.90.0" />
 
 
     
-    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.9c9eb135389d62f7b6aea27ad59377b9a28fda7ea53b722707a20a2fd05b6cf1.css" integrity="sha256-nJ6xNTidYve2rqJ61ZN3uaKP2n6lO3InB6IKL9BbbPE=">
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.c41ff84d3329279b5882daee9f67712ab71c7b9e6bbd192fb3e1a496d452d10a.css" integrity="sha256-xB/4TTMpJ5tYgtrun2dxKrcce55rvRkvs&#43;GkltRS0Qo=">
     <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -73,7 +73,7 @@ Using Ruby next in map | kw7oe
 
   <p>While I was refactoring the code base of my client application,
 I came accross a code block, similar to this:</p>
-<div class="highlight"><pre class="chroma"><code class="language-ruby" data-lang="ruby"><span class="n">arr</span> <span class="o">=</span> <span class="o">[]</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ruby" data-lang="ruby"><span class="n">arr</span> <span class="o">=</span> <span class="o">[]</span>
 <span class="n">data</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">d</span><span class="o">|</span>
   <span class="n">status</span> <span class="o">=</span> <span class="n">d</span><span class="o">[</span><span class="s1">&#39;status&#39;</span><span class="o">]</span>
   <span class="k">next</span> <span class="k">if</span> <span class="no">IGNORED_STATUS</span><span class="o">.</span><span class="n">include?</span> <span class="n">status</span>
@@ -81,7 +81,7 @@ I came accross a code block, similar to this:</p>
 <span class="k">end</span>
 </code></pre></div><p>I think, &ldquo;Ha, I can replace <code>each</code> with <code>map</code> here.&rdquo;</p>
 <p>I go ahead, and make the changes.</p>
-<div class="highlight"><pre class="chroma"><code class="language-ruby" data-lang="ruby"><span class="n">arr</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">map</span> <span class="k">do</span> <span class="o">|</span><span class="n">d</span><span class="o">|</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ruby" data-lang="ruby"><span class="n">arr</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">map</span> <span class="k">do</span> <span class="o">|</span><span class="n">d</span><span class="o">|</span>
   <span class="n">status</span> <span class="o">=</span> <span class="n">d</span><span class="o">[</span><span class="s1">&#39;status&#39;</span><span class="o">]</span>
   <span class="k">next</span> <span class="k">if</span> <span class="no">IGNORED_STATUS</span><span class="o">.</span><span class="n">include?</span> <span class="n">status</span>
   <span class="n">d</span><span class="o">[</span><span class="s1">&#39;value&#39;</span><span class="o">]</span>
@@ -93,10 +93,10 @@ reported that there were errors in the system disrupting the user from
 using it normally. After some investigation, I found out that it is
 caused by <code>nil</code>. I patched the error quickly by using <code>compact</code>.</p>
 <p>From something like this:</p>
-<div class="highlight"><pre class="chroma"><code class="language-ruby" data-lang="ruby"><span class="n">timeslots</span> <span class="o">=</span> <span class="n">get_timeslots</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="c1"># [1, nil, 2, 3]</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ruby" data-lang="ruby"><span class="n">timeslots</span> <span class="o">=</span> <span class="n">get_timeslots</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="c1"># [1, nil, 2, 3]</span>
 <span class="n">timeslots</span><span class="o">.</span><span class="n">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">x</span><span class="o">|</span> <span class="o">...</span> <span class="p">}</span>
 </code></pre></div><p>to:</p>
-<div class="highlight"><pre class="chroma"><code class="language-ruby" data-lang="ruby"><span class="n">timeslots</span> <span class="o">=</span> <span class="n">get_timeslots</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">compact</span> <span class="c1"># [1, 2, 3]</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ruby" data-lang="ruby"><span class="n">timeslots</span> <span class="o">=</span> <span class="n">get_timeslots</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">compact</span> <span class="c1"># [1, 2, 3]</span>
 <span class="n">timeslots</span><span class="o">.</span><span class="n">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">x</span><span class="o">|</span> <span class="o">...</span> <span class="p">}</span>
 </code></pre></div><p>Later on, diving into the source code, I found out that the <code>nil</code>
 is introduced by my own refactored code. It turns out that, inside
@@ -104,7 +104,7 @@ a <code>map</code>, using <code>next</code> will return <code>nil</code> instead
 altogether. I only learn this when I came across this
 <a href="http://code-worrier.com/blog/map-and-next/">blog article</a>.
 For example:</p>
-<div class="highlight"><pre class="chroma"><code class="language-ruby" data-lang="ruby"><span class="n">arr</span> <span class="o">=</span> <span class="o">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="o">]</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ruby" data-lang="ruby"><span class="n">arr</span> <span class="o">=</span> <span class="o">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="o">]</span>
 <span class="n">arr</span><span class="o">.</span><span class="n">map</span> <span class="k">do</span> <span class="o">|</span><span class="n">i</span><span class="o">|</span>
   <span class="k">next</span> <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span>
   <span class="n">i</span> <span class="c1"># Return the value</span>

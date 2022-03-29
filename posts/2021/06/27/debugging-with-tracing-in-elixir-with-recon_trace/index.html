@@ -7,11 +7,11 @@ Debugging with tracing in Elixir with recon_trace | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.83.1" />
+<meta name="generator" content="Hugo 0.90.0" />
 
 
     
-    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.9c9eb135389d62f7b6aea27ad59377b9a28fda7ea53b722707a20a2fd05b6cf1.css" integrity="sha256-nJ6xNTidYve2rqJ61ZN3uaKP2n6lO3InB6IKL9BbbPE=">
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.c41ff84d3329279b5882daee9f67712ab71c7b9e6bbd192fb3e1a496d452d10a.css" integrity="sha256-xB/4TTMpJ5tYgtrun2dxKrcce55rvRkvs&#43;GkltRS0Qo=">
     <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -111,7 +111,7 @@ to follow the instruction to import the notebook url to your Livebook.</del></p>
 <h1 id="installing-recon">Installing <code>recon</code></h1>
 <p>First of all, let&rsquo;s add <code>:recon</code> as part of our system dependencies into
 <code>mix.exs</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defp</span> <span class="n">deps</span> <span class="k">do</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defp</span> <span class="n">deps</span> <span class="k">do</span>
 <span class="p">[</span>
   <span class="c1"># ... other depedencies,</span>
   <span class="p">{</span><span class="ss">:recon</span><span class="p">,</span> <span class="s2">&#34;~&gt; 2.5&#34;</span><span class="p">}</span>
@@ -122,7 +122,7 @@ to follow the instruction to import the notebook url to your Livebook.</del></p>
 <h2 id="tracing-function-with-return-tracevalue">Tracing function with return trace/value</h2>
 <p>To trace a function with <code>recon</code>, it is as simple as
 calling <code>:recon_trace.calls({module, function, match_spec}, max_trace, opts \\ [])</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:recon_trace</span><span class="o">.</span><span class="n">calls</span><span class="p">({</span><span class="nc">Enum</span><span class="p">,</span> <span class="ss">:map</span><span class="p">,</span> <span class="ss">:return_trace</span><span class="p">},</span> <span class="mi">4</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:recon_trace</span><span class="o">.</span><span class="n">calls</span><span class="p">({</span><span class="nc">Enum</span><span class="p">,</span> <span class="ss">:map</span><span class="p">,</span> <span class="ss">:return_trace</span><span class="p">},</span> <span class="mi">4</span><span class="p">)</span>
 
 <span class="n">list1</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
 <span class="nc">Enum</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">list1</span><span class="p">,</span> <span class="k">fn</span> <span class="n">x</span> <span class="o">-&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">2</span> <span class="k">end</span><span class="p">)</span>
@@ -131,7 +131,7 @@ calling <code>:recon_trace.calls({module, function, match_spec}, max_trace, opts
 <span class="nc">Enum</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">list1</span><span class="p">,</span> <span class="k">fn</span> <span class="n">x</span> <span class="o">-&gt;</span> <span class="n">x</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">end</span><span class="p">)</span>
 </code></pre></div><p>The example above are tracing <code>Enum.map</code> function and telling <code>recon_trace</code> to receive
 traces of at most 4. If you run the code above, you&rsquo;ll see the traces of the first 2 function calls.</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="c1"># 17:21:22.176464 &lt;0.120.0&gt; &#39;Elixir.Enum&#39;:map([1,2,3,4], #Fun&lt;erl_eval.44.40011524&gt;)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="c1"># 17:21:22.176464 &lt;0.120.0&gt; &#39;Elixir.Enum&#39;:map([1,2,3,4], #Fun&lt;erl_eval.44.40011524&gt;)</span>
 <span class="c1"># 17:21:22.218911 &lt;0.120.0&gt; &#39;Elixir.Enum&#39;:map/2 --&gt; [3,4,5,6]</span>
 <span class="c1"># 17:21:22.218958 &lt;0.120.0&gt; &#39;Elixir.Enum&#39;:map([1,2,3,4], #Fun&lt;erl_eval.44.40011524&gt;)</span>
 <span class="c1"># 17:21:22.218997 &lt;0.120.0&gt; &#39;Elixir.Enum&#39;:map/2 --&gt; [-1,0,1,2]</span>
@@ -146,7 +146,7 @@ traces of at most 4. If you run the code above, you&rsquo;ll see the traces of t
 that it is rate limited, and you&rsquo;ll not receive any new traces regarding the
 function call.</p>
 <p>Simple right? No more:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">start</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">start</span>
 <span class="ss">:dbg</span><span class="o">.</span><span class="n">tracer</span>
 <span class="c1"># ...</span>
 <span class="ss">:dbg</span><span class="o">.</span><span class="n">stop</span>
@@ -155,7 +155,7 @@ function call.</p>
 function call by altering your match spec for <code>:recon_trace.calls</code>.</p>
 <p>Let&rsquo;s say we want to trace function call of <code>Enum.map</code> with matching the
 arguments <code>[1,2,3]</code> specifically. We can achieve that by using this match spec:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="p">[</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="p">[</span>
   <span class="p">{</span>
     <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="ss">:_</span><span class="p">],</span>
     <span class="p">[],</span>
@@ -180,7 +180,7 @@ We will see it in action later below.</li>
 <li><strong>3rd:</strong> indicate the actions of the match spec, which is the <code>return_trace</code> in our case.</li>
 </ul>
 <p>Let&rsquo;s see this in action:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">match_spec</span> <span class="o">=</span> <span class="p">[</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">match_spec</span> <span class="o">=</span> <span class="p">[</span>
 <span class="p">{</span>
   <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="ss">:_</span><span class="p">],</span>
   <span class="p">[],</span>
@@ -194,12 +194,12 @@ We will see it in action later below.</li>
 </code></pre></div><p>Here we are telling <code>recon_trace</code> to trace <code>Enum.map</code> function call where
 the first argument is <code>[1, 2, 3]</code>. You&rsquo;ll notice that <code>recon_trace</code> only show
 the traces for the first function call and not the second.</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="c1"># 17:25:19.818355 &lt;0.120.0&gt; &#39;Elixir.Enum&#39;:map([1,2,3], #Fun&lt;erl_eval.44.40011524&gt;)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="c1"># 17:25:19.818355 &lt;0.120.0&gt; &#39;Elixir.Enum&#39;:map([1,2,3], #Fun&lt;erl_eval.44.40011524&gt;)</span>
 <span class="c1"># 17:25:19.818519 &lt;0.120.0&gt; &#39;Elixir.Enum&#39;:map/2 --&gt; [3,4,5]</span>
 </code></pre></div><h2 id="writing-match-spec">Writing match spec</h2>
 <p>Writing the match spec seems complicated right? No worry,
 we can utilize <code>:dbg.fun2ms</code> to help us out.</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">match_spec</span> <span class="o">=</span> <span class="ss">:dbg</span><span class="o">.</span><span class="n">fun2ms</span><span class="p">(</span><span class="k">fn</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">_</span><span class="p">]</span> <span class="ow">when</span> <span class="n">length</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">4</span> <span class="o">-&gt;</span> <span class="ss">:return_trace</span> <span class="k">end</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">match_spec</span> <span class="o">=</span> <span class="ss">:dbg</span><span class="o">.</span><span class="n">fun2ms</span><span class="p">(</span><span class="k">fn</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">_</span><span class="p">]</span> <span class="ow">when</span> <span class="n">length</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">4</span> <span class="o">-&gt;</span> <span class="ss">:return_trace</span> <span class="k">end</span><span class="p">)</span>
 
 <span class="n">match_spec</span> <span class="o">=</span>
 <span class="nc">Enum</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">match_spec</span><span class="p">,</span> <span class="k">fn</span> <span class="p">{</span><span class="n">args</span><span class="p">,</span> <span class="n">guards</span><span class="p">,</span> <span class="p">[</span><span class="ss">:return_trace</span><span class="p">]}</span> <span class="o">-&gt;</span>
@@ -212,7 +212,7 @@ as mentioned in my <a href="https://kaiwern.com/posts/2020/11/02/debugging-with-
 the match spec returned by <code>dbg</code> is not entirely correct.
 Hence, we have some additional transformation there.</p>
 <p>Here&rsquo;s how the final match spec looks like:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="p">[{[</span><span class="ss">:&#34;$1&#34;</span><span class="p">,</span> <span class="ss">:_</span><span class="p">],</span> <span class="p">[{</span><span class="ss">:&gt;</span><span class="p">,</span> <span class="p">{</span><span class="ss">:length</span><span class="p">,</span> <span class="ss">:&#34;$1&#34;</span><span class="p">},</span> <span class="mi">4</span><span class="p">}],</span> <span class="p">[{</span><span class="ss">:return_trace</span><span class="p">}]}]</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="p">[{[</span><span class="ss">:&#34;$1&#34;</span><span class="p">,</span> <span class="ss">:_</span><span class="p">],</span> <span class="p">[{</span><span class="ss">:&gt;</span><span class="p">,</span> <span class="p">{</span><span class="ss">:length</span><span class="p">,</span> <span class="ss">:&#34;$1&#34;</span><span class="p">},</span> <span class="mi">4</span><span class="p">}],</span> <span class="p">[{</span><span class="ss">:return_trace</span><span class="p">}]}]</span>
 </code></pre></div><p>Now, our second element is not an empty list anymore as shown in the previous
 example. I&rsquo;m not going into the details on how to read the generated match spec,
 if you want to know more about it consider reading:</p>
@@ -221,7 +221,7 @@ if you want to know more about it consider reading:</p>
 <li><a href="http://erlang.org/doc/apps/erts/match_spec.html">Erlang Documentation: Match Specifications in Erlang</a></li>
 </ul>
 <p>Let&rsquo;s see that in action.</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">match_spec</span> <span class="o">=</span> <span class="ss">:dbg</span><span class="o">.</span><span class="n">fun2ms</span><span class="p">(</span><span class="k">fn</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">_</span><span class="p">]</span> <span class="ow">when</span> <span class="n">length</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">4</span> <span class="o">-&gt;</span> <span class="ss">:return_trace</span> <span class="k">end</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">match_spec</span> <span class="o">=</span> <span class="ss">:dbg</span><span class="o">.</span><span class="n">fun2ms</span><span class="p">(</span><span class="k">fn</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">_</span><span class="p">]</span> <span class="ow">when</span> <span class="n">length</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">4</span> <span class="o">-&gt;</span> <span class="ss">:return_trace</span> <span class="k">end</span><span class="p">)</span>
 
 <span class="n">match_spec</span> <span class="o">=</span>
 <span class="nc">Enum</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">match_spec</span><span class="p">,</span> <span class="k">fn</span> <span class="p">{</span><span class="n">args</span><span class="p">,</span> <span class="n">guards</span><span class="p">,</span> <span class="p">[</span><span class="ss">:return_trace</span><span class="p">]}</span> <span class="o">-&gt;</span>
@@ -233,7 +233,7 @@ if you want to know more about it consider reading:</p>
 <span class="nc">Enum</span><span class="o">.</span><span class="n">map</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="k">fn</span> <span class="n">x</span> <span class="o">-&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">2</span> <span class="k">end</span><span class="p">)</span>
 <span class="nc">Enum</span><span class="o">.</span><span class="n">map</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="k">fn</span> <span class="n">x</span> <span class="o">-&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">2</span> <span class="k">end</span><span class="p">)</span>
 </code></pre></div><p>Once you run this, here&rsquo;s how the output looks like:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="c1"># 17:47:36.300000 &lt;0.120.0&gt; &#39;Elixir.Enum&#39;:map([1,2,3,4,5], #Fun&lt;erl_eval.44.40011524&gt;)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="c1"># 17:47:36.300000 &lt;0.120.0&gt; &#39;Elixir.Enum&#39;:map([1,2,3,4,5], #Fun&lt;erl_eval.44.40011524&gt;)</span>
 <span class="c1"># 17:47:36.300124 &lt;0.120.0&gt; &#39;Elixir.Enum&#39;:map/2 --&gt; [3,4,5,6,7]</span>
 <span class="c1"># 17:47:36.301169 &lt;0.120.0&gt; &#39;Elixir.Enum&#39;:map([1,2,3,4,5,6,7,8], #Fun&lt;erl_eval.44.40011524&gt;)</span>
 <span class="c1"># 17:47:36.301316 &lt;0.120.0&gt; &#39;Elixir.Enum&#39;:map/2 --&gt; [3,4,5,6,7,8,9,10]</span>

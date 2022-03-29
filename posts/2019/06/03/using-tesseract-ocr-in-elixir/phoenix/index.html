@@ -7,11 +7,11 @@ Using Tesseract OCR in Elixir/Phoenix | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.83.1" />
+<meta name="generator" content="Hugo 0.90.0" />
 
 
     
-    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.9c9eb135389d62f7b6aea27ad59377b9a28fda7ea53b722707a20a2fd05b6cf1.css" integrity="sha256-nJ6xNTidYve2rqJ61ZN3uaKP2n6lO3InB6IKL9BbbPE=">
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.c41ff84d3329279b5882daee9f67712ab71c7b9e6bbd192fb3e1a496d452d10a.css" integrity="sha256-xB/4TTMpJ5tYgtrun2dxKrcce55rvRkvs&#43;GkltRS0Qo=">
     <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -100,14 +100,14 @@ a Phoenix application to test it out.</p>
 <h2 id="code">Code</h2>
 <p>In this code example, I will be using wrapper from <a href="https://github.com/dannnylo/tesseract-ocr-elixir">tesseract-ocr-elixir</a>.</p>
 <p>In <code>mix.exs</code>, add <code>tesseract-ocr-elixir</code> as dependency:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">def</span> <span class="n">deps</span> <span class="k">do</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">def</span> <span class="n">deps</span> <span class="k">do</span>
   <span class="p">[</span>
     <span class="n">...</span><span class="p">,</span>
     <span class="p">{</span><span class="ss">:tesseract_ocr</span><span class="p">,</span> <span class="s2">&#34;~&gt; 0.1.0&#34;</span><span class="p">}</span>
   <span class="p">]</span>
 <span class="k">end</span>
 </code></pre></div><p>In <code>page_controller.ex</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">OcrWeb.PageController</span> <span class="k">do</span> <span class="kn">use</span> <span class="nc">OcrWeb</span><span class="p">,</span> <span class="ss">:controller</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">OcrWeb.PageController</span> <span class="k">do</span> <span class="kn">use</span> <span class="nc">OcrWeb</span><span class="p">,</span> <span class="ss">:controller</span>
 
   <span class="kd">def</span> <span class="n">index</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">_params</span><span class="p">)</span> <span class="k">do</span>
     <span class="n">render</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="s2">&#34;index.html&#34;</span><span class="p">)</span>
@@ -120,16 +120,16 @@ a Phoenix application to test it out.</p>
 <span class="k">end</span>
 
 </code></pre></div><p>In <code>router.ex</code>, add this under <code>scope &quot;/&quot;</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">get</span> <span class="s2">&#34;/&#34;</span><span class="p">,</span> <span class="nc">PageController</span><span class="p">,</span> <span class="ss">:index</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">get</span> <span class="s2">&#34;/&#34;</span><span class="p">,</span> <span class="nc">PageController</span><span class="p">,</span> <span class="ss">:index</span>
 <span class="n">post</span> <span class="s2">&#34;/upload&#34;</span><span class="p">,</span> <span class="nc">PageController</span><span class="p">,</span> <span class="ss">:create</span>
 </code></pre></div><p>In <code>templates/page/index.html.eex</code>:</p>
-<pre><code class="language-eex" data-lang="eex">&lt;%= form_for @conn, Routes.page_path(@conn, :create),
+<pre tabindex="0"><code class="language-eex" data-lang="eex">&lt;%= form_for @conn, Routes.page_path(@conn, :create),
                     [multipart: true], fn f-&gt; %&gt;
     &lt;%= file_input f, :upload, class: &quot;form-control&quot; %&gt;
     &lt;%= submit &quot;Upload&quot;, class: &quot;btn btn-primary&quot; %&gt;
 &lt;% end %&gt;
 </code></pre><p>In <code>templates/page/show.html.eex</code>:</p>
-<pre><code class="language-eex" data-lang="eex">&lt;h1&gt;Result:&lt;/h1&gt;
+<pre tabindex="0"><code class="language-eex" data-lang="eex">&lt;h1&gt;Result:&lt;/h1&gt;
 
 &lt;%= @result %&gt;
 </code></pre><p><strong>Demo</strong></p>

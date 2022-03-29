@@ -7,11 +7,11 @@ Ruby .() notation | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.83.1" />
+<meta name="generator" content="Hugo 0.90.0" />
 
 
     
-    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.9c9eb135389d62f7b6aea27ad59377b9a28fda7ea53b722707a20a2fd05b6cf1.css" integrity="sha256-nJ6xNTidYve2rqJ61ZN3uaKP2n6lO3InB6IKL9BbbPE=">
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.c41ff84d3329279b5882daee9f67712ab71c7b9e6bbd192fb3e1a496d452d10a.css" integrity="sha256-xB/4TTMpJ5tYgtrun2dxKrcce55rvRkvs&#43;GkltRS0Qo=">
     <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -72,7 +72,7 @@ Ruby .() notation | kw7oe
   
 
   <p>In Ruby, <code>.()</code> is a syntatic sugar for <code>call</code> method.</p>
-<div class="highlight"><pre class="chroma"><code class="language-ruby" data-lang="ruby"><span class="k">class</span> <span class="nc">Person</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ruby" data-lang="ruby"><span class="k">class</span> <span class="nc">Person</span>
   <span class="k">def</span> <span class="nf">call</span>
     <span class="s2">&#34;Hello World&#34;</span>
   <span class="k">end</span>
@@ -83,7 +83,7 @@ Ruby .() notation | kw7oe
 </code></pre></div><p>In this example, we declare a <code>Person</code> class and <code>call</code> method in the class. With this, we can later execute <code>Person.new.()</code> to call the <code>call</code> method.</p>
 <p>Note that, we need to initialize the <code>Person</code> object first by calling <code>new</code>, since the <code>call</code> is a instance method.</p>
 <p>If we wanted to just call by <code>Person.()</code>, we can do it this way:</p>
-<div class="highlight"><pre class="chroma"><code class="language-ruby" data-lang="ruby"><span class="k">class</span> <span class="nc">Person</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ruby" data-lang="ruby"><span class="k">class</span> <span class="nc">Person</span>
   <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">call</span>
     <span class="s2">&#34;Hello World&#34;</span>
   <span class="k">end</span>
@@ -93,7 +93,7 @@ Ruby .() notation | kw7oe
 <span class="c1">#=&gt; &#34;Hello World&#34;</span>
 
 </code></pre></div><p>Some programming languages such as Python, Swift and Scala initalize object by <code>Person()</code>. In Ruby, we can&rsquo;t override the <code>()</code> operator to achieve the same effect <em>(see this <a href="https://stackoverflow.com/questions/24351218/how-to-create-an-object-in-ruby-without-using-new?answertab=oldest#tab-top">StackOverflow question</a>)</em>. However, we can use <code>.()</code> to achieve a similar result:</p>
-<div class="highlight"><pre class="chroma"><code class="language-ruby" data-lang="ruby"><span class="k">class</span> <span class="nc">Person</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ruby" data-lang="ruby"><span class="k">class</span> <span class="nc">Person</span>
   <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="nb">name</span><span class="p">,</span> <span class="n">age</span><span class="p">)</span>
     <span class="vi">@name</span> <span class="o">=</span> <span class="nb">name</span>
     <span class="vi">@age</span> <span class="o">=</span> <span class="n">age</span>

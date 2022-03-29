@@ -68,7 +68,7 @@ After using recon_trace a few times and always needing to going back to the docu
       <guid>https://kaiwern.com/about/</guid>
       <description>Hi, I am Kai Wern. Welcome to my blog. Here I write about software engineering and life.
 Some of the tools I used day to day are:
- vim Elixir/Phoenix Rust PostgreSQL JavaScript/TypeScript  So, you can expect posts about these tools from my blog. I also like to cook and am currently trying to write more and post consistently.</description>
+ vim Elixir/Phoenix Rust PostgreSQL  So, you can expect posts about these tools from my blog. I also like to cook and am currently trying to write more and post consistently.</description>
     </item>
     
     <item>
@@ -363,15 +363,6 @@ Initial Approach The first thought that come to my mind will be get the div#id o
       <description>In Ruby, .() is a syntatic sugar for call method.
 class Person def call &amp;#34;Hello World&amp;#34; end end Person.new.() #=&amp;gt; Hello World In this example, we declare a Person class and call method in the class. With this, we can later execute Person.new.() to call the call method.
 Note that, we need to initialize the Person object first by calling new, since the call is a instance method.</description>
-    </item>
-    
-    <item>
-      <title></title>
-      <link>https://kaiwern.com/resume/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://kaiwern.com/resume/</guid>
-      <description></description>
     </item>
     
   </channel>

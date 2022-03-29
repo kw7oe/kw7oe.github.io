@@ -7,11 +7,11 @@ Blue Green Deployment with Nginx for Elixir/Phoenix Release | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.83.1" />
+<meta name="generator" content="Hugo 0.90.0" />
 
 
     
-    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.9c9eb135389d62f7b6aea27ad59377b9a28fda7ea53b722707a20a2fd05b6cf1.css" integrity="sha256-nJ6xNTidYve2rqJ61ZN3uaKP2n6lO3InB6IKL9BbbPE=">
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.c41ff84d3329279b5882daee9f67712ab71c7b9e6bbd192fb3e1a496d452d10a.css" integrity="sha256-xB/4TTMpJ5tYgtrun2dxKrcce55rvRkvs&#43;GkltRS0Qo=">
     <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -167,7 +167,7 @@ version of our application process at different port.</li>
 <p>Let&rsquo;s start by writing our blue <em>(also our initial)</em> nginx configuration file
 <em>(<a href="https://hexdocs.pm/phoenix/1.3.0-rc.1/phoenix_behind_proxy.html">refer from Phoenix Documentation</a>)</em> and placed it
 under <code>/etc/nginx/sites-available/blue</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-nginx" data-lang="nginx"><span class="k">upstream</span> <span class="s">phoenix-blue</span> <span class="p">{</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-nginx" data-lang="nginx"><span class="k">upstream</span> <span class="s">phoenix-blue</span> <span class="p">{</span>
   <span class="c1"># Assuming your application is running on PORT 4000
 </span><span class="c1"></span>  <span class="kn">server</span> <span class="n">127.0.0.1</span><span class="p">:</span><span class="mi">4000</span> <span class="s">max_fails=5</span> <span class="s">fail_timeout=60s</span><span class="p">;</span>
 <span class="p">}</span>
@@ -200,10 +200,10 @@ under <code>/etc/nginx/sites-available/blue</code>:</p>
 demonstrated above,  we would need to symlink different configuration file to
 our domain. Now we can symlink our configuration file to <code>sites-enabled</code>
 with:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">sudo ln -sf /etc/nginx/sites-available/blue /etc/nginx/sites-enabled/domain.app
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh">sudo ln -sf /etc/nginx/sites-available/blue /etc/nginx/sites-enabled/domain.app
 </code></pre></div><p>then, we can reload our nginx services to have it use our updated
 configuration:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">sudo systemctl reload nginx
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh">sudo systemctl reload nginx
 </code></pre></div><p>In your machine, <code>curl domain.app/deployment_id</code>, you should see a <code>blue</code> text as a
 result.</p>
 <p>Assuming you have your application process listening to port 400, visiting to
@@ -234,7 +234,7 @@ proceed to setup the green version next!</p>
 point to our green application process. It would look very similar with the
 blue version configuration with some minor changes as follow in
 <code>/etc/nginx/sites-available/green</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-nginx" data-lang="nginx"><span class="c1"># Define another upstream and point to a different PORT
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-nginx" data-lang="nginx"><span class="c1"># Define another upstream and point to a different PORT
 </span><span class="c1"></span><span class="k">upstream</span> <span class="s">phoenix-green</span> <span class="p">{</span>
   <span class="c1"># Assuming your &#39;green&#39; application is running on PORT 5000
 </span><span class="c1"></span>  <span class="kn">server</span> <span class="n">127.0.0.1</span><span class="p">:</span><span class="mi">5000</span> <span class="s">max_fails=5</span> <span class="s">fail_timeout=60s</span><span class="p">;</span>
@@ -268,13 +268,13 @@ blue version configuration with some minor changes as follow in
 <span class="p">}</span>
 </code></pre></div><p>To <em>promote</em> our green application to live, is to symlink
 it to be used as our domain configuration with the following command:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">sudo ln -sf /etc/nginx/sites-available/green /etc/nginx/sites-enabled/domain.app
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh">sudo ln -sf /etc/nginx/sites-available/green /etc/nginx/sites-enabled/domain.app
 </code></pre></div><p>follow by reloading our nginx service configuration:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sh" data-lang="sh">sudo systemctl reload nginx
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh">sudo systemctl reload nginx
 </code></pre></div><p><code>curl domain.app/deployment_id</code> and you&rsquo;ll see a <code>green</code>
 text returned.  However, if you try to visit <code>domain.app</code> and visit
 other path of your application, you might get a 502 Bad Gateway.</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">╰─➤  curl domain.app/deployment_id
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">╰─➤  curl domain.app/deployment_id
 green%
 ╭─kai at KW.local ~/Desktop/mini-hackathon/life ‹1.11.3-otp-23› ‹main*›
 ╰─➤  curl domain.app/health
@@ -290,7 +290,7 @@ haven&rsquo;t run any copy of our application on port <code>5000</code> yet as s
 our <code>nginx</code> configuration.</p>
 <p>Let&rsquo;s revert our changes here by promoting our blue
 version to live at this moment first:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">sudo ln -sf /etc/nginx/sites-available/blue /etc/nginx/sites-enabled/domain.app
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">sudo ln -sf /etc/nginx/sites-available/blue /etc/nginx/sites-enabled/domain.app
 sudo systemctl reload nginx
 </code></pre></div><p>We will be <a href="#promoting-our-green-version-to-live">promoting our green version to
 live</a> after we run the green copy of
@@ -310,7 +310,7 @@ simple as changing the <code>PORT</code> value right?</p>
 <p>So, all we need to do is to just update part of our bash script to
 conditionally deploy our release with different ports! Easy. So, here&rsquo;s what we
 got:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$deploy_version</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;blue&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$deploy_version</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;blue&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
   ssh <span class="nv">$HOST</span> <span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; PORT=4000 ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> daemon&#34;</span>
 <span class="k">else</span>
   ssh <span class="nv">$HOST</span> <span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; PORT=5000 ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> daemon&#34;</span>
@@ -318,7 +318,7 @@ got:</p>
 </code></pre></div><p>But, how do we know about our current live version?</p>
 <p>Remember that <code>/deployment_id</code> in our nginx configuration? That&rsquo;s how we can
 get our current live version:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="nv">LIVE_VERSION</span><span class="o">=</span><span class="k">$(</span>curl -s -w <span class="s2">&#34;\n&#34;</span> <span class="s2">&#34;https://domain.app/deployment_id&#34;</span><span class="k">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nv">LIVE_VERSION</span><span class="o">=</span><span class="k">$(</span>curl -s -w <span class="s2">&#34;\n&#34;</span> <span class="s2">&#34;https://domain.app/deployment_id&#34;</span><span class="k">)</span>
 
 <span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$LIVE_VERSION</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;blue&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
   <span class="nv">deploy_version</span><span class="o">=</span><span class="s2">&#34;green&#34;</span>
@@ -330,7 +330,7 @@ get our current live version:</p>
 <span class="c1"># continue here...</span>
 </code></pre></div><p>We are done right? Not quite. If we run our deploy script and go into our
 server and check with <code>lsof</code> <em>(list open file description)</em>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ lsof -i :5000
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ lsof -i :5000
 <span class="c1">#=&gt; empty result</span>
 
 $ lsof -i :4000
@@ -339,7 +339,7 @@ beam.smp <span class="m">5162</span> vagrant   20u  IPv6  <span class="m">39660<
 </code></pre></div><p>You&rsquo;ll see that our application release doesn&rsquo;t get started successfully.</p>
 <h2 id="run-multiple-copies-of-same-elixir-release-in-a-single-server">Run multiple copies of same Elixir release in a single server</h2>
 <p>Let&rsquo;s attempt to start it manually and see what actually happen:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ <span class="nb">source</span> .env <span class="o">&amp;&amp;</span> <span class="nv">PORT</span><span class="o">=</span><span class="m">5000</span> &lt;app_version&gt;/bin/&lt;app_name&gt; start
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ <span class="nb">source</span> .env <span class="o">&amp;&amp;</span> <span class="nv">PORT</span><span class="o">=</span><span class="m">5000</span> &lt;app_version&gt;/bin/&lt;app_name&gt; start
 Protocol <span class="s1">&#39;inet_tcp&#39;</span>: the name &lt;app_name&gt;@&lt;hostname&gt; seems to be in use by another Erlang node
 </code></pre></div><p>Seems like it failed to start.</p>
 <p>What is this error about? Well everytime, our release is started, a default
@@ -347,9 +347,9 @@ node name is actually provided according to our application name. Furthermore, i
 single server, we can&rsquo;t have two same release running with the same node name.</p>
 <p>You can replicate the above behaviour easily in your local machine by
 running the following in two different terminals:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">iex --cookie <span class="m">1234</span> --sname apple
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">iex --cookie <span class="m">1234</span> --sname apple
 </code></pre></div><p>which will result in:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># In terminal one</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># In terminal one</span>
 ╰─➤  iex --cookie <span class="m">1234</span> --sname apple
 Erlang/OTP <span class="m">23</span> <span class="o">[</span>erts-11.1.1<span class="o">]</span> <span class="o">[</span>source<span class="o">]</span> <span class="o">[</span>64-bit<span class="o">]</span> <span class="o">[</span>smp:4:4<span class="o">]</span> <span class="o">[</span>ds:4:4:10<span class="o">]</span> <span class="o">[</span>async-threads:1<span class="o">]</span> <span class="o">[</span>hipe<span class="o">]</span>
 
@@ -361,12 +361,12 @@ iex<span class="o">(</span>apple@KW<span class="o">)</span>1&gt;
 Protocol <span class="s1">&#39;inet_tcp&#39;</span>: the name apple@KW seems to be in use by another Erlang node
 </code></pre></div><p>To resolve this, we need to specify a different node name when starting our
 release:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ <span class="nb">source</span> .env <span class="o">&amp;&amp;</span> <span class="nv">PORT</span><span class="o">=</span><span class="m">5000</span> <span class="nv">RELEASE_NODE</span><span class="o">=</span>green &lt;app_version&gt;/bin/&lt;app_name&gt; start
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ <span class="nb">source</span> .env <span class="o">&amp;&amp;</span> <span class="nv">PORT</span><span class="o">=</span><span class="m">5000</span> <span class="nv">RELEASE_NODE</span><span class="o">=</span>green &lt;app_version&gt;/bin/&lt;app_name&gt; start
 15:46:40.449 <span class="o">[</span>info<span class="o">]</span> Running Web.Endpoint with cowboy 2.8.0 at :::5000 <span class="o">(</span>http<span class="o">)</span>
 15:46:40.450 <span class="o">[</span>info<span class="o">]</span> Access Web.Endpoint at http://example.com
 </code></pre></div><h2 id="bash-script-for-deploying-multiple-elixir-releases">Bash script for deploying multiple Elixir releases</h2>
 <p>At this point, this is how our <code>./deploy.sh</code> script looks like:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="cp">#!/bin/bash
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="cp">#!/bin/bash
 </span><span class="cp"></span><span class="nb">set</span> -e
 
 <span class="nv">APP_NAME</span><span class="o">=</span><span class="s2">&#34;</span><span class="k">$(</span>grep <span class="s1">&#39;app:&#39;</span> mix.exs <span class="p">|</span> sed -e <span class="s1">&#39;s/\[//g&#39;</span> -e <span class="s1">&#39;s/ //g&#39;</span> -e <span class="s1">&#39;s/app://&#39;</span> -e <span class="s1">&#39;s/[:,]//g&#39;</span><span class="k">)</span><span class="s2">&#34;</span>
@@ -451,13 +451,13 @@ build will still be running and nothing is impacted.</p>
 <h1 id="promoting-our-green-version-to-live">Promoting our green version to live</h1>
 <p>The current live version is still blue. So, in order to promote our green
 version to live. All we need to do is to run:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">sudo ln -sf /etc/nginx/sites-available/green /etc/nginx/sites-enabled/domain.app
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">sudo ln -sf /etc/nginx/sites-available/green /etc/nginx/sites-enabled/domain.app
 sudo systemctl reload nginx
 </code></pre></div><p>Similar with how we start our release differently, we are going to rely on
 <code>/deployment_id</code> to get the current live version and user input to decide which
 version we want to promote to live. So here&rsquo;s how the bash script looks like
 now:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># Other code here...</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># Other code here...</span>
 
 promote<span class="o">()</span> <span class="o">{</span>
   bold_echo <span class="s2">&#34;Attempting to promote to </span><span class="nv">$1</span><span class="s2">...&#34;</span>
@@ -484,32 +484,32 @@ promote<span class="o">()</span> <span class="o">{</span>
   clean_up
 <span class="k">fi</span>
 </code></pre></div><p>To promote green version to live, all we have to run is:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">./deploy.sh promote green
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">./deploy.sh promote green
 </code></pre></div><p>Now, visiting to <code>domain.app</code> and you shall see your latest changes for your application is live.</p>
 <p>Alternatively, if things went wrong and you decided to rollback to blue version, all you need
 to run is just:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">./deploy.sh promote blue
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">./deploy.sh promote blue
 </code></pre></div><p>Do note that, at this point, we are running <strong>2 copies of our application</strong> on
 our remote server, which means we are consuming twice as much resources as
 well.</p>
 <h1 id="running-migration-and-console">Running migration and console</h1>
 <p>Assuming you have follow the <a href="https://hexdocs.pm/phoenix/releases.html#ecto-migrations-and-custom-commands">guide to setup ecto migration</a> on the official Phoenix Documentation,
 you should be able to run migration by running the following comamnd:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ <span class="nb">source</span> ~/<span class="nv">$APP_NAME</span>/.env <span class="o">&amp;&amp;</span> ~/<span class="nv">$APP_NAME</span>/<span class="nv">$version</span>/bin/<span class="nv">$APP_NAME</span> <span class="nb">eval</span> <span class="s1">&#39;AppName.Release.migrate()&#39;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ <span class="nb">source</span> ~/<span class="nv">$APP_NAME</span>/.env <span class="o">&amp;&amp;</span> ~/<span class="nv">$APP_NAME</span>/<span class="nv">$version</span>/bin/<span class="nv">$APP_NAME</span> <span class="nb">eval</span> <span class="s1">&#39;AppName.Release.migrate()&#39;</span>
 </code></pre></div><p>similarly, to run the remote console is just as simple as:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ ~/<span class="nv">$APP_NAME</span>/<span class="nv">$version</span>/bin/<span class="nv">$APP_NAME</span> remote
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ ~/<span class="nv">$APP_NAME</span>/<span class="nv">$version</span>/bin/<span class="nv">$APP_NAME</span> remote
 </code></pre></div><p>Notice that we don&rsquo;t need to <code>source .env</code> while running <code>remote</code> command
 because it is  connecting to our running process.</p>
 <p>More details will be cover below.</p>
 <h2 id="running-migration">Running migration</h2>
 <p>Let&rsquo;s assume we have released both version <code>0.1.0</code> as <code>blue</code> and <code>0.1.1</code> as
 <code>green</code>. To run migration for the <code>0.1.0</code> release, it&rsquo;s the same as usual:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ <span class="nb">source</span> ~/app_name/.env <span class="o">&amp;&amp;</span> ~/app_name/0.1.0/bin/app_name <span class="nb">eval</span> <span class="s1">&#39;AppName.Release.migrate()&#39;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ <span class="nb">source</span> ~/app_name/.env <span class="o">&amp;&amp;</span> ~/app_name/0.1.0/bin/app_name <span class="nb">eval</span> <span class="s1">&#39;AppName.Release.migrate()&#39;</span>
 </code></pre></div><p>For the latest <code>0.1.1</code> version,
 to run the migration is also the same as above:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ <span class="nb">source</span> ~/app_name/.env <span class="o">&amp;&amp;</span> ~/app_name/0.1.1/bin/app_name <span class="nb">eval</span> <span class="s1">&#39;AppName.Release.migrate()&#39;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ <span class="nb">source</span> ~/app_name/.env <span class="o">&amp;&amp;</span> ~/app_name/0.1.1/bin/app_name <span class="nb">eval</span> <span class="s1">&#39;AppName.Release.migrate()&#39;</span>
 </code></pre></div><p>To simplify things, we can write a bash script to do this:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">migrate<span class="o">()</span> <span class="o">{</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">migrate<span class="o">()</span> <span class="o">{</span>
   <span class="nv">LIVE_VERSION</span><span class="o">=</span><span class="k">$(</span>curl -s -w <span class="s2">&#34;\n&#34;</span> <span class="s2">&#34;</span><span class="nv">$DOMAIN</span><span class="s2">/deployment_id&#34;</span><span class="k">)</span>
 
   <span class="k">if</span> <span class="o">[</span> -z <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
@@ -540,27 +540,27 @@ to run the migration is also the same as above:</p>
 </code></pre></div><h2 id="running-remote-console">Running remote console</h2>
 <p>Now, let&rsquo;s say that we want to run a remote console on our <code>0.1.0</code> deployed as
 <code>blue</code>. It is same as usual:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ ~/app_name/0.1.0/bin/app_name remote
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ ~/app_name/0.1.0/bin/app_name remote
 </code></pre></div><p>However, if we want to do the same For the <code>0.1.1</code> version deployed as <code>green</code>,
 the following will not work as expected</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ ~/app_name/0.1.1/bin/app_name remote
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ ~/app_name/0.1.1/bin/app_name remote
 </code></pre></div><p>and you&rsquo;ll get the following error message complaining that the node is down:</p>
-<pre><code>Erlang/OTP 23 [erts-11.1.8] [source] [64-bit] [smp:2:2] [ds:2:2:10] [async-threads:1] [hipe]
+<pre tabindex="0"><code>Erlang/OTP 23 [erts-11.1.8] [source] [64-bit] [smp:2:2] [ds:2:2:10] [async-threads:1] [hipe]
 
 Could not contact remote node app_name@hostname, reason: :nodedown. Aborting...
 </code></pre><p>Remember when we spin up our second copy and we specify <code>RELEASE_NODE=green</code>?
 It&rsquo;s because of that.</p>
 <p>To resolve it, we need to specify our node name explicitly again when running
 the command:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="nv">RELEASE_NODE</span><span class="o">=</span>green ~/app_name/0.1.1/bin/app_name remote
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nv">RELEASE_NODE</span><span class="o">=</span>green ~/app_name/0.1.1/bin/app_name remote
 </code></pre></div><p>And voila, it works!</p>
 <h3 id="why-eval-works-without-additional-environment-configuration">Why <code>eval</code> works without additional environment configuration?</h3>
 <p>If you run:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ ~/app_name/0.1.1/bin/app_name
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ ~/app_name/0.1.1/bin/app_name
 </code></pre></div><p>You&rsquo;ll get a more detailed description of each command. And if you read about
 <code>eval</code>, you&rsquo;ll find that it actually execute the command on a new non booted
 system.</p>
-<pre><code>The known commands are:
+<pre tabindex="0"><code>The known commands are:
 
     ...
     eval &quot;EXPR&quot;    Executes the given expression on a new, non-booted system
@@ -594,14 +594,14 @@ server, we cannot just extract our release into <code>$APP_NAME</code> format as
 <a href="https://kaiwern.com/posts/2020/07/20/deploying-elixir/phoenix-release-to-production/#steps-for-initial-release">before</a>.</p>
 <p>Instead, we need to extract the release for different version to different
 folder in this format <code>$APP_NAME/$APP_VSN</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># Old build script</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># Old build script</span>
 ssh <span class="nv">$HOST</span> tar -xzf <span class="nv">$APP_NAME</span>/releases/<span class="nv">$TAR_FILENAME</span> -C <span class="nv">$APP_NAME</span>
 
 <span class="c1"># New build script</span>
 ssh <span class="nv">$HOST</span> tar -xzf <span class="s2">&#34;</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$TAR_FILENAME</span><span class="s2">&#34;</span> -C <span class="s2">&#34;</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">&#34;</span>
 </code></pre></div><p>which, allow us to run multiple version of our application at the same time.</p>
 <p>With this changes, we can stop the running application with:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">ssh <span class="nv">$HOST</span> <span class="s2">&#34;~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$version</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> stop&#34;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">ssh <span class="nv">$HOST</span> <span class="s2">&#34;~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$version</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> stop&#34;</span>
 </code></pre></div><p>However, it&rsquo;s not as straightforward as it seems. We still need
 to know the current blue/green version our applications are running.</p>
 <h2 id="solution">Solution</h2>
@@ -615,7 +615,7 @@ data:</p>
 <p><strong>Using <code>/version</code></strong></p>
 <p>We can extract our blue/green running version in our bash script by doing
 something like:</p>
-<div class="highlight"><pre class="chroma"><code class="language-ruby" data-lang="ruby"><span class="k">if</span> <span class="n">live_version</span> <span class="o">==</span> <span class="s2">&#34;blue&#34;</span> <span class="k">do</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ruby" data-lang="ruby"><span class="k">if</span> <span class="n">live_version</span> <span class="o">==</span> <span class="s2">&#34;blue&#34;</span> <span class="k">do</span>
   <span class="n">curl</span> <span class="s2">&#34;localhost:5000/version&#34;</span>
 <span class="k">else</span>
   <span class="n">curl</span> <span class="s2">&#34;localhost:4000/version&#34;</span>
@@ -626,7 +626,7 @@ phase&rdquo;</em>.</p>
 <p>But for now, I&rsquo;ll just leave it to you all if you prefer to do it this way.</p>
 <p><strong>Store version in a file</strong></p>
 <p>Instead, I am going to just write it to a file directly.</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># Deploying to blue with 1.0.0</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># Deploying to blue with 1.0.0</span>
 <span class="nb">echo</span> 1.0.0 &gt; blue_version.txt
 
 <span class="c1"># Deploying to green with 1.0.1</span>
@@ -636,13 +636,13 @@ phase&rdquo;</em>.</p>
 Cloud Storage.</p>
 <p>Since, we are writing to a file here, to check if we have deployed before is as
 simple as using bash specific operator to check if a file exist:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="k">if</span> <span class="o">[</span> -f filename <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="k">if</span> <span class="o">[</span> -f filename <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
   <span class="nb">echo</span> <span class="s2">&#34;filename exist&#34;</span>
 <span class="k">fi</span>
 </code></pre></div><h2 id="bash-script-for-deploying-new-bluegreen-version">Bash script for deploying new blue/green version</h2>
 <p>Combining the above, the final bash script for this part
 will looks like this:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">start_release<span class="o">()</span> <span class="o">{</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">start_release<span class="o">()</span> <span class="o">{</span>
   <span class="nv">LIVE_VERSION</span><span class="o">=</span><span class="k">$(</span>curl -s -w <span class="s2">&#34;\n&#34;</span> <span class="s2">&#34;domain.app/deployment_id&#34;</span><span class="k">)</span>
 
   <span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$LIVE_VERSION</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;blue&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
@@ -700,7 +700,7 @@ will looks like this:</p>
 <span class="o">}</span>
 </code></pre></div><h1 id="glue-it-all-together">Glue it all together</h1>
 <p>Finally, the outcome of it is as follow:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="cp">#!/bin/bash
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="cp">#!/bin/bash
 </span><span class="cp"></span><span class="nb">set</span> -e
 
 <span class="c1"># Getting your app name from mix.exs</span>

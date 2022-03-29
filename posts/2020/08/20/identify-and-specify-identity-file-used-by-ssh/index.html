@@ -7,11 +7,11 @@ Identify and specify Identity File used by SSH | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.83.1" />
+<meta name="generator" content="Hugo 0.90.0" />
 
 
     
-    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.9c9eb135389d62f7b6aea27ad59377b9a28fda7ea53b722707a20a2fd05b6cf1.css" integrity="sha256-nJ6xNTidYve2rqJ61ZN3uaKP2n6lO3InB6IKL9BbbPE=">
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.c41ff84d3329279b5882daee9f67712ab71c7b9e6bbd192fb3e1a496d452d10a.css" integrity="sha256-xB/4TTMpJ5tYgtrun2dxKrcce55rvRkvs&#43;GkltRS0Qo=">
     <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -85,10 +85,10 @@ key that is supposed to be expired, however, I can still successfully <code>ssh<
 into the application server. This seem weird. So I&rsquo;ll need to find out which
 private key that <code>ssh</code> used to allow me to access the server. After some google
 search, I found the answer <a href="https://serverfault.com/questions/339355/how-to-findout-which-key-was-being-used-to-login-for-an-ssh-session">here</a>, which is:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">ssh -v user@ip_address
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">ssh -v user@ip_address
 </code></pre></div><p>After running the above you&rsquo;ll see additional logs on what <code>ssh</code> go through
 before connecting to the remote server, which looks like this:</p>
-<pre><code>OpenSSH_7.9p1, LibreSSL 2.7.3
+<pre tabindex="0"><code>OpenSSH_7.9p1, LibreSSL 2.7.3
 debug1: Reading configuration data /Users/kai/.ssh/config
 ...
 debug1: Authenticating to &lt;ip_address&gt;:&lt;port&gt; as '&lt;user&gt;'
@@ -105,13 +105,13 @@ debug1: Authentication succeeded (publickey).
 Authenticated to &lt;ip_address&gt; (via proxy).
 ...
 </code></pre><p>Among these logs the most relevant one are these two lines:</p>
-<pre><code>debug1: Offering public key: /Users/kai/.ssh/id_rsa RSA SHA256:LJnPQHkVlt+cqWslxTzObpDezpdjgIKdfh8qa7u4ftM agent
+<pre tabindex="0"><code>debug1: Offering public key: /Users/kai/.ssh/id_rsa RSA SHA256:LJnPQHkVlt+cqWslxTzObpDezpdjgIKdfh8qa7u4ftM agent
 debug1: Server accepts key: /Users/kai/.ssh/id_rsa RSA SHA256:LJnPQHkVlt+cqWslxTzObpDezpdjgIKdfh8qa7u4ftM agent
 </code></pre><p>Here, the logs specified the fingerprint of public key <code>ssh</code> used that
 authenticated by the remote server. To identify which key pair is used, we&rsquo;ll
 need to get the fingerprint of each key pair we have. We can use <code>ssh-keygen</code>
 to achieve that:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">ssh-keygen -lf ~/.ssh/id_rsa.pub
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">ssh-keygen -lf ~/.ssh/id_rsa.pub
 <span class="c1">#=&gt; 2048 SHA256:LJnPQHkVlt+cqWslxTzObpDezpdjgIKdfh8qa7u4ftM kai@KW.local (RSA)</span>
 </code></pre></div><p>If the fingerprint match <em>(as in this case)</em>, than you got it. You know that is
 the key pair that successfully get accepted by the remote server. However, if
@@ -121,14 +121,14 @@ used before.</p>
 <p>I wanted to test out if I could still ssh in to the remote
 server after my SSH key is expired my EC2 Instance Connect. However, if I just
 use:</p>
-<pre><code># my_rsa_key is expired by now
+<pre tabindex="0"><code># my_rsa_key is expired by now
 ssh -i my_rsa_key user@ip_address
 </code></pre><p>I would always successfully ssh into the remote server <em>(since I have another
 public key placed in the server)</em> . So in order to prevent
 <code>ssh</code> to attempt other public key that might be accepted the remote server, we
 need to tell <code>ssh</code> to only use the identity file we provide, which can be done
 like this:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># Note that I am passing private key file</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># Note that I am passing private key file</span>
 ssh -o <span class="nv">IdentitiesOnly</span><span class="o">=</span>yes -i my_rsa_key user@ip_address
 </code></pre></div><p>With this, <code>ssh</code> will only attempt to use the identity file you provided in the
 command. However, do note that if the file does not exist, <code>ssh</code> will still

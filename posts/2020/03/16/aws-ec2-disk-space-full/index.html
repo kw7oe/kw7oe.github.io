@@ -7,11 +7,11 @@ AWS EC2 Disk Space Full | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.83.1" />
+<meta name="generator" content="Hugo 0.90.0" />
 
 
     
-    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.9c9eb135389d62f7b6aea27ad59377b9a28fda7ea53b722707a20a2fd05b6cf1.css" integrity="sha256-nJ6xNTidYve2rqJ61ZN3uaKP2n6lO3InB6IKL9BbbPE=">
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.c41ff84d3329279b5882daee9f67712ab71c7b9e6bbd192fb3e1a496d452d10a.css" integrity="sha256-xB/4TTMpJ5tYgtrun2dxKrcce55rvRkvs&#43;GkltRS0Qo=">
     <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -86,7 +86,7 @@ because of <strong>the lack of disk space</strong> in our build server.</p>
 <p>Having to deal with this issue a couple of time have taught me a few things.
 Here, I am sharing the common approaches to clean up our EC2 disk space.</p>
 <p>This post assume that you have run <code>df -hT</code> and have something as below:</p>
-<pre><code>Filesystem     Type      Size  Used Avail Use% Mounted on
+<pre tabindex="0"><code>Filesystem     Type      Size  Used Avail Use% Mounted on
 udev           devtmpfs  2.0G     0  2.0G   0% /dev
 tmpfs          tmpfs     396M   41M  355M  11% /run
 /dev/xvda1     ext4      7.7G  7.7G   70M  59% /
@@ -95,7 +95,7 @@ tmpfs          tmpfs     396M   41M  355M  11% /run
 up most of the space.</p>
 <p>To do this, you&rsquo;ll probably need to have the <code>sudo</code> access. First, run the
 following command:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">cd</span> /
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">cd</span> /
 sudo du -ah . <span class="p">|</span> sort -rh <span class="p">|</span> head -20
 
 <span class="c1"># In rare cases, where your disk is really really full and sort</span>
@@ -114,13 +114,13 @@ human readable numbers, e.g., 2K 1G (<code>-h</code>)</li>
 be run due to disk space being too full.</li>
 </ul>
 <p>After running this, you might see something like:</p>
-<pre><code>du: cannot read directory './proc/27089/task/27089/fd': Permission denied
+<pre tabindex="0"><code>du: cannot read directory './proc/27089/task/27089/fd': Permission denied
 du: cannot read directory './proc/27089/task/27089/fdinfo': Permission denied
 du: cannot read directory './proc/27089/task/27089/ns': Permission denied
 du: cannot read directory './proc/27089/fd': Permission denied
 </code></pre><p>Don&rsquo;t be afraid, nothing is breaking. By the end of the result, you will see
 something like this:</p>
-<pre><code>7.7G	.
+<pre tabindex="0"><code>7.7G	.
 3.7G	./usr
 1.4G	./home/deploy
 1.4G	./home
@@ -151,7 +151,7 @@ space, and <code>ls /usr/src</code> shows a lot of files in the form of <code>li
 <p>After reading around Google Search results.  I end up refering to this <a href="https://askubuntu.com/questions/1183843/ec2-ubuntu-instance-is-full-but-cant-find-why">StackExchange ubuntu question</a>
 to resolve the issue.</p>
 <p>The author suggest running the following commds:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">sudo apt-get update
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">sudo apt-get update
 sudo apt-get -f install
 sudo apt-get autoremove
 </code></pre></div><p>These commands will automatically remove older linux header files.
@@ -159,7 +159,7 @@ You can refer to this <a href="https://askubuntu.com/questions/253048/safe-to-re
 remove those files.</p>
 <p>After runnning the above command, you&rsquo;ll likely to see the following log
 <em>(where I shamelessly copy from the StackExchange post mentioned above)</em>:</p>
-<pre><code>Reading package lists... Done
+<pre tabindex="0"><code>Reading package lists... Done
 Building dependency tree
 Reading state information... Done
 The following packages will be REMOVED:
@@ -196,12 +196,12 @@ much space.</p>
 that <code>du</code> and <code>df</code> sometimes give different disk usage because of these deleted
 but in use file, after searching about it and came across this <a href="https://askubuntu.com/questions/280342/why-do-df-and-du-commands-show-different-disk-usage">StackExchange answer</a>.</p>
 <p>For instance, if your <code>du</code> returning something like this:</p>
-<pre><code>4.7G	.
+<pre tabindex="0"><code>4.7G	.
 1.7G	./usr
 1.4G	./home/deploy
 ...
 </code></pre><p>but your <code>df -hT</code> returning something like this:</p>
-<pre><code>Filesystem     Type      Size  Used Avail Use% Mounted on
+<pre tabindex="0"><code>Filesystem     Type      Size  Used Avail Use% Mounted on
 udev           devtmpfs  2.0G     0  2.0G   0% /dev
 tmpfs          tmpfs     396M   41M  355M  11% /run
 /dev/xvda1     ext4      7.7G  7.7G   70M  59% /
@@ -211,9 +211,9 @@ the same issue.</p>
 <p>The solution is found on this <a href="https://superuser.com/questions/905654/dev-xvda1-full-though-there-is-no-temporary-files">StackExchange answer</a>. According to the
 author of the answer, we firstfind out what are the files that took up the
 spaces by running the following command:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">sudo lsof <span class="p">|</span> grep <span class="s1">&#39;(deleted)&#39;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">sudo lsof <span class="p">|</span> grep <span class="s1">&#39;(deleted)&#39;</span>
 </code></pre></div><p>You might see something like this:</p>
-<pre><code>systemd-j   402                   root  txt       REG              202,1   326224       2308 /lib/systemd/systemd-journald (deleted)
+<pre tabindex="0"><code>systemd-j   402                   root  txt       REG              202,1   326224       2308 /lib/systemd/systemd-journald (deleted)
 dbus-daem  1032             messagebus  txt       REG              202,1   224208      24312 /usr/bin/dbus-daemon (deleted)
 systemd-l  1054                   root  txt       REG              202,1   618520       2307 /lib/systemd/systemd-logind (deleted)
 aws       19341                   root   1w       REG              202,1  1504932       3421 /var/log/awslogs.log.1 (deleted)
@@ -223,7 +223,7 @@ large file.</p>
 disk space of <code>1504932</code>.</p>
 <p>We can then proceed to kill the process to clear up the identified file by
 running the following:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># kill -9 &lt;pid&gt;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># kill -9 &lt;pid&gt;</span>
 <span class="nb">kill</span> -9 <span class="m">19341</span>
 </code></pre></div><p>After that you can check your disk usage  by using <code>df -hT</code> again and you should
 now have more free disk space. With this approach, we managed to  free up <code>3.2G</code>
@@ -231,10 +231,10 @@ of disk space on our build server.</p>
 <h2 id="huge-undeleted-log-files">Huge undeleted log files</h2>
 <p>Recently, I have also came across another potential causes which is huge
 undeleted log files. It&rsquo;s easy to locate the issues by simply running:</p>
-<pre><code>du -ah . | sort -rh | head -20
+<pre tabindex="0"><code>du -ah . | sort -rh | head -20
 </code></pre><p>If your results is something like this, where <code>/var/log</code> come up as the top
 one, then it&rsquo;s definitely due to logs.</p>
-<pre><code>7.6G	.
+<pre tabindex="0"><code>7.6G	.
 4.5G	./var
 3.8G	./var/log
 3.4G	./var/log/nginx
@@ -251,7 +251,7 @@ one, then it&rsquo;s definitely due to logs.</p>
 </code></pre><p>As you can see from the results, in this case <code>/var/log/nginx</code> seems like the
 culprit. We can then change directory and <code>ls -lah</code> <em>(<code>-h</code> to format the
 file size to human readable format)</em>, which result in:</p>
-<pre><code>total 3.4G
+<pre tabindex="0"><code>total 3.4G
 drwxr-xr-x  2 root   adm     4.0K May 31 06:25 .
 drwxrwxr-x 11 root   syslog  4.0K Jun  1 01:30 ..
 -rw-r-----  1 deploy adm     1.6G Jun  1 02:09 access.log
@@ -273,7 +273,7 @@ google search around on how to do it properly, so this is what I found:</p>
 </ul>
 <p>Browse those link if you want to learn more about it. But in my case, I am
 following the answer on the third link:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">mv access.log access.log.old
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">mv access.log access.log.old
 <span class="c1"># After this command, you should see a new empty access.log file created.</span>
 <span class="nb">kill</span> -USR1 <span class="sb">`</span>cat /var/run/nginx.pid<span class="sb">`</span>
 rm access.log.old
@@ -281,7 +281,7 @@ rm access.log.old
 safe to delete it directly <em>(you might need to double check on this, can&rsquo;t
 manage to find a source to support my point and this time of writing)</em>.</p>
 <p>At the end, here is the result when I run <code>df -hT</code> again:</p>
-<pre><code>Filesystem     Type      Size  Used Avail Use% Mounted on
+<pre tabindex="0"><code>Filesystem     Type      Size  Used Avail Use% Mounted on
 udev           devtmpfs  2.0G     0  2.0G   0% /dev
 tmpfs          tmpfs     396M   41M  355M  11% /run
 /dev/xvda1     ext4      7.7G  4.3G  3.5G  56% /

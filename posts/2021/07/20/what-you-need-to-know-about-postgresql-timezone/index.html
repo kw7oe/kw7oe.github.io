@@ -7,11 +7,11 @@ What you need to know about PostgreSQL timezone | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.83.1" />
+<meta name="generator" content="Hugo 0.90.0" />
 
 
     
-    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.9c9eb135389d62f7b6aea27ad59377b9a28fda7ea53b722707a20a2fd05b6cf1.css" integrity="sha256-nJ6xNTidYve2rqJ61ZN3uaKP2n6lO3InB6IKL9BbbPE=">
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.c41ff84d3329279b5882daee9f67712ab71c7b9e6bbd192fb3e1a496d452d10a.css" integrity="sha256-xB/4TTMpJ5tYgtrun2dxKrcce55rvRkvs&#43;GkltRS0Qo=">
     <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -100,31 +100,31 @@ Do keep that in mind.</p>
 <p>First and foremost, we need to know how to get and set our current database
 timezone.</p>
 <p>Let&rsquo;s open a <code>psql</code> session to try out.</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">psql -U postgres
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">psql -U postgres
 </code></pre></div><h2 id="show-database-timezone">Show Database Timezone</h2>
 <p>To show the current timezone of our PostgreSQL, it is as simple as:</p>
-<div class="highlight"><pre class="chroma"><code class="language-postgres" data-lang="postgres"><span class="k">SHOW</span> <span class="n">timezone</span><span class="p">;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-postgres" data-lang="postgres"><span class="k">SHOW</span> <span class="n">timezone</span><span class="p">;</span>
 </code></pre></div><p><strong>Output:</strong></p>
-<pre><code> TimeZone
+<pre tabindex="0"><code> TimeZone
 -----------
  Etc/GMT+8
 (1 row)
 </code></pre><h2 id="set-database-timezone">Set Database Timezone</h2>
 <p>To change our timezone, we can use the <code>SET timezone</code> command:</p>
-<div class="highlight"><pre class="chroma"><code class="language-postgres" data-lang="postgres"><span class="k">SET</span> <span class="n">timezone</span><span class="o">=</span><span class="s">&#34;UTC&#34;</span><span class="p">;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-postgres" data-lang="postgres"><span class="k">SET</span> <span class="n">timezone</span><span class="o">=</span><span class="s">&#34;UTC&#34;</span><span class="p">;</span>
 <span class="k">SET</span> <span class="nb">TIME</span> <span class="k">ZONE</span> <span class="s1">&#39;Asia/Kuala_Lumpur&#39;</span><span class="p">;</span>
 <span class="k">SHOW</span> <span class="n">timezone</span><span class="p">;</span>
 </code></pre></div><p><strong>Output:</strong></p>
-<pre><code>     TimeZone
+<pre tabindex="0"><code>     TimeZone
 -------------------
  Asia/Kuala_Lumpur
  (1 row)
 </code></pre><p>You can check all of the supported timezone names by using the following query:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">pg_timezone_names</span><span class="p">;</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">pg_timezone_names</span><span class="p">;</span><span class="w">
 </span></code></pre></div><hr>
 <p>Let&rsquo;s exit our <code>psql</code> session, and reenter into it again. If
 we run <code>SHOW timezone</code>, it would be <code>Asia/Kuala_Lumpur</code> right? Nope.</p>
-<pre><code>postgres=# SHOW timezone;
+<pre tabindex="0"><code>postgres=# SHOW timezone;
  TimeZone
 ----------
  Etc/GMT+8
@@ -137,7 +137,7 @@ for the database.</p>
 <li>
 <p><strong>Use <code>ALTER DATABASE</code> command</strong></p>
 <p>We can alter our database timezone by using the following command:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">ALTER</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="n">postgres</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">timezone</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="s1">&#39;Asia/Kuala_Lumpur&#39;</span><span class="p">;</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">ALTER</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="n">postgres</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">timezone</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="s1">&#39;Asia/Kuala_Lumpur&#39;</span><span class="p">;</span><span class="w">
 </span></code></pre></div><p>In this case, we are setting the timezone of our <code>postgres</code> database.</p>
 </li>
 <li>
@@ -145,7 +145,7 @@ for the database.</p>
 <p>Alternatively, you can update your PostgreSQL configuration file. If you
 are not sure where does the file located at, you can use the following
 command to find out:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">postgres</span><span class="o">=#</span><span class="w"> </span><span class="k">SHOW</span><span class="w"> </span><span class="n">config_file</span><span class="p">;</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="n">postgres</span><span class="o">=#</span><span class="w"> </span><span class="k">SHOW</span><span class="w"> </span><span class="n">config_file</span><span class="p">;</span><span class="w">
 </span><span class="w">                               </span><span class="n">config_file</span><span class="w">
 </span><span class="w"></span><span class="c1">-------------------------------------------------------------------------
 </span><span class="c1"></span><span class="w"> </span><span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">kai</span><span class="o">/</span><span class="n">Library</span><span class="o">/</span><span class="n">Application</span><span class="w"> </span><span class="n">Support</span><span class="o">/</span><span class="n">Postgres</span><span class="o">/</span><span class="n">var</span><span class="o">-</span><span class="mi">9</span><span class="p">.</span><span class="mi">6</span><span class="o">/</span><span class="n">postgresql</span><span class="p">.</span><span class="n">conf</span><span class="w">
@@ -153,10 +153,10 @@ command to find out:</p>
 </span></code></pre></div><p>Then you can go over that file and edit the timezone by searching for the
 <code>timezone</code> keyword. You should see something like this and make the changes
 needed:</p>
-<pre><code>timezone = 'Asia/Kuala_Lumpur'
+<pre tabindex="0"><code>timezone = 'Asia/Kuala_Lumpur'
 </code></pre><p>However, the changes will not reflect until you manually command PostgreSQL
 to reload the new configuration. This can be done with:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">select</span><span class="w"> </span><span class="n">pg_reload_conf</span><span class="p">();</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">select</span><span class="w"> </span><span class="n">pg_reload_conf</span><span class="p">();</span><span class="w">
 </span></code></pre></div><p>Now <code>show timezone</code> will reflect the updated timezone.</p>
 <p><em>Note that this will not work if you have previously run the <code>ALTER DATABASE</code>
 command to set the database timezone.</em> You can undo the action by running
@@ -228,7 +228,7 @@ system timezone:</p>
 <li>When input timezone is different with the database timezone</li>
 </ol>
 <p>For a more readable output, you can run <code>\x</code> on your <code>psql</code> session.</p>
-<pre><code>\x
+<pre tabindex="0"><code>\x
 Expanded display is on
 </code></pre><h3 id="when-input-timezone-is-the-same-with-database-timezone">When input timezone is the same with database timezone</h3>
 <p>When you are storing your timestamp in the same timezone as your
@@ -236,7 +236,7 @@ database timezone, there are no difference between <code>timestamptz</code>
 and <code>timestamp</code> in the final timestamp value stored.</p>
 <p>The only difference is that the <code>timestamptz</code> data will include
 the offset (<code>+00</code>) with them.</p>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SET</span><span class="w"> </span><span class="n">timezone</span><span class="o">=</span><span class="s2">&#34;UTC&#34;</span><span class="p">;</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SET</span><span class="w"> </span><span class="n">timezone</span><span class="o">=</span><span class="s2">&#34;UTC&#34;</span><span class="p">;</span><span class="w">
 </span><span class="w"></span><span class="k">SELECT</span><span class="w">
 </span><span class="w">  </span><span class="s1">&#39;2020-01-01 00:00:00&#39;</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">timestamp_wtc</span><span class="p">,</span><span class="w">
 </span><span class="w">  </span><span class="s1">&#39;2020-01-01 00:00:00&#39;</span><span class="p">::</span><span class="k">timestamp</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="k">timestamp</span><span class="p">,</span><span class="w">
@@ -247,7 +247,7 @@ the offset (<code>+00</code>) with them.</p>
 </span><span class="w"></span><span class="n">timestamptz</span><span class="w">   </span><span class="o">|</span><span class="w"> </span><span class="mi">2019</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">01</span><span class="w"> </span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="o">+</span><span class="mi">00</span><span class="w">
 </span></code></pre></div><p>Here&rsquo;s another similar example using Malaysia timezone where our input is also
 specifying the timezone offset as well:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SET</span><span class="w"> </span><span class="n">timezone</span><span class="o">=</span><span class="s2">&#34;Asia/Kuala_Lumpur&#34;</span><span class="p">;</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SET</span><span class="w"> </span><span class="n">timezone</span><span class="o">=</span><span class="s2">&#34;Asia/Kuala_Lumpur&#34;</span><span class="p">;</span><span class="w">
 </span><span class="w"></span><span class="k">SELECT</span><span class="w">
 </span><span class="w">  </span><span class="s1">&#39;2020-01-01 00:00:00+08&#39;</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">timestamp_wtc</span><span class="p">,</span><span class="w">
 </span><span class="w">  </span><span class="s1">&#39;2020-01-01 00:00:00+08&#39;</span><span class="p">::</span><span class="k">timestamp</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="k">timestamp</span><span class="p">,</span><span class="w">
@@ -271,7 +271,7 @@ it as it is without timezone provided.</li>
 <p>Let&rsquo;s first take a look about what happen when we use the input without
 timezone and input with a different timezone.</p>
 <p><strong>Input without timezone in <code>UTC</code> database timezone:</strong></p>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SET</span><span class="w"> </span><span class="n">timezone</span><span class="o">=</span><span class="s2">&#34;UTC&#34;</span><span class="p">;</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SET</span><span class="w"> </span><span class="n">timezone</span><span class="o">=</span><span class="s2">&#34;UTC&#34;</span><span class="p">;</span><span class="w">
 </span><span class="w"></span><span class="k">SELECT</span><span class="w">
 </span><span class="w">  </span><span class="s1">&#39;2020-01-01 00:00:00&#39;</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">timestamp_wtc</span><span class="p">,</span><span class="w">
 </span><span class="w">  </span><span class="s1">&#39;2020-01-01 00:00:00&#39;</span><span class="p">::</span><span class="k">timestamp</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="k">timestamp</span><span class="p">,</span><span class="w">
@@ -285,7 +285,7 @@ timezone is in UTC and the input is without timezone.</p>
 <p>Since our timezone is <code>Asia/Kuala_Lumpur</code>, PostgreSQL just assume the given
 timezone is the same as well.</p>
 <p><strong>Input with <code>+08</code> timezone in <code>UTC</code> database timezone:</strong></p>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SET</span><span class="w"> </span><span class="n">timezone</span><span class="o">=</span><span class="s2">&#34;UTC&#34;</span><span class="p">;</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SET</span><span class="w"> </span><span class="n">timezone</span><span class="o">=</span><span class="s2">&#34;UTC&#34;</span><span class="p">;</span><span class="w">
 </span><span class="w"></span><span class="k">SELECT</span><span class="w">
 </span><span class="w">  </span><span class="s1">&#39;2020-01-01 00:00:00+08&#39;</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">timestamp_wtc</span><span class="p">,</span><span class="w">
 </span><span class="w">  </span><span class="s1">&#39;2020-01-01 00:00:00+08&#39;</span><span class="p">::</span><span class="k">timestamp</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="k">timestamp</span><span class="p">,</span><span class="w">
@@ -299,7 +299,7 @@ So, <code>2020-01-01 00:00:00</code> at Kuala Lumpur, is actually just <code>201
 <p><strong>Input without timezone in <code>Asia/Kuala_Lumpur</code> database timezone:</strong></p>
 <p>Let&rsquo;s take a look about what happen if our database timezone is in
 <code>Asia/Kuala_Lumpur</code> when we input date time without timezone.</p>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SET</span><span class="w"> </span><span class="n">timezone</span><span class="o">=</span><span class="s2">&#34;Asia/Kuala_Lumpur&#34;</span><span class="p">;</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SET</span><span class="w"> </span><span class="n">timezone</span><span class="o">=</span><span class="s2">&#34;Asia/Kuala_Lumpur&#34;</span><span class="p">;</span><span class="w">
 </span><span class="w"></span><span class="k">SELECT</span><span class="w">
 </span><span class="w">  </span><span class="s1">&#39;2020-01-01 00:00:00&#39;</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">timestamp_wtc</span><span class="p">,</span><span class="w">
 </span><span class="w">  </span><span class="s1">&#39;2020-01-01 00:00:00&#39;</span><span class="p">::</span><span class="k">timestamp</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="k">timestamp</span><span class="p">,</span><span class="w">
@@ -314,7 +314,7 @@ UTC example is, instead of saving as <code>+00</code> it is saved as <code>+08</
 <p><strong>Input with <code>+08</code> timezone in <code>Asia/Kuala_Lumpur</code> database timezone:</strong></p>
 <p>For input with timezone, in this case, we are inputting date time with UTC
 timezone:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SET</span><span class="w"> </span><span class="n">timezone</span><span class="o">=</span><span class="s2">&#34;Asia/Kuala_Lumpur&#34;</span><span class="p">;</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SET</span><span class="w"> </span><span class="n">timezone</span><span class="o">=</span><span class="s2">&#34;Asia/Kuala_Lumpur&#34;</span><span class="p">;</span><span class="w">
 </span><span class="w"></span><span class="k">SELECT</span><span class="w">
 </span><span class="w">  </span><span class="s1">&#39;2020-01-01 00:00:00+00&#39;</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">timestamp_wtc</span><span class="p">,</span><span class="w">
 </span><span class="w">  </span><span class="s1">&#39;2020-01-01 00:00:00+00&#39;</span><span class="p">::</span><span class="k">timestamp</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="k">timestamp</span><span class="p">,</span><span class="w">
@@ -387,13 +387,13 @@ take a look at a few simple examples.</p>
 <h2 id="using-with-timestamptz">Using with <code>timestamptz</code></h2>
 <p>Let&rsquo;s start with converting the timezone using <code>AT TIME ZONE</code> for <code>timestamptz</code>
 input.</p>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SET</span><span class="w"> </span><span class="n">TIME</span><span class="w"> </span><span class="k">ZONE</span><span class="w"> </span><span class="s1">&#39;UTC&#39;</span><span class="p">;</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SET</span><span class="w"> </span><span class="n">TIME</span><span class="w"> </span><span class="k">ZONE</span><span class="w"> </span><span class="s1">&#39;UTC&#39;</span><span class="p">;</span><span class="w">
 </span><span class="w"></span><span class="k">SELECT</span><span class="w"> </span><span class="s1">&#39;2020-01-01 00:00:00+00&#39;</span><span class="p">::</span><span class="n">timestamptz</span><span class="w"> </span><span class="k">AT</span><span class="w"> </span><span class="n">TIME</span><span class="w"> </span><span class="k">ZONE</span><span class="w"> </span><span class="s1">&#39;Asia/Kuala_Lumpur&#39;</span><span class="p">;</span><span class="w">
 </span></code></pre></div><p>Before looking at the return value below, let&rsquo;s try to answer yourself.</p>
 <p>&hellip;</p>
 <p>&hellip;</p>
 <p><strong>Output:</strong></p>
-<pre><code>      timezone
+<pre tabindex="0"><code>      timezone
 ---------------------
  2020-01-01 08:00:00
 (1 row)
@@ -410,13 +410,13 @@ expected. Let&rsquo;s take a look at another example.</p>
 <h2 id="using-with-timestamp">Using with <code>timestamp</code></h2>
 <p>Using <code>AT TIME ZONE</code> with input of <code>timestamp</code> will behave differently.
 However, it&rsquo;s not clear for us in the first sight.</p>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SET</span><span class="w"> </span><span class="n">TIME</span><span class="w"> </span><span class="k">ZONE</span><span class="w"> </span><span class="s1">&#39;UTC&#39;</span><span class="p">;</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SET</span><span class="w"> </span><span class="n">TIME</span><span class="w"> </span><span class="k">ZONE</span><span class="w"> </span><span class="s1">&#39;UTC&#39;</span><span class="p">;</span><span class="w">
 </span><span class="w"></span><span class="k">SELECT</span><span class="w"> </span><span class="s1">&#39;2020-01-01 00:00:00&#39;</span><span class="p">::</span><span class="k">timestamp</span><span class="w"> </span><span class="k">AT</span><span class="w"> </span><span class="n">TIME</span><span class="w"> </span><span class="k">ZONE</span><span class="w"> </span><span class="s1">&#39;Asia/Kuala_Lumpur&#39;</span><span class="p">;</span><span class="w">
 </span></code></pre></div><p>Again, try to answer this yourself first, before looking at the output.</p>
 <p>&hellip;</p>
 <p>&hellip;</p>
 <p><strong>Output:</strong></p>
-<pre><code>        timezone
+<pre tabindex="0"><code>        timezone
 ------------------------
  2019-12-31 16:00:00+00
 (1 row)
@@ -445,24 +445,24 @@ timezone when we are converting it to UTC timezone?</p>
 <p>Since UTC is 8 hours behind <code>Asia/Kuala_Lumpur</code>
 timezone, we will need to that shift the datetime backward.</p>
 <p>So, in other words the above SQL command is similar to:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span><span class="w"> </span><span class="s1">&#39;2020-01-01 00:00:00+08&#39;</span><span class="w"> </span><span class="k">AT</span><span class="w"> </span><span class="n">TIME</span><span class="w"> </span><span class="k">ZONE</span><span class="w"> </span><span class="s1">&#39;UTC&#39;</span><span class="p">;</span><span class="w">
-</span></code></pre></div><pre><code>      timezone
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span><span class="w"> </span><span class="s1">&#39;2020-01-01 00:00:00+08&#39;</span><span class="w"> </span><span class="k">AT</span><span class="w"> </span><span class="n">TIME</span><span class="w"> </span><span class="k">ZONE</span><span class="w"> </span><span class="s1">&#39;UTC&#39;</span><span class="p">;</span><span class="w">
+</span></code></pre></div><pre tabindex="0"><code>      timezone
 ---------------------
 2019-12-31 16:00:00
 1 row)
 </code></pre><p>Try substituting the query with different database timezone and see how it
 behave. For example, try out how does it behave when the database timezone
 is the same:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SET</span><span class="w"> </span><span class="n">TIME</span><span class="w"> </span><span class="k">ZONE</span><span class="w"> </span><span class="s1">&#39;Asia/Kuala_Lumpur&#39;</span><span class="p">;</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SET</span><span class="w"> </span><span class="n">TIME</span><span class="w"> </span><span class="k">ZONE</span><span class="w"> </span><span class="s1">&#39;Asia/Kuala_Lumpur&#39;</span><span class="p">;</span><span class="w">
 </span><span class="w"></span><span class="k">SELECT</span><span class="w"> </span><span class="s1">&#39;2020-01-01 00:00:00&#39;</span><span class="p">::</span><span class="k">timestamp</span><span class="w"> </span><span class="k">AT</span><span class="w"> </span><span class="n">TIME</span><span class="w"> </span><span class="k">ZONE</span><span class="w"> </span><span class="s1">&#39;Asia/Kuala_Lumpur&#39;</span><span class="p">;</span><span class="w">
 </span></code></pre></div><p>This will help you to understand and remember the behaviour much better.</p>
 <h3 id="summary-1">Summary</h3>
 <p>To summarized, when we use <code>AT TIME ZONE</code> with <code>timestamp</code>, we are saying given
 this datetime assuming it is in this timezone. So, with <code>AT TIME ZONE 'Asia/Kuala_Lumpur</code>,
 we essentially convert:</p>
-<pre><code>2020-01-01 00:00:00
+<pre tabindex="0"><code>2020-01-01 00:00:00
 </code></pre><p>to</p>
-<pre><code>2020-01-01 00:00:00+08
+<pre tabindex="0"><code>2020-01-01 00:00:00+08
 </code></pre><p>However, since PostgreSQL need to display the datetime with the current database timezone,
 it will convert the timezone again.</p>
 <h2 id="summary-for-at-time-zone">Summary for <code>AT TIME ZONE</code></h2>
@@ -502,10 +502,10 @@ throughout the post, I&rsquo;m avoiding using <code>Etc/GMT+8</code> even though
 convey the hours different clearer.</p>
 <p>If you try to replace all of the example query with <code>Etc/GMT+8</code>, you&rsquo;ll realize
 why.</p>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span><span class="w">
 </span><span class="w">  </span><span class="s1">&#39;2020-01-01 00:00:00+00&#39;</span><span class="w"> </span><span class="k">AT</span><span class="w"> </span><span class="n">TIME</span><span class="w"> </span><span class="k">ZONE</span><span class="w"> </span><span class="s1">&#39;Etc/GMT+8&#39;</span><span class="p">,</span><span class="w">
 </span><span class="w">  </span><span class="s1">&#39;2020-01-01 00:00:00+00&#39;</span><span class="w"> </span><span class="k">AT</span><span class="w"> </span><span class="n">TIME</span><span class="w"> </span><span class="k">ZONE</span><span class="w"> </span><span class="s1">&#39;Asia/Kuala_Lumpur&#39;</span><span class="p">;</span><span class="w">
-</span></code></pre></div><pre><code>-[ RECORD 1 ]-----------------
+</span></code></pre></div><pre tabindex="0"><code>-[ RECORD 1 ]-----------------
 timezone | 2019-12-31 16:00:00
 timezone | 2020-01-01 08:00:00
 </code></pre><p>How <code>Etc/GMT+8</code> behave on PostgreSQL is totally different from what I expected.

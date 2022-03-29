@@ -7,11 +7,11 @@ Debugging With Tracing in Elixir | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.83.1" />
+<meta name="generator" content="Hugo 0.90.0" />
 
 
     
-    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.9c9eb135389d62f7b6aea27ad59377b9a28fda7ea53b722707a20a2fd05b6cf1.css" integrity="sha256-nJ6xNTidYve2rqJ61ZN3uaKP2n6lO3InB6IKL9BbbPE=">
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.c41ff84d3329279b5882daee9f67712ab71c7b9e6bbd192fb3e1a496d452d10a.css" integrity="sha256-xB/4TTMpJ5tYgtrun2dxKrcce55rvRkvs&#43;GkltRS0Qo=">
     <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -131,13 +131,13 @@ questions:</em></p>
 <h2 id="starting-dbg">Starting <code>:dbg</code></h2>
 <p>Before we start tracing, we need to start the <code>dbg</code> and <code>tracer</code> process with the following
 code:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">start</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">start</span>
 <span class="ss">:dbg</span><span class="o">.</span><span class="n">tracer</span>
 </code></pre></div><p>It won&rsquo;t do anything until you state what you would like to trace explicitly.</p>
 <h2 id="specifying-what-to-trace">Specifying what to trace</h2>
 <p>Let&rsquo;s say we want to trace the <code>Enum.map/2</code> function that was called in the
 system. We can specify it by running:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">tp</span><span class="p">(</span><span class="nc">Enum</span><span class="p">,</span> <span class="ss">:map</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">[])</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">tp</span><span class="p">(</span><span class="nc">Enum</span><span class="p">,</span> <span class="ss">:map</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">[])</span>
 <span class="ss">:dbg</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="ss">:all</span><span class="p">,</span> <span class="ss">:c</span><span class="p">)</span>
 </code></pre></div><h2 id="tracing-in-action">Tracing in action</h2>
 <p>When some part of your code call <code>Enum.map([1,2,3], &amp; &amp;1 + 1)</code>,
@@ -150,20 +150,20 @@ different output in your shell.</p>
 <p><strong>In Local Shell</strong></p>
 <p>If you are on the shell that are running the system,
 whenever the function you traced is called, you will see something as follow:</p>
-<pre><code>(&lt;0.106.0&gt;) call 'Elixir.Enum':map([1,2,3],#Fun&lt;erl_eval.44.97283095&gt;)
+<pre tabindex="0"><code>(&lt;0.106.0&gt;) call 'Elixir.Enum':map([1,2,3],#Fun&lt;erl_eval.44.97283095&gt;)
 </code></pre><p><strong>In Remote Shell</strong></p>
 <p>You&rsquo;ll not see any output as the tracer is logging the output in the live
 process instead of your remote shell. In order to see the trace, you&rsquo;ll need to
 go through your logs file <em>(E.g. <code>erlang.log.1</code>)</em>.</p>
 <p>If you want it to output in your remote shell, you&rsquo;ll need to start your
 <code>tracer</code> process differently:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">tracer</span><span class="p">(</span><span class="ss">:process</span><span class="p">,</span> <span class="p">{</span><span class="k">fn</span> <span class="n">msg</span><span class="p">,</span> <span class="n">n</span> <span class="o">-&gt;</span> <span class="nc">IO</span><span class="o">.</span><span class="n">inspect</span><span class="p">(</span><span class="n">msg</span><span class="p">);</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span> <span class="k">end</span><span class="p">,</span> <span class="mi">0</span><span class="p">})</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">tracer</span><span class="p">(</span><span class="ss">:process</span><span class="p">,</span> <span class="p">{</span><span class="k">fn</span> <span class="n">msg</span><span class="p">,</span> <span class="n">n</span> <span class="o">-&gt;</span> <span class="nc">IO</span><span class="o">.</span><span class="n">inspect</span><span class="p">(</span><span class="n">msg</span><span class="p">);</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span> <span class="k">end</span><span class="p">,</span> <span class="mi">0</span><span class="p">})</span>
 </code></pre></div><p><code>:dbg.tracer</code> accept a second argument where you can customize how you want to
 handle each of the traced events. Here, we are telling the tracer to
 log output to our local shell instead.</p>
 <h2 id="stopping-the-tracing">Stopping the tracing</h2>
 <p>To stop the tracing, it is as simple as:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">stop_clear</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">stop_clear</span>
 </code></pre></div><p>It is very important to stop your tracing after you get the information you
 need. This is because:</p>
 <ul>
@@ -174,7 +174,7 @@ need. This is because:</p>
 functions or a high volume system</em>. Hence, it is actually better to do
 use the following  when starting your tracer process in a live production
 system:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">tracer</span><span class="p">(</span><span class="ss">:process</span><span class="p">,</span> <span class="p">{</span><span class="k">fn</span> <span class="n">_</span><span class="p">,</span> <span class="mi">5</span> <span class="o">-&gt;</span> <span class="ss">:dbg</span><span class="o">.</span><span class="n">stop_clear</span><span class="p">()</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">tracer</span><span class="p">(</span><span class="ss">:process</span><span class="p">,</span> <span class="p">{</span><span class="k">fn</span> <span class="n">_</span><span class="p">,</span> <span class="mi">5</span> <span class="o">-&gt;</span> <span class="ss">:dbg</span><span class="o">.</span><span class="n">stop_clear</span><span class="p">()</span>
                         <span class="n">msg</span><span class="p">,</span> <span class="n">n</span> <span class="o">-&gt;</span> <span class="nc">IO</span><span class="o">.</span><span class="n">inspect</span><span class="p">(</span><span class="n">msg</span><span class="p">);</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span> <span class="k">end</span><span class="p">,</span> <span class="mi">0</span><span class="p">})</span>
 </code></pre></div><p>The first function clause tell the tracer to stop after 5 events. The
 second one tell the tracer how it should handle the receive event. In this
@@ -182,7 +182,7 @@ case, we are just printing it and increment the counter.</p>
 <h2 id="all-together">All together</h2>
 <p>Here is the code you can copy all together and past it in your <code>iex</code> to see
 tracing in action:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">start</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">start</span>
 <span class="ss">:dbg</span><span class="o">.</span><span class="n">tracer</span><span class="p">(</span><span class="ss">:process</span><span class="p">,</span> <span class="p">{</span><span class="k">fn</span> <span class="n">_</span><span class="p">,</span> <span class="mi">5</span> <span class="o">-&gt;</span> <span class="ss">:dbg</span><span class="o">.</span><span class="n">stop_clear</span><span class="p">()</span>
                         <span class="n">msg</span><span class="p">,</span> <span class="n">n</span> <span class="o">-&gt;</span> <span class="nc">IO</span><span class="o">.</span><span class="n">inspect</span><span class="p">(</span><span class="n">msg</span><span class="p">);</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span> <span class="k">end</span><span class="p">,</span> <span class="mi">0</span><span class="p">})</span>
 <span class="ss">:dbg</span><span class="o">.</span><span class="n">tpl</span><span class="p">(</span><span class="nc">Enum</span><span class="p">,</span> <span class="ss">:map</span><span class="p">,</span> <span class="p">[])</span>
@@ -205,11 +205,11 @@ the timestamps when the function run.</p>
 used above.</p>
 <h2 id="getting-return-tracevalue">Getting return trace/value</h2>
 <p>To get the return trace, we can specify more options in <code>:dbg.tpl</code> as follow:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">tpl</span><span class="p">(</span><span class="nc">Enum</span><span class="p">,</span> <span class="ss">:map</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">[{</span><span class="ss">:_</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[{</span><span class="ss">:return_trace</span><span class="p">}]}])</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">tpl</span><span class="p">(</span><span class="nc">Enum</span><span class="p">,</span> <span class="ss">:map</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">[{</span><span class="ss">:_</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[{</span><span class="ss">:return_trace</span><span class="p">}]}])</span>
 </code></pre></div><p>The additional options we provide is called the <a href="http://erlang.org/doc/apps/erts/match_spec.html"><code>MatchSpec</code></a>, which we will
 cover further later.</p>
 <p><strong>Example:</strong></p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">start</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">start</span>
 <span class="ss">:dbg</span><span class="o">.</span><span class="n">tracer</span>
 
 <span class="ss">:dbg</span><span class="o">.</span><span class="n">tpl</span><span class="p">(</span><span class="nc">Enum</span><span class="p">,</span> <span class="ss">:map</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">[{</span><span class="ss">:_</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[{</span><span class="ss">:return_trace</span><span class="p">}]}])</span>
@@ -225,9 +225,9 @@ cover further later.</p>
 </code></pre></div><h2 id="include-timestamps-of-function-call">Include timestamps of function call</h2>
 <p>To include the timestamps of the function call, we can include <code>:timestamp</code> when
 calling <code>:dbg.p</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="ss">:all</span><span class="p">,</span> <span class="p">[</span><span class="ss">:c</span><span class="p">,</span> <span class="ss">:timestamp</span><span class="p">])</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="ss">:all</span><span class="p">,</span> <span class="p">[</span><span class="ss">:c</span><span class="p">,</span> <span class="ss">:timestamp</span><span class="p">])</span>
 </code></pre></div><p><strong>Example:</strong></p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">start</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">start</span>
 <span class="ss">:dbg</span><span class="o">.</span><span class="n">tracer</span>
 <span class="ss">:dbg</span><span class="o">.</span><span class="n">tpl</span><span class="p">(</span><span class="nc">Enum</span><span class="p">,</span> <span class="ss">:map</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">[{</span><span class="ss">:_</span><span class="p">,</span> <span class="p">[],</span> <span class="p">[{</span><span class="ss">:return_trace</span><span class="p">}]}])</span>
 
@@ -244,7 +244,7 @@ calling <code>:dbg.p</code>:</p>
 <p>You might also want to only trace function called with specific
 arguments, for example a user id, or specific category. You could do this by
 modifying the match spec for <code>:dbg.tpl</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">tpl</span><span class="p">(</span><span class="nc">Enum</span><span class="p">,</span> <span class="ss">:map</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">[{[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="ss">:_</span><span class="p">],</span> <span class="p">[],</span> <span class="p">[{</span><span class="ss">:return_trace</span><span class="p">}]}])</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">tpl</span><span class="p">(</span><span class="nc">Enum</span><span class="p">,</span> <span class="ss">:map</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">[{[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="ss">:_</span><span class="p">],</span> <span class="p">[],</span> <span class="p">[{</span><span class="ss">:return_trace</span><span class="p">}]}])</span>
 </code></pre></div><p>The first argument in the first tuple of the match spec, is the
 function parameter that we want to match. Here, we want to match
 <code>Enum.map/2</code> with:</p>
@@ -256,7 +256,7 @@ function parameter that we want to match. Here, we want to match
 the tracer to trace your return value as well <em>(which is missing from the
 previous version of this post)</em>.</p>
 <p><strong>Example:</strong></p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">start</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">start</span>
 <span class="ss">:dbg</span><span class="o">.</span><span class="n">tracer</span>
 
 <span class="ss">:dbg</span><span class="o">.</span><span class="n">tpl</span><span class="p">(</span><span class="nc">Enum</span><span class="p">,</span> <span class="ss">:map</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">[{[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="ss">:_</span><span class="p">],</span> <span class="p">[],</span> <span class="p">[{</span><span class="ss">:return_trace</span><span class="p">}]}])</span>
@@ -277,17 +277,17 @@ assure, that&rsquo;s what we cover next.</p>
 <p>It can be hard to write match spec for complicated scenario.
 Luckily, <code>:dbg.fun2ms</code> can be used to help you transform your function to a
 match spec:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">fun2ms</span><span class="p">(</span><span class="k">fn</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="n">_</span><span class="p">]</span> <span class="o">-&gt;</span> <span class="ss">:return_trace</span> <span class="k">end</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">fun2ms</span><span class="p">(</span><span class="k">fn</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="n">_</span><span class="p">]</span> <span class="o">-&gt;</span> <span class="ss">:return_trace</span> <span class="k">end</span><span class="p">)</span>
 <span class="c1"># [{[1, 2, 3], [], [:return_trace]}]</span>
 </code></pre></div><p>Notice that the function parameter is expecting a list of parameter <code>[]</code>
 instead of multiple parameter values. If you attempt to do multiple parameters
 like this, you&rsquo;ll get an error:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">fun2ms</span><span class="p">(</span><span class="k">fn</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="n">_</span> <span class="o">-&gt;</span> <span class="ss">:return_trace</span> <span class="k">end</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">fun2ms</span><span class="p">(</span><span class="k">fn</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="n">_</span> <span class="o">-&gt;</span> <span class="ss">:return_trace</span> <span class="k">end</span><span class="p">)</span>
 <span class="c1"># Error: dbg:fun2ms requires fun with single variable or list parameter</span>
 <span class="c1"># {:error, :transform_error}</span>
 </code></pre></div><p>However, the match spec is not entirely correct. To have your return trace
 working correctly, it need to be wrapped in <code>{}</code>. So this won&rsquo;t work:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">start</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">start</span>
 <span class="ss">:dbg</span><span class="o">.</span><span class="n">tracer</span>
 
 <span class="n">match_spec</span> <span class="o">=</span> <span class="ss">:dbg</span><span class="o">.</span><span class="n">fun2ms</span><span class="p">(</span><span class="k">fn</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="n">_</span><span class="p">]</span> <span class="o">-&gt;</span> <span class="ss">:return_trace</span> <span class="k">end</span><span class="p">)</span>
@@ -301,12 +301,12 @@ working correctly, it need to be wrapped in <code>{}</code>. So this won&rsquo;t
 
 <span class="ss">:dbg</span><span class="o">.</span><span class="n">stop</span>
 </code></pre></div><p>Hence, you&rsquo;ll have to transform the match spec abit. Here&rsquo;s how we can do it:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">match_spec</span> <span class="o">=</span> <span class="ss">:dbg</span><span class="o">.</span><span class="n">fun2ms</span><span class="p">(</span><span class="k">fn</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="n">_</span><span class="p">]</span> <span class="o">-&gt;</span> <span class="ss">:return_trace</span> <span class="k">end</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="n">match_spec</span> <span class="o">=</span> <span class="ss">:dbg</span><span class="o">.</span><span class="n">fun2ms</span><span class="p">(</span><span class="k">fn</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="n">_</span><span class="p">]</span> <span class="o">-&gt;</span> <span class="ss">:return_trace</span> <span class="k">end</span><span class="p">)</span>
 <span class="n">match_spec</span> <span class="o">=</span> <span class="nc">Enum</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">match_spec</span><span class="p">,</span> <span class="k">fn</span> <span class="p">{</span><span class="n">args</span><span class="p">,</span> <span class="n">guards</span><span class="p">,</span> <span class="p">[</span><span class="ss">:return_trace</span><span class="p">]}</span> <span class="o">-&gt;</span>
   <span class="p">{</span><span class="n">args</span><span class="p">,</span> <span class="n">guards</span><span class="p">,</span> <span class="p">[{</span><span class="ss">:return_trace</span><span class="p">}]}</span>
 <span class="k">end</span><span class="p">)</span>
 </code></pre></div><p>So, the full working example looks like this:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">start</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">:dbg</span><span class="o">.</span><span class="n">start</span>
 <span class="ss">:dbg</span><span class="o">.</span><span class="n">tracer</span>
 
 <span class="n">match_spec</span> <span class="o">=</span> <span class="ss">:dbg</span><span class="o">.</span><span class="n">fun2ms</span><span class="p">(</span><span class="k">fn</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="n">_</span><span class="p">]</span> <span class="o">-&gt;</span> <span class="ss">:return_trace</span> <span class="k">end</span><span class="p">)</span>

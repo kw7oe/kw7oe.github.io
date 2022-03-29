@@ -7,11 +7,11 @@ A note on`application` in mix.exs starting from Elixir 1.4 | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.83.1" />
+<meta name="generator" content="Hugo 0.90.0" />
 
 
     
-    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.9c9eb135389d62f7b6aea27ad59377b9a28fda7ea53b722707a20a2fd05b6cf1.css" integrity="sha256-nJ6xNTidYve2rqJ61ZN3uaKP2n6lO3InB6IKL9BbbPE=">
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.c41ff84d3329279b5882daee9f67712ab71c7b9e6bbd192fb3e1a496d452d10a.css" integrity="sha256-xB/4TTMpJ5tYgtrun2dxKrcce55rvRkvs&#43;GkltRS0Qo=">
     <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -77,7 +77,7 @@ release notes <a href="https://elixir-lang.org/blog/2017/01/05/elixir-v1-4-0-rel
 <p>Do note that <strong>it only automatically infer the application lists if the
 <code>:applications</code> key is empty.</strong> If you had already declared your it in your
 <code>mix.exs</code> like this:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">def</span> <span class="n">application</span> <span class="k">do</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">def</span> <span class="n">application</span> <span class="k">do</span>
   <span class="p">[</span>
     <span class="c1"># Will be automatically inferred starting</span>
     <span class="c1"># from Elixir 1.4, if it is empty.</span>
@@ -95,7 +95,7 @@ need to use an external database.</p>
 <p>Hence, I went over the <a href="https://hexdocs.pm/ecto/getting-started.html#content">Ecto documentation</a> and run through the setup in the
 application. After going through the steps, and finally run <code>iex -S mix</code>, an
 error arise.</p>
-<pre><code>...failed to start child: App.Repo
+<pre tabindex="0"><code>...failed to start child: App.Repo
 </code></pre><p>I check my <code>config.exs</code>. Nothing wrong.</p>
 <p>So, I go through the documentation again and again, to check if I miss out anything.
 No, nothing wrong. The documentation didn&rsquo;t mentioned the need to add <code>ecto</code>
@@ -106,7 +106,7 @@ that adding it solve the issues.</p>
 <p>So, I create a new test application and follow the documentation again.</p>
 <p><em>And, it works.</em></p>
 <p>So, I delete this line of code in my <code>mix.exs</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">applications</span><span class="p">:</span> <span class="p">[</span><span class="ss">:cowboy</span><span class="p">,</span> <span class="ss">:plug</span><span class="p">]</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="ss">applications</span><span class="p">:</span> <span class="p">[</span><span class="ss">:cowboy</span><span class="p">,</span> <span class="ss">:plug</span><span class="p">]</span>
 </code></pre></div><p><em>And, it works.</em></p>
 <h3 id="the-why">The Why</h3>
 <p>Hence, I guess that Mix actaully automatically start the applications needed
@@ -116,7 +116,7 @@ Mix has this new feature. It is also mentioned in the <a href="https://elixir-la
 <p>However there is one condition. <strong>It only automatically infer the applications list if the
 <code>:applications</code> key is empty.</strong> That explains why it didn&rsquo;t work in my
 application because I already declared the list manually, as shown below:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">def</span> <span class="n">application</span> <span class="k">do</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">def</span> <span class="n">application</span> <span class="k">do</span>
   <span class="p">[</span>
     <span class="ss">mod</span><span class="p">:</span> <span class="p">{</span><span class="nc">App.App</span><span class="p">,</span> <span class="p">[]},</span>
     <span class="ss">extra_applications</span><span class="p">:</span> <span class="p">[</span><span class="ss">:logger</span><span class="p">],</span>

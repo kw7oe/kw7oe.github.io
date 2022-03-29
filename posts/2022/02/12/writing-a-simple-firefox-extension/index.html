@@ -7,11 +7,11 @@ Writing a simple Firefox Extension | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.83.1" />
+<meta name="generator" content="Hugo 0.90.0" />
 
 
     
-    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.9c9eb135389d62f7b6aea27ad59377b9a28fda7ea53b722707a20a2fd05b6cf1.css" integrity="sha256-nJ6xNTidYve2rqJ61ZN3uaKP2n6lO3InB6IKL9BbbPE=">
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.c41ff84d3329279b5882daee9f67712ab71c7b9e6bbd192fb3e1a496d452d10a.css" integrity="sha256-xB/4TTMpJ5tYgtrun2dxKrcce55rvRkvs&#43;GkltRS0Qo=">
     <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -146,7 +146,7 @@ browser with some restrictions and permissions.</p>
 project structure and how it works at a high level.</p>
 <h2 id="project-structure">Project structure</h2>
 <p>The most basic web extension project structure will looks something like this:</p>
-<pre><code>├── index.js
+<pre tabindex="0"><code>├── index.js
 ├── index.html (Optional)
 ├── icons
 │   └── icon.png
@@ -167,7 +167,7 @@ browser, this HTML file will represents the UI of the page.</li>
 <h2 id="high-level-architecture">High level architecture</h2>
 <p>Most of the time, your web extension will interact with the <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API">browser JavaScript APIs</a> to achieve something you want.</p>
 <p>Here&rsquo;s the high level architecture of web extension:</p>
-<pre><code>User &lt;-&gt; Your Web Extension &lt;-&gt; Browser APIs
+<pre tabindex="0"><code>User &lt;-&gt; Your Web Extension &lt;-&gt; Browser APIs
 </code></pre><p><em>(this is not entirely accurate)</em></p>
 <h1 id="our-first-web-extension">Our first web extension</h1>
 <p>As someone who uses Markdown for note taking and saves links I
@@ -182,17 +182,17 @@ Markdown link and copy it to user clipboard.</p>
 </blockquote>
 <p>For example, by using our web extension now, it should copy the following
 to our clipboard:</p>
-<pre><code>[Writing a simple Firefox Extension | kw7oe](http://localhost:1313/posts/2022/01/31/writing-a-simple-firefox-extension/)
+<pre tabindex="0"><code>[Writing a simple Firefox Extension | kw7oe](http://localhost:1313/posts/2022/01/31/writing-a-simple-firefox-extension/)
 </code></pre><p><em>(is in localhost:1313 because this is written in my local environment)</em></p>
 <h1 id="setting-up-web-extension">Setting up web extension</h1>
 <h2 id="initialize-project-folder">Initialize project folder</h2>
 <p>Let&rsquo;s create our web extension project folder:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">mkdir my-ttmd
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">mkdir my-ttmd
 <span class="nb">cd</span> my-ttmd
 touch manifest.json index.js
 </code></pre></div><h2 id="writing-manifestjson">Writing <code>manifest.json</code></h2>
 <p>In <code>manifest.json</code>, add the following code:</p>
-<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
   <span class="nt">&#34;manifest_version&#34;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
   <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;my-ttmd&#34;</span><span class="p">,</span>
   <span class="nt">&#34;description&#34;</span><span class="p">:</span> <span class="s2">&#34;Title to Markdown&#34;</span><span class="p">,</span>
@@ -221,7 +221,7 @@ requesting for more permissions as we needed.</p>
 <p>Since we state in the manifest that we will have a background script called
 <code>index.js</code>, let&rsquo;s start writing some simple code:</p>
 <p>In <code>index.js</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-js" data-lang="js"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&#34;hello world&#34;</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&#34;hello world&#34;</span><span class="p">)</span>
 </code></pre></div><p>Voila, our first extension is done. Classic hello world example. But how can we
 test it?</p>
 <h2 id="testing-browser-extension">Testing browser extension</h2>
@@ -286,7 +286,7 @@ to write our first browser extension.</p>
 execute code when our button is clicked.</p>
 <p>So let&rsquo;s start writing our actual implementation:</p>
 <p>In <code>index.js</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-diff" data-lang="diff"><span class="gd">- console.log(&#34;hello world&#34;)
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-diff" data-lang="diff"><span class="gd">- console.log(&#34;hello world&#34;)
 </span><span class="gd"></span><span class="gi">+ const titleToMarkdown = () =&gt; {
 </span><span class="gi">+  console.log(&#34;hello world&#34;)
 </span><span class="gi">+ }
@@ -315,7 +315,7 @@ and <code>currentWindow: true</code> to get the active tab of our current window
 multiple Firefox application open, but we are only interested in the current
 one they are looking at.</p>
 <p>So, here&rsquo;s how the code would look like in <code>index.js</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-diff" data-lang="diff">const titleToMarkdown = async () =&gt; {
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-diff" data-lang="diff">const titleToMarkdown = async () =&gt; {
 <span class="gd">- console.log(&#34;hello world&#34;);
 </span><span class="gd"></span><span class="gi">+ let tabs = await browser.tabs.query({
 </span><span class="gi">+   active: true,
@@ -329,7 +329,7 @@ browser.browserAction.onClicked.addListener(titleToMarkdown);
 </code></pre></div><p>Now, reload our browser extension and play around with it and we will
 be able to see the information we get.</p>
 <p>Here&rsquo;s what I get:</p>
-<div class="highlight"><pre class="chroma"><code class="language-js" data-lang="js"><span class="p">{</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="p">{</span>
   <span class="s2">&#34;tabs&#34;</span><span class="o">:</span> <span class="p">[</span>
     <span class="p">{</span>
       <span class="s2">&#34;id&#34;</span><span class="o">:</span> <span class="mi">326</span><span class="p">,</span>
@@ -341,7 +341,7 @@ be able to see the information we get.</p>
 <span class="p">}</span>
 </code></pre></div><h2 id="format-it-to-markdown">Format it to Markdown</h2>
 <p>Well, for formatting is pretty straighforwad.</p>
-<div class="highlight"><pre class="chroma"><code class="language-diff" data-lang="diff">const titleToMarkdown = async () =&gt; {
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-diff" data-lang="diff">const titleToMarkdown = async () =&gt; {
   let tabs = await browser.tabs.query({
     active: true,
     currentWindow: true,
@@ -363,10 +363,10 @@ mentioned in the documentation:</p>
 <p>Using the API requires the permission &ldquo;clipboardRead&rdquo; or &ldquo;clipboardWrite&rdquo; in your manifest.json file</p>
 </blockquote>
 <p>In <code>manifest.json</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-diff" data-lang="diff"><span class="gd">-  &#34;permissions&#34;: [&#34;tabs&#34;]
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-diff" data-lang="diff"><span class="gd">-  &#34;permissions&#34;: [&#34;tabs&#34;]
 </span><span class="gd"></span><span class="gi">+  &#34;permissions&#34;: [&#34;tabs&#34;, &#34;clipboardWrite&#34;]
 </span></code></pre></div><p>Then all we have to do is called <code>navigator.clipboard.writeText</code> in <code>index.js</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-diff" data-lang="diff">const titleToMarkdown = async () =&gt; {
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-diff" data-lang="diff">const titleToMarkdown = async () =&gt; {
   let tabs = await browser.tabs.query({
     active: true,
     currentWindow: true,
@@ -425,10 +425,10 @@ this is your last resort before I show my final code.</p>
 <hr>
 <p>So, here&rsquo;s how my final code looks like:</p>
 <p>In <code>manifest.json</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-diff" data-lang="diff"><span class="gd">- &#34;permissions&#34;: [&#34;tabs&#34;, &#34;clipboardWrite&#34;]
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-diff" data-lang="diff"><span class="gd">- &#34;permissions&#34;: [&#34;tabs&#34;, &#34;clipboardWrite&#34;]
 </span><span class="gd"></span><span class="gi">+ &#34;permissions&#34;: [&#34;tabs&#34;, &#34;notifications&#34;, &#34;clipboardWrite&#34;]
 </span></code></pre></div><p>In <code>index.js</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-diff" data-lang="diff">const titleToMarkdown = async () =&gt; {
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-diff" data-lang="diff">const titleToMarkdown = async () =&gt; {
   let tabs = await browser.tabs.query({
     active: true,
     currentWindow: true,

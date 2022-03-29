@@ -7,11 +7,11 @@ Advent of Code 2018: Day 1 Part 1 | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.83.1" />
+<meta name="generator" content="Hugo 0.90.0" />
 
 
     
-    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.9c9eb135389d62f7b6aea27ad59377b9a28fda7ea53b722707a20a2fd05b6cf1.css" integrity="sha256-nJ6xNTidYve2rqJ61ZN3uaKP2n6lO3InB6IKL9BbbPE=">
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.c41ff84d3329279b5882daee9f67712ab71c7b9e6bbd192fb3e1a496d452d10a.css" integrity="sha256-xB/4TTMpJ5tYgtrun2dxKrcce55rvRkvs&#43;GkltRS0Qo=">
     <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -91,16 +91,16 @@ the puzzles of AOC 2018.</p>
 <h2 id="part-1">Part 1</h2>
 <p>Part 1 is straightforward. A list of frequencies will given, and we have to sum up
 the frequencies. For example, from the problem descriptions:</p>
-<pre><code>Here are other example situations:
+<pre tabindex="0"><code>Here are other example situations:
 
     +1, +1, +1 results in  3
     +1, +1, -2 results in  0
     -1, -2, -3 results in -6
 </code></pre><p>So, the question of part 1 is:</p>
-<pre><code>Starting with a frequency of zero, what is the resulting frequency after all of the changes in frequency have been applied?
+<pre tabindex="0"><code>Starting with a frequency of zero, what is the resulting frequency after all of the changes in frequency have been applied?
 </code></pre><p>Straight forward and easy right?</p>
 <p><strong>So here is the puzzle inputs:</strong></p>
-<pre><code>-9
+<pre tabindex="0"><code>-9
 +7
 +5
 -13
@@ -112,7 +112,7 @@ the frequencies. For example, from the problem descriptions:</p>
 -11
 -75223
 </code></pre><p><strong>Solution:</strong></p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="k">case</span> <span class="nc">File</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&#34;input.txt&#34;</span><span class="p">)</span> <span class="k">do</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="k">case</span> <span class="nc">File</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&#34;input.txt&#34;</span><span class="p">)</span> <span class="k">do</span>
   <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">content</span><span class="p">}</span> <span class="o">-&gt;</span>
     <span class="n">content</span>
     <span class="o">|&gt;</span> <span class="nc">String</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
@@ -132,7 +132,7 @@ element in the list and add it up.</li>
 </ol>
 <p><strong>Performance:</strong>
 It takes around 0.3 seconds to compute the answer.</p>
-<pre><code>$ time elixir part-1.ex
+<pre tabindex="0"><code>$ time elixir part-1.ex
 
 real	0m0.350s
 user	0m0.321s

@@ -7,11 +7,11 @@ What you might want to know about GenServer | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.83.1" />
+<meta name="generator" content="Hugo 0.90.0" />
 
 
     
-    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.9c9eb135389d62f7b6aea27ad59377b9a28fda7ea53b722707a20a2fd05b6cf1.css" integrity="sha256-nJ6xNTidYve2rqJ61ZN3uaKP2n6lO3InB6IKL9BbbPE=">
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.c41ff84d3329279b5882daee9f67712ab71c7b9e6bbd192fb3e1a496d452d10a.css" integrity="sha256-xB/4TTMpJ5tYgtrun2dxKrcce55rvRkvs&#43;GkltRS0Qo=">
     <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -103,7 +103,7 @@ battle-tested production system. The OTP behaviours also take care of some
 of the edge cases for you.</p>
 <p>When we <code>use GenServer</code>, we are using GenServer behaviour and
 implementing our own callback modules.</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="c1"># Our own callback module</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="c1"># Our own callback module</span>
 <span class="kd">def</span> <span class="nc">MyServer</span> <span class="k">do</span>
   <span class="kn">use</span> <span class="nc">GenServer</span>
 
@@ -230,7 +230,7 @@ Starting <code>ets</code> table in a <code>GenServer</code> is definitely the wa
 <p>This is because <code>ets</code> table is owned by the process create it. If the process
 is terminated, the <code>ets</code> table is also deleted. However, do avoid wrapping
 <code>ets</code> call with <code>GenServer</code> callbacks as follows:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">MyETS</span> <span class="k">do</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">MyETS</span> <span class="k">do</span>
   <span class="kn">use</span> <span class="nc">GenServer</span>
   <span class="na">@table_name</span> <span class="ss">:table</span>
 
@@ -328,7 +328,7 @@ too.
 <p>When we <code>use GenServer</code>, Elixir actually include a default catch all
 <code>handle_info</code> implementation <em>(from the source code <a href="https://github.com/elixir-lang/elixir/blob/master/lib/elixir/lib/gen_server.ex#L781">here</a>)</em>. However,
 when you start overwriting by defining your own callback:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">def</span> <span class="n">handle_info</span><span class="p">(</span><span class="n">...</span><span class="p">)</span> <span class="k">do</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">def</span> <span class="n">handle_info</span><span class="p">(</span><span class="n">...</span><span class="p">)</span> <span class="k">do</span>
   <span class="n">...</span>
 <span class="k">end</span>
 </code></pre></div><p>The default callback is then overridden.</p>

@@ -7,11 +7,11 @@ Advent of Code 2018: Day 1 Part 2, How I improve my solution by 34x faster | kw7
 
 
 
-<meta name="generator" content="Hugo 0.83.1" />
+<meta name="generator" content="Hugo 0.90.0" />
 
 
     
-    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.9c9eb135389d62f7b6aea27ad59377b9a28fda7ea53b722707a20a2fd05b6cf1.css" integrity="sha256-nJ6xNTidYve2rqJ61ZN3uaKP2n6lO3InB6IKL9BbbPE=">
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.c41ff84d3329279b5882daee9f67712ab71c7b9e6bbd192fb3e1a496d452d10a.css" integrity="sha256-xB/4TTMpJ5tYgtrun2dxKrcce55rvRkvs&#43;GkltRS0Qo=">
     <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -89,7 +89,7 @@ improved by 34x faster, see <a href="#three">here</a>.</em></p>
 <p>Okay, that&rsquo;s the end of some irrelavant stuff. Let&rsquo;s jump straight to the puzzle of Part 2.</p>
 <h2 id="part-2">Part 2</h2>
 <p>Part 2 still uses the same inputs as Part 1.</p>
-<pre><code>-9
+<pre tabindex="0"><code>-9
 +7 +5
 -13
 +6
@@ -102,9 +102,9 @@ improved by 34x faster, see <a href="#three">here</a>.</em></p>
 </code></pre><p>This time, the question and scenario are abit different, which make it
 tricky.</p>
 <p>The problem description states that:</p>
-<pre><code>You notice that the device repeats the same frequency change list over and over. To calibrate the device, you need to find the first frequency it reaches twice.
+<pre tabindex="0"><code>You notice that the device repeats the same frequency change list over and over. To calibrate the device, you need to find the first frequency it reaches twice.
 </code></pre><p><strong>For example:</strong></p>
-<pre><code>Here are other examples:
+<pre tabindex="0"><code>Here are other examples:
 
     +1, -1 first reaches 0 twice.
     +3, +3, +4, -2, -4 first reaches 10 twice.
@@ -113,7 +113,7 @@ tricky.</p>
 
 Note that your device might need to repeat its list of frequency changes many times before a duplicate frequency is found, and that duplicates might be found while in the middle of processing the list.
 </code></pre><p>And the question is:</p>
-<pre><code>What is the first frequency your device reaches twice?
+<pre tabindex="0"><code>What is the first frequency your device reaches twice?
 </code></pre><h3 id="problem-breakdown">Problem Breakdown</h3>
 <p>So the question is asking for the first frequency that reaches twice. But, do
 note that <strong>the frequency list can be repeated many times before an asnwer is
@@ -130,7 +130,7 @@ only stops until a duplicate frequency found.</p>
 iteration. <a href="#two"><sup>2</sup></a></li>
 </ul>
 <h3 id="initial-solution">Initial Solution</h3>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">Finder</span> <span class="k">do</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">Finder</span> <span class="k">do</span>
   <span class="kd">def</span> <span class="n">is_duplicate?</span><span class="p">(</span><span class="n">frequency</span><span class="p">,</span> <span class="n">appeared_frequencies</span><span class="p">)</span> <span class="k">do</span>
     <span class="c1"># Check if the frequency is duplicate in appeared_frequencies</span>
     <span class="k">if</span> <span class="nc">Enum</span><span class="o">.</span><span class="n">member?</span><span class="p">(</span><span class="n">appeared_frequencies</span><span class="p">,</span> <span class="n">frequency</span><span class="p">)</span> <span class="k">do</span>
@@ -245,7 +245,7 @@ frequencies to the <code>reduce_while/3</code> code block.</li>
 </li>
 </ol>
 <p><strong>Performance:</strong></p>
-<pre><code>$ time elixir part-2.ex
+<pre tabindex="0"><code>$ time elixir part-2.ex
 
 real	0m17.047s
 user	0m16.978s
@@ -263,7 +263,7 @@ added to <code>appeared_frequency</code>, it has to loop through additional elem
 <p>Looping through the <code>frequencies</code> itself is already an <em>O(n)</em> operation. With,
 <code>Enum.member?/2</code>, that&rsquo;s another <em>O(n)</em> operation.Thus, resulting in a <em>O(n^2)</em>
 solution.</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">Finder</span> <span class="k">do</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">Finder</span> <span class="k">do</span>
 
   <span class="kd">def</span> <span class="n">is_duplicate?</span><span class="p">(</span><span class="n">frequency</span><span class="p">,</span> <span class="n">appeared_frequencies</span><span class="p">)</span> <span class="k">do</span>
     <span class="c1"># Use Map.has_key?/2 to check if the frequency already existed</span>
@@ -313,7 +313,7 @@ performance of the solution.</p>
 <p><em>By using the right data structure, with a change of 3 lines of code,
 we successfully improve the execution speed of our program by <strong>34x</strong> faster.</em></p>
 <p><strong>Performance:</strong></p>
-<pre><code>$ time elixir part-2.ex
+<pre tabindex="0"><code>$ time elixir part-2.ex
 
 real	0m0.517s
 user	0m0.481s

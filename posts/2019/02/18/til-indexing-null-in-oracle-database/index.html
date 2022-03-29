@@ -7,11 +7,11 @@ TIL: Indexing `NULL` in Oracle Database | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.83.1" />
+<meta name="generator" content="Hugo 0.90.0" />
 
 
     
-    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.9c9eb135389d62f7b6aea27ad59377b9a28fda7ea53b722707a20a2fd05b6cf1.css" integrity="sha256-nJ6xNTidYve2rqJ61ZN3uaKP2n6lO3InB6IKL9BbbPE=">
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.c41ff84d3329279b5882daee9f67712ab71c7b9e6bbd192fb3e1a496d452d10a.css" integrity="sha256-xB/4TTMpJ5tYgtrun2dxKrcce55rvRkvs&#43;GkltRS0Qo=">
     <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -80,13 +80,13 @@ TIL: Indexing `NULL` in Oracle Database | kw7oe
 
   <p>Oracle database does not index a row if all the indexed columns are <code>NULL</code></p>
 <p>For instance, let say we have a <code>users</code> table where we index <code>role</code> column to improve the query performance.</p>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">users</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="k">role</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">users</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="k">role</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span><span class="w">
 </span></code></pre></div><p>The index does not work for such query in Oracle database. This is because when Oracle database is inserting the new record of <code>user</code> where the <code>role</code> is <code>NULL</code>, it does not add the created row to the index. Hence, the index is not useful when querying with <code>NULL</code></p>
 <h3 id="solutions">Solutions</h3>
 <p>Use a constant expression that can never be <code>NULL</code>.</p>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">users_role</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">users</span><span class="w"> </span><span class="p">(</span><span class="k">role</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;user&#39;</span><span class="p">)</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">users_role</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">users</span><span class="w"> </span><span class="p">(</span><span class="k">role</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;user&#39;</span><span class="p">)</span><span class="w">
 </span></code></pre></div><p>or we can use a concatenated index (multi-column index) and ensure that the the other column of the index must have a <code>NOT NULL</code> constraint.</p>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">users_role</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">users</span><span class="w"> </span><span class="p">(</span><span class="k">role</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">users_role</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">users</span><span class="w"> </span><span class="p">(</span><span class="k">role</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w">
 </span></code></pre></div><p>For more detailed explanation and source, refer to <a href="https://use-the-index-luke.com/sql/where-clause/null">NULL in Oracle Database</a></p>
 <hr>
 <p><small>This post was first appeared in my TIL web application at <a href="https://til.kaiwern.com/posts/4">here</a>.</p>

@@ -7,11 +7,11 @@ Minimal Elixir Web Application with Plug and Cowboy | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.83.1" />
+<meta name="generator" content="Hugo 0.90.0" />
 
 
     
-    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.9c9eb135389d62f7b6aea27ad59377b9a28fda7ea53b722707a20a2fd05b6cf1.css" integrity="sha256-nJ6xNTidYve2rqJ61ZN3uaKP2n6lO3InB6IKL9BbbPE=">
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.c41ff84d3329279b5882daee9f67712ab71c7b9e6bbd192fb3e1a496d452d10a.css" integrity="sha256-xB/4TTMpJ5tYgtrun2dxKrcce55rvRkvs&#43;GkltRS0Qo=">
     <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -83,7 +83,7 @@ background, I was curious what is the equivalent of Sinatra in
 Elixir. It&rsquo;s called Plug. It is what Phoenix build on top of.</p>
 <p>Using Sinatra, we can write a quick and simple web server with the following
 code:</p>
-<div class="highlight"><pre class="chroma"><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">&#39;sinatra&#39;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">&#39;sinatra&#39;</span>
 <span class="nb">require</span> <span class="s1">&#39;json&#39;</span>
 
 <span class="n">get</span> <span class="s1">&#39;/&#39;</span> <span class="k">do</span>
@@ -94,11 +94,11 @@ code:</p>
 <h2 id="setup">Setup</h2>
 <p><em><strong>NOTE</strong>: This article is based on Elixir v1.7.3</em></p>
 <p>First of all, let&rsquo;s create a <code>mix</code> project and change directory into it.</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">mix new sample_app
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">mix new sample_app
 <span class="nb">cd</span> sample_app
 </code></pre></div><p>Open <code>mix.exs</code> file with your favourite editor. And add the dependencies as
 follow:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defp</span> <span class="n">deps</span> <span class="k">do</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defp</span> <span class="n">deps</span> <span class="k">do</span>
   <span class="p">[</span>
     <span class="p">{</span><span class="ss">:cowboy</span><span class="p">,</span> <span class="s2">&#34;~&gt; 2.0&#34;</span><span class="p">},</span>
     <span class="p">{</span><span class="ss">:plug</span><span class="p">,</span> <span class="s2">&#34;~&gt; 1.0&#34;</span><span class="p">}</span>
@@ -110,7 +110,7 @@ follow:</p>
 <code>Plug</code> on the other hand, act as a connection adapter to the web server.</p>
 <p>Before we proceed, let&rsquo;s get all the dependencies first by running the
 following command:</p>
-<pre><code>mix deps.get
+<pre tabindex="0"><code>mix deps.get
 </code></pre><h2 id="using-plug">Using Plug</h2>
 <p><code>Plug</code> can be complicated if we don&rsquo;t understand it. The
 best way to understand it, is to, read the <a href="https://github.com/elixir-plug/plug#hello-world">documentation</a> <em>(In fact, all the
@@ -118,8 +118,8 @@ steps mentioned above and below are already available in the documentation)</em>
 <p>So to get a taste of how <code>Plug</code> works, let&rsquo;s just copy and paste the code from
 the documentation and make some changes. Let&rsquo;s create <code>lib/my_plug.ex</code> and
 and add in the code.</p>
-<pre><code>touch lib/my_plug.ex
-</code></pre><div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">SampleApp.MyPlug</span> <span class="k">do</span>
+<pre tabindex="0"><code>touch lib/my_plug.ex
+</code></pre><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">SampleApp.MyPlug</span> <span class="k">do</span>
   <span class="kn">import</span> <span class="nc">Plug.Conn</span>
 
   <span class="kd">def</span> <span class="n">init</span><span class="p">(</span><span class="n">options</span><span class="p">)</span> <span class="k">do</span>
@@ -135,7 +135,7 @@ and add in the code.</p>
   <span class="k">end</span>
 <span class="k">end</span>
 </code></pre></div><p>Let&rsquo;s try to run the code.</p>
-<pre><code>iex -S mix
+<pre tabindex="0"><code>iex -S mix
 
 iex(1)&gt; {:ok, _} = Plug.Adapters.Cowboy2.http SampleApp.MyPlug, []
 </code></pre><p>Now let&rsquo;s go and visit <a href="http://localhost:4000" target="_blank">http://localhost:4000</a>.
@@ -153,8 +153,8 @@ be started, loaded or stopped. To create an OTP application in Elixir, we
 use the <code>Application</code> module and implements some of the expected behavior. For
 more you can always refer to the documentation of <a href="https://hexdocs.pm/elixir/Application.html">Application</a>.</p>
 <p>So let&rsquo;s create a simple application first.</p>
-<pre><code>touch lib/app.ex
-</code></pre><div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">SampleApp.App</span> <span class="k">do</span>
+<pre tabindex="0"><code>touch lib/app.ex
+</code></pre><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">SampleApp.App</span> <span class="k">do</span>
   <span class="kn">use</span> <span class="nc">Application</span>
   <span class="kd">def</span> <span class="n">start</span><span class="p">(</span><span class="n">_type</span><span class="p">,</span> <span class="n">_args</span><span class="p">)</span> <span class="k">do</span>
     <span class="nc">IO</span><span class="o">.</span><span class="n">puts</span> <span class="s2">&#34;Starting application&#34;</span>
@@ -167,7 +167,7 @@ application&rdquo; output yet. This is because we haven&rsquo;t configure our <c
 yet.</p>
 <p>To make <code>mix</code> run our application, we have to add the following code into
 <code>mix.exs</code>:</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">def</span> <span class="n">application</span> <span class="k">do</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">def</span> <span class="n">application</span> <span class="k">do</span>
   <span class="p">[</span>
     <span class="ss">extra_applications</span><span class="p">:</span> <span class="p">[</span><span class="ss">:logger</span><span class="p">],</span>
     <span class="ss">mod</span><span class="p">:</span> <span class="p">{</span><span class="nc">SampleApp.App</span><span class="p">,</span> <span class="p">[]}</span> <span class="c1"># Add in this line of code</span>
@@ -178,14 +178,14 @@ application&hellip;&rdquo; output. It also means we have sucessfully start an OT
 application.</p>
 <h2 id="starting-cowboy-server-automatically">Starting Cowboy Server automatically</h2>
 <p>Remember how we run our <code>cowboy</code> server in <code>iex</code>?</p>
-<pre><code>iex -S mix
+<pre tabindex="0"><code>iex -S mix
 
 iex(1)&gt; {:ok, _} = Plug.Adapters.Cowboy2.http SampleApp.MyPlug, []
 </code></pre><p>Now after knowing how to start our OTP application with <code>mix run --no-halt</code> or
 <code>iex -S mix</code>, we need to start our <code>cowboy</code> server after our application is
 started.</p>
 <p>To do this, we need to modify the <code>start/2</code> method in the <code>app.ex</code>.</p>
-<div class="highlight"><pre class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">def</span> <span class="n">start</span><span class="p">(</span><span class="n">_type</span><span class="p">,</span> <span class="n">_args</span><span class="p">)</span> <span class="k">do</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">def</span> <span class="n">start</span><span class="p">(</span><span class="n">_type</span><span class="p">,</span> <span class="n">_args</span><span class="p">)</span> <span class="k">do</span>
   <span class="n">children</span> <span class="o">=</span> <span class="p">[</span>
     <span class="c1"># Define workers and child supervisors to be supervised</span>
     <span class="nc">Plug.Adapters.Cowboy2</span><span class="o">.</span><span class="n">child_spec</span><span class="p">(</span><span class="ss">scheme</span><span class="p">:</span> <span class="ss">:http</span><span class="p">,</span> <span class="ss">plug</span><span class="p">:</span> <span class="nc">SampleApp.MyPlug</span><span class="p">,</span> <span class="ss">options</span><span class="p">:</span> <span class="p">[</span><span class="ss">port</span><span class="p">:</span> <span class="mi">4000</span><span class="p">])</span>

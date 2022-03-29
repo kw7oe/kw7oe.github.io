@@ -7,11 +7,11 @@ Essential Date Functions for Grouping in PostgreSQL | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.83.1" />
+<meta name="generator" content="Hugo 0.90.0" />
 
 
     
-    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.9c9eb135389d62f7b6aea27ad59377b9a28fda7ea53b722707a20a2fd05b6cf1.css" integrity="sha256-nJ6xNTidYve2rqJ61ZN3uaKP2n6lO3InB6IKL9BbbPE=">
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.c41ff84d3329279b5882daee9f67712ab71c7b9e6bbd192fb3e1a496d452d10a.css" integrity="sha256-xB/4TTMpJ5tYgtrun2dxKrcce55rvRkvs&#43;GkltRS0Qo=">
     <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -212,13 +212,13 @@ to learn the following date functions in PostgreSQL:</p>
 <p>For those who want to get their hands dirty, you can run the following scripts
 to setup your database environment to play around with as you go through the
 article:</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ createdb step_db
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ createdb step_db
 $ psql step_db
 </code></pre></div><p>Then, copy and paste the following SQL statement into your <code>psql</code> console.</p>
 <ol>
 <li>Create <code>steps</code> table.</li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="s2">&#34;steps&#34;</span><span class="w"> </span><span class="p">(</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="s2">&#34;steps&#34;</span><span class="w"> </span><span class="p">(</span><span class="w">
 </span><span class="w">  </span><span class="s2">&#34;id&#34;</span><span class="w"> </span><span class="nb">SERIAL</span><span class="p">,</span><span class="w">
 </span><span class="w">  </span><span class="s2">&#34;count&#34;</span><span class="w"> </span><span class="nb">integer</span><span class="p">,</span><span class="w">
 </span><span class="w">  </span><span class="s2">&#34;start_at&#34;</span><span class="w"> </span><span class="n">timestamptz</span><span class="p">,</span><span class="w">
@@ -228,7 +228,7 @@ $ psql step_db
 </span></code></pre></div><ol start="2">
 <li>Insert data from <code>2020-01-01</code> to <code>2020-01-07</code> at UTC.</li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="s2">&#34;steps&#34;</span><span class="w"> </span><span class="p">(</span><span class="k">count</span><span class="p">,</span><span class="w"> </span><span class="n">start_at</span><span class="p">,</span><span class="w"> </span><span class="n">end_at</span><span class="p">,</span><span class="w"> </span><span class="n">user_id</span><span class="p">)</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="s2">&#34;steps&#34;</span><span class="w"> </span><span class="p">(</span><span class="k">count</span><span class="p">,</span><span class="w"> </span><span class="n">start_at</span><span class="p">,</span><span class="w"> </span><span class="n">end_at</span><span class="p">,</span><span class="w"> </span><span class="n">user_id</span><span class="p">)</span><span class="w">
 </span><span class="w"></span><span class="k">SELECT</span><span class="w"> </span><span class="n">floor</span><span class="p">(</span><span class="n">random</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">50</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)::</span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">interval</span><span class="w"> </span><span class="s1">&#39;59 minutes 59 seconds&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="w">
 </span><span class="w"></span><span class="k">FROM</span><span class="w"> </span><span class="n">generate_series</span><span class="p">(</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">::</span><span class="n">timestamptz</span><span class="p">,</span><span class="w">
 </span><span class="w">                         </span><span class="s1">&#39;2020-01-07 00:00:00&#39;</span><span class="p">::</span><span class="n">timestamptz</span><span class="p">,</span><span class="w">
@@ -259,7 +259,7 @@ result should return something like:</p>
 </table>
 <p>At the very first sight, you might thought we could do something like this and it&rsquo;s
 done:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="k">count</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">total_count</span><span class="p">,</span><span class="w"> </span><span class="n">start_at</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nb">date</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="k">count</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">total_count</span><span class="p">,</span><span class="w"> </span><span class="n">start_at</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nb">date</span><span class="w">
 </span><span class="w"></span><span class="k">FROM</span><span class="w"> </span><span class="n">steps</span><span class="w">
 </span><span class="w"></span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">start_at</span><span class="w">
 </span><span class="w"></span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">start_at</span><span class="p">;</span><span class="w">
@@ -291,7 +291,7 @@ what we want, we need to group by just the date of the row.</p>
 <p>To do that, We can use <code>date_trunc</code> function in PostgreSQL to truncate a timestamp
 up to part of the timestamp like <code>day</code>, <code>month</code>, <code>hour</code>, and etc <em>(For the full
 options, refer <a href="https://www.postgresql.org/docs/9.1/functions-datetime.html#FUNCTIONS-DATETIME-EXTRACT">here</a>)</em>.</p>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="k">count</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">total_count</span><span class="p">,</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">&#39;day&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">start_at</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nb">date</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="k">count</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">total_count</span><span class="p">,</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">&#39;day&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">start_at</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nb">date</span><span class="w">
 </span><span class="w"></span><span class="k">FROM</span><span class="w"> </span><span class="n">steps</span><span class="w">
 </span><span class="w"></span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">&#39;day&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">start_at</span><span class="p">)</span><span class="w">
 </span><span class="w"></span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">date_trunc</span><span class="p">(</span><span class="s1">&#39;day&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">start_at</span><span class="p">);</span><span class="w">
@@ -322,13 +322,13 @@ steps count. The next step is to learn how we can format the timestamp. In
 PostgreSQL, there is a <code>to_char</code> formatting function that can convert various
 data type to formatted string. And it works on timestamp also.</p>
 <p>For example, we can use:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span><span class="w"> </span><span class="n">to_char</span><span class="p">(</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">::</span><span class="n">timestamptz</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;YYYY-MM-DD&#39;</span><span class="p">);</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span><span class="w"> </span><span class="n">to_char</span><span class="p">(</span><span class="s1">&#39;2020-01-01&#39;</span><span class="p">::</span><span class="n">timestamptz</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;YYYY-MM-DD&#39;</span><span class="p">);</span><span class="w">
 </span><span class="w"></span><span class="c1">-- =&gt;  to_char
 </span><span class="c1">--     ------------
 </span><span class="c1">--     2020-01-01
 </span></code></pre></div><p>to format the timestamp to return just it&rsquo;s date component. Now, we can update
 our previous SQL query to use it:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="k">count</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">total_count</span><span class="p">,</span><span class="w"> </span><span class="n">to_char</span><span class="p">(</span><span class="n">start_at</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;YYYY-MM-DD&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nb">date</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="k">count</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">total_count</span><span class="p">,</span><span class="w"> </span><span class="n">to_char</span><span class="p">(</span><span class="n">start_at</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;YYYY-MM-DD&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nb">date</span><span class="w">
 </span><span class="w"></span><span class="k">FROM</span><span class="w"> </span><span class="n">steps</span><span class="w">
 </span><span class="w"></span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">to_char</span><span class="p">(</span><span class="n">start_at</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;YYYY-MM-DD&#39;</span><span class="p">)</span><span class="w">
 </span><span class="w"></span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">to_char</span><span class="p">(</span><span class="n">start_at</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;YYYY-MM-DD&#39;</span><span class="p">);</span><span class="w">
@@ -355,7 +355,7 @@ our previous SQL query to use it:</p>
 <p>So, let&rsquo;s say we wanted to show the label of the count in the format of
 weekdays if the results show is in the week range <em>(from Monday to Sunday)</em>. We
 could also achieve it with <code>to_char</code> like this:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="k">count</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">total_count</span><span class="p">,</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="k">count</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">total_count</span><span class="p">,</span><span class="w">
 </span><span class="w">  </span><span class="n">to_char</span><span class="p">(</span><span class="n">start_at</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;YYYY-MM-DD&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nb">date</span><span class="p">,</span><span class="w">
 </span><span class="w">  </span><span class="n">to_char</span><span class="p">(</span><span class="n">start_at</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Dy&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">label</span><span class="w">
 </span><span class="w"></span><span class="k">FROM</span><span class="w"> </span><span class="n">steps</span><span class="w">
@@ -390,7 +390,7 @@ to the <a href="https://www.postgresql.org/docs/9.1/functions-formatting.html#FU
 <p>But, be aware of this approach when we use <code>ORDER BY</code> with <code>to_char</code> that return alphabet
 instead of integer in string. For example, let say we want to group by month and
 sum the steps count, we might do something like this:</p>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="k">count</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">total_count</span><span class="p">,</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="k">count</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">total_count</span><span class="p">,</span><span class="w">
 </span><span class="w">  </span><span class="n">to_char</span><span class="p">(</span><span class="n">start_at</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;YYYY-MM&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nb">date</span><span class="p">,</span><span class="w">
 </span><span class="w">  </span><span class="c1">--- &#39;Mon&#39; template pattern  will format 2020-01-01 to &#39;Jan&#39;
 </span><span class="c1"></span><span class="w">  </span><span class="n">to_char</span><span class="p">(</span><span class="n">start_at</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Mon&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">label</span><span class="w">
@@ -438,7 +438,7 @@ integer in string, it will still be sorted as expected.</p>
 instead of <code>to_char</code>. The difference between <code>date_part</code> from <code>to_char</code> is
 <code>date_part</code> always return number <em>(to be exact is <code>double precision</code>)</em> type.
 With <code>to_char</code> you have more options to format your date.</p>
-<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="k">count</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">total_count</span><span class="p">,</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="k">SELECT</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="k">count</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">total_count</span><span class="p">,</span><span class="w">
 </span><span class="w">  </span><span class="n">to_char</span><span class="p">(</span><span class="n">start_at</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;YYYY-MM&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nb">date</span><span class="p">,</span><span class="w">
 </span><span class="w">  </span><span class="n">date_part</span><span class="p">(</span><span class="s1">&#39;month&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">start_at</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">label</span><span class="w">
 </span><span class="w"></span><span class="k">FROM</span><span class="w"> </span><span class="n">steps</span><span class="w">

@@ -7,11 +7,11 @@ Ignoring file instead of folder with the same name in .gitignore | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.83.1" />
+<meta name="generator" content="Hugo 0.90.0" />
 
 
     
-    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.9c9eb135389d62f7b6aea27ad59377b9a28fda7ea53b722707a20a2fd05b6cf1.css" integrity="sha256-nJ6xNTidYve2rqJ61ZN3uaKP2n6lO3InB6IKL9BbbPE=">
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.c41ff84d3329279b5882daee9f67712ab71c7b9e6bbd192fb3e1a496d452d10a.css" integrity="sha256-xB/4TTMpJ5tYgtrun2dxKrcce55rvRkvs&#43;GkltRS0Qo=">
     <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -75,14 +75,14 @@ Ignoring file instead of folder with the same name in .gitignore | kw7oe
 <code>/tags</code> resulting in a <code>404 Not Found</code> after deployment. It turned out that
 <code>/tags</code> is ignored by <code>git</code> when I build my site.</p>
 <p>I then found out the following line in my <code>~/.gitignore_global</code>:</p>
-<pre><code>tags
+<pre tabindex="0"><code>tags
 </code></pre><p>This is the file that I ignore after start using <code>ctags</code> in <code>vim</code>. Knowing the
 root cause, I knew that I&rsquo;ll need to only ignore <code>tags</code> file and not <code>tags</code>
 directory.</p>
 <p>A quick google search regarding how to do this lead me to this
 <a href="https://stackoverflow.com/questions/49420785/git-ignore-file-but-not-folder-with-the-same-name">stackoverflow</a>, where the solution is changing my <code>~/.gitignore_global</code> as
 shown below:</p>
-<pre><code>tags
+<pre tabindex="0"><code>tags
 !tags/
 </code></pre><p>Basically, this is how we tell <code>git</code> to ignore <code>tags</code> file only and <strong>not to ignore</strong>
 <code>tags/</code> folder.</p>
