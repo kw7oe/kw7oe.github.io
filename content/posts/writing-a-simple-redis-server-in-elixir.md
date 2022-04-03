@@ -8,8 +8,8 @@ tags: ['elixir', 'database', 'tutorial']
 In the [previous post][0], we wrote a simple [Redis Protocol specification][1] (RESP) parser. But that's just a
 small part towards building a Redis server.
 
-In this post, we will continue to write the other parts that are needed for
-our simple Redis server. Here's a brief architecture of our Redis server looks like:
+In this post, we continue to write the other parts needed for
+our simple Redis server. Here's an overall architecture looks like:
 
 ```
 Redis CLI <-> Redis Server (TCP) <-> RESP Parser
@@ -22,8 +22,7 @@ So far we already have the RESP Parser, so in this post we are going to write th
 * Redis Server (TCP)
 * Key Value (KV) Store
 
-For our Redis CLI, we'll be either using `redix` or `redis-cli` instead.
-
+For our Redis CLI, we'll be either using `redis-cli` instead.
 This post will be breakdown into the following sections:
 
 * [Writing a KV Store with `GenServer` and `ETS`](#writing-a-key-value-store-with-genserver-and-ets)
@@ -39,24 +38,33 @@ This post will be breakdown into the following sections:
 Before we get started, if you're unfamiliar with the following: `GenServer`, `ETS` and `gen_tcp`,
 I'll recommend you to work through the
 [the official Elixir Guide: Mix and OTP section][3].
-Specifically, the following topics:
+Specifically on the following topics:
 
 * [ETS][4]
 * [Task and `gen_tcp`][5]
 
-We'll work on top of the TCP server code implementation from the guide, by converting it from an echo TCP
-server to a Redis TCP server and wrote a very simple KV store with `GenServer` and `ETS`.
+We'll work on top of the code implementation of the TCP server from the guide. We will convert it from an echo TCP
+server to a Redis TCP server and write a KV store with `GenServer` and `ETS`.
 
+We will be using `redis-cli` as our Redis client. So, make sure you have `redis` installed as well. In MacOS, you can install by running:
 
-We will be using `redix` as our Redis client later so let install that first.
-
-```elixir
-Mix.install([:redix])
+```sh
+brew install redis
 ```
+
+## Setting up our Mix project
+
+First, let's setup a Mix project and add the necessary files.
+
+```sh
+mix new mini_redis --sup
+```
+
+We will add our RESP parser code we implemented later as needed.
 
 ## Writing a key value store with GenServer and ETS
 
-Writing a key value store with `ets` wrapped with `GenServer` is pretty straightforward.
+Writing a KV store with `ets` wrapped with `GenServer` is pretty straightforward.
 We will just wrap the following `ets` functions around our module:
 
 * `:ets.lookup/2`
@@ -65,12 +73,12 @@ We will just wrap the following `ets` functions around our module:
 
 Since we don't want GenServer mailbox to be the bottleneck of our `ets`, we expose it through
 a normal module function instead of a GenServer callback such as `handle_call` and `handle_cast`.
-We will only need to implement the `init` callback for our `GenServer`.
+We only need to implement the `init` callback for our `GenServer`.
 
-Here's how the code would looks like:
+Here's how the code in `lib/mini_redis/kv.ex`;
 
 ```elixir
-defmodule KV do
+defmodule MiniRedis.KV do
   use GenServer
   require Logger
 
@@ -110,8 +118,7 @@ end
 It should be pretty much self explanatory and easy to understand since we are just
 building a wrapper around it.
 
-> Why do we need to wrap `ets` in a `GenServer` module instead of a normal module?
-
+{{% callout title="Why do we need to wrap `ets` in a `GenServer` module instead of a normal module?" %}}
 This is because our `ets` process is stateful and it need to be owned by a process. Hence,
 we will need `GenServer` as our parent process for the `ets`.
 
@@ -119,13 +126,29 @@ Here's how the `ets` documentation describe it:
 
 > Each table is created by a process. When the process terminates, the table is
 > automatically destroyed. Every table has access rights set at creation.
+{{% /callout %}}
+
+
+We will also need to have our application supervisor start it, let's
+update our code in `lib/mini_redis/application.ex`:
+
+```diff
+children = [
+  # Starts a worker by calling: MiniRedis.Worker.start_link(arg)
+  # {MiniRedis.Worker, arg}
++ MiniRedis.KV
+]
+```
+
+Our KV store is now done. Let's start writing our Redis server.
 
 ## Writing the Redis server with `gen_tcp`
 
-Let's start the code we get from the Elixir official guide on `gen_tcp`:
+Let's start with the code we get from the Elixir official guide on `gen_tcp`.
+In `lib/mini_redis/server.ex`:
 
 ```elixir
-defmodule RedisServer do
+defmodule MiniRedis.Server do
   require Logger
 
   def accept(port) do
@@ -168,17 +191,22 @@ defmodule RedisServer do
 end
 ```
 
-```elixir
-# We use Task.start_link here so that the server is run on the background
-# and not intefering with our use of the iex console.
-{:ok, pid} = Task.start_link(fn -> RedisServer.accept(6000) end)
+Everything is just an exact copy pasta from Elixir offical guides. Next, let's
+add it as the children of our application supervisor:
+
+```diff
+children = [
+   # Starts a worker by calling: MiniRedis.Worker.start_link(arg)
+   # {MiniRedis.Worker, arg}
+   MiniRedis.KV
++  {Task, fn -> MiniRedis.Server.accept(String.to_integer(System.get_env("PORT") || "6379")) end}
+]
 ```
 
-By running the code above, we are essentially starting our TCP server, listening to port 5000.
 You can test if it's working by running the following in your terminal:
 
 ```
-telnet localhost 5000
+telnet localhost 6379
 ```
 
 and you'll see the following output in your console:
@@ -201,26 +229,61 @@ world
 world
 ```
 
-Now that we have tested our TCP server is working as intended, we could stop running it
-by clicking `Stop` button on the top left of our Livebook cell above, or exit
-it by running the following code:
-
-```elixir
-Process.exit(pid, :normal)
-```
+You can exit telnet by using `Ctrl + ]` and type in `close`.
 
 ## Integrating our parser into the TCP server
 
 Now that we have a working TCP server, the next step would be integrating the parser we wrote
 previously into our TCP server.
 
-This is the first step to make our echo TCP server to become a minimally
-working Redis server.
+Let's add the parser we have wrote to our current project. In
+`lib/mini_redis/parser.ex`:
 
-But before that, let's recap a bit on how Redis work in general.
+```elixir
+defmodule Parser do
+  def encode(commands) when is_list(commands) do
+    result = "*#{length(commands)}\r\n"
+
+    Enum.reduce(commands, result, fn command, result ->
+      result <> "$#{String.length(command)}\r\n#{command}\r\n"
+    end)
+  end
+
+  def decode(string) when is_binary(string) do
+    %{commands: commands} =
+      string
+      |> String.trim()
+      |> String.split("\r\n")
+      |> Enum.reduce(%{}, fn reply, state ->
+        case reply do
+          "*" <> length ->
+            state
+            |> Map.put(:type, "array")
+            |> Map.put(:array_length, String.to_integer(length))
+
+          "$" <> length ->
+            state
+            |> Map.put(:type, "bulk_string")
+            |> Map.put(:bulk_string_length, String.to_integer(length))
+
+          value ->
+            value = String.trim(value)
+            Map.update(state, :commands, [value], fn list -> [value | list] end)
+        end
+      end)
+
+    Enum.reverse(commands)
+  end
+end
+```
+
+This is the first step to make our echo TCP server to become a minimally
+working Redis server. But before that, let's recap a bit on how Redis work in general.
 
 As mentioned in our previous post, Redis client send multiple lines of input as
-a command to communicate with the Redis server. The parser we wrote assumed
+a command to communicate with the Redis server.
+
+The parser we wrote assumed
 that we will received a full complete lines of input that can form a command.
 
 However, that's not the case of our TCP server. Each line is received on its
@@ -245,93 +308,98 @@ line 1: *3\r\n$3\r\nSET\r\n$5\r\nmykey\r\n$3\r\nfoo\r\n
 
 To see this in action, we are going to hardcode some implementation for
 demonstration purpose. The first step we want to achieve is to return `OK` for
-every set command that our Redis server received:
+every set command that our Redis server received.
+
+Let's start with updating our helper function to suit our needs:
+
+```diff
+   defp read_line(socket) do
+-    {:ok, data} = :gen_tcp.recv(socket, 0)
+-    data
++    :gen_tcp.recv(socket, 0)
+   end
+
+-  defp write_line(line, socket) do
++  defp reply(socket) do
+-    :gen_tcp.send(socket, line)
++    :gen_tcp.send(socket, "+OK\r\n")
+   end
+```
+
+Here we rename our `write_line` to `reply` and have it hardcoded to
+always return `+OK\r\n`, which is what is expected by the Redis client on
+successful set command.
+
+Next, let's update our `loop_acceptor` and `serve` function:
 
 ```elixir
-defmodule RedisServer do
-  require Logger
+defp loop_acceptor(socket) do
+  {:ok, client} = :gen_tcp.accept(socket)
+  serve(client, 0)
+  loop_acceptor(socket)
+end
 
-  def accept(port) do
-    {:ok, socket} =
-      :gen_tcp.listen(port, [:binary, packet: :line, active: false, reuseaddr: true])
+# Added a count state, so we could keep track how many lines
+# of input we have received so far.
+defp serve(socket, count) do
+  case read_line(socket) do
+    {:ok, data} ->
+      count = count + 1
+      IO.inspect(data, label: "line #{count}")
 
-    Logger.info("Accepting connections on port #{port}")
-    loop_acceptor(socket)
-  end
-
-  defp loop_acceptor(socket) do
-    {:ok, client} = :gen_tcp.accept(socket)
-    Logger.info("Accepting client #{inspect(client)}")
-    serve(client, 0)
-    loop_acceptor(socket)
-  end
-
-  # Added a count state, so we could keep track how many lines
-  # of input we have received so far.
-  defp serve(socket, count) do
-    case read_line(socket) do
-      {:ok, data} ->
-        IO.inspect(data, label: "line #{count}")
-
-        # Since we know a SET command always have 7 lines,
-        # we hardcoded this logic for the time being so that
-        # it reply to the client correctly.
-        #
-        # Without doing so, our client will end up being timeout.
-        if count == 7 do
-          reply(socket)
-          serve(socket, 0)
-        else
-          serve(socket, count + 1)
-        end
-      {:error, reason} ->
-        Logger.info("Receive error: #{inspect(reason)}")
-    end
-  end
-
-  defp read_line(socket) do
-    :gen_tcp.recv(socket, 0)
-  end
-
-  # Hardcoded our reply to always return OK
-  defp reply(socket) do
-    :gen_tcp.send(socket, "+OK\r\n")
+      # Since we know a SET command always have 7 lines,
+      # we hardcoded this logic for the time being so that
+      # it reply to the client correctly.
+      #
+      # Without doing so, our client will end up being timeout.
+      if count == 7 do
+        reply(socket)
+        serve(socket, 0)
+      else
+        serve(socket, count)
+      end
+    {:error, reason} ->
+      Logger.info("Receive error: #{inspect(reason)}")
   end
 end
 ```
 
-To see it action, we could utilize either `redix` client or `redis-cli`:
-
-```elixir
-{:ok, pid} = Task.start_link(fn -> RedisServer.accept(6000) end)
-Redix.start_link("redis://localhost:6000", name: :redix)
-Redix.command(:redix, ["SET", "key", "value"])
-Process.exit(pid, :normal)
-```
+To see it action:
 
 ```sh
-# In iex
-{:ok, pid} = Task.start_link(fn -> RedisServer.accept(6000) end)
-
 # In terminal
-redis-cli -p 6000 SET key value
+iex -S mix
 
-# In iex
-Process.exit(pid, :normal)
+# In another terminal
+redis-cli SET key value
 ```
 
 Here's the output you'll see:
 
-```
-16:59:20.156 [info]  Accepting connections on port 6000
-16:59:20.157 [info]  Accepting client #Port<0.48>
-line 0: "*3\r\n"
-line 1: "$3\r\n"
-line 2: "SET\r\n"
-line 3: "$3\r\n"
-line 4: "key\r\n"
-line 5: "$5\r\n"
-line 6: "value\r\n"
+```sh
+# Terminal 1
+╰─➤  iex -S mix
+Erlang/OTP 24 [erts-12.3] [source] [64-bit] [smp:10:10] [ds:10:10:10] [async-threads:1]
+
+Compiling 1 file (.ex)
+
+21:38:42.808 [info]  Starting KV with ETS table kv...
+
+21:38:42.812 [info]  Accepting connections on port 6379
+Interactive Elixir (1.13.3) - press Ctrl+C to exit (type h() ENTER for help)
+iex(1)> line 1: "*3\r\n"
+line 2: "$3\r\n"
+line 3: "SET\r\n"
+line 4: "$3\r\n"
+line 5: "key\r\n"
+line 6: "$5\r\n"
+line 7: "value\r\n"
+
+21:38:47.785 [info]  Receive error: :closed
+
+# Terminal 2
+╰─➤  redis-cli SET key value
+OK
 ```
 
 From here, there are multiple ways we could implement the integration between
@@ -363,53 +431,34 @@ For the ease of implementation, I'll go with the first approach, so instead of
 tracking the count, we will track the previous lines in our state:
 
 ```elixir
-defmodule RedisServer do
-  require Logger
+defp loop_acceptor(socket) do
+  {:ok, client} = :gen_tcp.accept(socket)
+  serve(client, "")
+  loop_acceptor(socket)
+end
 
-  def accept(port) do
-    case :gen_tcp.listen(port, [:binary, packet: :line, active: false, reuseaddr: true]) do
-      {:ok, socket} ->
-         Logger.info("Accepting connections on port #{port}")
-         loop_acceptor(socket)
-      error -> error |> IO.inspect()
-    end
-  end
+defp serve(socket, state) do
+  case read_line(socket) do
+    {:ok, data} ->
+      # Append the line to the end.
+      state = state <> data
 
-  defp loop_acceptor(socket) do
-    serve(client, "")
-    loop_acceptor(socket)
-  end
+      # Notice that our return value for our parser have changed.
+      #
+      # Now we are expecting a tuple, to let us know whether
+      # the commands is decoded successfully or is still incomplete.
+      case Parser.decode(state) do
+        {:ok, commands} ->
+          IO.inspect(commands, label: "commands")
+          reply(socket)
+          serve(socket, "")
 
-  defp serve(socket, state) do
-    case read_line(socket) do
-      {:ok, data} ->
-        # Append the line to the end.
-        state = state <> data
+        {:incomplete, _} ->
+          serve(socket, state)
+      end
 
-        # Notice that our return value for our parser have changed.
-        #
-        # Now we are expecting a tuple, to let us know whether
-        # the commands is decoded successfully or is still incomplete.
-        case Parser.decode(state) do
-          {:ok, commands} ->
-            reply(socket)
-            serve(socket, "")
-
-          {:incomplete, _} ->
-            serve(socket, state)
-        end
-
-      {:error, reason} ->
-        Logger.info("Receive error: #{inspect(reason)}")
-    end
-  end
-
-  defp read_line(socket) do
-    :gen_tcp.recv(socket, 0)
-  end
-
-  defp reply(socket) do
-    :gen_tcp.send(socket, "+OK\r\n")
+    {:error, reason} ->
+      Logger.info("Receive error: #{inspect(reason)}")
   end
 end
 ```
@@ -459,108 +508,142 @@ end
 While this work well, it's not the most efficient implementation as we are
 parsing the line every single time on every new incoming new line.
 
+To see our latest progress:
+
+```sh
+# In terminal
+mix run --no-halt
+
+# In another terminal
+redis GET key
+redis-cli SET key value
+```
+
+Here's the output of my terminal:
+
+```sh
+╰─➤  mix run --no-halt
+
+21:51:59.237 [info]  Starting KV with ETS table kv...
+
+21:51:59.241 [info]  Accepting connections on port 6379
+commands: ["GET", "key"]
+
+21:52:00.965 [info]  Receive error: :closed
+commands: ["SET", "key", "value"]
+
+21:52:05.080 [info]  Receive error: :closed
+```
+
+Once we have the commands, the rest is fairly straightforward to integrate. If
+you're up to the challenge, try to write the code your own!
+
+---
+
+_Purposely left blank for those who want to implement themselves_
+
+...
+
+...
+
+...
+
+...
+
+...
+
+---
+
+
 ## Integrating our Redis Server with KV store
 
-Integrating our Redis server with the KV store is pretty straightforward, once
-we are able to get the commands.
+Since we have the commands now, all we need to do is just match our commands to
+the action we need to call in our KV store.
+
+
+Let's first update our `reply` function to make suit our need:
+```elixir
+defp reply(socket, data) do
+  :gen_tcp.send(socket, data)
+end
+```
+
+This allow us to send different response based on the returned value we get
+from our KV store. Next, we'll implement a `handle_command` function:
 
 ```elixir
-defmodule RedisServer do
-  require Logger
+defp handle_command(socket, command) do
+  case command do
+    ["SET", key, value] ->
+      MiniRedis.KV.set(key, value)
+      reply(socket, "+OK\r\n")
 
-  def accept(port) do
-    case :gen_tcp.listen(port, [:binary, packet: :line, active: false, reuseaddr: true]) do
-      {:ok, socket} ->
-        Logger.info("Accepting connections on port #{port}")
-        loop_acceptor(socket)
-
-      error ->
-        error |> IO.inspect()
-    end
-  end
-
-  defp loop_acceptor(socket) do
-    {:ok, client} = :gen_tcp.accept(socket)
-    Logger.info("Accepting client #{inspect(client)}")
-    serve(client, "")
-    loop_acceptor(socket)
-  end
-
-  defp serve(socket, state) do
-    case read_line(socket) do
-      {:ok, data} ->
-        state = state <> data
-
-        case Parser.decode(state) do
-          {:ok, command} ->
-            handle_command(socket, command)
-            serve(socket, "")
-
-          {:incomplete, _} ->
-            serve(socket, state)
-        end
-
-      {:error, reason} ->
-        Logger.info("Receive error: #{inspect(reason)}")
-    end
-  end
-
-  defp read_line(socket) do
-    :gen_tcp.recv(socket, 0)
-  end
-
-  defp reply(socket, data) do
-    :gen_tcp.send(socket, data)
-  end
-
-  defp handle_command(socket, command) do
-    case command do
-      ["SET", key, value] ->
-        KV.set(key, value)
-        reply(socket, "+OK\r\n")
-
-      ["GET", key] ->
-        case KV.get(key) do
-          {:ok, value} -> reply(socket, "+#{value}\r\n")
-          {:error, :not_found} -> reply(socket, "$-1\r\n")
-        end
-    end
+    ["GET", key] ->
+      case MiniRedis.KV.get(key) do
+        {:ok, value} -> reply(socket, "+#{value}\r\n")
+        {:error, :not_found} -> reply(socket, "$-1\r\n")
+      end
   end
 end
 ```
 
-To see it in action:
+Notice that here we return `$-1\r\n` to indicate `nil` value to our Redis
+client, according to the [RESP protocol
+spec](https://redis.io/docs/reference/protocol-spec/#resp-bulk-strings).
+
+Lastly, calling `handle_command` in our `serve` function:
 
 ```elixir
-{:ok, kv_pid} = KV.start_link({})
-{:ok, pid} = Task.start_link(fn -> RedisServer.accept(6000) end)
+defp serve(socket, state) do
+  case read_line(socket) do
+    {:ok, data} ->
+      state = state <> data
 
-Redix.start_link("redis://localhost:6000", name: :redix)
-Redix.command(:redix, ["SET", "key", "value"]) |> IO.inspect(label: "set")
-Redix.command(:redix, ["GET", "key"]) |> IO.inspect(label: "get")
-Redix.command(:redix, ["GET", "unknown"]) |> IO.inspect(label: "get")
+      case Parser.decode(state) do
+        {:ok, command} ->
+          handle_command(socket, command)
+          serve(socket, "")
 
-Process.exit(pid, :normal)
-Process.exit(kv_pid, :normal)
+        {:incomplete, _} ->
+          serve(socket, state)
+      end
+
+    {:error, reason} ->
+      Logger.info("Receive error: #{inspect(reason)}")
+  end
+end
 ```
 
-Voila, our very first initial version of Redis server is done. It's support
-basic `get` and `set` commands.
+Voila, our very first initial version of Redis server is done! It's support
+basic `get` and `set` commands. Let's see it in action:
+
+```sh
+mix run --no-halt
+```
+
+In another terminal:
+
+```sh
+╭─kai at Kais-MacBook-Pro.local ~
+╰─➤  redis-cli SET key value
+OK
+╭─kai at Kais-MacBook-Pro.local ~
+╰─➤  redis-cli GET key
+value
+╭─kai at Kais-MacBook-Pro.local ~
+╰─➤  redis-cli GET unfound
+(nil)
+```
 
 But how does it perform against the real Redis server? Let's find out with some
 synthetic benchmarking.
 
 ## Benchmarking with `redis-benchmark`
 
-To run the `redis-benchmark`, please ensure that you installted `redis`. You
-can do so in MacOS by running:
+We can benchmark our simple Redis server by running the `redis-benchmark`.
 
-```sh
-brew install redis
-```
-
-Since, the benchmark will try to send some other commands before sending the
-actual commands, let's make sure we handle those as well so that our Redis
+Before the benchmark send the actual commands, it also send some `CONFIG` commands to
+get some configuration. Let's make sure we handle those as well so that our Redis
 server doesn't crash because of unmatched patterns:
 
 ```diff
