@@ -41,8 +41,7 @@ the series of implementing mini Redis in Elixir:_
 
 - Part 1: Writing a simple Redis Protocol parser in Elixir
 - [Part 2: Writing a mini Redis server in Elixir]({{< ref "/posts/writing-mini-redis-server-in-elixir.md" >}})
-- Part 3: Benchmarking and writing concurrent mini Redis server in Elixir
-_(Coming soon)_
+- Part 3: _Coming soon_
 
 ---
 

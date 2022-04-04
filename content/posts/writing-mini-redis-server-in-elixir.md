@@ -5,11 +5,10 @@ draft: true
 tags: ['elixir', 'database', 'mini-redis', 'tutorial']
 ---
 
-In the [previous post][0], we wrote a simple [Redis Protocol specification][1] (RESP) parser. But that's just a
-small part towards building a mini Redis server.
+In the [previous post][0], we wrote a simple [Redis Protocol specification][1] (RESP) parser. That's just a
+small part towards to build a mini Redis. Let's continue writing the other parts needed for our mini Redis server.
 
-In this post, we continue to write the other parts needed for
-our simple Redis server. Here's an overall architecture looks like:
+Here's how the overall architecture looks like:
 
 ```
 Redis CLI <-> Redis Server (TCP) <-> RESP Parser
@@ -17,18 +16,18 @@ Redis CLI <-> Redis Server (TCP) <-> RESP Parser
               Key Value Store
 ```
 
-So far we already have the RESP Parser, so in this post we are going to write the following:
+We will use `redis-cli` as the Redis client and write the following parts:
 
 * Redis Server (TCP)
 * Key Value (KV) Store
 
-For our Redis CLI, we'll be either using `redis-cli` instead.
-This post consists of the following sections:
+Here's the structure of this post:
 
 * [Writing a KV Store with `GenServer` and `ETS`](#writing-a-key-value-store-with-genserver-and-ets)
-* [Writing a Redis Server with `gen_tcp`](#writing-the-redis-server-with-gen_tcp)
-* [Integrating our Redis Server with our RESP parser](#integrating-our-parser-into-the-tcp-server)
-* [Integrating our Redis Server with KV store](#integrating-our-redis-server-with-kv-store)
+* [Writing a mini Redis server](#writing-a-mini-redis-server)
+  * [Writing a TCP Server with `gen_tcp`](#writing-a-tcp-server-with-gen_tcp)
+  * [Integrating our Redis Server with our RESP parser](#integrating-our-parser-into-the-tcp-server)
+  * [Integrating our Redis Server with KV store](#integrating-our-redis-server-with-kv-store)
 
 ---
 
@@ -39,8 +38,7 @@ the series of implementing mini Redis in Elixir:_
 
 - [Part 1: Writing a simple Redis Protocol parser in Elixir][0]
 - Part 2: Writing a mini Redis server in Elixir
-- Part 3: Benchmarking and writing concurrent mini Redis server in Elixir
-_(Coming soon)_
+- Part 3: _Coming soon_
 
 ---
 
@@ -54,7 +52,7 @@ Specifically on the following topics:
 * [ETS][4]
 * [Task and `gen_tcp`][5]
 
-We'll work on top of the code implementation of the TCP server from the guide. We will convert it from an echo TCP
+We'll work on top of the implementation of the TCP server from the guide. We will convert it from an echo TCP
 server to a Redis TCP server and write a KV store with `GenServer` and `ETS`.
 
 We will be using `redis-cli` as our Redis client. So, make sure you have `redis` installed as well. In MacOS, you can install by running:
@@ -140,7 +138,7 @@ Here's how the `ets` documentation describe it:
 {{% /callout %}}
 
 
-We will also need to have our application supervisor start it, let's
+We will need to have our application supervisor start it, let's
 update our code in `lib/mini_redis/application.ex`:
 
 ```diff
@@ -153,9 +151,24 @@ children = [
 
 Our KV store is now done. Let's start writing our Redis server.
 
-## Writing the Redis server with `gen_tcp`
+## Writing a mini Redis server
 
-Let's start with the code we get from the Elixir official guide on `gen_tcp`.
+A mini Redis server is a TCP server that can parse RESP request and
+send RESP response. It performs the operation of storing or
+retrieving key value pairs as requested.
+
+Hence, to write a mini Redis server, it means that we need to:
+
+- Write a basic TCP server
+- Support RESP request and response in the TCP server
+- Perform write and read of key value pairs according to the request.
+
+Let's start with the first step.
+
+### Writing a TCP server with `gen_tcp`
+
+We will reused the echo TCP server code from the Elixir official guide on `gen_tcp`.
+
 In `lib/mini_redis/server.ex`:
 
 ```elixir
@@ -202,8 +215,9 @@ defmodule MiniRedis.Server do
 end
 ```
 
-Everything is just an exact copy pasta from Elixir offical guides. Next, let's
-add it as the children of our application supervisor:
+Everything is just an exact copy pasta from Elixir official guides. Next, let's
+add it as the children of our application supervisor, in
+`lib/mini_redis/application.ex`:
 
 ```diff
 children = [
@@ -214,7 +228,7 @@ children = [
 ]
 ```
 
-You can test if it's working by running the following in your terminal:
+We can test it by running the following in our terminal:
 
 ```
 telnet localhost 6379
@@ -242,7 +256,11 @@ world
 
 You can exit telnet by using `Ctrl + ]` and type in `close`.
 
-## Integrating our parser into the TCP server
+Simple enough
+thanks to the amazing official Elixir guide. Now, let's make it become a little
+bit more like a mini Redis server.
+
+### Integrating our parser into the TCP server
 
 Now that we have a working TCP server, the next step would be integrating the parser we wrote
 previously into our TCP server.
@@ -289,17 +307,16 @@ end
 ```
 
 This is the first step to make our echo TCP server to become a minimally
-working Redis server. But before that, let's recap a bit on how Redis work in general.
+working Redis server.
 
-As mentioned in our previous post, Redis client send multiple lines of input as
-a command to communicate with the Redis server.
+Before integrating the parser, let's recap a bit.
+Redis client send multiple lines of input as a command to
+communicate with the Redis server.
 
-The parser we wrote assumed
-that we will received a full complete lines of input that can form a command.
-
-However, that's not the case of our TCP server. Each line is received on its
-own. This mean that, during the `read_line` our TCP server, we will received
-the following:
+The parser we wrote assumed that we will received a full complete lines
+of input that can form a command.  However, that's not the case of our TCP
+server. Each line is received on its own. This mean that, during the
+`read_line` our TCP server, we will received the following:
 
 ```
 line 1: *3\r\n
@@ -321,7 +338,7 @@ To see this in action, we are going to hardcode some implementation for
 demonstration purpose. The first step we want to achieve is to return `OK` for
 every set command that our Redis server received.
 
-Let's start with updating our helper function to suit our needs:
+Let's update our helper function to suit our needs:
 
 ```diff
    defp read_line(socket) do
@@ -337,8 +354,8 @@ Let's start with updating our helper function to suit our needs:
    end
 ```
 
-Here we rename our `write_line` to `reply` and have it hardcoded to
-always return `+OK\r\n`, which is what is expected by the Redis client on
+Here we rename our `write_line` to `reply` and hardcoded it to
+return `+OK\r\n`, which is what is expected by the Redis client on
 successful set command.
 
 Next, let's update our `loop_acceptor` and `serve` function:
@@ -375,11 +392,16 @@ defp serve(socket, count) do
 end
 ```
 
-To see it action:
+We just hardcoded the implementation to stop and reply `OK`  when we receive 7 parts. Notice
+that, this time we also logged the error message if there's any.  This
+is important as, once our client receive the response, the connection
+will be closed by the client, and result in error.
+
+Let's see what we got so far:
 
 ```sh
 # In terminal
-iex -S mix
+mix run --no-halt
 
 # In another terminal
 redis-cli SET key value
@@ -389,16 +411,13 @@ Here's the output you'll see:
 
 ```sh
 # Terminal 1
-╰─➤  iex -S mix
-Erlang/OTP 24 [erts-12.3] [source] [64-bit] [smp:10:10] [ds:10:10:10] [async-threads:1]
-
-Compiling 1 file (.ex)
+╰─➤ mix run --no-halt
 
 21:38:42.808 [info]  Starting KV with ETS table kv...
 
 21:38:42.812 [info]  Accepting connections on port 6379
-Interactive Elixir (1.13.3) - press Ctrl+C to exit (type h() ENTER for help)
-iex(1)> line 1: "*3\r\n"
+
+line 1: "*3\r\n"
 line 2: "$3\r\n"
 line 3: "SET\r\n"
 line 4: "$3\r\n"
@@ -474,7 +493,12 @@ defp serve(socket, state) do
 end
 ```
 
-And here's our changes for our parser:
+Here, we are parsing the line every time a new part of the command is received,
+until all the parts required arrived to be form a command. In the event of
+incomplete command, our parser will have to let us know, so our TCP server
+continue to listen to incoming messages.
+
+Here's the changes for the parser:
 
 ```elixir
 defmodule Parser do
@@ -515,6 +539,11 @@ defmodule Parser do
   end
 end
 ```
+
+Pretty straightforward, we check the expected command length with the
+commands length we received so far. If it's the same, it means that we receive
+all the parts we need for the command and return the commands. Else,
+we just let the caller know that it's incomplete.
 
 While this work well, it's not the most efficient implementation as we are
 parsing the line every single time on every new incoming new line.
@@ -566,7 +595,7 @@ _Purposely left blank for those who want to implement themselves_
 ---
 
 
-## Integrating our Redis Server with KV store
+### Integrating our Redis Server with KV store
 
 Since we have the commands now, all we need to do is just match our commands to
 the action we need to call in our KV store.
@@ -646,22 +675,22 @@ value
 (nil)
 ```
 
-Voila, our very first initial version of Redis server is done!
+Voila, our mini Redis server is done!
 
 # What's next?
 
 We have completed the basic functionality of a Redis server. However, it's
-definitely still very far behind from the real Redis server. For example,
+still very far behind from the real Redis server. For example,
 how does our mini Redis perform against the real Redis?
 
-Hence, in the next post, we will find out how well our implementation is doing
-with some synthetic benchmarking. Along the way, we will also discovered the limitations of our
-current implementation and will make some changes and tweak some configurations
-to make it more performant! _(Hint: is about concurrency)_
+In the next post, we will find out how well our implementation is doing
+with synthetic benchmarking. Along the way, we will discovered the limitations of our
+current implementation, make some changes and tweak some configurations
+to make it more performant. _(Hint: is about concurrency)_
 
 Thanks for reading until the end and, hopefully, I can see you in my next post!
 
-[0]: /posts/2022/01/04/writing-a-simple-redis-protocol-parser-in-elixir/
+[0]: {{< ref "/posts/writing-a-simple-redis-protocol-parser-in-elixir.md" >}}
 [1]: https://redis.io/topics/protocol
 [3]: https://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html
 [4]: https://elixir-lang.org/getting-started/mix-otp/ets.html
