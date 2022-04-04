@@ -1,7 +1,6 @@
 ---
 title: "Writing a mini Redis server in Elixir"
-date: 2022-03-29T15:42:56+08:00
-draft: true
+date: 2022-04-04T20:32:56+08:00
 tags: ['elixir', 'database', 'mini-redis', 'tutorial']
 ---
 

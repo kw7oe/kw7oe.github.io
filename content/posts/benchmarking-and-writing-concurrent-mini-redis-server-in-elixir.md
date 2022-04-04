@@ -1,6 +1,6 @@
 ---
 title: "Benchmarking and writing concurrent mini Redis server in Elixir"
-date: 2022-04-04T16:15:16+08:00
+date: 2022-04-04T20:33:16+08:00
 draft: true
 tags: ['elixir', 'database', 'mini-redis', 'tutorial']
 ---
