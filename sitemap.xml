@@ -2,19 +2,31 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://kaiwern.com/tags/database/</loc>
+    <lastmod>2022-04-04T20:32:56+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/tags/elixir/</loc>
+    <lastmod>2022-04-04T20:32:56+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/tags/mini-redis/</loc>
+    <lastmod>2022-04-04T20:32:56+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/posts/</loc>
+    <lastmod>2022-04-04T20:32:56+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/tags/</loc>
+    <lastmod>2022-04-04T20:32:56+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/tags/tutorial/</loc>
+    <lastmod>2022-04-04T20:32:56+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/posts/2022/04/04/writing-a-mini-redis-server-in-elixir/</loc>
+    <lastmod>2022-04-04T20:32:56+08:00</lastmod>
+  </url><url>
     <loc>https://kaiwern.com/tags/firefox/</loc>
     <lastmod>2022-02-12T20:30:11+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/tags/javascript/</loc>
-    <lastmod>2022-02-12T20:30:11+08:00</lastmod>
-  </url><url>
-    <loc>https://kaiwern.com/posts/</loc>
-    <lastmod>2022-02-12T20:30:11+08:00</lastmod>
-  </url><url>
-    <loc>https://kaiwern.com/tags/</loc>
-    <lastmod>2022-02-12T20:30:11+08:00</lastmod>
-  </url><url>
-    <loc>https://kaiwern.com/tags/tutorial/</loc>
     <lastmod>2022-02-12T20:30:11+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/tags/web-extension/</loc>
@@ -22,9 +34,6 @@
   </url><url>
     <loc>https://kaiwern.com/posts/2022/02/12/writing-a-simple-firefox-extension/</loc>
     <lastmod>2022-02-12T20:30:11+08:00</lastmod>
-  </url><url>
-    <loc>https://kaiwern.com/tags/elixir/</loc>
-    <lastmod>2022-01-04T21:01:05+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/tags/parser/</loc>
     <lastmod>2022-01-04T21:01:05+08:00</lastmod>

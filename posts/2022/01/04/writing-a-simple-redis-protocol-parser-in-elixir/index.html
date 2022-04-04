@@ -53,7 +53,7 @@ Writing a simple Redis Protocol parser in Elixir | kw7oe
 <header class="mb-8">
   <h1 class="title">Writing a simple Redis Protocol parser in Elixir</h1>
   <p class="text-sm font-gray-700 mb-1">Jan 04, 2022</p>
-  <p class="text-sm mb-4 font-gray-700 italic">Estimated Reading Time: 8 minutes (1553 words)</p>
+  <p class="text-sm mb-4 font-gray-700 italic">Estimated Reading Time: 8 minutes (1591 words)</p>
 
    
   <div id="tags">
@@ -69,6 +69,13 @@ Writing a simple Redis Protocol parser in Elixir | kw7oe
     
     <span class="badge badge-primary rounded-badge">
       <a href="https://kaiwern.com/tags/redis/">redis</a>
+    </span>
+    
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/mini-redis/">mini-redis</a>
     </span>
     
     
@@ -116,8 +123,13 @@ includes code snippets instead of full fledge working example.</em></p>
 <hr>
 <p><em>This post is inspired by <a href="https://tokio.rs/tokio/tutorial/setup">Rust Tokio Mini-Redis Tutorial</a>,
 where it walks through the reader to implement a mini Redis with
-<a href="https://tokio.rs/"><code>tokio</code></a>. If things go well, this would also be a similar
-series.</em></p>
+<a href="https://tokio.rs/"><code>tokio</code></a>. This post is part of
+the series of implementing mini Redis in Elixir:</em></p>
+<ul>
+<li>Part 1: Writing a simple Redis Protocol parser in Elixir</li>
+<li><a href="https://kaiwern.com/posts/2022/04/04/writing-a-mini-redis-server-in-elixir/">Part 2: Writing a mini Redis server in Elixir</a></li>
+<li>Part 3: <em>Coming soon</em></li>
+</ul>
 <hr>
 <h1 id="redis-protocol-specification">Redis Protocol Specification</h1>
 <p>Redis Protocol Specification (<strong>RESP</strong>) is the protocol Redis client and server
@@ -359,7 +371,7 @@ in <code>Array</code> and <code>Bulk String</code> type.</p>
 <p>Next up, we would be integrating this parser into our TCP server so that we can write a mini
 Redis server. With that, do you think our current parser implementation would
 still work?</p>
-<p>Stay tuned.</p>
+<p>Let&rsquo;s find it out on the next post: <a href="https://kaiwern.com/posts/2022/04/04/writing-a-mini-redis-server-in-elixir/">Writing a mini Redis server in Elixir</a></p>
 
 </article>
 

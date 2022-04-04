@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>database on kw7oe</title>
+    <link>https://kaiwern.com/tags/database/</link>
+    <description>Recent content in database on kw7oe</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 04 Apr 2022 20:32:56 +0800</lastBuildDate><atom:link href="https://kaiwern.com/tags/database/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Writing a mini Redis server in Elixir</title>
+      <link>https://kaiwern.com/posts/2022/04/04/writing-a-mini-redis-server-in-elixir/</link>
+      <pubDate>Mon, 04 Apr 2022 20:32:56 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2022/04/04/writing-a-mini-redis-server-in-elixir/</guid>
+      <description>In the previous post, we wrote a simple Redis Protocol specification (RESP) parser. That&amp;rsquo;s just a small part towards to build a mini Redis. Let&amp;rsquo;s continue writing the other parts needed for our mini Redis server.
+Here&amp;rsquo;s how the overall architecture looks like:
+Redis CLI &amp;lt;-&amp;gt; Redis Server (TCP) &amp;lt;-&amp;gt; RESP Parser ↓ Key Value Store We will use redis-cli as the Redis client and write the following parts:</description>
+    </item>
+    
+  </channel>
+</rss>

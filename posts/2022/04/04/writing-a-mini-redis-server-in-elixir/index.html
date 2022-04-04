@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>
+Writing a mini Redis server in Elixir | kw7oe
+</title>
+
+
+
+<meta name="generator" content="Hugo 0.90.0" />
+
+
+    
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.c41ff84d3329279b5882daee9f67712ab71c7b9e6bbd192fb3e1a496d452d10a.css" integrity="sha256-xB/4TTMpJ5tYgtrun2dxKrcce55rvRkvs&#43;GkltRS0Qo=">
+    <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
+
+
+
+
+<link rel="stylesheet" href="https://kaiwern.com/css/syntax.min.css">
+
+
+<body class="flex flex-col min-h-screen px-4 max-w-screen-md md:w-2/3 m-auto"><nav class="mt-8">
+  <ul id="nav-menu" class="w-full flex items-center list-reset">
+    
+    <li>
+      <a href="https://kaiwern.com/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Home</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/about/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">About</a>
+    </li>
+    
+
+    
+    
+    <li>
+      <a href="https://kaiwern.com/categories/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Categories</a>
+    </li>
+    
+    
+    
+    <li>
+      <a href="https://kaiwern.com/tags/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Tags</a>
+    </li>
+    
+    
+  </ul>
+</nav>
+<main class="flex-1 mt-4 sm:mt-12">
+<header class="mb-8">
+  <h1 class="title">Writing a mini Redis server in Elixir</h1>
+  <p class="text-sm font-gray-700 mb-1">Apr 04, 2022</p>
+  <p class="text-sm mb-4 font-gray-700 italic">Estimated Reading Time: 12 minutes (2449 words)</p>
+
+   
+  <div id="tags">
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/elixir/">elixir</a>
+    </span>
+    
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/database/">database</a>
+    </span>
+    
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/mini-redis/">mini-redis</a>
+    </span>
+    
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/tutorial/">tutorial</a>
+    </span>
+    
+    
+  </div>
+</header>
+
+<article class="markdown mb-8 text-gray-800">
+  
+
+  <p>In the <a href="https://kaiwern.com/posts/2022/01/04/writing-a-simple-redis-protocol-parser-in-elixir/">previous post</a>, we wrote a simple <a href="https://redis.io/topics/protocol">Redis Protocol specification</a> (RESP) parser. That&rsquo;s just a
+small part towards to build a mini Redis. Let&rsquo;s continue writing the other parts needed for our mini Redis server.</p>
+<p>Here&rsquo;s how the overall architecture looks like:</p>
+<pre tabindex="0"><code>Redis CLI &lt;-&gt; Redis Server (TCP) &lt;-&gt; RESP Parser
+                     ↓
+              Key Value Store
+</code></pre><p>We will use <code>redis-cli</code> as the Redis client and write the following parts:</p>
+<ul>
+<li>Redis Server (TCP)</li>
+<li>Key Value (KV) Store</li>
+</ul>
+<p>Here&rsquo;s the structure of this post:</p>
+<ul>
+<li><a href="#writing-a-key-value-store-with-genserver-and-ets">Writing a KV Store with <code>GenServer</code> and <code>ETS</code></a></li>
+<li><a href="#writing-a-mini-redis-server">Writing a mini Redis server</a>
+<ul>
+<li><a href="#writing-a-tcp-server-with-gen_tcp">Writing a TCP Server with <code>gen_tcp</code></a></li>
+<li><a href="#integrating-our-parser-into-the-tcp-server">Integrating our Redis Server with our RESP parser</a></li>
+<li><a href="#integrating-our-redis-server-with-kv-store">Integrating our Redis Server with KV store</a></li>
+</ul>
+</li>
+</ul>
+<hr>
+<p><em>This post is inspired by <a href="https://tokio.rs/tokio/tutorial/setup">Rust Tokio Mini-Redis Tutorial</a>,
+where it walks through the reader to implement a mini Redis with
+<a href="https://tokio.rs/"><code>tokio</code></a>. This post is part of
+the series of implementing mini Redis in Elixir:</em></p>
+<ul>
+<li><a href="https://kaiwern.com/posts/2022/01/04/writing-a-simple-redis-protocol-parser-in-elixir/">Part 1: Writing a simple Redis Protocol parser in Elixir</a></li>
+<li>Part 2: Writing a mini Redis server in Elixir</li>
+<li>Part 3: <em>Coming soon</em></li>
+</ul>
+<hr>
+<h2 id="prerequisite">Prerequisite</h2>
+<p>Before we get started, if you&rsquo;re unfamiliar with the following: <code>GenServer</code>, <code>ETS</code> and <code>gen_tcp</code>,
+I&rsquo;ll recommend you to work through the
+<a href="https://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html">the official Elixir Guide: Mix and OTP section</a>.
+Specifically on the following topics:</p>
+<ul>
+<li><a href="https://elixir-lang.org/getting-started/mix-otp/ets.html">ETS</a></li>
+<li><a href="https://elixir-lang.org/getting-started/mix-otp/task-and-gen-tcp.html">Task and <code>gen_tcp</code></a></li>
+</ul>
+<p>We&rsquo;ll work on top of the implementation of the TCP server from the guide. We will convert it from an echo TCP
+server to a Redis TCP server and write a KV store with <code>GenServer</code> and <code>ETS</code>.</p>
+<p>We will be using <code>redis-cli</code> as our Redis client. So, make sure you have <code>redis</code> installed as well. In MacOS, you can install by running:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh">brew install redis
+</code></pre></div><h2 id="setting-up-our-mix-project">Setting up our Mix project</h2>
+<p>First, let&rsquo;s setup a Mix project and add the necessary files.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh">mix new mini_redis --sup
+</code></pre></div><p>We will add our RESP parser code we implemented later as needed.</p>
+<h2 id="writing-a-key-value-store-with-genserver-and-ets">Writing a key value store with GenServer and ETS</h2>
+<p>Writing a KV store with <code>ets</code> wrapped with <code>GenServer</code> is pretty straightforward.
+We will just wrap the following <code>ets</code> functions around our module:</p>
+<ul>
+<li><code>:ets.lookup/2</code></li>
+<li><code>:ets.insert/2</code></li>
+<li><code>:ets.delete/2</code></li>
+</ul>
+<p>Since we don&rsquo;t want GenServer mailbox to be the bottleneck of our <code>ets</code>, we expose it through
+a normal module function instead of a GenServer callback such as <code>handle_call</code> and <code>handle_cast</code>.
+We only need to implement the <code>init</code> callback for our <code>GenServer</code>.</p>
+<p>Here&rsquo;s how the code in <code>lib/mini_redis/kv.ex</code>;</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">MiniRedis.KV</span> <span class="k">do</span>
+  <span class="kn">use</span> <span class="nc">GenServer</span>
+  <span class="kn">require</span> <span class="nc">Logger</span>
+
+  <span class="na">@table</span> <span class="ss">:kv</span>
+
+  <span class="kd">def</span> <span class="n">start_link</span><span class="p">(</span><span class="n">opts</span><span class="p">)</span> <span class="k">do</span>
+    <span class="nc">GenServer</span><span class="o">.</span><span class="n">start_link</span><span class="p">(</span><span class="n">__MODULE__</span><span class="p">,</span> <span class="n">opts</span><span class="p">,</span> <span class="ss">name</span><span class="p">:</span> <span class="n">__MODULE__</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="kd">def</span> <span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="k">do</span>
+    <span class="k">case</span> <span class="ss">:ets</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="na">@table</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="k">do</span>
+      <span class="p">[{</span><span class="o">^</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">}]</span> <span class="o">-&gt;</span> <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">value</span><span class="p">}</span>
+      <span class="n">_</span> <span class="o">-&gt;</span> <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="ss">:not_found</span><span class="p">}</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+
+  <span class="kd">def</span> <span class="n">set</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="k">do</span>
+    <span class="ss">:ets</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="na">@table</span><span class="p">,</span> <span class="p">{</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">})</span>
+    <span class="ss">:ok</span>
+  <span class="k">end</span>
+
+  <span class="kd">def</span> <span class="n">delete</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="k">do</span>
+    <span class="ss">:ets</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="na">@table</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+    <span class="ss">:ok</span>
+  <span class="k">end</span>
+
+  <span class="c1"># GenServer callbacks</span>
+  <span class="na">@impl</span> <span class="no">true</span>
+  <span class="kd">def</span> <span class="n">init</span><span class="p">(</span><span class="n">opts</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">pid</span> <span class="o">=</span> <span class="ss">:ets</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="na">@table</span><span class="p">,</span> <span class="p">[</span><span class="ss">:set</span><span class="p">,</span> <span class="ss">:named_table</span><span class="p">,</span> <span class="ss">:public</span><span class="p">])</span>
+    <span class="nc">Logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&#34;Starting KV with ETS table </span><span class="si">#{</span><span class="n">pid</span><span class="si">}</span><span class="s2">...&#34;</span><span class="p">)</span>
+    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">opts</span><span class="p">}</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div><p>It should be pretty much self explanatory and easy to understand since we are just
+building a wrapper around it.</p>
+<div class="callout callout-info">
+  <h5 class="text-lg font-semibold mb-2">Why do we need to wrap <code>ets</code> in a <code>GenServer</code> module instead of a normal module?</h5>
+  <p>
+This is because our `ets` process is stateful and it need to be owned by a process. Hence,
+we will need `GenServer` as our parent process for the `ets`.
+<p>Here&rsquo;s how the <code>ets</code> documentation describe it:</p>
+<blockquote>
+<p>Each table is created by a process. When the process terminates, the table is
+automatically destroyed. Every table has access rights set at creation.</p>
+</blockquote>
+</p>
+</div>
+<p>We will need to have our application supervisor start it, let&rsquo;s
+update our code in <code>lib/mini_redis/application.ex</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-diff" data-lang="diff">children = [
+  # Starts a worker by calling: MiniRedis.Worker.start_link(arg)
+  # {MiniRedis.Worker, arg}
+<span class="gi">+ MiniRedis.KV
+</span><span class="gi"></span>]
+</code></pre></div><p>Our KV store is now done. Let&rsquo;s start writing our Redis server.</p>
+<h2 id="writing-a-mini-redis-server">Writing a mini Redis server</h2>
+<p>A mini Redis server is a TCP server that can parse RESP request and
+send RESP response. It performs the operation of storing or
+retrieving key value pairs as requested.</p>
+<p>Hence, to write a mini Redis server, it means that we need to:</p>
+<ul>
+<li>Write a basic TCP server</li>
+<li>Support RESP request and response in the TCP server</li>
+<li>Perform write and read of key value pairs according to the request.</li>
+</ul>
+<p>Let&rsquo;s start with the first step.</p>
+<h3 id="writing-a-tcp-server-with-gen_tcp">Writing a TCP server with <code>gen_tcp</code></h3>
+<p>We will reused the echo TCP server code from the Elixir official guide on <code>gen_tcp</code>.</p>
+<p>In <code>lib/mini_redis/server.ex</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">MiniRedis.Server</span> <span class="k">do</span>
+  <span class="kn">require</span> <span class="nc">Logger</span>
+
+  <span class="kd">def</span> <span class="n">accept</span><span class="p">(</span><span class="n">port</span><span class="p">)</span> <span class="k">do</span>
+    <span class="c1"># The options below mean:</span>
+    <span class="c1">#</span>
+    <span class="c1"># 1. `:binary` - receives data as binaries (instead of lists)</span>
+    <span class="c1"># 2. `packet: :line` - receives data line by line</span>
+    <span class="c1"># 3. `active: false` - blocks on `:gen_tcp.recv/2` until data is available</span>
+    <span class="c1"># 4. `reuseaddr: true` - allows us to reuse the address if the listener crashes</span>
+    <span class="c1">#</span>
+    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">socket</span><span class="p">}</span> <span class="o">=</span>
+      <span class="ss">:gen_tcp</span><span class="o">.</span><span class="n">listen</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="p">[</span><span class="ss">:binary</span><span class="p">,</span> <span class="ss">packet</span><span class="p">:</span> <span class="ss">:line</span><span class="p">,</span> <span class="ss">active</span><span class="p">:</span> <span class="no">false</span><span class="p">,</span> <span class="ss">reuseaddr</span><span class="p">:</span> <span class="no">true</span><span class="p">])</span>
+
+    <span class="nc">Logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&#34;Accepting connections on port </span><span class="si">#{</span><span class="n">port</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+    <span class="n">loop_acceptor</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="kd">defp</span> <span class="n">loop_acceptor</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span> <span class="k">do</span>
+    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">client</span><span class="p">}</span> <span class="o">=</span> <span class="ss">:gen_tcp</span><span class="o">.</span><span class="n">accept</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
+    <span class="n">serve</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+    <span class="n">loop_acceptor</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="kd">defp</span> <span class="n">serve</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">socket</span>
+    <span class="o">|&gt;</span> <span class="n">read_line</span><span class="p">()</span>
+    <span class="o">|&gt;</span> <span class="n">write_line</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
+
+    <span class="n">serve</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="kd">defp</span> <span class="n">read_line</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span> <span class="k">do</span>
+    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">data</span><span class="p">}</span> <span class="o">=</span> <span class="ss">:gen_tcp</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">data</span>
+  <span class="k">end</span>
+
+  <span class="kd">defp</span> <span class="n">write_line</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">socket</span><span class="p">)</span> <span class="k">do</span>
+    <span class="ss">:gen_tcp</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div><p>Everything is just an exact copy pasta from Elixir official guides. Next, let&rsquo;s
+add it as the children of our application supervisor, in
+<code>lib/mini_redis/application.ex</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-diff" data-lang="diff">children = [
+   # Starts a worker by calling: MiniRedis.Worker.start_link(arg)
+   # {MiniRedis.Worker, arg}
+   MiniRedis.KV
+<span class="gi">+  {Task, fn -&gt; MiniRedis.Server.accept(String.to_integer(System.get_env(&#34;PORT&#34;) || &#34;6379&#34;)) end}
+</span><span class="gi"></span>]
+</code></pre></div><p>We can test it by running the following in our terminal:</p>
+<pre tabindex="0"><code>telnet localhost 6379
+</code></pre><p>and you&rsquo;ll see the following output in your console:</p>
+<pre tabindex="0"><code>Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+</code></pre><p>you can enter any message and it&rsquo;ll reply back the same message you send:</p>
+<pre tabindex="0"><code>Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+hello
+hello
+world
+world
+</code></pre><p>You can exit telnet by using <code>Ctrl + ]</code> and type in <code>close</code>.</p>
+<p>Simple enough
+thanks to the amazing official Elixir guide. Now, let&rsquo;s make it become a little
+bit more like a mini Redis server.</p>
+<h3 id="integrating-our-parser-into-the-tcp-server">Integrating our parser into the TCP server</h3>
+<p>Now that we have a working TCP server, the next step would be integrating the parser we wrote
+previously into our TCP server.</p>
+<p>Let&rsquo;s add the parser we have wrote to our current project. In
+<code>lib/mini_redis/parser.ex</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">Parser</span> <span class="k">do</span>
+  <span class="kd">def</span> <span class="n">encode</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span> <span class="ow">when</span> <span class="n">is_list</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="s2">&#34;*</span><span class="si">#{</span><span class="n">length</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span><span class="si">}</span><span class="se">\r\n</span><span class="s2">&#34;</span>
+
+    <span class="nc">Enum</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="k">fn</span> <span class="n">command</span><span class="p">,</span> <span class="n">result</span> <span class="o">-&gt;</span>
+      <span class="n">result</span> <span class="o">&lt;&gt;</span> <span class="s2">&#34;$</span><span class="si">#{</span><span class="nc">String</span><span class="o">.</span><span class="n">length</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="si">}</span><span class="se">\r\n</span><span class="si">#{</span><span class="n">command</span><span class="si">}</span><span class="se">\r\n</span><span class="s2">&#34;</span>
+    <span class="k">end</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="kd">def</span> <span class="n">decode</span><span class="p">(</span><span class="n">string</span><span class="p">)</span> <span class="ow">when</span> <span class="n">is_binary</span><span class="p">(</span><span class="n">string</span><span class="p">)</span> <span class="k">do</span>
+    <span class="p">%{</span><span class="ss">commands</span><span class="p">:</span> <span class="n">commands</span><span class="p">}</span> <span class="o">=</span>
+      <span class="n">string</span>
+      <span class="o">|&gt;</span> <span class="nc">String</span><span class="o">.</span><span class="n">trim</span><span class="p">()</span>
+      <span class="o">|&gt;</span> <span class="nc">String</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&#34;</span><span class="se">\r\n</span><span class="s2">&#34;</span><span class="p">)</span>
+      <span class="o">|&gt;</span> <span class="nc">Enum</span><span class="o">.</span><span class="n">reduce</span><span class="p">(%{},</span> <span class="k">fn</span> <span class="n">reply</span><span class="p">,</span> <span class="n">state</span> <span class="o">-&gt;</span>
+        <span class="k">case</span> <span class="n">reply</span> <span class="k">do</span>
+          <span class="s2">&#34;*&#34;</span> <span class="o">&lt;&gt;</span> <span class="n">length</span> <span class="o">-&gt;</span>
+            <span class="n">state</span>
+            <span class="o">|&gt;</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="ss">:type</span><span class="p">,</span> <span class="s2">&#34;array&#34;</span><span class="p">)</span>
+            <span class="o">|&gt;</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="ss">:array_length</span><span class="p">,</span> <span class="nc">String</span><span class="o">.</span><span class="n">to_integer</span><span class="p">(</span><span class="n">length</span><span class="p">))</span>
+
+          <span class="s2">&#34;$&#34;</span> <span class="o">&lt;&gt;</span> <span class="n">length</span> <span class="o">-&gt;</span>
+            <span class="n">state</span>
+            <span class="o">|&gt;</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="ss">:type</span><span class="p">,</span> <span class="s2">&#34;bulk_string&#34;</span><span class="p">)</span>
+            <span class="o">|&gt;</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="ss">:bulk_string_length</span><span class="p">,</span> <span class="nc">String</span><span class="o">.</span><span class="n">to_integer</span><span class="p">(</span><span class="n">length</span><span class="p">))</span>
+
+          <span class="n">value</span> <span class="o">-&gt;</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nc">String</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="nc">Map</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="ss">:commands</span><span class="p">,</span> <span class="p">[</span><span class="n">value</span><span class="p">],</span> <span class="k">fn</span> <span class="n">list</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">value</span> <span class="o">|</span> <span class="n">list</span><span class="p">]</span> <span class="k">end</span><span class="p">)</span>
+        <span class="k">end</span>
+      <span class="k">end</span><span class="p">)</span>
+
+    <span class="nc">Enum</span><span class="o">.</span><span class="n">reverse</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div><p>This is the first step to make our echo TCP server to become a minimally
+working Redis server.</p>
+<p>Before integrating the parser, let&rsquo;s recap a bit.
+Redis client send multiple lines of input as a command to
+communicate with the Redis server.</p>
+<p>The parser we wrote assumed that we will received a full complete lines
+of input that can form a command.  However, that&rsquo;s not the case of our TCP
+server. Each line is received on its own. This mean that, during the
+<code>read_line</code> our TCP server, we will received the following:</p>
+<pre tabindex="0"><code>line 1: *3\r\n
+line 2: $3\r\n
+line 3: SET\r\n
+line 4: $5\r\n
+line 5: mykey\r\n
+line 6: $3\r\n
+line 7: foo\r\n
+</code></pre><p>instead of:</p>
+<pre tabindex="0"><code>line 1: *3\r\n$3\r\nSET\r\n$5\r\nmykey\r\n$3\r\nfoo\r\n
+</code></pre><p>To see this in action, we are going to hardcode some implementation for
+demonstration purpose. The first step we want to achieve is to return <code>OK</code> for
+every set command that our Redis server received.</p>
+<p>Let&rsquo;s update our helper function to suit our needs:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-diff" data-lang="diff">   defp read_line(socket) do
+<span class="gd">-    {:ok, data} = :gen_tcp.recv(socket, 0)
+</span><span class="gd">-    data
+</span><span class="gd"></span><span class="gi">+    :gen_tcp.recv(socket, 0)
+</span><span class="gi"></span>   end
+
+<span class="gd">-  defp write_line(line, socket) do
+</span><span class="gd"></span><span class="gi">+  defp reply(socket) do
+</span><span class="gi"></span><span class="gd">-    :gen_tcp.send(socket, line)
+</span><span class="gd"></span><span class="gi">+    :gen_tcp.send(socket, &#34;+OK\r\n&#34;)
+</span><span class="gi"></span>   end
+</code></pre></div><p>Here we rename our <code>write_line</code> to <code>reply</code> and hardcoded it to
+return <code>+OK\r\n</code>, which is what is expected by the Redis client on
+successful set command.</p>
+<p>Next, let&rsquo;s update our <code>loop_acceptor</code> and <code>serve</code> function:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defp</span> <span class="n">loop_acceptor</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span> <span class="k">do</span>
+  <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">client</span><span class="p">}</span> <span class="o">=</span> <span class="ss">:gen_tcp</span><span class="o">.</span><span class="n">accept</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
+  <span class="n">serve</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+  <span class="n">loop_acceptor</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
+<span class="k">end</span>
+
+<span class="c1"># Added a count state, so we could keep track how many lines</span>
+<span class="c1"># of input we have received so far.</span>
+<span class="kd">defp</span> <span class="n">serve</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span> <span class="k">do</span>
+  <span class="k">case</span> <span class="n">read_line</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span> <span class="k">do</span>
+    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">data</span><span class="p">}</span> <span class="o">-&gt;</span>
+      <span class="n">count</span> <span class="o">=</span> <span class="n">count</span> <span class="o">+</span> <span class="mi">1</span>
+      <span class="nc">IO</span><span class="o">.</span><span class="n">inspect</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="ss">label</span><span class="p">:</span> <span class="s2">&#34;line </span><span class="si">#{</span><span class="n">count</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+
+      <span class="c1"># Since we know a SET command always have 7 lines,</span>
+      <span class="c1"># we hardcoded this logic for the time being so that</span>
+      <span class="c1"># it reply to the client correctly.</span>
+      <span class="c1">#</span>
+      <span class="c1"># Without doing so, our client will end up being timeout.</span>
+      <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">7</span> <span class="k">do</span>
+        <span class="n">reply</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
+        <span class="n">serve</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+      <span class="k">else</span>
+        <span class="n">serve</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+      <span class="k">end</span>
+    <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="n">reason</span><span class="p">}</span> <span class="o">-&gt;</span>
+      <span class="nc">Logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&#34;Receive error: </span><span class="si">#{</span><span class="n">inspect</span><span class="p">(</span><span class="n">reason</span><span class="p">)</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div><p>We just hardcoded the implementation to stop and reply <code>OK</code>  when we receive 7 parts. Notice
+that, this time we also logged the error message if there&rsquo;s any.  This
+is important as, once our client receive the response, the connection
+will be closed by the client, and result in error.</p>
+<p>Let&rsquo;s see what we got so far:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="c1"># In terminal</span>
+mix run --no-halt
+
+<span class="c1"># In another terminal</span>
+redis-cli SET key value
+</code></pre></div><p>Here&rsquo;s the output you&rsquo;ll see:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="c1"># Terminal 1</span>
+╰─➤ mix run --no-halt
+
+21:38:42.808 <span class="o">[</span>info<span class="o">]</span>  Starting KV with ETS table kv...
+
+21:38:42.812 <span class="o">[</span>info<span class="o">]</span>  Accepting connections on port <span class="m">6379</span>
+
+line 1: <span class="s2">&#34;*3\r\n&#34;</span>
+line 2: <span class="s2">&#34;</span><span class="nv">$3</span><span class="s2">\r\n&#34;</span>
+line 3: <span class="s2">&#34;SET\r\n&#34;</span>
+line 4: <span class="s2">&#34;</span><span class="nv">$3</span><span class="s2">\r\n&#34;</span>
+line 5: <span class="s2">&#34;key\r\n&#34;</span>
+line 6: <span class="s2">&#34;</span><span class="nv">$5</span><span class="s2">\r\n&#34;</span>
+line 7: <span class="s2">&#34;value\r\n&#34;</span>
+
+21:38:47.785 <span class="o">[</span>info<span class="o">]</span>  Receive error: :closed
+
+<span class="c1"># Terminal 2</span>
+╰─➤  redis-cli SET key value
+OK
+</code></pre></div><p>From here, there are multiple ways we could implement the integration between
+our parser and our TCP server. Here&rsquo;s some of the way I could think of:</p>
+<ul>
+<li>Keep track of previous line in our state.</li>
+<li>Keep track of previous parts (line that has been parsed) in our state.</li>
+</ul>
+<p>I&rsquo;ll leave this part as a practice for anyone who are interested to get their
+hands dirty.</p>
+<hr>
+<p><em>Purposely left blank for those who want to implement themselves</em></p>
+<p>&hellip;</p>
+<p>&hellip;</p>
+<p>&hellip;</p>
+<p>&hellip;</p>
+<p>&hellip;</p>
+<hr>
+<p>For the ease of implementation, I&rsquo;ll go with the first approach, so instead of
+tracking the count, we will track the previous lines in our state:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defp</span> <span class="n">loop_acceptor</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span> <span class="k">do</span>
+  <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">client</span><span class="p">}</span> <span class="o">=</span> <span class="ss">:gen_tcp</span><span class="o">.</span><span class="n">accept</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
+  <span class="n">serve</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="s2">&#34;&#34;</span><span class="p">)</span>
+  <span class="n">loop_acceptor</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
+<span class="k">end</span>
+
+<span class="kd">defp</span> <span class="n">serve</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span> <span class="k">do</span>
+  <span class="k">case</span> <span class="n">read_line</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span> <span class="k">do</span>
+    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">data</span><span class="p">}</span> <span class="o">-&gt;</span>
+      <span class="c1"># Append the line to the end.</span>
+      <span class="n">state</span> <span class="o">=</span> <span class="n">state</span> <span class="o">&lt;&gt;</span> <span class="n">data</span>
+
+      <span class="c1"># Notice that our return value for our parser have changed.</span>
+      <span class="c1">#</span>
+      <span class="c1"># Now we are expecting a tuple, to let us know whether</span>
+      <span class="c1"># the commands is decoded successfully or is still incomplete.</span>
+      <span class="k">case</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="k">do</span>
+        <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">commands</span><span class="p">}</span> <span class="o">-&gt;</span>
+          <span class="nc">IO</span><span class="o">.</span><span class="n">inspect</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="ss">label</span><span class="p">:</span> <span class="s2">&#34;commands&#34;</span><span class="p">)</span>
+          <span class="n">reply</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
+          <span class="n">serve</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="s2">&#34;&#34;</span><span class="p">)</span>
+
+        <span class="p">{</span><span class="ss">:incomplete</span><span class="p">,</span> <span class="n">_</span><span class="p">}</span> <span class="o">-&gt;</span>
+          <span class="n">serve</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+      <span class="k">end</span>
+
+    <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="n">reason</span><span class="p">}</span> <span class="o">-&gt;</span>
+      <span class="nc">Logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&#34;Receive error: </span><span class="si">#{</span><span class="n">inspect</span><span class="p">(</span><span class="n">reason</span><span class="p">)</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div><p>Here, we are parsing the line every time a new part of the command is received,
+until all the parts required arrived to be form a command. In the event of
+incomplete command, our parser will have to let us know, so our TCP server
+continue to listen to incoming messages.</p>
+<p>Here&rsquo;s the changes for the parser:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">Parser</span> <span class="k">do</span>
+  <span class="kd">def</span> <span class="n">encode</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span> <span class="ow">when</span> <span class="n">is_list</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span> <span class="k">do</span>
+    <span class="c1"># remain the same...</span>
+  <span class="k">end</span>
+
+  <span class="kd">def</span> <span class="n">decode</span><span class="p">(</span><span class="n">string</span><span class="p">)</span> <span class="ow">when</span> <span class="n">is_binary</span><span class="p">(</span><span class="n">string</span><span class="p">)</span> <span class="k">do</span>
+    <span class="n">state</span> <span class="o">=</span>
+      <span class="n">string</span>
+      <span class="o">|&gt;</span> <span class="nc">String</span><span class="o">.</span><span class="n">trim</span><span class="p">()</span>
+      <span class="o">|&gt;</span> <span class="nc">String</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&#34;</span><span class="se">\r\n</span><span class="s2">&#34;</span><span class="p">)</span>
+      <span class="o">|&gt;</span> <span class="nc">Enum</span><span class="o">.</span><span class="n">reduce</span><span class="p">(%{},</span> <span class="k">fn</span> <span class="n">reply</span><span class="p">,</span> <span class="n">state</span> <span class="o">-&gt;</span>
+        <span class="k">case</span> <span class="n">reply</span> <span class="k">do</span>
+          <span class="s2">&#34;*&#34;</span> <span class="o">&lt;&gt;</span> <span class="n">length</span> <span class="o">-&gt;</span>
+            <span class="n">state</span>
+            <span class="o">|&gt;</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="ss">:type</span><span class="p">,</span> <span class="s2">&#34;array&#34;</span><span class="p">)</span>
+            <span class="o">|&gt;</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="ss">:array_length</span><span class="p">,</span> <span class="nc">String</span><span class="o">.</span><span class="n">to_integer</span><span class="p">(</span><span class="n">length</span><span class="p">))</span>
+            <span class="o">|&gt;</span> <span class="nc">Map</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="ss">:commands</span><span class="p">,</span> <span class="p">[],</span> <span class="k">fn</span> <span class="n">list</span> <span class="o">-&gt;</span> <span class="n">list</span> <span class="k">end</span><span class="p">)</span>
+
+          <span class="s2">&#34;$&#34;</span> <span class="o">&lt;&gt;</span> <span class="n">length</span> <span class="o">-&gt;</span>
+            <span class="n">state</span>
+            <span class="o">|&gt;</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="ss">:type</span><span class="p">,</span> <span class="s2">&#34;bulk_string&#34;</span><span class="p">)</span>
+            <span class="o">|&gt;</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="ss">:bulk_string_length</span><span class="p">,</span> <span class="nc">String</span><span class="o">.</span><span class="n">to_integer</span><span class="p">(</span><span class="n">length</span><span class="p">))</span>
+            <span class="o">|&gt;</span> <span class="nc">Map</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="ss">:commands</span><span class="p">,</span> <span class="p">[],</span> <span class="k">fn</span> <span class="n">list</span> <span class="o">-&gt;</span> <span class="n">list</span> <span class="k">end</span><span class="p">)</span>
+
+          <span class="n">value</span> <span class="o">-&gt;</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nc">String</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="nc">Map</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="ss">:commands</span><span class="p">,</span> <span class="p">[</span><span class="n">value</span><span class="p">],</span> <span class="k">fn</span> <span class="n">list</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">value</span> <span class="o">|</span> <span class="n">list</span><span class="p">]</span> <span class="k">end</span><span class="p">)</span>
+        <span class="k">end</span>
+      <span class="k">end</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">length</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">commands</span><span class="p">)</span> <span class="o">==</span> <span class="n">state</span><span class="o">.</span><span class="n">array_length</span> <span class="k">do</span>
+      <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="nc">Enum</span><span class="o">.</span><span class="n">reverse</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">commands</span><span class="p">)}</span>
+    <span class="k">else</span>
+      <span class="p">{</span><span class="ss">:incomplete</span><span class="p">,</span> <span class="n">state</span><span class="p">}</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div><p>Pretty straightforward, we check the expected command length with the
+commands length we received so far. If it&rsquo;s the same, it means that we receive
+all the parts we need for the command and return the commands. Else,
+we just let the caller know that it&rsquo;s incomplete.</p>
+<p>While this work well, it&rsquo;s not the most efficient implementation as we are
+parsing the line every single time on every new incoming new line.</p>
+<p>To see our latest progress:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="c1"># In terminal</span>
+mix run --no-halt
+
+<span class="c1"># In another terminal</span>
+redis GET key
+redis-cli SET key value
+</code></pre></div><p>Here&rsquo;s the output of my terminal:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh">╰─➤  mix run --no-halt
+
+21:51:59.237 <span class="o">[</span>info<span class="o">]</span>  Starting KV with ETS table kv...
+
+21:51:59.241 <span class="o">[</span>info<span class="o">]</span>  Accepting connections on port <span class="m">6379</span>
+commands: <span class="o">[</span><span class="s2">&#34;GET&#34;</span>, <span class="s2">&#34;key&#34;</span><span class="o">]</span>
+
+21:52:00.965 <span class="o">[</span>info<span class="o">]</span>  Receive error: :closed
+commands: <span class="o">[</span><span class="s2">&#34;SET&#34;</span>, <span class="s2">&#34;key&#34;</span>, <span class="s2">&#34;value&#34;</span><span class="o">]</span>
+
+21:52:05.080 <span class="o">[</span>info<span class="o">]</span>  Receive error: :closed
+</code></pre></div><p>Once we have the commands, the rest is fairly straightforward to integrate. If
+you&rsquo;re up to the challenge, try to write the code your own!</p>
+<hr>
+<p><em>Purposely left blank for those who want to implement themselves</em></p>
+<p>&hellip;</p>
+<p>&hellip;</p>
+<p>&hellip;</p>
+<p>&hellip;</p>
+<p>&hellip;</p>
+<hr>
+<h3 id="integrating-our-redis-server-with-kv-store">Integrating our Redis Server with KV store</h3>
+<p>Since we have the commands now, all we need to do is just match our commands to
+the action we need to call in our KV store.</p>
+<p>Let&rsquo;s first update our <code>reply</code> function to make suit our need:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defp</span> <span class="n">reply</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span> <span class="k">do</span>
+  <span class="ss">:gen_tcp</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+<span class="k">end</span>
+</code></pre></div><p>This allow us to send different response based on the returned value we get
+from our KV store. Next, we&rsquo;ll implement a <code>handle_command</code> function:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defp</span> <span class="n">handle_command</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span> <span class="k">do</span>
+  <span class="k">case</span> <span class="n">command</span> <span class="k">do</span>
+    <span class="p">[</span><span class="s2">&#34;SET&#34;</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">]</span> <span class="o">-&gt;</span>
+      <span class="nc">MiniRedis.KV</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+      <span class="n">reply</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="s2">&#34;+OK</span><span class="se">\r\n</span><span class="s2">&#34;</span><span class="p">)</span>
+
+    <span class="p">[</span><span class="s2">&#34;GET&#34;</span><span class="p">,</span> <span class="n">key</span><span class="p">]</span> <span class="o">-&gt;</span>
+      <span class="k">case</span> <span class="nc">MiniRedis.KV</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="k">do</span>
+        <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">value</span><span class="p">}</span> <span class="o">-&gt;</span> <span class="n">reply</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="s2">&#34;+</span><span class="si">#{</span><span class="n">value</span><span class="si">}</span><span class="se">\r\n</span><span class="s2">&#34;</span><span class="p">)</span>
+        <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="ss">:not_found</span><span class="p">}</span> <span class="o">-&gt;</span> <span class="n">reply</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="s2">&#34;$-1</span><span class="se">\r\n</span><span class="s2">&#34;</span><span class="p">)</span>
+      <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div><p>Notice that here we return <code>$-1\r\n</code> to indicate <code>nil</code> value to our Redis
+client, according to the <a href="https://redis.io/docs/reference/protocol-spec/#resp-bulk-strings">RESP protocol
+spec</a>.</p>
+<p>Lastly, calling <code>handle_command</code> in our <code>serve</code> function:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defp</span> <span class="n">serve</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span> <span class="k">do</span>
+  <span class="k">case</span> <span class="n">read_line</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span> <span class="k">do</span>
+    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">data</span><span class="p">}</span> <span class="o">-&gt;</span>
+      <span class="n">state</span> <span class="o">=</span> <span class="n">state</span> <span class="o">&lt;&gt;</span> <span class="n">data</span>
+
+      <span class="k">case</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="k">do</span>
+        <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">command</span><span class="p">}</span> <span class="o">-&gt;</span>
+          <span class="n">handle_command</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+          <span class="n">serve</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="s2">&#34;&#34;</span><span class="p">)</span>
+
+        <span class="p">{</span><span class="ss">:incomplete</span><span class="p">,</span> <span class="n">_</span><span class="p">}</span> <span class="o">-&gt;</span>
+          <span class="n">serve</span><span class="p">(</span><span class="n">socket</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+      <span class="k">end</span>
+
+    <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="n">reason</span><span class="p">}</span> <span class="o">-&gt;</span>
+      <span class="nc">Logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&#34;Receive error: </span><span class="si">#{</span><span class="n">inspect</span><span class="p">(</span><span class="n">reason</span><span class="p">)</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div><p>We have integrated  our Redis server with both the RESP parser and our KV store.
+It now supports the basic <code>get</code> and <code>set</code> commands. Let&rsquo;s see it in action:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh">mix run --no-halt
+</code></pre></div><p>In another terminal:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh">╭─kai at Kais-MacBook-Pro.local ~
+╰─➤  redis-cli SET key value
+OK
+╭─kai at Kais-MacBook-Pro.local ~
+╰─➤  redis-cli GET key
+value
+╭─kai at Kais-MacBook-Pro.local ~
+╰─➤  redis-cli GET unfound
+<span class="o">(</span>nil<span class="o">)</span>
+</code></pre></div><p>Voila, our mini Redis server is done!</p>
+<h1 id="whats-next">What&rsquo;s next?</h1>
+<p>We have completed the basic functionality of a Redis server. However, it&rsquo;s
+still very far behind from the real Redis server. For example,
+how does our mini Redis perform against the real Redis?</p>
+<p>In the next post, we will find out how well our implementation is doing
+with synthetic benchmarking. Along the way, we will discovered the limitations of our
+current implementation, make some changes and tweak some configurations
+to make it more performant. <em>(Hint: is about concurrency)</em></p>
+<p>Thanks for reading until the end and, hopefully, I can see you in my next post!</p>
+
+</article>
+
+    </main><footer class="w-full text-center border-t border-gray-200 p-4 pin-b text-xs text-gray-400">
+    <p>made with <a href="https://gohugo.io" class="underline hover:text-blue-400">Hugo</a> and <a href="https://tailwindcss.com" class="underline hover:text-blue-400">TailwindCSS</a></p>
+</footer></body>
+</html>
