@@ -40,7 +40,7 @@ where it walks through the reader to implement a mini Redis with
 the series of implementing mini Redis in Elixir:_
 
 - Part 1: Writing a simple Redis Protocol parser in Elixir
-- [Part 2: Writing a mini Redis server in Elixir]({{< ref "/posts/writing-mini-redis-server-in-elixir.md" >}})
+- [Part 2: Writing a mini Redis server in Elixir][0]
 - Part 3: _Coming soon_
 
 ---
@@ -369,4 +369,6 @@ Next up, we would be integrating this parser into our TCP server so that we can 
 Redis server. With that, do you think our current parser implementation would
 still work?
 
-Stay tuned.
+Let's find it out on the next post: [Writing a mini Redis server in Elixir][0]
+
+[0]: {{< ref "/posts/writing-mini-redis-server-in-elixir.md" >}}
