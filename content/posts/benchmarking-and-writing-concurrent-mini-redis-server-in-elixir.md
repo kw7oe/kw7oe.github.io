@@ -17,6 +17,19 @@ This post consists of the following sections:
 * [Handling concurrent requests in our TCP server](#handling-concurrent-requests-in-our-tcp-server)
 * [Tuning on `gen_tcp` configuration to improve performance](#tuning-on-gen_tcp-configuration-to-improve-performance)
 
+---
+
+_This post is inspired by [Rust Tokio Mini-Redis Tutorial](https://tokio.rs/tokio/tutorial/setup),
+where it walks through the reader to implement a mini Redis with
+[`tokio`](https://tokio.rs/). This post is part of
+the series of implementing mini Redis in Elixir:_
+
+- [Part 1: Writing a simple Redis Protocol parser in Elixir][2]
+- [Part 2: Writing a mini Redis server in Elixir][0]
+- Part 3: Benchmarking and writing concurrent mini Redis server in Elixir
+
+---
+
 ## Benchmarking with `redis-benchmark`
 
 We can benchmark our simple Redis server by running the `redis-benchmark`.
@@ -476,5 +489,7 @@ more understandable. Only by understanding it, we could make it simple.
 Anyway, thanks for reading it until the end and hopefully you have learnt one
 or two things throughout this article.
 
-[0]: /posts/2022/03/29/writing-a-mini-redis-server-in-elixir/
+[0]: {{< ref "/posts/writing-mini-redis-server-in-elixir.md" >}}
 [1]: https://stackoverflow.com/questions/3524146/why-does-the-performance-drop-that-much-when-my-erlang-tcp-proxy-gets-many-concu
+[2]: {{< ref "/posts/writing-a-simple-redis-protocol-parser-in-elixir.md" >}}
+

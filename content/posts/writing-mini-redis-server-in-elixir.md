@@ -30,6 +30,20 @@ This post consists of the following sections:
 * [Integrating our Redis Server with our RESP parser](#integrating-our-parser-into-the-tcp-server)
 * [Integrating our Redis Server with KV store](#integrating-our-redis-server-with-kv-store)
 
+---
+
+_This post is inspired by [Rust Tokio Mini-Redis Tutorial](https://tokio.rs/tokio/tutorial/setup),
+where it walks through the reader to implement a mini Redis with
+[`tokio`](https://tokio.rs/). This post is part of
+the series of implementing mini Redis in Elixir:_
+
+- [Part 1: Writing a simple Redis Protocol parser in Elixir][0]
+- Part 2: Writing a mini Redis server in Elixir
+- Part 3: Benchmarking and writing concurrent mini Redis server in Elixir
+_(Coming soon)_
+
+---
+
 ## Prerequisite
 
 Before we get started, if you're unfamiliar with the following: `GenServer`, `ETS` and `gen_tcp`,
@@ -647,7 +661,7 @@ to make it more performant! _(Hint: is about concurrency)_
 
 Thanks for reading until the end and, hopefully, I can see you in my next post!
 
-[0]: https://kaiwern.com/posts/2022/01/04/writing-a-simple-redis-protocol-parser-in-elixir/
+[0]: /posts/2022/01/04/writing-a-simple-redis-protocol-parser-in-elixir/
 [1]: https://redis.io/topics/protocol
 [3]: https://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html
 [4]: https://elixir-lang.org/getting-started/mix-otp/ets.html

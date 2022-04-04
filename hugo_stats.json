@@ -125,6 +125,7 @@
       "3-zero-downtime-for-phoenix-channels",
       "4-dont-use-atom-for-dynamically-allocated-name-for-genserver-name-registration",
       "4-zero-downtime-for-database-migration",
+      "_",
       "abandoned-projects",
       "achievements",
       "actual-implementation",

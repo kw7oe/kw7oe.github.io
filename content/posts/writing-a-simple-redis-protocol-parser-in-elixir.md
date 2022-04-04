@@ -34,12 +34,15 @@ includes code snippets instead of full fledge working example._
 
 ---
 
-
-
 _This post is inspired by [Rust Tokio Mini-Redis Tutorial](https://tokio.rs/tokio/tutorial/setup),
 where it walks through the reader to implement a mini Redis with
-[`tokio`](https://tokio.rs/). If things go well, this would also be a similar
-series._
+[`tokio`](https://tokio.rs/). This post is part of
+the series of implementing mini Redis in Elixir:_
+
+- Part 1: Writing a simple Redis Protocol parser in Elixir
+- [Part 2: Writing a mini Redis server in Elixir]({{< ref "/posts/writing-mini-redis-server-in-elixir.md" >}})
+- Part 3: Benchmarking and writing concurrent mini Redis server in Elixir
+_(Coming soon)_
 
 ---
 
