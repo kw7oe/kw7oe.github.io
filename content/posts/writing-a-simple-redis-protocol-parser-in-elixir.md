@@ -41,7 +41,7 @@ the series of implementing mini Redis in Elixir:_
 
 - Part 1: Writing a simple Redis Protocol parser in Elixir
 - [Part 2: Writing a mini Redis server in Elixir][0]
-- Part 3: _Coming soon_
+- [Part 3: Benchmarking and writing a concurrent mini Redis in Elixir][1]
 
 ---
 
@@ -372,3 +372,4 @@ still work?
 Let's find it out on the next post: [Writing a mini Redis server in Elixir][0]
 
 [0]: {{< ref "/posts/writing-mini-redis-server-in-elixir.md" >}}
+[1]: {{< ref "/posts/benchmarking-and-writing-concurrent-mini-redis-server-in-elixir.md" >}}

@@ -1,12 +1,12 @@
 ---
-title: "Benchmarking and writing concurrent mini Redis server in Elixir"
-date: 2022-04-04T20:33:16+08:00
+title: "Benchmarking and writing a concurrent mini Redis in Elixir"
+date: 2022-04-05T20:33:16+08:00
 draft: true
 tags: ['elixir', 'database', 'mini-redis', 'tutorial']
 ---
 
 In our [previous post][0] of this series, we wrote a mini Redis integrated with
-our own RESP parser in Elixir and a KV store.
+our own RESP parser and a KV store.
 
 In this post, we are going to benchmark it and make changes along the way to
 make our mini Redis more performant!
@@ -32,11 +32,10 @@ the series of implementing mini Redis in Elixir:_
 
 ## Benchmarking with `redis-benchmark`
 
-We can benchmark our simple Redis server by running the `redis-benchmark`.
+We can benchmark our mini Redis server by running the `redis-benchmark`.
 
 Before the benchmark send the actual commands, it also send some `CONFIG` commands to
-get some configuration. Let's make sure we handle those as well so that our Redis
-server doesn't crash because of unmatched patterns:
+get some configuration. Let's make sure we handle those as well so that our server doesn't crash because of unmatched patterns:
 
 ```diff
 defp handle_command(socket, command) do
@@ -156,7 +155,7 @@ Summary:
 implementation.
 
 
-## What's making it slow?
+### What's making it slow?
 
 Can you guess what it is? The hint is in the title of this post.
 
@@ -184,7 +183,7 @@ Supervisor](https://elixir-lang.org/getting-started/mix-otp/task-and-gen-tcp.htm
 section.
 
 Essentially, we will be serving the client on a separate process using
-`TaskSupervisor`:
+`Task.Supervisor`:
 
 ```elixir
 defp loop_acceptor(socket) do
@@ -212,7 +211,7 @@ This makes the child process the “controlling process” of the client socket.
 If we didn’t do this, the acceptor would bring down all the clients if it crashed because sockets
 would be tied to the process that accepted them (which is the default behaviour).
 
-Also, let's don't forget to include the `TaskSupervisor` in our application
+Also, let's don't forget to include the `Task.Supervisor` in our application
 supervisor. In `lib/mini_redis/application.ex`:
 
 ```diff
@@ -225,8 +224,8 @@ children = [
 ]
 ```
 
-With this small changes, we can now try to run the benchmark again with more
-concurrency:
+Let's run the benchmark again with more concurrency to see the outcome of
+our small changes:
 
 ```sh
 redis-benchmark -t set -c 5
@@ -267,7 +266,7 @@ It seems like our requests per second (RPS) scale linearly to our number of
 clients. _(Okay, not exactly linearly, but my point is, it does scale as we
 increase the number of clients)_.
 
-## Pushing it by a little bit
+### Pushing it by a little bit
 
 However, according to Universal Scalability Law, at some point, the system will
 not scale linearly with more concurrency but result in a loss of performance.
@@ -275,17 +274,16 @@ So, let's push our system further and see how much we can go without it scaling
 backward. Let's just start with additional 1 client:
 
 ```
-redis-benchmark -t set -p 6000 -c 6
+redis-benchmark -t set -c 6
 ```
 
 upon running it, this is the output I get:
 
 ```
-╰─➤  redis-benchmark -t set -p 6000 -c 6                                                                               130 ↵
-
-ERROR: failed to fetch CONFIG from 127.0.0.1:6000
+╰─➤  redis-benchmark -t set -c 6
+ERROR: failed to fetch CONFIG from 127.0.0.1:6379
 WARN: could not fetch server CONFIG
-Error: Connection reset by peer_msec=nan (overall: nan)
+SET: rps=0.0 (overall: nan) avg_msec=nan (overall: nan)
 ```
 
 Oops, it doesn't even work... What could be wrong this time?
@@ -303,14 +301,14 @@ Knowing that, I research around and study further about `gen_tcp` and finally
 found out one of the most important configuration that I need to set.
 {{% /callout %}}
 
-Turns out that our bottleneck this time is our `:gen_tcp` and there's some
+Turns out that our bottleneck this time is `:gen_tcp`. There is a
 configuration we need to tweak to make it work.
 
 ## Tuning on `gen_tcp` configuration to improve performance
 
 While I was researching around, I came across this [StackOverflow question][1]
 regarding why `gen_tcp` performance drop when getting too much concurrent
-requests. The last answer pointed out the `backlog` option in `gen_tcp`, and
+requests. The last answer pointed out the `backlog` option in `gen_tcp` and
 suggested tuning it.
 
 The `backlog` is a queue for our TCP server to buffer
@@ -368,7 +366,7 @@ Summary:
 
 ## Comparing with the real Redis server
 
-It's not clear yet if 68 requests per second of a synthetic benchmark is good
+It's not clear yet if 68k requests per second of a synthetic benchmark is good
 or not. So let's try to compare it with the actual Redis implementation:
 
 ```sh
@@ -413,31 +411,31 @@ Summary:
         0.038     0.008     0.039     0.063     0.087     0.455
 ```
 
-120k requests per second, 60 requests faster than our implementation. Given
-that how much code we have written, and how easy it is, I think is fair enough.
+120k requests per second, 60k requests faster than our implementation. Given
+that how much code we have written, and how easy it is, I think it is fair enough.
 
 
 ## Note about our benchmark
 
-One thing I want to note that, since it's a synthetic benchmark, don't take it
-super seriously. Our system behave differently on different workload. The main
-reason of doing benchmark here in this article, is to provide a better picture of
-the performance of our implementation. This help us understand the boundary and
-limit of our system and hence, help us to improve it further.
+Since this is a synthetic benchmark, don't take it super seriously. Our system might
+behave differently on different workload. The main reason of benchmarking here,
+is to provide a better picture for the performance of our implementation. This
+help us understand the boundary and limit of our system and hence, help us to
+improve it further.
 
-For instance, by comparing both benchmark result against our implementation and
-the Redis server, I have found that our implementation have degradaded
+For instance, by comparing both benchmark result of our mini Redis and
+the Redis, I have found that our implementation have degradaded
 performance after passing certain number of clients. At the number of clients
 of 15:
 
-```
-redis-benchmark -t set -p 6000 -c 15
-...
+```sh
+redis-benchmark -t set -c 15
+# ....
 Summary:
-  throughput summary: 46339.20 requests per second
+  throughput summary: 44883.30 requests per second
   latency summary (msec):
           avg       min       p50       p95       p99       max
-        0.313     0.040     0.303     0.543     0.751     3.991
+        0.326     0.048     0.319     0.519     0.719     4.031
 ```
 
 I'm ending up with way worse performance than before. That is not the true if I
@@ -454,7 +452,7 @@ Summary:
 ```
 
 This indicates that our current implementation introduced certain overheads or
-have some bottleneck when we have more concurrent requests and it's something
+have some contention  when we have more concurrent requests and it's something
 we can improve further.
 
 ## What's next?
@@ -469,12 +467,22 @@ In theory, it will reduce the resources needed. But who knows, if you want to
 dive in further, try to use a pool and run some benchmark to see if it works
 better.
 
+If you are interested in this topic, here's some articles that I think you
+might
+found interesting as well:
+
+- [Handling TCP connections in Elixir](https://andrealeopardi.com/posts/handling-tcp-connections-in-elixir/)
+- [Process pools with Elixir's Registry](https://andrealeopardi.com/posts/process-pools-with-elixirs-registry/)
+
+Sometime in the future, maybe there will be a part 4 where we further optimize our
+implementation to improve the performance of our mini Redis server. But for
+now,
+that's the end of this series.
 
 # Wrap Up
 
-Can you believe that we are able to write a simple Redis server with such a
-short time and code? I don't believe it is possible until I tried to
-write one.
+Can you believe that we are able to write a mini Redis server with such a
+short time and code? I didn't believe it until I tried to do it.
 
 A lot of systems seem complex and complicated in the first place.
 But once you reduce the scope of the system, and try to break it down into
@@ -487,7 +495,7 @@ can always improve our domain knowledge and skills to make those systems to be
 more understandable. Only by understanding it, we could make it simple.
 
 Anyway, thanks for reading it until the end and hopefully you have learnt one
-or two things throughout this article.
+or two things throughout this series.
 
 [0]: {{< ref "/posts/writing-mini-redis-server-in-elixir.md" >}}
 [1]: https://stackoverflow.com/questions/3524146/why-does-the-performance-drop-that-much-when-my-erlang-tcp-proxy-gets-many-concu

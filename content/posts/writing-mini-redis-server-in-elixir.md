@@ -37,7 +37,7 @@ the series of implementing mini Redis in Elixir:_
 
 - [Part 1: Writing a simple Redis Protocol parser in Elixir][0]
 - Part 2: Writing a mini Redis server in Elixir
-- Part 3: _Coming soon_
+- [Part 3: Benchmarking and writing a concurrent mini Redis in Elixir][6]
 
 ---
 
@@ -682,15 +682,16 @@ We have completed the basic functionality of a Redis server. However, it's
 still very far behind from the real Redis server. For example,
 how does our mini Redis perform against the real Redis?
 
-In the next post, we will find out how well our implementation is doing
+In the [next post][6], we will find out how well our implementation is doing
 with synthetic benchmarking. Along the way, we will discovered the limitations of our
 current implementation, make some changes and tweak some configurations
 to make it more performant. _(Hint: is about concurrency)_
 
-Thanks for reading until the end and, hopefully, I can see you in my next post!
+Thanks for reading until the end and, hopefully, I can see you in my [next post][6]!
 
 [0]: {{< ref "/posts/writing-a-simple-redis-protocol-parser-in-elixir.md" >}}
 [1]: https://redis.io/topics/protocol
 [3]: https://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html
 [4]: https://elixir-lang.org/getting-started/mix-otp/ets.html
 [5]: https://elixir-lang.org/getting-started/mix-otp/task-and-gen-tcp.html
+[6]: {{< ref "/posts/benchmarking-and-writing-concurrent-mini-redis-server-in-elixir.md" >}}
