@@ -1,6 +1,7 @@
 ---
 title: "2021 in Review"
 date: 2021-12-13T21:52:06+08:00
+categories: life
 ---
 
 I thought 2021 will great as usual for me. Turn out it didn't.
