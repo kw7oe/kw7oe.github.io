@@ -8,6 +8,17 @@
     <language>en-us</language>
     <lastBuildDate>Wed, 15 May 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://kaiwern.com/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Benchmarking and writing a concurrent mini Redis in Elixir</title>
+      <link>https://kaiwern.com/posts/2022/04/05/benchmarking-and-writing-a-concurrent-mini-redis-in-elixir/</link>
+      <pubDate>Tue, 05 Apr 2022 20:33:16 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2022/04/05/benchmarking-and-writing-a-concurrent-mini-redis-in-elixir/</guid>
+      <description>In our previous post of this series, we wrote a mini Redis integrated with our own RESP parser and a KV store.
+In this post, we are going to benchmark it and make changes along the way to make our mini Redis more performant!
+This post consists of the following sections:</description>
+    </item>
+    
+    <item>
       <title>Writing a mini Redis server in Elixir</title>
       <link>https://kaiwern.com/posts/2022/04/04/writing-a-mini-redis-server-in-elixir/</link>
       <pubDate>Mon, 04 Apr 2022 20:32:56 +0800</pubDate>

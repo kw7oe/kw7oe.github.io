@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>
+Benchmarking and writing a concurrent mini Redis in Elixir | kw7oe
+</title>
+
+
+
+<meta name="generator" content="Hugo 0.90.0" />
+
+
+    
+    <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.c41ff84d3329279b5882daee9f67712ab71c7b9e6bbd192fb3e1a496d452d10a.css" integrity="sha256-xB/4TTMpJ5tYgtrun2dxKrcce55rvRkvs&#43;GkltRS0Qo=">
+    <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
+
+
+
+
+<link rel="stylesheet" href="https://kaiwern.com/css/syntax.min.css">
+
+
+<body class="flex flex-col min-h-screen px-4 max-w-screen-md md:w-2/3 m-auto"><nav class="mt-8">
+  <ul id="nav-menu" class="w-full flex items-center list-reset">
+    
+    <li>
+      <a href="https://kaiwern.com/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Home</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/about/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">About</a>
+    </li>
+    
+
+    
+    
+    <li>
+      <a href="https://kaiwern.com/categories/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Categories</a>
+    </li>
+    
+    
+    
+    <li>
+      <a href="https://kaiwern.com/tags/" class="text-lg inline-block mr-4 text-gray-700 hover:text-blue-400">Tags</a>
+    </li>
+    
+    
+  </ul>
+</nav>
+<main class="flex-1 mt-4 sm:mt-12">
+<header class="mb-8">
+  <h1 class="title">Benchmarking and writing a concurrent mini Redis in Elixir</h1>
+  <p class="text-sm font-gray-700 mb-1">Apr 05, 2022</p>
+  <p class="text-sm mb-4 font-gray-700 italic">Estimated Reading Time: 11 minutes (2260 words)</p>
+
+   
+  <div id="tags">
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/elixir/">elixir</a>
+    </span>
+    
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/database/">database</a>
+    </span>
+    
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/mini-redis/">mini-redis</a>
+    </span>
+    
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/tutorial/">tutorial</a>
+    </span>
+    
+    
+  </div>
+</header>
+
+<article class="markdown mb-8 text-gray-800">
+  
+
+  <p>In our <a href="https://kaiwern.com/posts/2022/04/04/writing-a-mini-redis-server-in-elixir/">previous post</a> of this series, we wrote a mini Redis integrated with
+our own RESP parser and a KV store.</p>
+<p>In this post, we are going to benchmark it and make changes along the way to
+make our mini Redis more performant!</p>
+<p>This post consists of the following sections:</p>
+<ul>
+<li><a href="#benchmarking-with-redis-benchmark">Benchmarking with <code>redis-benchmark</code></a></li>
+<li><a href="#handling-concurrent-requests-in-our-tcp-server">Handling concurrent requests in our TCP server</a></li>
+<li><a href="#tuning-on-gen_tcp-configuration-to-improve-performance">Tuning on <code>gen_tcp</code> configuration to improve performance</a></li>
+</ul>
+<hr>
+<p><em>This post is inspired by <a href="https://tokio.rs/tokio/tutorial/setup">Rust Tokio Mini-Redis Tutorial</a>,
+where it walks through the reader to implement a mini Redis with
+<a href="https://tokio.rs/"><code>tokio</code></a>. This post is part of
+the series of implementing mini Redis in Elixir:</em></p>
+<ul>
+<li><a href="https://kaiwern.com/posts/2022/01/04/writing-a-simple-redis-protocol-parser-in-elixir/">Part 1: Writing a simple Redis Protocol parser in Elixir</a></li>
+<li><a href="https://kaiwern.com/posts/2022/04/04/writing-a-mini-redis-server-in-elixir/">Part 2: Writing a mini Redis server in Elixir</a></li>
+<li>Part 3: Benchmarking and writing concurrent mini Redis server in Elixir</li>
+</ul>
+<hr>
+<h2 id="benchmarking-with-redis-benchmark">Benchmarking with <code>redis-benchmark</code></h2>
+<p>We can benchmark our mini Redis server by running the <code>redis-benchmark</code>.</p>
+<p>Before the benchmark send the actual commands, it also send some <code>CONFIG</code> commands to
+get some configuration. Let&rsquo;s make sure we handle those as well so that our server doesn&rsquo;t crash because of unmatched patterns:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-diff" data-lang="diff">defp handle_command(socket, command) do
+  case command do
+    [&#34;SET&#34;, key, value] -&gt;
+      MiniRedis.KV.set(key, value)
+      reply(socket, &#34;+OK\r\n&#34;)
+
+    [&#34;GET&#34;, key] -&gt;
+      case MiniRedis.KV.get(key) do
+        {:ok, value} -&gt; reply(socket, &#34;+#{value}\r\n&#34;)
+        {:error, :not_found} -&gt; reply(socket, &#34;$-1\r\n&#34;)
+      end
+<span class="gi">+   _ -&gt;
+</span><span class="gi">+     reply(socket, &#34;+OK\r\n&#34;)
+</span><span class="gi"></span>  end
+end
+</code></pre></div><p>With that, we could run the benchmark by running the following command:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="c1"># In project terminal</span>
+mix run --no-halt
+
+<span class="c1"># In another terminal</span>
+<span class="c1"># -t set: to specify to just benchmark SET command</span>
+<span class="c1"># -c 1: Limit the parallel client to 1</span>
+redis-benchmark -t <span class="nb">set</span> -c <span class="m">1</span>
+</code></pre></div><p>upon running this in my local machine, this is the output I get:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh">╰─➤  redis-benchmark -t <span class="nb">set</span> -c <span class="m">1</span>
+
+ERROR: failed to fetch CONFIG from 127.0.0.1:6379
+WARN: could not fetch server <span class="nv">CONFIG</span>
+<span class="o">======</span> <span class="nv">SET</span> <span class="o">======</span>
+  <span class="m">100000</span> requests completed in 6.70 seconds
+  <span class="m">1</span> parallel clients
+  <span class="m">3</span> bytes payload
+  keep alive: <span class="m">1</span>
+  multi-thread: no
+
+Latency by percentile distribution:
+0.000% &lt;<span class="o">=</span> 0.031 milliseconds <span class="o">(</span>cumulative count 3499<span class="o">)</span>
+50.000% &lt;<span class="o">=</span> 0.063 milliseconds <span class="o">(</span>cumulative count 53168<span class="o">)</span>
+<span class="c1"># ....</span>
+100.000% &lt;<span class="o">=</span> 12.223 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
+
+Cumulative distribution of latencies:
+<span class="c1"># ....</span>
+99.999% &lt;<span class="o">=</span> 11.103 milliseconds <span class="o">(</span>cumulative count 99999<span class="o">)</span>
+100.000% &lt;<span class="o">=</span> 13.103 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
+
+Summary:
+  throughput summary: 14927.60 requests per second
+  latency summary <span class="o">(</span>msec<span class="o">)</span>:
+        avg       min       p50       p95       p99       max
+        0.063     0.024     0.063     0.087     0.159    12.223
+</code></pre></div><p>Result maybe vary based on your hardware specification. 14k requests per second, not bad.</p>
+<p>If we try to bump up the <code>-c</code> to multiple clients, weird things happen. In my
+local machine, this is how it behaves. It start with:</p>
+<pre tabindex="0"><code>SET: rps=12500.0 (overall: 13326.7) avg_msec=0.076 (overall: 0.071)
+</code></pre><p>then the <code>rps</code> slowly reduce to:</p>
+<pre tabindex="0"><code>...
+SET: rps=0.0 (overall: 2423.4) avg_msec=nan (overall: 0.069)).069))
+...
+...
+SET: rps=0.0 (overall: 1817.5) avg_msec=nan (overall: 0.069)).069))
+</code></pre><p>and it seems like taking forever to complete the benchmark. After minutes,
+here&rsquo;s the output I obtained:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh">╰─➤  redis-benchmark -t <span class="nb">set</span> -c <span class="m">2</span>
+
+ERROR: failed to fetch CONFIG from 127.0.0.1:6379
+WARN: could not fetch server <span class="nv">CONFIG</span>
+<span class="o">======</span> <span class="nv">SET</span> <span class="o">======</span>
+  <span class="m">100000</span> requests completed in 682.69 seconds
+  <span class="m">2</span> parallel clients
+  <span class="m">3</span> bytes payload
+  keep alive: <span class="m">1</span>
+  multi-thread: no
+
+Latency by percentile distribution:
+0.000% &lt;<span class="o">=</span> 0.031 milliseconds <span class="o">(</span>cumulative count 12<span class="o">)</span>
+50.000% &lt;<span class="o">=</span> 0.071 milliseconds <span class="o">(</span>cumulative count 78123<span class="o">)</span>
+<span class="c1"># ....</span>
+100.000% &lt;<span class="o">=</span> 7.671 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
+
+Cumulative distribution of latencies:
+<span class="c1"># ....</span>
+99.998% &lt;<span class="o">=</span> 5.103 milliseconds <span class="o">(</span>cumulative count 99998<span class="o">)</span>
+99.999% &lt;<span class="o">=</span> 6.103 milliseconds <span class="o">(</span>cumulative count 99999<span class="o">)</span>
+100.000% &lt;<span class="o">=</span> 8.103 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
+
+Summary:
+  throughput summary: 146.48 requests per second
+  latency summary <span class="o">(</span>msec<span class="o">)</span>:
+          avg       min       p50       p95       p99       max
+        0.069     0.024     0.071     0.095     0.151     7.671
+</code></pre></div><p>146 requests per second&hellip; Seems like something is not right with our
+implementation.</p>
+<h3 id="whats-making-it-slow">What&rsquo;s making it slow?</h3>
+<p>Can you guess what it is? The hint is in the title of this post.</p>
+<p>Remember the code that we wrote below?</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defp</span> <span class="n">loop_acceptor</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span> <span class="k">do</span>
+  <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">client</span><span class="p">}</span> <span class="o">=</span> <span class="ss">:gen_tcp</span><span class="o">.</span><span class="n">accept</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
+  <span class="nc">Logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&#34;Accepting client </span><span class="si">#{</span><span class="n">inspect</span><span class="p">(</span><span class="n">client</span><span class="p">)</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+  <span class="n">serve</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="s2">&#34;&#34;</span><span class="p">)</span>
+  <span class="n">loop_acceptor</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
+<span class="k">end</span>
+</code></pre></div><p>Here, we are only accepting another client (connection), until we <code>serve</code> the
+previous client successfully. In short, it is handling the incoming requests sequentially. Our code is not written to handle concurrent requests.</p>
+<p>Let&rsquo;s update our server to deal with it better.</p>
+<h2 id="handling-concurrent-requests-in-our-tcp-server">Handling concurrent requests in our TCP server</h2>
+<p>I won&rsquo;t go into details on this, as we are essentially just following through
+the guide from Elixir website on <a href="https://elixir-lang.org/getting-started/mix-otp/task-and-gen-tcp.html#task-supervisor">Task
+Supervisor</a>
+section.</p>
+<p>Essentially, we will be serving the client on a separate process using
+<code>Task.Supervisor</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defp</span> <span class="n">loop_acceptor</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span> <span class="k">do</span>
+  <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">client</span><span class="p">}</span> <span class="o">=</span> <span class="ss">:gen_tcp</span><span class="o">.</span><span class="n">accept</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
+  <span class="nc">Logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&#34;Accepting client </span><span class="si">#{</span><span class="n">inspect</span><span class="p">(</span><span class="n">client</span><span class="p">)</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+
+  <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">pid</span><span class="p">}</span> <span class="o">=</span>
+    <span class="nc">Task.Supervisor</span><span class="o">.</span><span class="n">start_child</span><span class="p">(</span><span class="nc">MiniRedis.TaskSupervisor</span><span class="p">,</span> <span class="k">fn</span> <span class="o">-&gt;</span>
+      <span class="n">serve</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="s2">&#34;&#34;</span><span class="p">)</span>
+    <span class="k">end</span><span class="p">)</span>
+
+  <span class="nc">Logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&#34;Serving new client with pid: </span><span class="si">#{</span><span class="n">inspect</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span><span class="si">}</span><span class="s2">...&#34;</span><span class="p">)</span>
+  <span class="ss">:ok</span> <span class="o">=</span> <span class="ss">:gen_tcp</span><span class="o">.</span><span class="n">controlling_process</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">pid</span><span class="p">)</span>
+
+  <span class="n">loop_acceptor</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
+<span class="k">end</span>
+</code></pre></div><p>The need of calling <code>:gen_tcp.controlling_process</code> has been explained as well
+in
+the guide mentioned above. Here&rsquo;s a direct quote from it:</p>
+<blockquote>
+<p>You might notice that we added a line, :ok = :gen_tcp.controlling_process(client, pid).
+This makes the child process the “controlling process” of the client socket.
+If we didn’t do this, the acceptor would bring down all the clients if it crashed because sockets
+would be tied to the process that accepted them (which is the default behaviour).</p>
+</blockquote>
+<p>Also, let&rsquo;s don&rsquo;t forget to include the <code>Task.Supervisor</code> in our application
+supervisor. In <code>lib/mini_redis/application.ex</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-diff" data-lang="diff">children = [
+  # Starts a worker by calling: MiniRedis.Worker.start_link(arg)
+  # {MiniRedis.Worker, arg}
+  MiniRedis.KV,
+<span class="gi">+ {Task.Supervisor, name: MiniRedis.TaskSupervisor},
+</span><span class="gi"></span>  {Task, fn -&gt; MiniRedis.Server.accept(String.to_integer(System.get_env(&#34;PORT&#34;) || &#34;6379&#34;)) end},
+]
+</code></pre></div><p>Let&rsquo;s run the benchmark again with more concurrency to see the outcome of
+our small changes:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh">redis-benchmark -t <span class="nb">set</span> -c <span class="m">5</span>
+</code></pre></div><p>With 5 clients, we are now at around 52k requests per second:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh">╰─➤  redis-benchmark -t <span class="nb">set</span> -c <span class="m">5</span>
+ERROR: failed to fetch CONFIG from 127.0.0.1:6379
+WARN: could not fetch server <span class="nv">CONFIG</span>
+<span class="o">======</span> <span class="nv">SET</span> <span class="o">======</span>
+  <span class="m">100000</span> requests completed in 1.92 seconds
+  <span class="m">5</span> parallel clients
+  <span class="m">3</span> bytes payload
+  keep alive: <span class="m">1</span>
+  multi-thread: no
+
+Latency by percentile distribution:
+0.000% &lt;<span class="o">=</span> 0.031 milliseconds <span class="o">(</span>cumulative count 65<span class="o">)</span>
+50.000% &lt;<span class="o">=</span> 0.087 milliseconds <span class="o">(</span>cumulative count 58111<span class="o">)</span>
+<span class="c1"># ....</span>
+100.000% &lt;<span class="o">=</span> 6.751 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
+
+Cumulative distribution of latencies:
+73.668% &lt;<span class="o">=</span> 0.103 milliseconds <span class="o">(</span>cumulative count 73668<span class="o">)</span>
+<span class="c1"># ....</span>
+100.000% &lt;<span class="o">=</span> 7.103 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
+
+Summary:
+  throughput summary: 51975.05 requests per second
+  latency summary <span class="o">(</span>msec<span class="o">)</span>:
+          avg       min       p50       p95       p99       max
+        0.089     0.024     0.087     0.151     0.199     6.751
+</code></pre></div><p>It seems like our requests per second (RPS) scale linearly to our number of
+clients. <em>(Okay, not exactly linearly, but my point is, it does scale as we
+increase the number of clients)</em>.</p>
+<h3 id="pushing-it-by-a-little-bit">Pushing it by a little bit</h3>
+<p>However, according to Universal Scalability Law, at some point, the system will
+not scale linearly with more concurrency but result in a loss of performance.
+So, let&rsquo;s push our system further and see how much we can go without it scaling
+backward. Let&rsquo;s just start with additional 1 client:</p>
+<pre tabindex="0"><code>redis-benchmark -t set -c 6
+</code></pre><p>upon running it, this is the output I get:</p>
+<pre tabindex="0"><code>╰─➤  redis-benchmark -t set -c 6
+ERROR: failed to fetch CONFIG from 127.0.0.1:6379
+WARN: could not fetch server CONFIG
+SET: rps=0.0 (overall: nan) avg_msec=nan (overall: nan)
+</code></pre><p>Oops, it doesn&rsquo;t even work&hellip; What could be wrong this time?</p>
+<div class="callout callout-info">
+  <p>
+When I was implementing it, I was so lost, as I
+don't know what went wrong in the first sight.
+<p>After benchmarking different part of my code, I reach a conclusion of: the
+bottleneck is probably on our TCP server implementation. This is because, I
+could have multiple clients to talk to my <code>KV</code> store and still performing well.</p>
+<p>Knowing that, I research around and study further about <code>gen_tcp</code> and finally
+found out one of the most important configuration that I need to set.</p>
+</p>
+</div>
+<p>Turns out that our bottleneck this time is <code>:gen_tcp</code>. There is a
+configuration we need to tweak to make it work.</p>
+<h2 id="tuning-on-gen_tcp-configuration-to-improve-performance">Tuning on <code>gen_tcp</code> configuration to improve performance</h2>
+<p>While I was researching around, I came across this <a href="https://stackoverflow.com/questions/3524146/why-does-the-performance-drop-that-much-when-my-erlang-tcp-proxy-gets-many-concu">StackOverflow question</a>
+regarding why <code>gen_tcp</code> performance drop when getting too much concurrent
+requests. The last answer pointed out the <code>backlog</code> option in <code>gen_tcp</code> and
+suggested tuning it.</p>
+<p>The <code>backlog</code> is a queue for our TCP server to buffer
+incoming requests that can&rsquo;t be handle yet. Here&rsquo;s what the documentation said:</p>
+<blockquote>
+<p>{backlog, B}</p>
+</blockquote>
+<blockquote>
+<p>B is an integer &gt;= 0. The backlog value defines the maximum length that the queue of pending connections can grow to. Defaults to 5.</p>
+</blockquote>
+<p>Since by default, the <code>backlog</code> is set to 5, that explain why our Redis server
+start facing issue when there is 6 clients.</p>
+<p>Hence, to resolve it, it is as simple as updating the options we provide when
+calling <code>;gen_tcp.listen</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-diff" data-lang="diff"><span class="gi">+ case :gen_tcp.listen(port, [:binary, packet: :line, backlog: 50, active: false, reuseaddr: true]) do
+</span><span class="gi"></span><span class="gd">- case :gen_tcp.listen(port, [:binary, packet: :line, active: false, reuseaddr: true]) do
+</span></code></pre></div><p>with this changes, we could rerun the benchmark again, and it should work as
+expected:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh">╰─➤  redis-benchmark -t <span class="nb">set</span> -c <span class="m">6</span>
+ERROR: failed to fetch CONFIG from 127.0.0.1:6379
+WARN: could not fetch server <span class="nv">CONFIG</span>
+<span class="o">======</span> <span class="nv">SET</span> <span class="o">======</span>
+  <span class="m">100000</span> requests completed in 1.45 seconds
+  <span class="m">6</span> parallel clients
+  <span class="m">3</span> bytes payload
+  keep alive: <span class="m">1</span>
+  multi-thread: no
+
+Latency by percentile distribution:
+0.000% &lt;<span class="o">=</span> 0.031 milliseconds <span class="o">(</span>cumulative count 63<span class="o">)</span>
+50.000% &lt;<span class="o">=</span> 0.079 milliseconds <span class="o">(</span>cumulative count 59243<span class="o">)</span>
+<span class="c1"># ....</span>
+100.000% &lt;<span class="o">=</span> 1.599 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
+
+Cumulative distribution of latencies:
+81.055% &lt;<span class="o">=</span> 0.103 milliseconds <span class="o">(</span>cumulative count 81055<span class="o">)</span>
+<span class="c1"># ....</span>
+100.000% &lt;<span class="o">=</span> 1.607 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
+
+Summary:
+  throughput summary: 68775.79 requests per second
+  latency summary <span class="o">(</span>msec<span class="o">)</span>:
+          avg       min       p50       p95       p99       max
+        0.080     0.024     0.079     0.143     0.183     1.599
+</code></pre></div><p>68k requests per second. Seems great!</p>
+<h2 id="comparing-with-the-real-redis-server">Comparing with the real Redis server</h2>
+<p>It&rsquo;s not clear yet if 68k requests per second of a synthetic benchmark is good
+or not. So let&rsquo;s try to compare it with the actual Redis implementation:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="c1"># Make sure we close our Redis server before starting the real one.</span>
+
+<span class="c1"># In a separate terminal, start the redis server</span>
+redis-server
+
+<span class="c1"># In current terminal</span>
+redis-benchmark -t <span class="nb">set</span>  -c <span class="m">6</span>
+</code></pre></div><p>Here&rsquo;s the output running on my local machine:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh">╰─➤  redis-benchmark -t <span class="nb">set</span>  -c <span class="nv">6</span>
+
+<span class="o">======</span> <span class="nv">SET</span> <span class="o">======</span>
+  <span class="m">100000</span> requests completed in 0.83 seconds
+  <span class="m">6</span> parallel clients
+  <span class="m">3</span> bytes payload
+  keep alive: <span class="m">1</span>
+  host configuration <span class="s2">&#34;save&#34;</span>: <span class="m">3600</span> <span class="m">1</span> <span class="m">300</span> <span class="m">100</span> <span class="m">60</span> <span class="m">10000</span>
+  host configuration <span class="s2">&#34;appendonly&#34;</span>: no
+  multi-thread: no
+
+Latency by percentile distribution:
+0.000% &lt;<span class="o">=</span> 0.015 milliseconds <span class="o">(</span>cumulative count 846<span class="o">)</span>
+50.000% &lt;<span class="o">=</span> 0.039 milliseconds <span class="o">(</span>cumulative count 61555<span class="o">)</span>
+<span class="c1"># ....</span>
+100.000% &lt;<span class="o">=</span> 0.455 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
+
+Cumulative distribution of latencies:
+<span class="c1"># ....</span>
+99.994% &lt;<span class="o">=</span> 0.303 milliseconds <span class="o">(</span>cumulative count 99994<span class="o">)</span>
+100.000% &lt;<span class="o">=</span> 0.503 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
+
+Summary:
+  throughput summary: 120772.95 requests per second
+  latency summary <span class="o">(</span>msec<span class="o">)</span>:
+          avg       min       p50       p95       p99       max
+        0.038     0.008     0.039     0.063     0.087     0.455
+</code></pre></div><p>120k requests per second, 60k requests faster than our implementation. Given
+that how much code we have written, and how easy it is, I think it is fair enough.</p>
+<h2 id="note-about-our-benchmark">Note about our benchmark</h2>
+<p>Since this is a synthetic benchmark, don&rsquo;t take it super seriously. Our system might
+behave differently on different workload. The main reason of benchmarking here,
+is to provide a better picture for the performance of our implementation. This
+help us understand the boundary and limit of our system and hence, help us to
+improve it further.</p>
+<p>For instance, by comparing both benchmark result of our mini Redis and
+the Redis, I have found that our implementation have degradaded
+performance after passing certain number of clients. At the number of clients
+of 15:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh">redis-benchmark -t <span class="nb">set</span> -c <span class="m">15</span>
+<span class="c1"># ....</span>
+Summary:
+  throughput summary: 44883.30 requests per second
+  latency summary <span class="o">(</span>msec<span class="o">)</span>:
+          avg       min       p50       p95       p99       max
+        0.326     0.048     0.319     0.519     0.719     4.031
+</code></pre></div><p>I&rsquo;m ending up with way worse performance than before. That is not the true if I
+run the benchmark against the Redis server:</p>
+<pre tabindex="0"><code>redis-benchmark -t set -c 15
+...
+Summary:
+  throughput summary: 176056.33 requests per second
+  latency summary (msec):
+          avg       min       p50       p95       p99       max
+        0.061     0.016     0.055     0.103     0.167     0.695
+</code></pre><p>This indicates that our current implementation introduced certain overheads or
+have some contention  when we have more concurrent requests and it&rsquo;s something
+we can improve further.</p>
+<h2 id="whats-next">What&rsquo;s next?</h2>
+<p>As mentioend, our current implementation still have some limitations. For
+instance, we are spawning a new <code>Task</code> for every incoming requests, this could
+potentially be replaced by using a pool of processes, with library like
+<code>nimble_pool</code> or <code>poolboy</code>.</p>
+<p>Would it result in better performance and resource utilization? I&rsquo;m not sure.
+In theory, it will reduce the resources needed. But who knows, if you want to
+dive in further, try to use a pool and run some benchmark to see if it works
+better.</p>
+<p>If you are interested in this topic, here&rsquo;s some articles that I think you
+might
+found interesting as well:</p>
+<ul>
+<li><a href="https://andrealeopardi.com/posts/handling-tcp-connections-in-elixir/">Handling TCP connections in Elixir</a></li>
+<li><a href="https://andrealeopardi.com/posts/process-pools-with-elixirs-registry/">Process pools with Elixir&rsquo;s Registry</a></li>
+</ul>
+<p>Sometime in the future, maybe there will be a part 4 where we further optimize our
+implementation to improve the performance of our mini Redis server. But for
+now,
+that&rsquo;s the end of this series.</p>
+<h1 id="wrap-up">Wrap Up</h1>
+<p>Can you believe that we are able to write a mini Redis server with such a
+short time and code? I didn&rsquo;t believe it until I tried to do it.</p>
+<p>A lot of systems seem complex and complicated in the first place.
+But once you reduce the scope of the system, and try to break it down into
+smaller parts, it start to get more manageable. Repeat the process, by slowly
+increasing the scope back, and with time, I believe that everyone is able to
+understand complex systems.</p>
+<p>Will those systems be less complex and complicated? Less likely to be, but we
+can always improve our domain knowledge and skills to make those systems to be
+more understandable. Only by understanding it, we could make it simple.</p>
+<p>Anyway, thanks for reading it until the end and hopefully you have learnt one
+or two things throughout this series.</p>
+
+</article>
+
+    </main><footer class="w-full text-center border-t border-gray-200 p-4 pin-b text-xs text-gray-400">
+    <p>made with <a href="https://gohugo.io" class="underline hover:text-blue-400">Hugo</a> and <a href="https://tailwindcss.com" class="underline hover:text-blue-400">TailwindCSS</a></p>
+</footer></body>
+</html>
