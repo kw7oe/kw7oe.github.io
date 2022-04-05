@@ -53,7 +53,7 @@ Benchmarking and writing a concurrent mini Redis in Elixir | kw7oe
 <header class="mb-8">
   <h1 class="title">Benchmarking and writing a concurrent mini Redis in Elixir</h1>
   <p class="text-sm font-gray-700 mb-1">Apr 05, 2022</p>
-  <p class="text-sm mb-4 font-gray-700 italic">Estimated Reading Time: 11 minutes (2260 words)</p>
+  <p class="text-sm mb-4 font-gray-700 italic">Estimated Reading Time: 11 minutes (2266 words)</p>
 
    
   <div id="tags">
@@ -101,6 +101,7 @@ make our mini Redis more performant!</p>
 <li><a href="#benchmarking-with-redis-benchmark">Benchmarking with <code>redis-benchmark</code></a></li>
 <li><a href="#handling-concurrent-requests-in-our-tcp-server">Handling concurrent requests in our TCP server</a></li>
 <li><a href="#tuning-on-gen_tcp-configuration-to-improve-performance">Tuning on <code>gen_tcp</code> configuration to improve performance</a></li>
+<li><a href="#comparing-with-the-real-redis-server">Comparing with the real Redis server</a></li>
 </ul>
 <hr>
 <p><em>This post is inspired by <a href="https://tokio.rs/tokio/tutorial/setup">Rust Tokio Mini-Redis Tutorial</a>,
@@ -407,7 +408,7 @@ Summary:
         0.038     0.008     0.039     0.063     0.087     0.455
 </code></pre></div><p>120k requests per second, 60k requests faster than our implementation. Given
 that how much code we have written, and how easy it is, I think it is fair enough.</p>
-<h2 id="note-about-our-benchmark">Note about our benchmark</h2>
+<h3 id="note-about-our-benchmark">Note about our benchmark</h3>
 <p>Since this is a synthetic benchmark, don&rsquo;t take it super seriously. Our system might
 behave differently on different workload. The main reason of benchmarking here,
 is to provide a better picture for the performance of our implementation. This
