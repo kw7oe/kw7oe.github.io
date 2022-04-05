@@ -15,6 +15,7 @@ This post consists of the following sections:
 * [Benchmarking with `redis-benchmark`](#benchmarking-with-redis-benchmark)
 * [Handling concurrent requests in our TCP server](#handling-concurrent-requests-in-our-tcp-server)
 * [Tuning on `gen_tcp` configuration to improve performance](#tuning-on-gen_tcp-configuration-to-improve-performance)
+* [Comparing with the real Redis server](#comparing-with-the-real-redis-server)
 
 ---
 
@@ -414,7 +415,7 @@ Summary:
 that how much code we have written, and how easy it is, I think it is fair enough.
 
 
-## Note about our benchmark
+### Note about our benchmark
 
 Since this is a synthetic benchmark, don't take it super seriously. Our system might
 behave differently on different workload. The main reason of benchmarking here,
