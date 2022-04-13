@@ -1,0 +1,14 @@
+{{ define "main" }}
+<h1 class="text-2xl mb-8 font-semibold">{{ title .Title }}</h1>
+
+<div class="mb-8 toc">
+  <ul>
+    {{ range (.Pages.ByParam "chapter") }}
+    <li class="grid grid-cols-9 text-lg">
+      <p class="col-span-1">{{  printf "%02d" .Params.chapter }}</p>
+      <a class="col-span-8 font-semibold" href="{{ .Permalink }}">{{ .Title }}</a>
+    </li>
+    {{ end }}
+  </ul>
+</div>
+{{ end }}

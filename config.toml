@@ -10,6 +10,7 @@ summaryLength = 50
 
 [permalinks]
 posts = "/:sections/:year/:month/:day/:slug/"
+books = "/:sections/:title"
 
 [build]
   writeStats = true
