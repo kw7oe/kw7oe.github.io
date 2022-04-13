@@ -50,6 +50,12 @@
     <loc>https://kaiwern.com/posts/2021/12/13/2021-in-review/</loc>
     <lastmod>2021-12-13T21:52:06+08:00</lastmod>
   </url><url>
+    <loc>https://kaiwern.com/categories/</loc>
+    <lastmod>2021-12-13T21:52:06+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/categories/life/</loc>
+    <lastmod>2021-12-13T21:52:06+08:00</lastmod>
+  </url><url>
     <loc>https://kaiwern.com/tags/postgresql/</loc>
     <lastmod>2021-07-20T20:30:00+08:00</lastmod>
   </url><url>
@@ -70,12 +76,6 @@
   </url><url>
     <loc>https://kaiwern.com/about/</loc>
     <lastmod>2021-06-19T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://kaiwern.com/categories/</loc>
-    <lastmod>2021-06-15T22:00:00+08:00</lastmod>
-  </url><url>
-    <loc>https://kaiwern.com/categories/life/</loc>
-    <lastmod>2021-06-15T22:00:00+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/posts/2021/06/15/the-one-simple-trick-to-accomplish-your-so-many-goals/</loc>
     <lastmod>2021-06-15T22:00:00+08:00</lastmod>
@@ -183,9 +183,6 @@
     <lastmod>2018-10-14T15:32:00+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/posts/2018/10/03/a-note-onapplication-in-mix.exs-starting-from-elixir-1.4/</loc>
-    <lastmod>2018-10-03T21:45:00+08:00</lastmod>
-  </url><url>
-    <loc>https://kaiwern.com/tags/elixr/</loc>
     <lastmod>2018-10-03T21:45:00+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/tags/awk/</loc>

@@ -143,5 +143,15 @@ Using Sinatra, we can write a quick and simple web server with the following cod
 require &amp;#39;sinatra&amp;#39; require &amp;#39;json&amp;#39; get &amp;#39;/&amp;#39; do content_type :json JSON({message: &amp;#34;Hello World&amp;#34;}) end How can we achive that in Elixir?</description>
     </item>
     
+    <item>
+      <title>A note on`application` in mix.exs starting from Elixir 1.4</title>
+      <link>https://kaiwern.com/posts/2018/10/03/a-note-onapplication-in-mix.exs-starting-from-elixir-1.4/</link>
+      <pubDate>Wed, 03 Oct 2018 21:45:00 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2018/10/03/a-note-onapplication-in-mix.exs-starting-from-elixir-1.4/</guid>
+      <description>Starting from Elixir 1.4, we don&amp;rsquo;t need to specify our application lists in application. It is automatically inferred from our dependencies. (Check the release notes here)
+Do note that it only automatically infer the application lists if the :applications key is empty. If you had already declared your it in your mix.</description>
+    </item>
+    
   </channel>
 </rss>
