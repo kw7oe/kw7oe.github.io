@@ -1,27 +1,29 @@
 const themeDir = __dirname + '/../../';
 
+const purgecss = require('@fullhuman/postcss-purgecss')({
+    // see https://gohugo.io/hugo-pipes/postprocess/#css-purging-with-postcss
+    content: [
+        './hugo_stats.json',
+        themeDir + '/hugo_stats.json',
+        'exampleSite/hugo_stats.json',
+    ],
+    safelist : [ /type/ ],
+    defaultExtractor: (content) => {
+        let els = JSON.parse(content).htmlElements;
+        return els.tags.concat(els.classes, els.ids);
+    }
+})
+
 module.exports = {
     plugins: [
-        require('postcss-import')({
-            path: [themeDir]
-            }),
-        require('tailwindcss')(themeDir + 'assets/css/tailwind.config.js'),
-        // Configuration of purgecss for Tailwindcss
-        // see https://tailwindcss.com/docs/controlling-file-size/#setting-up-purgecss
-        require('@fullhuman/postcss-purgecss')({
-            // Specify the paths to all of the template files in your project
-            content: [
-                themeDir + 'layouts/**/*.html',
-                'layouts/**/*.html',
-                'content/**/*.html',
-            ],
-            // Include any special characters you're using in this regular expression
-            defaultExtractor: content => content.match(/[\w-/:]+(?<!:)/g) || [],
-            fontFace: true
-        }),
-        require('autoprefixer')({
-            grid: true
-        }),
-        require('postcss-reporter'),
+      require('postcss-import')({
+        path: [themeDir]
+      }),
+      require('tailwindcss')(themeDir + 'assets/css/tailwind.config.js'),
+      require('autoprefixer')({
+        path: [themeDir]
+      }),
+      ...(process.env.HUGO_ENVIRONMENT === 'production' ? [purgecss] : [])
     ]
 }
+
