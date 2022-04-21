@@ -7,7 +7,8 @@
     "author": "dirkolbrich <github@dirkolbrich.de>",
     "license": "MIT",
     "scripts": {
-        "start": "hugo --gc"
+        "start": "hugo --gc",
+        "build": "tailwindcss --postcss ./assets/css/postcss.config.js -c ./assets/css/tailwind.config.js -i ./assets/css/main.css -o ./assets/css/styles.css --watch"
     },
     "devDependencies": {
         "@fullhuman/postcss-purgecss": "^4.x",

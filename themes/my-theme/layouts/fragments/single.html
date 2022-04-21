@@ -1,0 +1,30 @@
+{{ define "main" }}
+<div>
+  <header class="mb-8">
+    <div class="text-sm font-gray-700 mb-8">
+      <p class="uppercase font-bold">
+      <a class="text-gray-700" href="/{{ .Type }}">{{ .Type }}</a>
+      </p>
+      <p>{{ .Date.Format "Jan 02, 2006" }}</p>
+
+    </div>
+    <h1 class="text-3xl mb-1 font-semibold">{{ .Title }}</h1>
+  </header>
+
+  <article class="prose serif mb-16 text-gray-800">
+    {{ if and (gt .WordCount 400 ) (.Params.toc) }}
+    <div class="mb-8 pb-6 border-b border-t">
+      <h2>Table of Content</h2>
+      {{.TableOfContents}}
+    </div>
+    {{ end }}
+
+    {{ .Content }}
+
+    <div class="float-right mb-8">
+      <p class="text-sm mb-4 font-gray-700 italic">({{ .WordCount }} words)</p>
+    </div>
+  </article>
+
+</div>
+{{ end }}

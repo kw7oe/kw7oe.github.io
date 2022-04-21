@@ -194,7 +194,7 @@ nav#TableOfContents > ul > li {
   font-family: 'Source Sans Pro', sans-serif;
 }
 
-.serif :not(.highlight *) {
+.serif h1, .serif h2, .serif h3, .serif h4, .serif h5, .serif h6, .serif p, .serif li, .serif a {
   font-family: 'Lora', sans-serif;
 }
 /* purgecss end ignore */

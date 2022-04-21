@@ -24,7 +24,7 @@
   <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 {{ end }}
 
-{{ if eq .Page.Type "books" }}
+{{ if ne .Page.Type "posts"  }}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lora&family=Source+Sans+Pro:wght@400;600&display=swap" rel="stylesheet">
