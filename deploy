@@ -5,11 +5,11 @@ if [[ -z "$1" ]]; then
   exit
 fi
 
+echo "Build css..."
+cd themes/my-theme/ && npx tailwindcss --postcss ./assets/css/postcss.config.js -c ./assets/css/tailwind.config.js -i ./assets/css/main.css -o ./assets/css/styles.css && cd ../..
+
 echo "Cleaning public directoy...."
 cd public && find . -path ./.git -prune -o -exec rm -rf {} \; 2> /dev/null
-
-echo "Build css..."
-cd themes/my-theme/ && npx tailwindcss --postcss ./assets/css/postcss.config.js -c ./assets/css/tailwind.config.js -i ./assets/css/main.css -o ./assets/css/styles.css --watch
 
 echo "Run hugo..."
 cd .. && hugo
