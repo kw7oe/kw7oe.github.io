@@ -13,7 +13,7 @@ Deploying Elixir/Phoenix Release to Production | kw7oe
 
 
   
-  <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.27276808840a7f610ac61ff3ddaf1583382d2026fe578bf620fcc1ac671eca18.css" integrity="sha256-JydoCIQKf2EKxh/z3a8VgzgtICb+V4v2IPzBrGceyhg=">
+  <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.eae0ec4207f7b85cbcbf6080479363c53f40fc1e3d6334c58cf732ac3739be17.css" integrity="sha256-6uDsQgf3uFy8v2CAR5NjxT9A/B49YzTFjPcyrDc5vhc=">
   <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -90,7 +90,7 @@ Deploying Elixir/Phoenix Release to Production | kw7oe
   </div>
 </header>
 
-<article class="markdown mb-8 text-gray-800">
+<article class="prose mb-8 text-gray-800">
   
 
   <p><em>Updates (12th August 2020): Fix my mistake on using <code>bin/app restart</code>.</em></p>
@@ -105,7 +105,7 @@ larger scale system, consider using other tools.</em></p>
 has reverse proxy like <code>nginx</code> setup and pointing port 80 towards your
 application port 4000. If you depend on the database, it&rsquo;s assumed that the database
 is up and running.</em></p>
-<h1 id="steps-for-initial-release">Steps for initial release</h1>
+<h2 id="steps-for-initial-release">Steps for initial release</h2>
 <p>Before we start, let&rsquo;s briefly talk about the steps involved to deploy our
 release:</p>
 <ol>
@@ -168,11 +168,11 @@ your <code>~/.ssh/config</code>:</p>
   Hostname 192.168.1.1 # IP address
 </code></pre><p>With this configuration, you can now directly <code>ssh prod-server</code> instead of
 using <code>ssh kai@192.168.1.1</code>.</p>
-<h1 id="steps-for-updating-subsequent-release">Steps for updating subsequent release</h1>
+<h2 id="steps-for-updating-subsequent-release">Steps for updating subsequent release</h2>
 <p>Subsequent release involves the similar steps as the above. The difference is
 before starting the new version, we need to stop our old version server first.
 However, there is a couple of things that is good to know before we proceed.</p>
-<h2 id="stopping-application-take-some-times">Stopping application take some times</h2>
+<h3 id="stopping-application-take-some-times">Stopping application take some times</h3>
 <p>Script like this won&rsquo;t work:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">bin/app stop
 bin/app start
@@ -214,7 +214,7 @@ the following error:</p>
     still getting the old version.
   </p>
 </div>
-<h2 id="replacing-old-release-with-new-release-will-cause-binapp-command-not-working-expectedly">Replacing old release with new release will cause <code>bin/app</code> command not working expectedly</h2>
+<h3 id="replacing-old-release-with-new-release-will-cause-binapp-command-not-working-expectedly">Replacing old release with new release will cause <code>bin/app</code> command not working expectedly</h3>
 <p>That&rsquo;s not the only thing we need to overcome. Another tricky one would be, if
 we were extract our new release tarball, which then replace our old release,
 <code>bin/app pid</code> would not work as expected at the time of writing (11th July,
@@ -244,7 +244,7 @@ which spin up a hidden node and evaluate some code on the remote node
 more details)</em>.</p>
 <p>Here is the command executed underneath every time we run <code>bin/app pid</code>:</p>
 <pre tabindex="0"><code>/home/kai/app/releases/0.1.1/elixir --hidden --cookie COOKIE --sname rpc-29e0-app --boot /home/kai/app/releases/0.1.1/start_clean --boot-var RELEASE_LIB /home/kai/app/lib --rpc-eval app IO.puts System.pid()
-</code></pre><h3 id="side-note-how-can-we-know-the-command-running-underneath">Side Note: How can we know the command running underneath?</h3>
+</code></pre><h4 id="side-note-how-can-we-know-the-command-running-underneath">Side Note: How can we know the command running underneath?</h4>
 <p>An easy way to know what&rsquo;s the command running underneath of a executable
 script is adding <code>set -x</code> on top of the script file. Instead of having the
 original <code>bin/app</code> script that looks like this:</p>
@@ -269,8 +269,8 @@ a detailed log will be output to show what is being run underneath.</p>
 <p>I actually came across this while going through Buildkite documentation for
 <a href="https://buildkite.com/docs/pipelines/writing-build-scripts#configuring-bash">writing build scripts</a>. Go ahead and read about it if you&rsquo;re interested in
 the details behind.</p>
-<h2 id="solution">Solution</h2>
-<h3 id="1-fixing-our-cookie">1. Fixing our cookie</h3>
+<h3 id="solution">Solution</h3>
+<h4 id="1-fixing-our-cookie">1. Fixing our cookie</h4>
 <p>The first thing we need to resolve is to ensure that every time we start our
 release, the same cookie is used. Fortunately, this can be easily done by using
 <code>RELEASE_COOKIE</code> environment variable or putting the cookie in our release
@@ -298,7 +298,7 @@ it would be placing it in my local <code>.env.production</code> file:</p>
 as my environment variable file <code>.env</code>:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># scp &lt;source&gt; &lt;host&gt;:&lt;destination&gt;</span>
 scp .env.production <span class="nv">$HOST</span>:~/<span class="nv">$APP_NAME</span>/.env
-</code></pre></div><h3 id="2-add-script-to-deploy-new-release">2. Add script to deploy new release</h3>
+</code></pre></div><h4 id="2-add-script-to-deploy-new-release">2. Add script to deploy new release</h4>
 <p>The only difference between the
 script for initial release and subsequent release is the part where we start
 the application:</p>
@@ -393,7 +393,7 @@ into function.</p>
     execution will still be successful.
   </p>
 </div>
-<h3 id="side-note-not-the-best-way-to-health-check">Side Note: Not the best way to health check</h3>
+<h4 id="side-note-not-the-best-way-to-health-check">Side Note: Not the best way to health check</h4>
 <p>This is not the best way to health check your application. For the following
 reasons:</p>
 <ul>
@@ -410,7 +410,7 @@ for another day.</li>
 only suitable for small projects. Cluster schedulers like Kubernetes, Nomad or ECS
 have already solve this issue for you, as far as I know.</li>
 </ul>
-<h1 id="glue-it-all-together">Glue it all together</h1>
+<h3 id="glue-it-all-together">Glue it all together</h3>
 <p>To sum up, this is the bash script <code>./deploy</code> that I used for deploying initial or
 subsequent release of my side projects:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="cp">#!/bin/bash
@@ -480,7 +480,7 @@ environment variable to be available in order to execute it.</p>
 <li>Added <code>bold_echo</code> to print out each step in bold and formatted text.</li>
 <li>Added clean up code after our release.</li>
 </ul>
-<h1 id="wrap-up">Wrap Up</h1>
+<h2 id="wrap-up">Wrap Up</h2>
 <p>That&rsquo;s all. Building and deploying Elixir release can be simple once you know
 the building blocks. However, do remember that this might not be the best
 approach to deploy. It really depends on your context. For my personal

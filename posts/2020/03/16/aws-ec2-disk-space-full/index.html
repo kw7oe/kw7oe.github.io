@@ -13,7 +13,7 @@ AWS EC2 Disk Space Full | kw7oe
 
 
   
-  <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.27276808840a7f610ac61ff3ddaf1583382d2026fe578bf620fcc1ac671eca18.css" integrity="sha256-JydoCIQKf2EKxh/z3a8VgzgtICb+V4v2IPzBrGceyhg=">
+  <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.eae0ec4207f7b85cbcbf6080479363c53f40fc1e3d6334c58cf732ac3739be17.css" integrity="sha256-6uDsQgf3uFy8v2CAR5NjxT9A/B49YzTFjPcyrDc5vhc=">
   <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -76,7 +76,7 @@ AWS EC2 Disk Space Full | kw7oe
   </div>
 </header>
 
-<article class="markdown mb-8 text-gray-800">
+<article class="prose mb-8 text-gray-800">
   
 
   <p><em>Updates (4th June, 2020): Adding in another potential causes: logs</em></p>
@@ -91,7 +91,7 @@ Here, I am sharing the common approaches to clean up our EC2 disk space.</p>
 udev           devtmpfs  2.0G     0  2.0G   0% /dev
 tmpfs          tmpfs     396M   41M  355M  11% /run
 /dev/xvda1     ext4      7.7G  7.7G   70M  59% /
-</code></pre><h1 id="identifying-the-root-cause">Identifying the root cause</h1>
+</code></pre><h2 id="identifying-the-root-cause">Identifying the root cause</h2>
 <p>Before cleaning up our disk space, we need to know which directories are taking
 up most of the space.</p>
 <p>To do this, you&rsquo;ll probably need to have the <code>sudo</code> access. First, run the
@@ -288,7 +288,7 @@ tmpfs          tmpfs     396M   41M  355M  11% /run
 /dev/xvda1     ext4      7.7G  4.3G  3.5G  56% /
 ...
 </code></pre><p>All my space is back! And <code>nginx</code> is still working properly.</p>
-<h1 id="conclusion">Conclusion</h1>
+<h2 id="conclusion">Conclusion</h2>
 <p>That&rsquo;s all. These are the findings I discovered while attempting to solve disk
 space full issue in our EC2 instances. Hopefully it helps. All the information
 are actually available if we managed to search for the right term or key words.</p>
