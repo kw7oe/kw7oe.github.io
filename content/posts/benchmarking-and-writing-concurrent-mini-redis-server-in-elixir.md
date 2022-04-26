@@ -479,7 +479,7 @@ implementation to improve the performance of our mini Redis server. But for
 now,
 that's the end of this series.
 
-# Wrap Up
+## Wrap Up
 
 Can you believe that we are able to write a mini Redis server with such a
 short time and code? I didn't believe it until I tried to do it.
