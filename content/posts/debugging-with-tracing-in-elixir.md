@@ -13,7 +13,7 @@ _This article is a downgraded version of the video_ 😂.
 _I wrote this before the video is published. Then, I came across
 it and learn a lot more from there._
 
-<hr>
+---
 
 I use `IO.inspect` for debugging in Elixir a lot. But there are times when you
 can't just `IO.inspect` to debug stuff, especially in a running production
@@ -46,9 +46,9 @@ questions:_
 - [Elixir - Trace function call][0]
 - [Using trace and dbg in Erlang][3]
 
-# Introduction
+## Introduction
 
-## Starting `:dbg`
+### Starting `:dbg`
 
 Before we start tracing, we need to start the `dbg` and `tracer` process with the following
 code:
@@ -60,7 +60,7 @@ code:
 
 It won't do anything until you state what you would like to trace explicitly.
 
-## Specifying what to trace
+### Specifying what to trace
 
 Let's say we want to trace the `Enum.map/2` function that was called in the
 system. We can specify it by running:
@@ -70,7 +70,7 @@ system. We can specify it by running:
 :dbg.p(:all, :c)
 ```
 
-## Tracing in action
+### Tracing in action
 
 When some part of your code call `Enum.map([1,2,3], & &1 + 1)`,
 depending on where you are running the above `:dbg` code, you'll get
@@ -105,7 +105,7 @@ If you want it to output in your remote shell, you'll need to start your
 handle each of the traced events. Here, we are telling the tracer to
 log output to our local shell instead.
 
-## Stopping the tracing
+### Stopping the tracing
 
 To stop the tracing, it is as simple as:
 
@@ -133,7 +133,7 @@ The first function clause tell the tracer to stop after 5 events. The
 second one tell the tracer how it should handle the receive event. In this
 case, we are just printing it and increment the counter.
 
-## All together
+### All together
 
 Here is the code you can copy all together and past it in your `iex` to see
 tracing in action:
@@ -156,7 +156,7 @@ Enum.map([1,2,3,4], & &1 + 1)
 Enum.map([1,2,3,4], & &1 + 1)
 ```
 
-# Customization
+## Customization
 
 Sometimes you would want to know more than the arguments being passed
 to the function, you might want to know the return result, or
@@ -165,7 +165,7 @@ the timestamps when the function run.
 You can achieve this by providing more arguments to some of the function we
 used above.
 
-## Getting return trace/value
+### Getting return trace/value
 
 To get the return trace, we can specify more options in `:dbg.tpl` as follow:
 
@@ -194,7 +194,7 @@ Enum.map([1,2,3], & &1 + 1)
 :dbg.stop
 ```
 
-## Include timestamps of function call
+### Include timestamps of function call
 
 To include the timestamps of the function call, we can include `:timestamp` when
 calling `:dbg.p`:
@@ -221,7 +221,7 @@ Enum.map([1,2,3,4], & &1 + 1)
 :dbg.stop
 ```
 
-## Tracing more specific function call
+### Tracing more specific function call
 
 You might also want to only trace function called with specific
 arguments, for example a user id, or specific category. You could do this by
@@ -264,7 +264,7 @@ Enum.map([1,2], & &1 + 1)
 _"How do I write those complicated match spec?"_, you might be wondering. Rest
 assure, that's what we cover next.
 
-## Writing match spec
+### Writing match spec
 
 It can be hard to write match spec for complicated scenario.
 Luckily, `:dbg.fun2ms` can be used to help you transform your function to a
@@ -333,7 +333,7 @@ Enum.map([1,2,3], & &1 + 1)
 # [2, 3, 4]
 ```
 
-# Wrap Up
+## Wrap Up
 
 That's all I'm _re_ sharing today. `:dbg` can be a bit low level. If you prefer
 a simpler interface, consider using [`recon_trace`][6] from [`recon`][7].

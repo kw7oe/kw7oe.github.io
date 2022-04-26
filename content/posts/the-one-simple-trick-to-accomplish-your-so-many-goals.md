@@ -25,7 +25,7 @@ In this post, I'll cover:
 - [What if I get bored!?](#what-if-i-get-bored)
 - [How to get started?](#how-to-get-started)
 
-# The fallacy of having many goals
+## The fallacy of having many goals
 
 I wanted to do a lot of different things, even though I only have
 at most 8 hours per day _(excluding work and sleep)_.
@@ -41,7 +41,7 @@ So given that scenario guess how's my progress for each goal looks like?
 Not great. My focus and time is distributed across different things and I ended up
 not feeling satisfied with my output.
 
-# Paradox of Choice
+## Paradox of Choice
 
 Have you heard of Paradox of Choice? This is a perfect example for that.
 
@@ -65,7 +65,7 @@ we have. Remember the saying:
 In short, having too many goals make it harder for us to prioritize and
 focus on on our goals.
 
-# Elimination of Choice
+## Elimination of Choice
 
 When that happen, we need to start to say no to ourselves.
 
@@ -83,7 +83,7 @@ make is just pick the _one thing_ that:
 
 And start focusing on doing that one thing.
 
-# Why one thing at a time?
+## Why one thing at a time?
 
 First and foremost, by focusing on one thing at a time, I have less **context switching**.
 
@@ -104,7 +104,7 @@ To sum up, by working on one thing at a time:
 - I have less context switch. I focus on one thing every single day.
 
 
-# What if I get bored!?
+## What if I get bored!?
 
 Focusing on doing one thing the whole month is hard.
 
@@ -157,7 +157,7 @@ I'm scoping it to different time aspect above, but you can also apply
 it by category. For example, focusing on only one hobby project at a time
 instead of having 2-3 hobby projects, where you end up shipping nothing.
 
-# How to get started?
+## How to get started?
 
 A straightforward way to get started is:
 
@@ -202,7 +202,7 @@ better and understanding yourself and the process of prioritization, you can
 apply the practice on monthly. But it would not be 100% similar to the process
 above.
 
-# Closing
+## Closing
 
 Does this mean I have figure it all out? Hell no. It's a simple trick, but also a hard one to stick with. It takes practice and reflection over and over again until you find the process that work for you. **Give it a try. Who know what it will lead to?**
 

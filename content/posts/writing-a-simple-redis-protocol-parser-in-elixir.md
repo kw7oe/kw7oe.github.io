@@ -45,7 +45,7 @@ the series of implementing mini Redis in Elixir:_
 
 ---
 
-# Redis Protocol Specification
+## Redis Protocol Specification
 
 Redis Protocol Specification (**RESP**) is the protocol Redis client and server
 used to communicate with each other.
@@ -54,7 +54,7 @@ As mentioned aboved, it consists of multiple commands, and it's not ideal
 to go through every of them in this post. Hence, I'll just cover the basic we need
 to know for this post.
 
-## Supported Types
+### Supported Types
 
 RESP basically support the following types. To allow us to differentiate
 different types, the protocol use the first byte as an identifier:
@@ -83,7 +83,7 @@ In general, this is what you need to know about each type:
 To know more, read the [documentation from
 the Redis website](https://redis.io/topics/protocol).
 
-## Simple Strings vs Bulk Strings
+### Simple Strings vs Bulk Strings
 
 Simple Strings is used to represent non binary safe string. It has less overhead
 since it doesn't require the length of the string to be known. Normally this is
@@ -114,7 +114,7 @@ $-1\r\n
 where a `-1` length is used, which is also called Null Bulk String. This is what we need
 to return from the server if a `GET` command should return `nil`.
 
-### But what is binary safe and non binary safe string?
+#### But what is binary safe and non binary safe string?
 
 Binary safe string means that the string can contain any character, including characters like
 `\0` that used to indicate a string is terminated in `C`.
@@ -125,12 +125,12 @@ to indicate a termination.
 To understand more, you can refer to the answers in this
 [StackOverflow question](https://stackoverflow.com/questions/19990140/what-is-the-difference-between-binary-safe-strings-and-binary-unsafe-strings).
 
-## How to send commands to server?
+### How to send commands to server?
 
 Now that we know the basic structure of how our reply would looks like, let's talk about
 how a command is represented in RESP, especially `GET` and `SET` command.
 
-### `GET` command
+#### `GET` command
 
 From the `GET` command [documentation](https://redis.io/commands/get), we know that
 the command support one argument. So to represent it as arrays, it will look something as follow:
@@ -155,23 +155,23 @@ This is what we need to send to the server to represent a `GET` command:
 To make it easier to understand, let's break down each parts into separate lines:
 
 ```shell
-// Indicate an array with 2 elements
+# Indicate an array with 2 elements
 *2\r\n
 
-// Indicate the first element is a Bulk String of 3 character
+# Indicate the first element is a Bulk String of 3 character
 $3\r\n
 
-// Actual content of the first element
+# Actual content of the first element
 GET\r\n
 
-// Indicate the second element is a Bulk String of 3 character
+# Indicate the second element is a Bulk String of 3 character
 $3\r\n
 
-// Actual content of the second element
+# Actual content of the second element
 key\r\n
 ```
 
-### `SET` command
+#### `SET` command
 
 For `SET` command, we will be focusing on the basic one without supporting the
 additional options:
@@ -187,7 +187,7 @@ encode it with RESP.
 Divide and Conquer.
 
 
-## Are you correct?
+### Are you correct?
 
 How do we know if we have the correct answer? Let's pull in Elixir Redis client `redix`.
 
@@ -210,7 +210,7 @@ of parsing the protocol, we will use it to verify our answer.
 By now, we should able to understand how RESP works. So let's proceed to the next stage
 where we write our code to encode and decode the raw input to a data structure and vice versa.
 
-# Writing our Parser
+## Writing our Parser
 
 Before we started to write our own parser, let's write some test case to help with us to verify
 our implementation easily.
@@ -355,7 +355,7 @@ by ignoring any line that indicate the type.
 It can also be implemented as a recursive function that might result in a better readability.
 Is this the ideal implementation? Definitely not! But this is a good start.
 
-# Wrap Up
+## Wrap Up
 
 It isn't as hard as you think, right? Obviously, there are space of improvements of our parser.
 But once you understand the building blocks of how Redis Protocol works it wouldn't be hard to

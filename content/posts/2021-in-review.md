@@ -17,7 +17,7 @@ Let's focus on the positive side of things and talk about what I have
 achieved this year first.
 
 
-# Achievements
+## Achievements
 
 While I perceived my 2021 as not great, in retrospective, I have actually
 achieved a couple of good things:
@@ -51,13 +51,13 @@ There are some extra wins for me as those achievements aren't planned out.
 Looking back, it's not really as bad as I think it is, but part of me feel
 that, there's more things I can do better in 2021. Let's talk about those.
 
-# Failures
+## Failures
 
 I failed to meet most the goals I set out to do in 2021.
 The only goal that I achieved so far is contribute to open
 source. Let's walk through each of my failures.
 
-## Being a consistent writer
+### Being a consistent writer
 
 Failed to do so because of personal issues. While I manage to be consistent for a few months,
 I end up hitting a wall.
@@ -69,7 +69,7 @@ is.
 It might also be that I'm burnout and am taking a break for doing anything. I
 feel less strongly than before to write down my learnings.
 
-## Sharing more of what I know
+### Sharing more of what I know
 
 One of my goals in 2021 is to share knowledge more often. Be it writing more
 articles, producing screen cast or sharing useful tips in Twitter.
@@ -80,11 +80,11 @@ not because I'm pursuing other more interesting meaningful work.
 
 It's just, I don't feel like doing it anymore.
 
-## Learning
+### Learning
 
 For learning, I categorized into tech and non tech learning. Failed at both.
 
-### The Bad
+#### The Bad
 
 I actually started to pick back playing Ukulele and learnt to play 1 or 2
 instrumental finger style music. It went really well initially. I can play
@@ -103,7 +103,7 @@ I have to admit, writing C++ and low level stuff is still hard to me. That
 could be part of the factor on why I stopped. It just feels hard to work
 through it and I don't have that determination like before anymore.
 
-### The Good
+#### The Good
 
 While writing this review and referring to my journal, I realized that I actually
 finished working through [Learn you some Erlang for great good][4] around
@@ -136,7 +136,7 @@ of the year.
 I'm managed to get back on track and have some progress on learning during my
 second week of vacations. And so can you.
 
-## Building Products
+### Building Products
 
 I also set out to build interesting product/projects for my own usage in 2021. One
 of them is a Firefox Tab manager.
@@ -183,7 +183,7 @@ Having going through this, I have realized that:
 On top of that, it's never too late to reevaluate if it's the right battle to
 fight while fighting it and quit the battle if it's not.
 
-# Key Takeaways
+## Key Takeaways
 
 Living through 2021, experience through "hardship" and writing
 this review make me realize the following:

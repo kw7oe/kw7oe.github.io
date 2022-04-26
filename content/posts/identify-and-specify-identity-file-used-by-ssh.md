@@ -95,7 +95,7 @@ With this, `ssh` will only attempt to use the identity file you provided in the
 command. However, do note that if the file does not exist, `ssh` will still
 attempt to use all the identity files you have.
 
-# Wrap Up
+## Wrap Up
 
 Here, I am just sharing another new things I learn from the internet . Hope it
 helps!

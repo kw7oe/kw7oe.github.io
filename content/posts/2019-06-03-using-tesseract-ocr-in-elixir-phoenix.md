@@ -79,7 +79,7 @@ In `templates/page/show.html.eex`:
 <%= @result %>
 ```
 
-**Demo**
+## Demo
 
 ![Demo](/images/tesseract-demo.gif)
 

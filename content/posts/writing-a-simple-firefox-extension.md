@@ -52,7 +52,7 @@ Here's how this post will be structured:
 
 
 
-# Basic structure of web extension
+## Basic structure of web extension
 
 Web extension is HTML, CSS and JavaScript that run on the web
 browser with some restrictions and permissions.
@@ -61,7 +61,7 @@ Before writing any new kind of project, is always good to know the
 project structure and how it works at a high level.
 
 
-## Project structure
+### Project structure
 
 The most basic web extension project structure will looks something like this:
 
@@ -86,7 +86,7 @@ extension.
 browser, this HTML file will represents the UI of the page.
 - `icons/icon.png`, to allow the web browser to display your extension icon.
 
-## High level architecture
+### High level architecture
 
 Most of the time, your web extension will interact with the [browser JavaScript APIs](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API) to achieve something you want.
 
@@ -98,7 +98,7 @@ User <-> Your Web Extension <-> Browser APIs
 
 _(this is not entirely accurate)_
 
-# Our first web extension
+## Our first web extension
 
 As someone who uses Markdown for note taking and saves links I
 browsed day to day, I often find myself copy the title and the URL of
@@ -120,9 +120,9 @@ to our clipboard:
 
 _(is in localhost:1313 because this is written in my local environment)_
 
-# Setting up web extension
+## Setting up web extension
 
-## Initialize project folder
+### Initialize project folder
 
 Let's create our web extension project folder:
 
@@ -132,7 +132,7 @@ cd my-ttmd
 touch manifest.json index.js
 ```
 
-## Writing `manifest.json`
+### Writing `manifest.json`
 
 In `manifest.json`, add the following code:
 
@@ -165,7 +165,7 @@ our browser extension. For more, you can read about it [here][0].
 Currently, we requested permissions for the [`tabs`][1] API. We will be
 requesting for more permissions as we needed.
 
-## Writing `index.js`
+### Writing `index.js`
 
 Since we state in the manifest that we will have a background script called
 `index.js`, let's start writing some simple code:
@@ -178,7 +178,7 @@ console.log("hello world")
 Voila, our first extension is done. Classic hello world example. But how can we
 test it?
 
-## Testing browser extension
+### Testing browser extension
 
 As stated in [Mozilla tutorials][2], you can test your extension by temporarily
 loading your extension. Here's the steps:
@@ -206,7 +206,7 @@ write code and test the extension, we can now jump into the actual
 implementation.
 
 
-# Actual implementation
+## Actual implementation
 
 Let's first describe in detail the behaviour of our browser extension
 before we jump into the implementation:
@@ -245,7 +245,7 @@ questions above directly:
 Go have a read and come back. By then, you should have enough information
 to write our first browser extension.
 
-## Execute code when toolbar button is clicked
+### Execute code when toolbar button is clicked
 
 From the first article, we learn that we can use `browser.browserAction.onClicked.addListener(<function>)` to
 execute code when our button is clicked.
@@ -275,7 +275,7 @@ Now you can click `Inspect` button again and play around with your browser
 extension
 toolbar button. You should see hello world being logged multiple time.
 
-## Get the browser current active tab information
+### Get the browser current active tab information
 
 By reading through the documentation about [working with the Tabs API][3], we know that
 we could use `browser.tabs.query({...})` to get information about user tabs in
@@ -327,7 +327,7 @@ Here's what I get:
 }
 ```
 
-## Format it to Markdown
+### Format it to Markdown
 
 Well, for formatting is pretty straighforwad.
 
@@ -347,7 +347,7 @@ const titleToMarkdown = async () => {
 browser.browserAction.onClicked.addListener(titleToMarkdown);
 ```
 
-## Copy to clipboard
+### Copy to clipboard
 
 Given the information we have from [here][5], it should be straighforwad for us
 as well. Is all about calling the right API.
@@ -395,7 +395,7 @@ current active tab as Markdown link.
 
 🎉 In just 19 lines of code, we write our first web extension.
 
-# Practice
+## Practice
 
 _But something is lacking right? It's not obvious for our user to know if
 the Markdown link is successfully copied._
@@ -419,7 +419,7 @@ part without any spoilers or hint_
 
 ---
 
-# My solution
+## My solution
 
 Similar with the approach I took above, this is what I would Google search:
 
@@ -490,7 +490,7 @@ That's all we have for today. If you implemented yourself, you might have
 a different implementation and that's okay. There's no right and wrong as
 long as we achieve our goal of notifiying the user.
 
-# Closing
+## Closing
 
 If you need the full code example, here's the [repository][6] to my implementation.
 It might have slight differences but majority of it should be the same.

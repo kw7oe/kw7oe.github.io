@@ -676,7 +676,7 @@ value
 
 Voila, our mini Redis server is done!
 
-# What's next?
+## What's next?
 
 We have completed the basic functionality of a Redis server. However, it's
 still very far behind from the real Redis server. For example,

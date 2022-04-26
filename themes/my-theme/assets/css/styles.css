@@ -765,7 +765,7 @@ a:hover {
   color: var(--tw-prose-headings);
   font-weight: 800;
   font-size: 2.25em;
-  margin-top: 0;
+  margin-top: 5rem;
   margin-bottom: 0.8888889em;
   line-height: 1.1111111;
 }
@@ -803,8 +803,8 @@ a:hover {
 .prose :where(h4):not(:where([class~="not-prose"] *)) {
   color: var(--tw-prose-headings);
   font-weight: 600;
-  margin-top: 1.5em;
-  margin-bottom: 0.5em;
+  margin-top: 2.5rem;
+  margin-bottom: 1.5rem;
   line-height: 1.5;
 }
 
@@ -871,7 +871,7 @@ a:hover {
   border-radius: 0;
   padding: 0;
   font-weight: inherit;
-  color: inherit;
+  color: #333;
   font-size: inherit;
   font-family: inherit;
   line-height: inherit;
@@ -1517,6 +1517,8 @@ nav#TableOfContents > ul > li {
 
 /* purgecss end ignore */
 
+/* purgecss start ignore */
+
 .markdown pre code {
   padding: 0;
 }
@@ -2061,6 +2063,8 @@ nav#TableOfContents > ul > li {
 .chroma .w {
   color: #bbbbbb
 }
+
+/* purgecss end ignore */
 
 /* Tailwind's utility classes - generated based on config file */
 

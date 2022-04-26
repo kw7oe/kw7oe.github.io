@@ -8,7 +8,9 @@
 
 /* Site Specific */
 @import "site.css";
+/* purgecss start ignore */
 @import "syntax.css";
+/* purgecss end ignore */
 
 /* Tailwind's utility classes - generated based on config file */
 @import "tailwindcss/utilities";

@@ -8,6 +8,13 @@ module.exports = {
       typography: {
         DEFAULT: {
           css: {
+            h1: {
+              marginTop: "5rem"
+            },
+            h4: {
+              marginTop: "2.5rem",
+              marginBottom: "1.5rem"
+            },
             "pre": {
               "backgroundColor": "#edf2f7",
               "marginTop": "0.75rem",
@@ -19,7 +26,8 @@ module.exports = {
               "overflowX": "auto",
             },
             "pre code": {
-              "padding": "0"
+              "padding": "0",
+              "color": "#333"
             },
             "code": {
               "font-size": "0.875rem",

@@ -6,7 +6,7 @@ tags: ["postgresql", "timezone"]
 
 How many time have you been bitten up by timezone in PostgreSQL?
 
-I'm not sure about you but every time I work with timezone, I get f*cked by it.
+I'm not sure about you but every time I work with timezone, I get f\*cked by it.
 Every single time, I have to reread [certain resources][7] and google search again to
 make sure I am understanding the behavior of it correctly.
 
@@ -27,7 +27,7 @@ when demonstrating the behaviour. `Asia/Kuala_Lumpur` is 8 hours ahead UTC (+08)
 Do keep that in mind.
 
 
-# Getting and setting your database timezone
+## Getting and setting your database timezone
 
 First and foremost, we need to know how to get and set our current database
 timezone.
@@ -38,7 +38,7 @@ Let's open a `psql` session to try out.
 psql -U postgres
 ```
 
-## Show Database Timezone
+### Show Database Timezone
 To show the current timezone of our PostgreSQL, it is as simple as:
 
 ```postgres
@@ -53,7 +53,7 @@ SHOW timezone;
 (1 row)
 ```
 
-## Set Database Timezone
+### Set Database Timezone
 
 To change our timezone, we can use the `SET timezone` command:
 
@@ -143,12 +143,12 @@ In order to do that, there are two approach:
 
 _I am able to wrote this up thanks to this [StackOverflow question][8]._
 
-# Understanding the difference between `timestamp` and `timestamptz`
+## Understanding the difference between `timestamp` and `timestamptz`
 
 Let start from reviewing the information from the official [PostgreSQL documentation][1] to
 understand the difference of these two date time data type.
 
-## Timestamp without time zone
+### Timestamp without time zone
 `timestamp` refers to `timestamp without time zone`. Here's excerpt from the
 documentation that you need to know:
 
@@ -163,12 +163,12 @@ The main takeaway here are:
 - PostgreSQL derived the value from the date/time fields in the input.
 - PostgreSQL do not adjust the input. No conversion will be carried out.
 
-## Timestamp with time zone
+### Timestamp with time zone
 `timestamptz` refers to `timestamp with time zone`. There are two key parts you
 need to understand about this data type: how PostgreSQL is **storing** the
 value and how it **output** the value.
 
-### Storing
+#### Storing
 Here's the excerpt from the documentation that you need to know on how the value is stored:
 
 > For timestamp with time zone, the internally stored value is always in UTC (Universal Coordinated Time
@@ -184,7 +184,7 @@ The main takeaway here are:
 - PostgreSQL will assume the input timezone is the same as the system's
   timezone if no timezone offset is specified.
 
-### Output
+#### Output
 Here's the excerpt from the documentation that you need to know on how the value is outputted:
 
 > When a timestamp with time zone value is output, it is always converted from UTC to the current
@@ -198,7 +198,7 @@ The main takeaway here are:
 - We can use `AT TIME ZONE` construct to see the date time in another time
   zone.
 
-## Examples
+### Examples
 
 After reading the above and you understand the core difference between
 `timestamp` vs `timestamptz`, that's great, you can just skip to the next
@@ -218,7 +218,10 @@ For a more readable output, you can run `\x` on your `psql` session.
 Expanded display is on
 ```
 
+---
+
 ### When input timezone is the same with database timezone
+
 When you are storing your timestamp in the same timezone as your
 database timezone, there are no difference between `timestamptz`
 and `timestamp` in the final timestamp value stored.
@@ -257,6 +260,7 @@ Notice the difference for the column `timestamp_wtc` without
 explicit type casting. It is now type of `timestamp with timezone` since the
 input given are with timezone.
 
+---
 
 ### When input timezone is different from database timezone
 
@@ -271,7 +275,7 @@ differently:
 Let's first take a look about what happen when we use the input without
 timezone and input with a different timezone.
 
-**Input without timezone in `UTC` database timezone:**
+#### Input without timezone in `UTC` database timezone:
 
 ```sql
 SET timezone="UTC";
@@ -291,7 +295,7 @@ timezone is in UTC and the input is without timezone.
 Since our timezone is `Asia/Kuala_Lumpur`, PostgreSQL just assume the given
 timezone is the same as well.
 
-**Input with `+08` timezone in `UTC` database timezone:**
+#### Input with `+08` timezone in `UTC` database timezone:
 
 ```sql
 SET timezone="UTC";
@@ -309,7 +313,7 @@ This time for `timestamptz`, PostgreSQL will convert the given time to UTC.
 So, `2020-01-01 00:00:00` at Kuala Lumpur, is actually just `2019-12-31
 16:00:00` in UTC, since Kuala Lumpur timezone is ahead of UTC by 8 hours.
 
-**Input without timezone in `Asia/Kuala_Lumpur` database timezone:**
+#### Input without timezone in `Asia/Kuala_Lumpur` database timezone:
 
 Let's take a look about what happen if our database timezone is in
 `Asia/Kuala_Lumpur` when we input date time without timezone.
@@ -330,7 +334,8 @@ Similar with the above, no conversion is carried out, the difference with our
 UTC example is, instead of saving as `+00` it is saved as `+08` for
 `timestamptz`.
 
-**Input with `+08` timezone in `Asia/Kuala_Lumpur` database timezone:**
+
+#### Input with `+08` timezone in `Asia/Kuala_Lumpur` database timezone:
 
 For input with timezone, in this case, we are inputting date time with UTC
 timezone:
@@ -372,7 +377,7 @@ understand. In reality, the behavior can be sum up as:
   input format. Input with timezone info, is cast to `timestamptz`, while
   input without timezone, is cast to `timestamp`
 
-# Behaviour of `AT TIME ZONE`
+## Behaviour of `AT TIME ZONE`
 
 As mentioned above, we can use `AT TIME ZONE` to convert the date time stored
 to a different timezone. Looks straightforward to apply it right? But, always
@@ -390,7 +395,7 @@ Basically, this can be summarized into `AT TIME ZONE`:
 Hence, given different input type, PostgreSQL will behave differently. Let's
 take a look at a few simple examples.
 
-## Using with `timestamptz`
+### Using with `timestamptz`
 
 Let's start with converting the timezone using `AT TIME ZONE` for `timestamptz`
 input.
@@ -429,7 +434,7 @@ change the timezone of a `timestamptz`, the return value will be in `timestamp`.
 There shouldn't be any surprise for this use case as it is behaving as what we
 expected. Let's take a look at another example.
 
-## Using with `timestamp`
+### Using with `timestamp`
 
 Using `AT TIME ZONE` with input of `timestamp` will behave differently.
 However, it's not clear for us in the first sight.
@@ -511,7 +516,7 @@ This will help you to understand and remember the behaviour much better.
 
 
 
-### Summary
+#### Summary
 
 To summarized, when we use `AT TIME ZONE` with `timestamp`, we are saying given
 this datetime assuming it is in this timezone. So, with `AT TIME ZONE 'Asia/Kuala_Lumpur`,
@@ -531,7 +536,7 @@ However, since PostgreSQL need to display the datetime with the current database
 it will convert the timezone again.
 
 
-## Summary for `AT TIME ZONE`
+### Summary for `AT TIME ZONE`
 
 Assuming that:
 - **`given timezone`**: `Asia/Kuala Lumpur`
@@ -545,7 +550,7 @@ Calling `AT TIME ZONE` with the above info can be summarized as:
 | 2020-01-01 00:00:00 (timestamp) | `SELECT '2020-01-01 00:00:00'::timestamp AT TIME ZONE 'Asia/Kuala_Lumpur';` | Given the input, assuming it is in the `given timezone`, what are the datetime value after converting to our `current database timezone`? | 2019-12-31 16:00:00+00 (timestamptz) |
 
 
-# POSIX timezone
+## POSIX timezone
 
 Last but not least, is knowing about POSIX timezone. If you notice,
 throughout the post, I'm avoiding using `Etc/GMT+8` even though that would
@@ -572,7 +577,7 @@ question][5])_.
 
 In this case, `Etc/GMT+8` is interpreted in POSIX standard.
 
-## What is POSIX timezone standard?
+### What is POSIX timezone standard?
 
 According to [PostgreSQL documentation here][3]:
 
@@ -593,7 +598,7 @@ So, rule of thumb, avoid `Etc/GMT**` if you don't to get yourself confuse.
 _If you want to understand about the naming of `Etc/..`, you can refer to this
 [Wikipedia article about tz database][4]._
 
-# Wrap Up
+## Wrap Up
 
 Hopefully that's helpful to you. While in this post we cover about PostgreSQL
 specifically, it's also important to understand the behaviour of the driver you

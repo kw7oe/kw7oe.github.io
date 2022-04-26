@@ -26,7 +26,7 @@ _While this article is written specifically for Elixir/Phoenix deployment,
 similar approach and scripts can apply for any web application running behind
 nginx to achieve blue green deployment._
 
-## Table of Content
+### Table of Content
 
 - [Prerequisite](#prerequisite)
 - [Following Along](#following-along)
@@ -61,7 +61,7 @@ experiment it locally, you can use the
 The README in the repository will contain more details on the required setup
 to follow along in this article.
 
-# Setting Up `nginx`
+## Setting Up `nginx`
 
 Before we go into details on how we can setup our Blue Green deployment, it's
 important for us to understand the building blocks that make it possible. Let's
@@ -84,7 +84,7 @@ Basically:
 
 Let's setup our nginx as above.
 
-## Blue Nginx Configuration
+### Blue Nginx Configuration
 
 Let's start by writing our blue _(also our initial)_ nginx configuration file
 _([refer from Phoenix Documentation][1])_ and placed it
@@ -172,7 +172,7 @@ proceed to setup the green version next!
   </p>
 </div>
 
-## Green Nginx configuration
+### Green Nginx configuration
 
 To be able to blue green deploy, we would need another nginx configuration that
 point to our green application process. It would look very similar with the
@@ -271,7 +271,7 @@ our application successfully.
   </p>
 </div>
 
-# Running two copies of our application
+## Running two copies of our application
 
 Since we have been relying on environment variable for our port value, to
 deploy another copy of our application on a different port, should be as
@@ -321,7 +321,7 @@ beam.smp 5162 vagrant   20u  IPv6  39660      0t0  TCP *:4000 (LISTEN)
 
 You'll see that our application release doesn't get started successfully.
 
-## Run multiple copies of same Elixir release in a single server
+### Run multiple copies of same Elixir release in a single server
 
 Let's attempt to start it manually and see what actually happen:
 
@@ -367,7 +367,7 @@ $ source .env && PORT=5000 RELEASE_NODE=green <app_version>/bin/<app_name> start
 15:46:40.450 [info] Access Web.Endpoint at http://example.com
 ```
 
-## Bash script for deploying multiple Elixir releases
+### Bash script for deploying multiple Elixir releases
 
 At this point, this is how our `./deploy.sh` script looks like:
 
@@ -457,7 +457,7 @@ Running `./deploy.sh` now the second time _(initial green build)_ will now
 deploy another copy of our application with the latest changes. The initial
 build will still be running and nothing is impacted.
 
-# Promoting our green version to live
+## Promoting our green version to live
 
 The current live version is still blue. So, in order to promote our green
 version to live. All we need to do is to run:
@@ -520,7 +520,7 @@ Do note that, at this point, we are running **2 copies of our application** on
 our remote server, which means we are consuming twice as much resources as
 well.
 
-# Running migration and console
+## Running migration and console
 
 Assuming you have follow the [guide to setup ecto migration][2] on the official Phoenix Documentation,
 you should be able to run migration by running the following comamnd:
@@ -540,7 +540,7 @@ because it is  connecting to our running process.
 
 More details will be cover below.
 
-## Running migration
+### Running migration
 
 Let's assume we have released both version `0.1.0` as `blue` and `0.1.1` as
 `green`. To run migration for the `0.1.0` release, it's the same as usual:
@@ -589,7 +589,7 @@ if [ "$1" = "migrate" ]; then
 fi
 ```
 
-## Running remote console
+### Running remote console
 
 Now, let's say that we want to run a remote console on our `0.1.0` deployed as
 `blue`. It is same as usual:
@@ -625,7 +625,7 @@ RELEASE_NODE=green ~/app_name/0.1.1/bin/app_name remote
 
 And voila, it works!
 
-### Why `eval` works without additional environment configuration?
+#### Why `eval` works without additional environment configuration?
 
 If you run:
 
@@ -654,7 +654,7 @@ That also explain why we need to `source .env` for `eval` because its running
 on another new system.
 
 
-# Deploying new blue and green version
+## Deploying new blue and green version
 
 That's not the end yet. We just cover the initial deployment part so far _(the
 first two deployments)_. Next up, we need to deployed new version for both
@@ -676,7 +676,7 @@ For example:
 
 Sounds straightforward right? However, it's not without its own problem.
 
-## What are the current version running for blue/green version?
+### What are the current version running for blue/green version?
 Since, we might have 2 application _(with different version)_ running on our
 server, we cannot just extract our release into `$APP_NAME` format as
 [before]({{< ref "deploying-elixir-phoenix-release-to-production.md#steps-for-initial-release" >}}).
@@ -703,7 +703,7 @@ ssh $HOST "~/$APP_NAME/$version/bin/$APP_NAME stop"
 However, it's not as straightforward as it seems. We still need
 to know the current blue/green version our applications are running.
 
-## Solution
+### Solution
 
 To resolve this, we need to get our last deployed blue/green version from
 somewhere every time we deploy. There are two ways we can get the version
@@ -713,7 +713,7 @@ data:
 - Store our deployed version somewhere in a data store when we deploy
 
 
-**Using `/version`**
+#### Using `/version`
 
 We can extract our blue/green running version in our bash script by doing
 something like:
@@ -733,7 +733,7 @@ Technically, I think is still possible to solve it with, _"if the connection to 
 
 But for now, I'll just leave it to you all if you prefer to do it this way.
 
-**Store version in a file**
+#### Store version in a file
 
 Instead, I am going to just write it to a file directly.
 
@@ -759,7 +759,7 @@ if [ -f filename ]; then
 fi
 ```
 
-## Bash script for deploying new blue/green version
+### Bash script for deploying new blue/green version
 
 Combining the above, the final bash script for this part
 will looks like this:
@@ -823,7 +823,7 @@ start_release() {
 }
 ```
 
-# Glue it all together
+## Glue it all together
 
 Finally, the outcome of it is as follow:
 
@@ -1000,7 +1000,7 @@ else
 fi
 ```
 
-# Wrap Up
+## Wrap Up
 
 While this blue green deployment works for our simple use case, there are a few
 drawbacks that one need to be aware of.

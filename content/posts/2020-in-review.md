@@ -17,7 +17,7 @@ There are a lot of things I have been through in 2020, which lead to a lot of
 learnings and takeaways. I gained more experience of being an adult and also
 realize many of my mistakes and weaknesses throughout the year
 
-# The Main Takeaway
+## The Main Takeaway
 The key takeaway of 2020 is:
 
 > Life is fragile.
@@ -31,7 +31,7 @@ around the world.
 
 Appreciate what you have, and don't take it for granted.
 
-# Goals
+## Goals
 
 In the beginning of 2020, I set out to:
 
@@ -52,7 +52,7 @@ In order to achieve my goals, here are some of the habits I'm building in
 
   So here's a brief review of why and how I am progressing in 2020 for each goals.
 
-## Be a consistent writer
+### Be a consistent writer
 
 This was my main gaols in 2020, and in order to achieve that, I try to write at
 least 3 times per week. But why was this the main goal over everything else?
@@ -88,7 +88,7 @@ where I think about the goals and tiny habits I want to focus on each week.
 There are more on these I can write on, but that's all for the reflection for
 now _(let's leave that for another post)_.
 
-## Be better and efficient in learning
+### Be better and efficient in learning
 
 To me, part of life is continuous learning. Hence, being better and efficient
 at learning is another goal I set out to achieve in 2020.
@@ -116,7 +116,7 @@ in 2021.
 Regardless, I still learn tons of things and gain a lot of new knowledge in
 2020, which might be a post for another day.
 
-## Exercise consistently
+### Exercise consistently
 
 Health is an important aspect in life. To stay healthy, I try
 to workout consistently.
@@ -138,7 +138,7 @@ I didn't persists, and eventually I fallback to the small step.
 In 2021, I will up my game a bit and set out to workout at least 2
 hours per week. Hopefully, by 2022, my stomach is not all in one anymore.
 
-## Be good at dating and loving someone
+### Be good at dating and loving someone
 
 This is the worst part of me. And, I did the worst on this in 2020. No excuse,
 I'm just bad at putting effort in a relationship.
@@ -165,7 +165,7 @@ not much. I think moving forward, is about:
 I'm still far from perfect. In 2021, I'll put in a lot more effort on being
 better at this.
 
-## Be a better son
+### Be a better son
 
 This is a good example of a bad goal setting. What does being a better son
 mean? Having said that, I think I'm not explicitly doing anything to be a
@@ -190,7 +190,7 @@ taking that one small step. And throughout 2020, I have also realized that:
 So, if things seem to be hard for you, maybe try to just thinking about _taking
 that one small step_, and ignore everything else.
 
-# Summary
+## Summary
 
 Overall, I did okay in 2020. I have grow significantly in my career. Doing okay
 in my personal life. Learn tons of things from my mistakes, and still continue

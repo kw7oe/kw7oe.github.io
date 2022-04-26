@@ -22,7 +22,7 @@ has reverse proxy like `nginx` setup and pointing port 80 towards your
 application port 4000. If you depend on the database, it's assumed that the database
 is up and running._
 
-# Steps for initial release
+## Steps for initial release
 
 Before we start, let's briefly talk about the steps involved to deploy our
 release:
@@ -99,13 +99,13 @@ Host prod-server # Host Name
 With this configuration, you can now directly `ssh prod-server` instead of
 using `ssh kai@192.168.1.1`.
 
-# Steps for updating subsequent release
+## Steps for updating subsequent release
 
 Subsequent release involves the similar steps as the above. The difference is
 before starting the new version, we need to stop our old version server first.
 However, there is a couple of things that is good to know before we proceed.
 
-## Stopping application take some times
+### Stopping application take some times
 Script like this won't work:
 
 ```bash
@@ -159,7 +159,7 @@ To overcome this issue, we need to either:
   </p>
 </div>
 
-## Replacing old release with new release will cause `bin/app` command not working expectedly
+### Replacing old release with new release will cause `bin/app` command not working expectedly
 That's not the only thing we need to overcome. Another tricky one would be, if
 we were extract our new release tarball, which then replace our old release,
 `bin/app pid` would not work as expected at the time of writing (11th July,
@@ -203,7 +203,7 @@ Here is the command executed underneath every time we run `bin/app pid`:
 /home/kai/app/releases/0.1.1/elixir --hidden --cookie COOKIE --sname rpc-29e0-app --boot /home/kai/app/releases/0.1.1/start_clean --boot-var RELEASE_LIB /home/kai/app/lib --rpc-eval app IO.puts System.pid()
 ```
 
-### Side Note: How can we know the command running underneath?
+#### Side Note: How can we know the command running underneath?
 
 An easy way to know what's the command running underneath of a executable
 script is adding `set -x` on top of the script file. Instead of having the
@@ -240,9 +240,9 @@ I actually came across this while going through Buildkite documentation for
 the details behind.
 
 
-## Solution
+### Solution
 
-### 1. Fixing our cookie
+#### 1. Fixing our cookie
 
 The first thing we need to resolve is to ensure that every time we start our
 release, the same cookie is used. Fortunately, this can be easily done by using
@@ -286,7 +286,7 @@ as my environment variable file `.env`:
 scp .env.production $HOST:~/$APP_NAME/.env
 ```
 
-### 2. Add script to deploy new release
+#### 2. Add script to deploy new release
 
 The only difference between the
 script for initial release and subsequent release is the part where we start
@@ -392,7 +392,7 @@ into function.
 </div>
 
 
-### Side Note: Not the best way to health check
+#### Side Note: Not the best way to health check
 This is not the best way to health check your application. For the following
 reasons:
 
@@ -410,7 +410,7 @@ reasons:
   have already solve this issue for you, as far as I know.
 
 
-# Glue it all together
+### Glue it all together
 
 To sum up, this is the bash script `./deploy` that I used for deploying initial or
 subsequent release of my side projects:
@@ -491,7 +491,7 @@ Also, some additional notes on the extra stuff added in the scripts:
 - Added `bold_echo` to print out each step in bold and formatted text.
 - Added clean up code after our release.
 
-# Wrap Up
+## Wrap Up
 
 That's all. Building and deploying Elixir release can be simple once you know
 the building blocks. However, do remember that this might not be the best

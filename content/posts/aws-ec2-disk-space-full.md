@@ -24,7 +24,7 @@ tmpfs          tmpfs     396M   41M  355M  11% /run
 /dev/xvda1     ext4      7.7G  7.7G   70M  59% /
 ```
 
-# Identifying the root cause
+## Identifying the root cause
 
 Before cleaning up our disk space, we need to know which directories are taking
 up most of the space.
@@ -304,7 +304,7 @@ tmpfs          tmpfs     396M   41M  355M  11% /run
 All my space is back! And `nginx` is still working properly.
 
 
-# Conclusion
+## Conclusion
 
 That's all. These are the findings I discovered while attempting to solve disk
 space full issue in our EC2 instances. Hopefully it helps. All the information

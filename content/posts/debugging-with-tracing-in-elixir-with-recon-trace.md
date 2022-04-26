@@ -22,15 +22,12 @@ This is what you can expect from this posts, hopefully it helps!
   - [Writing match spec](#writing-match-spec)
 
 _If you want to get hands on, I have written a [Livebook][0] notebook with all the
-code examples below._  ~~So, headover to the [repository](https://github.com/kw7oe/livebook-notebooks)
-to follow the instruction to import the notebook url to your Livebook.~~
-
-Just click the button below to run it!
+code examples below. Just click the button below to run it!_
 
 [![Run in Livebook](https://livebook.dev/badge/v1/blue.svg)](https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2Fkw7oe%2Flivebook-notebooks%2Fblob%2Fmain%2Fdebugging-with-tracing-in-elixir-with-recon_trace.livemd)
 
 
-# Installing `recon`
+## Installing `recon`
 
 First of all, let's add `:recon` as part of our system dependencies into
 `mix.exs`:
@@ -46,9 +43,9 @@ end
 
 Don't forget to run `mix deps.get` after adding it.
 
-# Basic Usage
+## Basic Usage
 
-## Tracing function with return trace/value
+### Tracing function with return trace/value
 
 To trace a function with `recon`, it is as simple as
 calling `:recon_trace.calls({module, function, match_spec}, max_trace, opts \\ [])`:
@@ -95,7 +92,7 @@ Simple right? No more:
 :dbg.stop
 ```
 
-## Tracing more specific function calls
+### Tracing more specific function calls
 
 Same with using `dbg`, you can also use `recon_trace` to trace more specific
 function call by altering your match spec for `:recon_trace.calls`.
@@ -153,7 +150,7 @@ the traces for the first function call and not the second.
 # 17:25:19.818519 <0.120.0> 'Elixir.Enum':map/2 --> [3,4,5]
 ```
 
-## Writing match spec
+### Writing match spec
 
 Writing the match spec seems complicated right? No worry,
 we can utilize `:dbg.fun2ms` to help us out.
@@ -218,7 +215,7 @@ Once you run this, here's how the output looks like:
 You'll see that there is no tracing for first function call, as it only have 4 elements and
 does not fulfil our match spec.
 
-# Wrap Up
+## Wrap Up
 
 Tracing is an extremely useful debugging tool to add to your current
 toolkit. This is especially true when you need to debug live production
