@@ -194,7 +194,15 @@ nav#TableOfContents > ul > li {
   font-family: 'Source Sans Pro', sans-serif;
 }
 
-.serif h1, .serif h2, .serif h3, .serif h4, .serif h5, .serif h6, .serif p, .serif li, .serif a {
+.sans-serif {
+  font-family: 'Source Sans Pro', sans-serif;
+}
+
+.serif h1, .serif h2, .serif h3, .serif h4, .serif h5, .serif h6  {
+  font-family: 'Source Sans Pro', sans-serif;
+}
+
+.serif p, .serif li, .serif a {
   font-family: 'Lora', sans-serif;
 }
 /* purgecss end ignore */
