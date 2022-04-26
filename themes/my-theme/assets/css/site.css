@@ -1,5 +1,21 @@
 /* General */
 
+#nav-menu li a {
+  @apply sans-serif;
+  @apply uppercase;
+  @apply inline-block;
+  @apply text-sm;
+  @apply mr-4;
+  @apply text-gray-900;
+  @apply font-semibold;
+  @apply border-b-2;
+  @apply border-transparent;
+}
+
+#nav-menu li a:hover {
+  @apply border-gray-900;
+}
+
 .title {
   @apply font-bold;
   @apply text-gray-900;
