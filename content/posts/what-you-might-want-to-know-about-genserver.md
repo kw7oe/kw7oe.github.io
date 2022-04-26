@@ -16,7 +16,7 @@ to write down _my findings_ about GenServer.
 The post will be break down into following sections:
 
 - [Quick Introduction to GenServer](#quick-introduction-to-genserver)
-- [When you should and shouldn't use GenServer](#when-you-should-and-shouldn-t-use-genserver)
+- [When you should and shouldn't use GenServer](#when-you-should-and-shouldnt-use-genserver)
 - [Limitations of GenServer](#limitations-of-genserver)
 - [Do and Don't of GenServer](#do-and-don-t-of-genserver)
 
