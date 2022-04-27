@@ -1,7 +1,6 @@
 ---
 title: "Solutions I'm  trying to have a productive day"
-date: 2022-04-20T21:55:02+08:00
-draft: true
+date: 2022-04-27T09:55:02+08:00
 tags: ["productivity"]
 categories: ["life"]
 ---
