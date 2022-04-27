@@ -1,6 +1,6 @@
 {{ define "main" }}
 <div>
-  <header class="mb-8 sans-serif">
+  <header class="mb-8 font-sans-serif">
     <div class="text-sm font-gray-700 mb-8">
       <p class="uppercase font-semibold">
       <a class="text-gray-700" href="/{{ .Type }}">{{ .Type }}</a>
@@ -11,7 +11,7 @@
     <h1 class="text-3xl mb-1 font-semibold">{{ .Title }}</h1>
   </header>
 
-  <article class="prose serif mb-16 text-gray-800">
+  <article class="prose font-serif mb-16 text-gray-800">
     {{ if and (gt .WordCount 400 ) (.Params.toc) }}
     <div class="mb-8 pb-6 border-b border-t">
       <h2>Table of Content</h2>

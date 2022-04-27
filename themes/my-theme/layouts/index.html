@@ -1,8 +1,20 @@
 {{ define "main" }}
-  <div class="markdown">
+  <div>
     {{ .Content }}
   </div>
-  {{ range where .Site.RegularPages "Type" "posts"  }}
-    {{ partial "info_li.html" . }}
+  {{ range .Site.RegularPages.GroupByDate "2006"  }}
+  <h3 class="mt-8 mb-2 font-bold">{{ .Key }}</h3>
+  <ul>
+    {{ range where .Pages "Type" "posts" }}
+    <li class="prose">
+      <a class="text-lg font-semibold no-underline" href="{{ .Permalink }}">{{ .Title }}</a>
+      <span class="text-gray-500 text-xs">({{ .Date.Format "January 02" }})</span>
+
+      <p class="mb-8">
+        {{ .Summary }}
+      </p>
+    </li>
+    {{ end }}
+  </ul>
   {{ end }}
 {{ end }}

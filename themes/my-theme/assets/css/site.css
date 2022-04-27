@@ -1,7 +1,7 @@
 /* General */
 
 #nav-menu li a {
-  @apply sans-serif;
+  @apply font-sans-serif;
   @apply uppercase;
   @apply inline-block;
   @apply text-sm;
@@ -210,8 +210,12 @@ nav#TableOfContents > ul > li {
   font-family: 'Source Sans Pro', sans-serif;
 }
 
-.sans-serif {
+.font-sans-serif {
   font-family: 'Source Sans Pro', sans-serif;
+}
+
+.font-serif {
+  font-family: 'Lora', sans-serif;
 }
 
 .serif h1, .serif h2, .serif h3, .serif h4, .serif h5, .serif h6  {

@@ -1,3 +1,5 @@
+const defaultTheme = require('tailwindcss/defaultTheme')
+
 module.exports = {
   content: [
     "./layouts/**/*.html",
@@ -5,6 +7,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        'serif': ['Lora', ...defaultTheme.fontFamily.serif],
+      },
       typography: {
         DEFAULT: {
           css: {
