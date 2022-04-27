@@ -1,0 +1,30 @@
+{{ define "main" }}
+<header class="mb-8">
+  <h1 class="title">{{ .Title }}</h1>
+  <p class="text-sm font-gray-700 mb-1">{{ .Date.Format "Jan 02, 2006" }}</p>
+  <p class="text-sm mb-4 font-gray-700 italic">Estimated Reading Time: {{ .ReadingTime }} minutes ({{ .WordCount }} words)</p>
+
+  {{ $taxo := "tags" }} <!-- Use the plural form here -->
+  <div id="{{ $taxo }}">
+    {{ range .Param $taxo }}
+    {{ $name := . }}
+    {{ with $.Site.GetPage (printf "/%s/%s" $taxo ($name | urlize)) }}
+    <span class="badge badge-primary rounded-badge">
+      <a href="{{ .Permalink }}">{{ $name }}</a>
+    </span>
+    {{ end }}
+    {{ end }}
+  </div>
+</header>
+
+<article class="prose mb-12 text-gray-800">
+  {{ if and (gt .WordCount 400 ) (.Params.toc) }}
+  <div class="mb-8 pb-6 border-b border-t">
+    <h2>Table of Content</h2>
+    {{.TableOfContents}}
+  </div>
+  {{ end }}
+
+  {{ .Content }}
+</article>
+{{ end }}
