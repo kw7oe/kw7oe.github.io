@@ -8,6 +8,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
+        // 'sans': ['Source Sans Pro', ...defaultTheme.fontFamily.sans],
         'serif': ['Lora', ...defaultTheme.fontFamily.serif],
       },
       typography: {
