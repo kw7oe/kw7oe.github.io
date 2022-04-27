@@ -2,6 +2,24 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://kaiwern.com/categories/</loc>
+    <lastmod>2022-04-27T09:55:02+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/fragments/</loc>
+    <lastmod>2022-04-27T09:55:02+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/categories/life/</loc>
+    <lastmod>2022-04-27T09:55:02+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/tags/productivity/</loc>
+    <lastmod>2022-04-27T09:55:02+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/fragments/solutions-im-trying-to-have-a-productive-day/</loc>
+    <lastmod>2022-04-27T09:55:02+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/tags/</loc>
+    <lastmod>2022-04-27T09:55:02+08:00</lastmod>
+  </url><url>
     <loc>https://kaiwern.com/posts/2022/04/05/benchmarking-and-writing-a-concurrent-mini-redis-in-elixir/</loc>
     <lastmod>2022-04-05T20:33:16+08:00</lastmod>
   </url><url>
@@ -15,9 +33,6 @@
     <lastmod>2022-04-05T20:33:16+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/posts/</loc>
-    <lastmod>2022-04-05T20:33:16+08:00</lastmod>
-  </url><url>
-    <loc>https://kaiwern.com/tags/</loc>
     <lastmod>2022-04-05T20:33:16+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/tags/tutorial/</loc>
@@ -48,12 +63,6 @@
     <lastmod>2022-01-04T21:01:05+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/posts/2021/12/13/2021-in-review/</loc>
-    <lastmod>2021-12-13T21:52:06+08:00</lastmod>
-  </url><url>
-    <loc>https://kaiwern.com/categories/</loc>
-    <lastmod>2021-12-13T21:52:06+08:00</lastmod>
-  </url><url>
-    <loc>https://kaiwern.com/categories/life/</loc>
     <lastmod>2021-12-13T21:52:06+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/tags/postgresql/</loc>
@@ -149,9 +158,6 @@
     <loc>https://kaiwern.com/posts/2019/03/31/how-i-keep-track-of-tasks-for-multiple-side-projects/</loc>
     <lastmod>2019-03-31T20:51:00+08:00</lastmod>
   </url><url>
-    <loc>https://kaiwern.com/tags/productivity/</loc>
-    <lastmod>2019-03-31T20:51:00+08:00</lastmod>
-  </url><url>
     <loc>https://kaiwern.com/tags/database-index/</loc>
     <lastmod>2019-02-18T21:32:00+08:00</lastmod>
   </url><url>
@@ -214,7 +220,5 @@
   </url><url>
     <loc>https://kaiwern.com/posts/2017/10/15/ruby-.-notation/</loc>
     <lastmod>2017-10-15T18:12:19+08:00</lastmod>
-  </url><url>
-    <loc>https://kaiwern.com/fragments/</loc>
   </url>
 </urlset>
