@@ -1,8 +1,9 @@
 ---
-title: "{{ index (split (replace .Name "-" " " ) "_") 1 | title }}"
+title: "{{ .Name  | humanize }}"
 date: {{ .Date }}
 draft: true
 chapter: {{ index (split .File.TranslationBaseName "_") 0 }}
+section:
 ---
 
 

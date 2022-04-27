@@ -206,10 +206,6 @@ nav#TableOfContents > ul > li {
   @apply ml-1;
 }
 
-.toc * {
-  font-family: 'Source Sans Pro', sans-serif;
-}
-
 .font-sans-serif {
   font-family: 'Source Sans Pro', sans-serif;
 }
