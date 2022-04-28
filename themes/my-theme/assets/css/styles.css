@@ -2146,6 +2146,14 @@ nav#TableOfContents > ul > li {
   margin-bottom: 3rem;
 }
 
+.mt-12 {
+  margin-top: 3rem;
+}
+
+.mt-10 {
+  margin-top: 2.5rem;
+}
+
 .block {
   display: block;
 }
@@ -2215,6 +2223,16 @@ nav#TableOfContents > ul > li {
 .py-10 {
   padding-top: 2.5rem;
   padding-bottom: 2.5rem;
+}
+
+.px-6 {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.px-8 {
+  padding-left: 2rem;
+  padding-right: 2rem;
 }
 
 .pb-6 {
