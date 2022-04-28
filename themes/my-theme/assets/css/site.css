@@ -173,6 +173,7 @@ nav#TableOfContents > ul > li {
 }
 
 .callout {
+  @apply block;
   @apply border-l-4;
   @apply p-4;
   @apply my-6;

@@ -1,7 +1,6 @@
 ---
 title: "Writing a custom Vim Command"
-date: 2022-04-26T19:27:35+08:00
-draft: true
+date: 2022-04-28T14:40:35+08:00
 tags: ["vim"]
 ---
 
@@ -15,7 +14,7 @@ println!("{:?}", node);
 
 Since B+ Tree operations often involve several phases, I have to do this a lot
 of time. Depending on which operation I'm implementing, I might need to print
-at different line. It felt really repetitive to do that.
+at different line. It felt repetitive to do that.
 
 Hence, I decided to write a `vim` command to insert the `println!` code
 snippet! By the end of this short post, we will have a `:Rd` _(Rust debug)_ command
@@ -30,7 +29,8 @@ that take it a argument and output the print statement.
 
 Before we go into writing our own `vim` command, let's briefly talk about
 what's even a command in `vim`. A command is basically, the thing you run by
-using `:`. One of the example is `vim-fugitive` command:
+using `:`. One of the example is the `vim-fugitive` command to show your `git
+diff`:
 
 ```vim
 :Git diff
@@ -73,8 +73,8 @@ our current file.
 
 ## Command to insert text
 
-If we want to insert text, we will need to use the `:put` command, which is the
-`p` in normal mode.
+If we want to insert text, we will need to use the `:put` command, which is
+similar to the `p` in normal mode.
 
 ```vimrc
 :command MyCommand put "Hello World"
@@ -100,6 +100,14 @@ previously yanked text. Here's what's the docs said from `:help put`:
 Since we didn't specified any register, it's pasting content from our `""`
 register, which is the unnamed register.
 
+{{% callout %}}
+
+If you don't know how register in vim
+work, headover to another article of mine [here]({{< ref
+"2017-10-24-register-in-vim.md" >}}).
+
+{{% /callout %}}
+
 To paste an expression, we will need to use the expression register `"=`, as
 mentioned in the docs:
 
@@ -123,6 +131,9 @@ So, let's fix our previous mistake:
 ```vimrc
 :command MyCommand put ='Hello World'
 ```
+
+Now `MyCommand` will insert `Hello World` after our current line in our file
+opening in `vim`.
 
 ## Taking in argument in our command
 
@@ -165,8 +176,8 @@ Key takeaways here are we need to use `-ngargs=1` to specify we take in a
 single argument and use `<args>` for the placeholder where we want to
 substitute our text.
 
-With all these information provided, want to take on the challenge to write
-`:Rd`?
+With all these information provided, perhaps give it a try try to write
+the `:Rd` command yourself?
 
 ```vimrc
 :Rd node
@@ -199,3 +210,8 @@ That's all, sweet and simple. This post is not possible without the following
 StackOverflow question:
 
 - [How to insert the result of a command into the text in vim? - Unix & Linux Stack Exchange](https://unix.stackexchange.com/questions/8101/how-to-insert-the-result-of-a-command-into-the-text-in-vim)
+
+And here's some other resources you might be interested:
+
+- [Learn Vimscript the Hard Way](https://learnvimscriptthehardway.stevelosh.com/)
+- [Insert output of a system command at the current location in vim - Ask Ubuntu](https://askubuntu.com/questions/180178/insert-output-of-a-system-command-at-the-current-location-in-vim)

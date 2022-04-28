@@ -90,6 +90,7 @@
       "p-4",
       "pin-b",
       "prose",
+      "prose-p:mx-0",
       "prose-sm",
       "px-4",
       "rounded-badge",
