@@ -13,7 +13,7 @@ Writing a mini Redis server in Elixir | kw7oe
 
 
   
-  <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.eae3cb8fdef1fad385d3a89e732e2ad922c4060ecd80e450068fbcba7f1bf183.css" integrity="sha256-6uPLj97x+tOF06iecy4q2SLEBg7NgORQBo+8un8b8YM=">
+  <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.33112dbc53419adc53d0748698f19c52ceb37a3d460519dfa1823bd5b00fc720.css" integrity="sha256-MxEtvFNBmtxT0HSGmPGcUs6zej1GBRnfoYI71bAPxyA=">
   <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -21,7 +21,7 @@ Writing a mini Redis server in Elixir | kw7oe
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lora&family=Source+Sans+Pro:wght@400;600&display=swap" rel="stylesheet">
 
-<body class="flex flex-col min-h-screen px-4 max-w-prose md:w-2/3 m-auto"><nav class="mt-8">
+<body class="flex flex-col min-h-screen px-6 max-w-prose md:w-2/3 m-auto"><nav class="mt-8">
   <ul id="nav-menu" class="w-full flex items-center list-reset">
     
     <li>
@@ -41,18 +41,24 @@ Writing a mini Redis server in Elixir | kw7oe
     </li>
     
 
-
-    
-    
-    <li>
-      <a href="https://kaiwern.com/categories/">Categories</a>
-    </li>
-    
-    
     
     <li>
       <a href="https://kaiwern.com/tags/">Tags</a>
     </li>
+    
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
   </ul>
@@ -60,7 +66,7 @@ Writing a mini Redis server in Elixir | kw7oe
 
     
 
-    <main class="flex-1 mt-4 sm:mt-12">
+    <main class="flex-1 mt-10 sm:mt-12">
 <header class="mb-8">
   <h1 class="title">Writing a mini Redis server in Elixir</h1>
   <p class="text-sm font-gray-700 mb-1">Apr 04, 2022</p>
@@ -202,17 +208,15 @@ We only need to implement the <code>init</code> callback for our <code>GenServer
 <span class="k">end</span>
 </code></pre></div><p>It should be pretty much self explanatory and easy to understand since we are just
 building a wrapper around it.</p>
-<div class="callout callout-info">
+<div class="callout prose prose-p:mx-0 callout-info">
   <h5 class="text-lg font-semibold mb-2">Why do we need to wrap <code>ets</code> in a <code>GenServer</code> module instead of a normal module?</h5>
-  <p>
-This is because our `ets` process is stateful and it need to be owned by a process. Hence,
-we will need `GenServer` as our parent process for the `ets`.
+<p>This is because our <code>ets</code> process is stateful and it need to be owned by a process. Hence,
+we will need <code>GenServer</code> as our parent process for the <code>ets</code>.</p>
 <p>Here&rsquo;s how the <code>ets</code> documentation describe it:</p>
 <blockquote>
 <p>Each table is created by a process. When the process terminates, the table is
 automatically destroyed. Every table has access rights set at creation.</p>
 </blockquote>
-</p>
 </div>
 <p>We will need to have our application supervisor start it, let&rsquo;s
 update our code in <code>lib/mini_redis/application.ex</code>:</p>

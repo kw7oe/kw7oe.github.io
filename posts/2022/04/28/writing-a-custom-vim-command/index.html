@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>
+Writing a custom Vim Command | kw7oe
+</title>
+
+
+
+<meta name="generator" content="Hugo 0.90.0" />
+
+
+
+
+  
+  <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.33112dbc53419adc53d0748698f19c52ceb37a3d460519dfa1823bd5b00fc720.css" integrity="sha256-MxEtvFNBmtxT0HSGmPGcUs6zej1GBRnfoYI71bAPxyA=">
+  <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora&family=Source+Sans+Pro:wght@400;600&display=swap" rel="stylesheet">
+
+<body class="flex flex-col min-h-screen px-6 max-w-prose md:w-2/3 m-auto"><nav class="mt-8">
+  <ul id="nav-menu" class="w-full flex items-center list-reset">
+    
+    <li>
+      <a href="https://kaiwern.com/">Home</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/fragments/">Fragments</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/about/">About</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/tags/">Tags</a>
+    </li>
+    
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+  </ul>
+</nav>
+
+    
+
+    <main class="flex-1 mt-10 sm:mt-12">
+<header class="mb-8">
+  <h1 class="title">Writing a custom Vim Command</h1>
+  <p class="text-sm font-gray-700 mb-1">Apr 28, 2022</p>
+  <p class="text-sm mb-4 font-gray-700 italic">Estimated Reading Time: 5 minutes (971 words)</p>
+
+   
+  <div id="tags">
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/vim/">vim</a>
+    </span>
+    
+    
+  </div>
+</header>
+
+<article class="prose mb-12 text-gray-800">
+  
+
+  <p>Recently I have been implementing B+ Tree on disk in Rust, and require to inspect
+the data structure a lot while debugging. So a lot of time, I&rsquo;ll be print
+debugging:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;{:?}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">node</span><span class="p">);</span><span class="w">
+</span></code></pre></div><p>Since B+ Tree operations often involve several phases, I have to do this a lot
+of time. Depending on which operation I&rsquo;m implementing, I might need to print
+at different line. It felt repetitive to do that.</p>
+<p>Hence, I decided to write a <code>vim</code> command to insert the <code>println!</code> code
+snippet! By the end of this short post, we will have a <code>:Rd</code> <em>(Rust debug)</em> command
+that take it a argument and output the print statement.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-vimrc" data-lang="vimrc"><span class="p">:</span><span class="nx">Rd</span> <span class="nx">node</span><span class="err">
+</span><span class="err"></span><span class="c">&#34;=&gt; will insert println!(&#34;{:?}&#34;, node) into our file.</span><span class="err">
+</span></code></pre></div><h2 id="what-is-a-command">What is a command?</h2>
+<p>Before we go into writing our own <code>vim</code> command, let&rsquo;s briefly talk about
+what&rsquo;s even a command in <code>vim</code>. A command is basically, the thing you run by
+using <code>:</code>. One of the example is the <code>vim-fugitive</code> command to show your <code>git diff</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-vim" data-lang="vim"><span class="p">:</span><span class="nx">Git</span> <span class="nx">diff</span><span class="err">
+</span></code></pre></div><p>A user-defined command  always start with a capital letter.</p>
+<h2 id="defining-a-command">Defining a command</h2>
+<p>It turns out defining a command is pretty straightforward, by using the
+<code>:command</code> command. From <code>:help command</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-vim" data-lang="vim"><span class="p">:</span><span class="nx">com</span>[<span class="nx">mand</span>][<span class="p">!</span>] [{<span class="nx">attr</span>}...] {<span class="nx">cmd</span>} {<span class="nx">repl</span>}<span class="err">
+</span><span class="err"></span>			<span class="nx">Define</span> <span class="nx">a</span> <span class="nx">user</span> <span class="nx">command</span>.  <span class="nx">The</span> <span class="nx">name</span> <span class="nx">of</span> <span class="nx">the</span> <span class="nx">command</span> <span class="nx">is</span><span class="err">
+</span><span class="err"></span>			{<span class="nx">cmd</span>} <span class="nx">and</span> <span class="nx">its</span> <span class="nx">replacement</span> <span class="nx">text</span> <span class="nx">is</span> {<span class="nx">repl</span>}.  <span class="nx">The</span><span class="err">
+</span><span class="err"></span>			<span class="nx">command</span>&#39;<span class="nx">s</span> <span class="nx">attributes</span> <span class="p">(</span><span class="nx">see</span> <span class="nx">below</span><span class="p">)</span> <span class="nx">are</span> {<span class="nx">attr</span>}.  <span class="nx">If</span> <span class="nx">the</span><span class="err">
+</span><span class="err"></span>			<span class="nx">command</span> <span class="nx">already</span> <span class="nx">exists</span><span class="p">,</span> <span class="nx">an</span> <span class="nx">error</span> <span class="nx">is</span> <span class="nx">reported</span><span class="p">,</span> <span class="nx">unless</span> <span class="nx">a</span><span class="err">
+</span><span class="err"></span>			<span class="p">!</span> <span class="nx">is</span> <span class="nx">specified</span><span class="p">,</span> <span class="nx">in</span> <span class="nx">which</span> <span class="nx">case</span> <span class="nx">the</span> <span class="nx">command</span> <span class="nx">is</span><span class="err">
+</span><span class="err"></span>			<span class="nx">redefined</span>.  <span class="nx">There</span> <span class="nx">is</span> <span class="nx">one</span> <span class="nx">exception</span>: <span class="nx">When</span> <span class="nx">sourcing</span> <span class="nx">a</span><span class="err">
+</span><span class="err"></span>			<span class="nx">script</span> <span class="nx">again</span><span class="p">,</span> <span class="nx">a</span> <span class="nx">command</span> <span class="nx">that</span> <span class="nx">was</span> <span class="nx">previously</span> <span class="nx">defined</span> <span class="nx">in</span><span class="err">
+</span><span class="err"></span>			<span class="nx">that</span> <span class="nx">script</span> <span class="nx">will</span> <span class="nx">be</span> <span class="nx">silently</span> <span class="nx">replaced</span>.<span class="err">
+</span></code></pre></div><p>So let&rsquo;s define a simple command. Add the following to the end of your <code>.vimrc</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-vimrc" data-lang="vimrc"><span class="p">:</span><span class="nx">command</span> <span class="nx">MyCommand</span> <span class="nx">echo</span> <span class="s2">&#34;Hello World&#34;</span><span class="err">
+</span></code></pre></div><p>After that, we can open up our <code>vim</code> and run <code>:MyCommand</code> and it should show in
+the space where we insert our command:</p>
+<pre tabindex="0"><code>Hello World
+</code></pre><p>Good start, but not what we want. We want the command to be inserting text into
+our current file.</p>
+<h2 id="command-to-insert-text">Command to insert text</h2>
+<p>If we want to insert text, we will need to use the <code>:put</code> command, which is
+similar to the <code>p</code> in normal mode.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-vimrc" data-lang="vimrc"><span class="p">:</span><span class="nx">command</span> <span class="nx">MyCommand</span> <span class="nx">put</span> <span class="s2">&#34;Hello World&#34;</span><span class="err">
+</span></code></pre></div><p>But this doesn&rsquo;t work as expected, running <code>:MyCommand</code> will just paste the
+previously yanked text. Here&rsquo;s what&rsquo;s the docs said from <code>:help put</code>:</p>
+<pre tabindex="0"><code>:[line]pu[t] [x]
+      Put the text [from register x] after [line] (default
+			current line).  This always works |linewise|, thus
+			this command can be used to put a yanked block as new
+			lines.
+			If no register is specified, it depends on the 'cb'
+			option: If 'cb' contains &quot;unnamedplus&quot;, paste from the
+			+ register |quoteplus|.  Otherwise, if 'cb' contains
+			&quot;unnamed&quot;, paste from the * register |quotestar|.
+			Otherwise, paste from the unnamed register
+			|quote_quote|.
+</code></pre><p>Since we didn&rsquo;t specified any register, it&rsquo;s pasting content from our <code>&quot;&quot;</code>
+register, which is the unnamed register.</p>
+<div class="callout prose prose-p:mx-0 callout-info">
+<p>If you don&rsquo;t know how register in vim
+work, headover to another article of mine <a href="https://kaiwern.com/posts/2017/10/24/register-in-vim/">here</a>.</p>
+</div>
+<p>To paste an expression, we will need to use the expression register <code>&quot;=</code>, as
+mentioned in the docs:</p>
+<pre tabindex="0"><code>:[line]pu[t] [x]
+            ....
+
+			The register can also be '=' followed by an optional
+			expression.  The expression continues until the end of
+			the command.  You need to escape the '|' and '&quot;'
+			characters to prevent them from terminating the
+			command.  Example: &gt;
+				:put ='path' . \&quot;,/test\&quot;
+			If there is no expression after '=', Vim uses the
+			previous expression.  You can see it with &quot;:dis =&quot;.
+
+</code></pre><p>So, let&rsquo;s fix our previous mistake:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-vimrc" data-lang="vimrc"><span class="p">:</span><span class="nx">command</span> <span class="nx">MyCommand</span> <span class="nx">put</span> <span class="p">=</span><span class="s1">&#39;Hello World&#39;</span><span class="err">
+</span></code></pre></div><p>Now <code>MyCommand</code> will insert <code>Hello World</code> after our current line in our file
+opening in <code>vim</code>.</p>
+<h2 id="taking-in-argument-in-our-command">Taking in argument in our command</h2>
+<p>To take in command in our custom <code>vim</code> command, we will need to specify the
+attribute while defining our command. Here&rsquo;s the documentation from <code>:help command</code>:</p>
+<pre tabindex="0"><code>Argument handling ~                         *E175* *E176* *:command-nargs*
+By default, a user defined command will take no arguments (and an error is
+reported if any are supplied).  However, it is possible to specify that the
+command can take arguments, using the -nargs attribute.  Valid cases are:
+
+	-nargs=0    No arguments are allowed (the default)
+	-nargs=1    Exactly one argument is required, it includes spaces
+	-nargs=*    Any number of arguments are allowed (0, 1, or many),
+		    separated by white space
+	-nargs=?    0 or 1 arguments are allowed
+	-nargs=+    Arguments must be supplied, but any number are allowed
+
+Arguments are considered to be separated by (unescaped) spaces or tabs in this
+context, except when there is one argument, then the white space is part of
+the argument.
+
+Note that arguments are used as text, not as expressions.  Specifically,
+&quot;s:var&quot; will use the script-local variable in the script where the command was
+defined, not where it is invoked!  Example:
+    script1.vim: &gt;
+	:let s:error = &quot;None&quot;
+	:command -nargs=1 Error echoerr &lt;args&gt;
+&lt;   script2.vim: &gt;
+	:source script1.vim
+	:let s:error = &quot;Wrong!&quot;
+	:Error s:error
+Executing script2.vim will result in &quot;None&quot; being echoed.  Not what you
+intended!  Calling a function may be an alternative.
+</code></pre><p>Key takeaways here are we need to use <code>-ngargs=1</code> to specify we take in a
+single argument and use <code>&lt;args&gt;</code> for the placeholder where we want to
+substitute our text.</p>
+<p>With all these information provided, perhaps give it a try try to write
+the <code>:Rd</code> command yourself?</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-vimrc" data-lang="vimrc"><span class="p">:</span><span class="nx">Rd</span> <span class="nx">node</span><span class="err">
+</span><span class="err"></span><span class="c">&#34;=&gt; will insert println!(&#34;{:?}&#34;, node) into our file.</span><span class="err">
+</span></code></pre></div><hr>
+<p><em>Purposely leave blank for anyone who want to take on the challenge&hellip;</em></p>
+<p>&hellip;</p>
+<p>&hellip;</p>
+<p>&hellip;</p>
+<p>&hellip;</p>
+<hr>
+<h2 id="final-solution">Final Solution</h2>
+<p>Here&rsquo;s the <code>vim</code> command to insert the Rust print debugging code snippet:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-vim" data-lang="vim"><span class="p">:</span><span class="nx">command</span> <span class="p">-</span><span class="nx">nargs</span><span class="p">=</span><span class="m">1</span> <span class="nx">Rd</span> <span class="nx">put</span> <span class="p">=</span><span class="s1">&#39;println!(\&#34;&lt;args&gt;: {:?}\&#34;, &lt;args&gt;);&#39;</span><span class="err">
+</span></code></pre></div><p>That&rsquo;s all, sweet and simple. This post is not possible without the following
+StackOverflow question:</p>
+<ul>
+<li><a href="https://unix.stackexchange.com/questions/8101/how-to-insert-the-result-of-a-command-into-the-text-in-vim">How to insert the result of a command into the text in vim? - Unix &amp; Linux Stack Exchange</a></li>
+</ul>
+<p>And here&rsquo;s some other resources you might be interested:</p>
+<ul>
+<li><a href="https://learnvimscriptthehardway.stevelosh.com/">Learn Vimscript the Hard Way</a></li>
+<li><a href="https://askubuntu.com/questions/180178/insert-output-of-a-system-command-at-the-current-location-in-vim">Insert output of a system command at the current location in vim - Ask Ubuntu</a></li>
+</ul>
+
+</article>
+
+    </main><footer class="w-full text-center border-t border-gray-200 p-4 pin-b text-xs text-gray-400">
+    <p>made with <a href="https://gohugo.io" class="underline hover:text-blue-400">Hugo</a> and <a href="https://tailwindcss.com" class="underline hover:text-blue-400">TailwindCSS</a></p>
+</footer></body>
+</html>

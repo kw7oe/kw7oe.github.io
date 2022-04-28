@@ -8,6 +8,16 @@
     <language>en-us</language>
     <lastBuildDate>Wed, 15 May 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://kaiwern.com/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Writing a custom Vim Command</title>
+      <link>https://kaiwern.com/posts/2022/04/28/writing-a-custom-vim-command/</link>
+      <pubDate>Thu, 28 Apr 2022 14:40:35 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2022/04/28/writing-a-custom-vim-command/</guid>
+      <description>Recently I have been implementing B+ Tree on disk in Rust, and require to inspect the data structure a lot while debugging. So a lot of time, I&amp;rsquo;ll be print debugging:
+println!(&amp;#34;{:?}&amp;#34;,node);Since B+ Tree operations often involve several phases, I have to do this a lot of time. Depending on which operation I&amp;rsquo;m implementing, I might need to print at different line.</description>
+    </item>
+    
+    <item>
       <title>Solutions I&#39;m  trying to have a productive day</title>
       <link>https://kaiwern.com/fragments/solutions-im-trying-to-have-a-productive-day/</link>
       <pubDate>Wed, 27 Apr 2022 09:55:02 +0800</pubDate>
