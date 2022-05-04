@@ -105,6 +105,7 @@
       "text-sm",
       "text-xs",
       "title",
+      "twitter-tweet",
       "underline",
       "uppercase",
       "w-full"
@@ -234,6 +235,8 @@
       "loop",
       "my-solution",
       "nav-menu",
+      "navigating-the-exunit-code",
+      "navigating-the-exunit-codebase",
       "note-about-our-benchmark",
       "now",
       "old-linux-header-files",
