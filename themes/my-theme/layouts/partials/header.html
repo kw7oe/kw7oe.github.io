@@ -12,6 +12,13 @@
     </li>
     {{ end }}
 
+    {{ with .Site.GetPage "/books" }}
+    <li>
+      <a href="{{ .Permalink }}">{{ .Title }}</a>
+    </li>
+    {{ end }}
+
+
     {{ with .Site.GetPage "/about" }}
     <li>
       <a href="{{ .Permalink }}">{{ .Title }}</a>

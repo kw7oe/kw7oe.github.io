@@ -14,9 +14,9 @@ module.exports = {
       typography: {
         DEFAULT: {
           css: {
-            h1: {
-              marginTop: "5rem"
-            },
+            // h1: {
+            //   marginTop: "5rem"
+            // },
             h4: {
               marginTop: "2.5rem",
               marginBottom: "1.5rem"

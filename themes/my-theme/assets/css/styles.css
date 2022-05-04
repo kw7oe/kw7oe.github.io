@@ -765,7 +765,7 @@ a:hover {
   color: var(--tw-prose-headings);
   font-weight: 800;
   font-size: 2.25em;
-  margin-top: 5rem;
+  margin-top: 0;
   margin-bottom: 0.8888889em;
   line-height: 1.1111111;
 }
@@ -2122,8 +2122,8 @@ nav#TableOfContents > ul > li {
   margin-bottom: 0.5rem;
 }
 
-.mt-4 {
-  margin-top: 1rem;
+.mt-10 {
+  margin-top: 2.5rem;
 }
 
 .mb-4 {
@@ -2144,14 +2144,6 @@ nav#TableOfContents > ul > li {
 
 .mb-12 {
   margin-bottom: 3rem;
-}
-
-.mt-12 {
-  margin-top: 3rem;
-}
-
-.mt-10 {
-  margin-top: 2.5rem;
 }
 
 .block {
@@ -2215,24 +2207,14 @@ nav#TableOfContents > ul > li {
   padding: 1rem;
 }
 
-.px-4 {
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
-
-.py-10 {
-  padding-top: 2.5rem;
-  padding-bottom: 2.5rem;
-}
-
 .px-6 {
   padding-left: 1.5rem;
   padding-right: 1.5rem;
 }
 
-.px-8 {
-  padding-left: 2rem;
-  padding-right: 2rem;
+.py-10 {
+  padding-top: 2.5rem;
+  padding-bottom: 2.5rem;
 }
 
 .pb-6 {
