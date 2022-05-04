@@ -8,6 +8,16 @@
     <language>en-us</language>
     <lastBuildDate>Wed, 15 May 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://kaiwern.com/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Decomposition</title>
+      <link>https://kaiwern.com/fragments/decomposition/</link>
+      <pubDate>Wed, 04 May 2022 19:23:13 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/fragments/decomposition/</guid>
+      <description>Decomposition is the process of breaking down a complex problem into smaller parts. It is also one of the most widely applicable Computer Science (CS) concept in our lives.
+If a system you&amp;rsquo;re learning is too complex to understand/implement, break it down into manageable parts. Writing your own programming language is complex, but writing a lexer is probably not.</description>
+    </item>
+    
+    <item>
       <title>Writing a custom Vim Command</title>
       <link>https://kaiwern.com/posts/2022/04/28/writing-a-custom-vim-command/</link>
       <pubDate>Thu, 28 Apr 2022 14:40:35 +0800</pubDate>

@@ -2,6 +2,18 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://kaiwern.com/categories/</loc>
+    <lastmod>2022-05-04T19:23:13+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/fragments/decomposition/</loc>
+    <lastmod>2022-05-04T19:23:13+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/fragments/</loc>
+    <lastmod>2022-05-04T19:23:13+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/categories/life/</loc>
+    <lastmod>2022-05-04T19:23:13+08:00</lastmod>
+  </url><url>
     <loc>https://kaiwern.com/posts/</loc>
     <lastmod>2022-04-28T14:40:35+08:00</lastmod>
   </url><url>
@@ -13,15 +25,6 @@
   </url><url>
     <loc>https://kaiwern.com/posts/2022/04/28/writing-a-custom-vim-command/</loc>
     <lastmod>2022-04-28T14:40:35+08:00</lastmod>
-  </url><url>
-    <loc>https://kaiwern.com/categories/</loc>
-    <lastmod>2022-04-27T09:55:02+08:00</lastmod>
-  </url><url>
-    <loc>https://kaiwern.com/fragments/</loc>
-    <lastmod>2022-04-27T09:55:02+08:00</lastmod>
-  </url><url>
-    <loc>https://kaiwern.com/categories/life/</loc>
-    <lastmod>2022-04-27T09:55:02+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/tags/productivity/</loc>
     <lastmod>2022-04-27T09:55:02+08:00</lastmod>
