@@ -2,7 +2,6 @@
 author: Kai Wern Choong
 title: About
 date: 2021-06-19
-lastmod: 2022-04-27
 ---
 
 Hi, I am Kai Wern.
@@ -10,7 +9,7 @@ Hi, I am Kai Wern.
 Welcome to my blog. Here I write about
 software and [life](/categories/life/). Some of the tools
 I used day to day are: `vim`, `Elixir/Phoenix`, `Rust` and `PostgreSQL`.
-You can expect posts about these tools from my blog.
+You can expect posts about these from my blog.
 
 I'm now into photography and drawing as well and am trying to write
 more consistently.
@@ -20,13 +19,14 @@ more consistently.
 Currently, I am attending [RC](https://www.recurse.com/). During my time here,
 I'll be focusing on:
 
-- Writing [`sqlite` in Rust](https://github.com/kw7oe/sqlite-rust), inspired by
+- Writing [simple database in Rust](https://github.com/kw7oe/sqlite-rust), inspired by
 [Let's Build a Simple Database](https://cstack.github.io/db_tutorial/) tutorial.
-- Learning more about Database System.
-- Publish more in my website.
-- Trying to write a book about building a simple database. Inspired by the
-[Let's Build a Simple Database](https://cstack.github.io/db_tutorial/) tutorial and
+- Writing a book about building a simple database in Rust, based on my work
+above and inspired by
+[Let's Build a Simple Database](https://cstack.github.io/db_tutorial/) and
 [Crafting Intepreters](https://craftinginterpreters.com/).
+- Learning more about database and exploring other lower level system like networking, observability and etc.
+- Publish and share more of my work publicly.
 
 ## Abandoned Projects
 

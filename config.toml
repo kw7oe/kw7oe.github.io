@@ -6,6 +6,7 @@ theme = "my-theme"
 pygmentsUseClasses = true
 pygmentsCodeFences = true
 
+enableGitInfo = true
 summaryLength = 50
 
 [permalinks]
