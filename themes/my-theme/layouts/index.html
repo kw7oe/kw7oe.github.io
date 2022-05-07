@@ -4,7 +4,7 @@
   </div>
   {{ range .Site.RegularPages.GroupByDate "2006"  }}
   <h3 class="mt-8 mb-2 font-bold">{{ .Key }}</h3>
-  <ul>
+  <ul class="mb-12">
     {{ range where .Pages "Type" "posts" }}
       {{ partial "li.html" . }}
     {{ end }}
