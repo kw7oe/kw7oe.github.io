@@ -6,7 +6,16 @@
     <description>Recent content in Tags on kw7oe</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 28 Apr 2022 14:40:35 +0800</lastBuildDate><atom:link href="https://kaiwern.com/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 07 May 2022 15:14:16 +0800</lastBuildDate><atom:link href="https://kaiwern.com/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>rust</title>
+      <link>https://kaiwern.com/tags/rust/</link>
+      <pubDate>Sat, 07 May 2022 15:14:16 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/tags/rust/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>vim</title>
       <link>https://kaiwern.com/tags/vim/</link>
