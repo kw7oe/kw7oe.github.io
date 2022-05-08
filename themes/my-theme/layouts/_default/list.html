@@ -1,5 +1,8 @@
 {{ define "main" }}
-<h1 class="text-2xl mb-4 font-sans-serif font-semibold">{{ title .Title }}</h1>
+<div class="mb-8">
+  <h1 class="text-2xl mb-1 font-sans-serif font-semibold">{{ title .Title }}</h1>
+  <p class="text-xs text-gray-700 italic">({{ len .Pages }} entries)</p>
+</div>
 
 <div>
   <div class="mb-8 prose prose-sm serif">

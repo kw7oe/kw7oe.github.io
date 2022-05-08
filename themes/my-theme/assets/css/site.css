@@ -19,7 +19,7 @@
 .title {
   @apply font-bold;
   @apply text-gray-900;
-  @apply text-2xl;
+  @apply text-3xl;
 }
 
 .title a {
