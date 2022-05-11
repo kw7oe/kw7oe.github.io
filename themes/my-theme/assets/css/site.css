@@ -180,7 +180,7 @@ nav#TableOfContents > ul > li {
 }
 
 .callout-info {
-  @apply bg-blue-100;
+  @apply bg-blue-50;
   @apply border-blue-500;
 }
 
