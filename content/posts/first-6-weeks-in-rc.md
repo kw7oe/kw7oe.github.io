@@ -1,6 +1,6 @@
 ---
 title: "First 6 weeks in the Recurse Center"
-date: 2022-05-11T10:00:06+08:00
+date: 2022-05-12T10:47:06+08:00
 tags: ["recurse-center"]
 categories: ["life"]
 ---
