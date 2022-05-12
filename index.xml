@@ -8,6 +8,17 @@
     <language>en-us</language>
     <lastBuildDate>Wed, 15 May 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://kaiwern.com/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>First 6 weeks in the Recurse Center</title>
+      <link>https://kaiwern.com/posts/2022/05/12/first-6-weeks-in-the-recurse-center/</link>
+      <pubDate>Thu, 12 May 2022 10:47:06 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2022/05/12/first-6-weeks-in-the-recurse-center/</guid>
+      <description>For the past 6 weeks, I have been attending the Recurse Center (RC). The Recurse Center is:
+ an educational retreat for programmers who want to become dramatically better with a community of peers doing the same.
+ The journey has been fascinating. Hence, I want to share my experience and challenges in RC so far and plan for my remaining 6 weeks in RC.</description>
+    </item>
+    
+    <item>
       <title>Logging Thread ID in Rust</title>
       <link>https://kaiwern.com/fragments/logging-thread-id-in-rust/</link>
       <pubDate>Sat, 07 May 2022 15:14:16 +0800</pubDate>

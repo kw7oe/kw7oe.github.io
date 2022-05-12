@@ -6,7 +6,18 @@
     <description>Recent content in life on kw7oe</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 04 May 2022 19:23:13 +0800</lastBuildDate><atom:link href="https://kaiwern.com/categories/life/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 12 May 2022 10:47:06 +0800</lastBuildDate><atom:link href="https://kaiwern.com/categories/life/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>First 6 weeks in the Recurse Center</title>
+      <link>https://kaiwern.com/posts/2022/05/12/first-6-weeks-in-the-recurse-center/</link>
+      <pubDate>Thu, 12 May 2022 10:47:06 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2022/05/12/first-6-weeks-in-the-recurse-center/</guid>
+      <description>For the past 6 weeks, I have been attending the Recurse Center (RC). The Recurse Center is:
+ an educational retreat for programmers who want to become dramatically better with a community of peers doing the same.
+ The journey has been fascinating. Hence, I want to share my experience and challenges in RC so far and plan for my remaining 6 weeks in RC.</description>
+    </item>
+    
     <item>
       <title>Decomposition</title>
       <link>https://kaiwern.com/fragments/decomposition/</link>

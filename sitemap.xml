@@ -2,26 +2,32 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://kaiwern.com/categories/</loc>
+    <lastmod>2022-05-12T22:47:17+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/posts/2022/05/12/first-6-weeks-in-the-recurse-center/</loc>
+    <lastmod>2022-05-12T22:47:17+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/categories/life/</loc>
+    <lastmod>2022-05-12T22:47:17+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/posts/</loc>
+    <lastmod>2022-05-12T22:47:17+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/tags/recurse-center/</loc>
+    <lastmod>2022-05-12T22:47:17+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/tags/</loc>
+    <lastmod>2022-05-12T22:47:17+08:00</lastmod>
+  </url><url>
     <loc>https://kaiwern.com/fragments/logging-thread-id-in-rust/</loc>
     <lastmod>2022-05-07T15:47:48+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/tags/rust/</loc>
     <lastmod>2022-05-07T15:47:48+08:00</lastmod>
   </url><url>
-    <loc>https://kaiwern.com/tags/</loc>
-    <lastmod>2022-05-07T15:47:48+08:00</lastmod>
-  </url><url>
-    <loc>https://kaiwern.com/categories/</loc>
-    <lastmod>2022-05-04T19:25:15+08:00</lastmod>
-  </url><url>
     <loc>https://kaiwern.com/fragments/decomposition/</loc>
     <lastmod>2022-05-04T19:25:15+08:00</lastmod>
-  </url><url>
-    <loc>https://kaiwern.com/categories/life/</loc>
-    <lastmod>2022-05-04T19:25:15+08:00</lastmod>
-  </url><url>
-    <loc>https://kaiwern.com/posts/</loc>
-    <lastmod>2022-04-28T14:56:38+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/tags/vim/</loc>
     <lastmod>2022-04-28T14:56:38+08:00</lastmod>
