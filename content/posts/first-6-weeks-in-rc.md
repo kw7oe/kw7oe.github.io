@@ -3,16 +3,15 @@ title: "First 6 weeks in the Recurse Center"
 date: 2022-05-11T10:00:06+08:00
 tags: ["recurse-center"]
 categories: ["life"]
-draft: true
 ---
 
 For the past 6 weeks, I have been attending the Recurse Center (RC).
-Recurse Center is:
+The [Recurse Center](https://recurse.com) is:
 
 > an educational retreat for programmers who want to become dramatically better
 with a community of peers doing the same.
 
-The journey has been fascinating so far. Hence, I want to share my
+The journey has been fascinating. Hence, I want to share my
 experience and challenges in RC so far and plan for my remaining 6
 weeks in RC.
 
