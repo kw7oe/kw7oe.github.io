@@ -1,8 +1,15 @@
 ---
 title: "Support tests rerun in ExUnit.run/1 in Elixir"
-date: 2022-05-04T19:37:19+08:00
+date: 2022-05-15T15:02:19+08:00
 tags: ["elixir"]
 draft: true
+---
+
+**TLDR:**
+Read the [diff of the PR](https://github.com/elixir-lang/elixir/pull/11788/files),
+with just 3 files changes, 65 lines of addition and 2 lines of deletion. Half
+of the addition is probably test.
+
 ---
 
 One of the challenges I faced when I'm writing the Livebook for my
@@ -12,9 +19,7 @@ to rerun test that has been written.
 
 Once a test is run in Livebook, executing `ExUnit.run` again doesn't rerun the
 test, unless you redefine the module. To reduce the duplicated test code in Livebook
-to rerun tests, we can use some hack.
-
-The hack I'm using currently in the Livebook is `Module.create/3`:
+to rerun tests, we can use the following `Module.create/3` hack:
 
 ```elixir
 test_content =
@@ -52,17 +57,15 @@ I tweeted about it and got this reply:
 
 <blockquote class="twitter-tweet" data-conversation="none" data-dnt="true" data-theme="light"><p lang="en" dir="ltr">There is currently no way to re-run tests for a given module. You should consider sending a pull request to <a href="https://twitter.com/elixirlang?ref_src=twsrc%5Etfw">@elixirlang</a> that adds ExUnit.rerun(list_of_modules)!</p>&mdash; Livebook (@livebookdev) <a href="https://twitter.com/livebookdev/status/1514310933673304065?ref_src=twsrc%5Etfw">April 13, 2022</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
-That's how I begin my journey to implement `ExUnit.rerun/1` to support reruning
-test modules.
+Hence, I begin my journey to implement `ExUnit.rerun/1` to support reruning test modules.
+In this post, I'm going to share how we can approach implementing this without
+knowing much about Elixir codebase.
 
-**TLDR;**
-
-Read the [PR](https://github.com/elixir-lang/elixir/pull/11788)
 
 ## Navigating the `ExUnit` code
 
-Since I know nothing much about `ExUnit` implementation detail, the very first
-thing I do is to scan through the implementation. I start with reading the
+Since I know nothing much about `ExUnit`, the very first
+thing I do is to read the code. I start with reading the
 `ExUnit.run/0` implementation:
 
 ```elixir
@@ -107,7 +110,7 @@ end
 ```
 
 To sum up a bit, basically `run` called `run_with_trap`, which then called
-`async_loop`. So `async_loop` is the real deal here. So let's take a look at
+`async_loop`. So `async_loop` is the real deal here. Let's take a look at
 it's implementation:
 
 ```elixir
@@ -166,7 +169,7 @@ to figure out is how are those test modules are added in the first place.
 Since, `ExUnit.rerun/1` is about adding those test modules aagin so that it
 would be rerun.
 
-So, let's take a look at the `ExUnit.Server` module next.
+Let's take a look at the `ExUnit.Server` module next.
 
 ### `ExUnit.Server`
 
@@ -307,8 +310,10 @@ will no be rerun. We first trigger `ExUnit.run/0` to simulate the test running
 through once and trigger `ExUnit.rerun/1` with the test modules we wanted to
 rerun.
 
-For assertion, we basically assert the return map about the stats of the test
-run and also assert that we are writing to the `IO` by capturing the `IO` with
+For assertion, we basically assert:
+
+- the return map about the stats of the test
+- we are writing to the `IO` by capturing the `IO` with
 `capture_io` and regex match that include the output we expected.
 
 {{% callout title="Print debugger beware of `capture_io`" %}}
@@ -321,8 +326,6 @@ working on it again, I managed to find out it's because of we are capturing IO
 in our test, hence all the `IO.inspect` output is captured and not printed out.
 {{% /callout %}}
 
-## Improvements
-
 You might be wondering:
 
 > Hey, this isn't totally correct, our async modules is added as sync module...
@@ -330,7 +333,9 @@ You might be wondering:
 That's correct. Hence, it's our minimal working implementation. Next, we are
 going to conditionally call the `add_async_module` and `add_sync_module`.
 
-So, how do we know if a test module is marked as async? The quickest way to
+## Conditionally adding sync and async module
+
+How do we know if a test module is marked as async? The quickest way to
 find out is to see how the existing code work! Let's do a quick search on the
 Elixir codebase on those function. With that, I found out that `ExUnit.Case` is
 one of the caller of the function:
@@ -346,14 +351,158 @@ def __after_compile__(%{module: module}, _) do
 end
 ```
 
-_To be continue..._
+Ha! We could call `Module.get_attribute/2` to find out if a test module is async. It is a straightforward fix then:
+
+```elixir
+def rerun(modules) do
+  for module <- modules do
+    if Module.get_attribute(module, :ex_unit_async) do
+      ExUnit.Server.add_async_module(module)
+    else
+      ExUnit.Server.add_sync_module(module)
+    end
+  end
+
+  _ = ExUnit.Server.modules_loaded()
+  options = persist_defaults(configuration())
+  ExUnit.Runner.run(options, nil)
+end
+```
+
+Upon running the test, we got an error:
+
+```
+** (ArgumentError) could not call Module.get_attribute/2 because the module ExUnitTest.SampleSyncTest is already compiled.
+Use the Module.__info__/1 callback or Code.fetch_docs/1 instead
+```
+
+It seems like we can't use `Module.get_attribute/2` after a module is compile.
+Thanks to the helpful error message, we know how to overcome it. Let's use
+the `Module.__info__/1` callback instead:
+
+```elixir
+for module <- additional_modules do
+  module_attributes = module.__info__(:attributes)
+
+  if Keyword.fetch!(module_attributes, :ex_unit_async) do
+    ExUnit.Server.add_async_module(module)
+  else
+    ExUnit.Server.add_sync_module(module)
+  end
+end
+```
+
+As mentioned in the doc [`Module.__info__/1`
+callback](https://hexdocs.pm/elixir/1.13/Module.html#c:__info__/1)
+, we could get the attributes of a module by passing in `:attributes` atom,
+which return us a keyword list.
+
+We use `Keyword.fetch!/2` to fetch the attribute we wanted. Using `fetch!` will
+catch the scenario where `:ex_unit_async` attribute is not available in our list and
+our code end up with calling `add_sync_module`.
+
+{{% callout %}}
+
+In my PR, I'm using `Keyword.get/2` instead. It's only when I write this post,
+I realize that while our test pass, it's not behaving correctly as well.
+
+Hence, to demonstrate the need of it and have the test show that,
+`Keyword.fetch!/2` is used instead.
+
+{{% /callout %}}
+
+
+Running our test again, we got another error instead:
+
+```
+** (KeyError) key :ex_unit_async not found in: [vsn: [92364997537872194208385758077352902316]]
+```
+
+Why does it works on `Modules.get_attribute/2` and not with
+`Module.__info__/1`? Let's read the documentation again to see if we miss out
+anything. Here's what the docs said about `Module.__info__(:attributes)`:
+
+> :attributes - a keyword list with all persisted attributes
+
+Hmm, it mentioned list of all _persisted_ attributes. Does that mean the
+`ex_unit_async` is not persisted?
+
+### Persisting the `ex_unit_async` attribute
+
+By searching `persisted` in the documentation, we can see a few places
+mentioned it, and most importantly, the `Module.register_attribute/3` function:
+
+> When registering an attribute, two options can be given:
+
+>   :accumulate - several calls to the same attribute will accumulate instead of overriding the previous one. New attributes are always added to the top of the accumulated list.
+
+>   :persist - the attribute will be persisted in the Erlang Abstract Format. Useful when interfacing with Erlang libraries.
+
+Seems like all we need to do is calling `Module.register_attribute/3` to
+persist the `ex_unit_async` module attribute. But where?
+
+Once again, searching for the `ex_unit_async` in the codebase quickly lead us
+to `ExUnit.Case`:
+
+```elixir
+def __register__(module, opts) do
+
+  # ...
+
+  attributes = [
+    before_compile: ExUnit.Case,
+    after_compile: ExUnit.Case,
+    ex_unit_async: false
+  ]
+
+  Enum.each(attributes, fn {k, v} -> Module.put_attribute(module, k, v) end)
+
+  # ...
+end
+```
+
+By default, `ExUnit.Case` does not persist the attribute. To fix this is rather
+straightforward:
+
+```elixir
+def __register__(module, opts) do
+  # ...
+
+  persisted_attributes = [:ex_unit_async]
+  Enum.each(persisted_attributes, &Module.register_attribute(module, &1, persist: true))
+
+  attributes = [
+    before_compile: ExUnit.Case,
+    after_compile: ExUnit.Case,
+    ex_unit_async: false
+  ]
+
+  Enum.each(attributes, fn {k, v} -> Module.put_attribute(module, k, v) end)
+
+  # ...
+end
+```
+
+With this changes, now our test run sucessfully!
+
+## Asking question
+
+In actual, I did not figure out the `register_attribute` part myself. Instead,
+I ask about it in my PR:
+
+> However, didn't have any luck with it as `Modules.get_attribute/3` won't work as the test module have been compiled.
+Tried using `module.__info__(:attributes)` as well, but upon inspecting I only have the vsn key ...
+Probably need some pointers here
+
+And in a couple of hours, José Valim reply it:
+
+> You will need to say that :ex_unit_async is a persisted attribute via `Module.register_attribute` :)
+
+If you're stuck on anything after trying a couple times, there's no harm asking question about it!
 
 ## Closing
 
-_DRAFT:_
-
-When I first saw the reply from `@livebookdev`, I thought this would be a
-simple change! Indeed it is.
+When I first saw the reply from `@livebookdev`, I thought this would be a simple change! Indeed it is.
 
 Elixir codebase is really easy to navigate and José Valim has been really responsive
 in providing feedbacks and guidance.
