@@ -23,3 +23,6 @@ books = "/:sections/:title"
   [markup.goldmark]
     [markup.goldmark.renderer]
       unsafe = true
+
+[security.exec]
+  osEnv = ['(?i)^(PATH|PATHEXT|APPDATA|TMP|TEMP|TERM)$','(?i)^ASDF', '^HOME$']
