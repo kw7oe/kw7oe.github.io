@@ -14,5 +14,11 @@
 
     {{ .Content }}
   </article>
+
+  <footer class="flex justify-end mb-10">
+    {{ with .NextInSection }}
+    <a href="{{ .Permalink }}">{{ .Params.section }}: {{ .Title }} ⟶ </a>
+    {{ end }}
+  </footer>
 </div>
 {{ end }}
