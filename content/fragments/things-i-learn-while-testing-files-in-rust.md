@@ -1,10 +1,15 @@
 ---
-title: "Testing Files in Rust"
-date: 2022-05-18T21:15:09+08:00
-draft: true
+title: "Things I learn while testing files in Rust"
+date: 2022-05-20T21:09:09+08:00
+tags: ["rust", "testing", "files"]
 ---
 
-Dealing with files while running tests in Rust can be tricky.
+Dealing with files while running tests in Rust can be tricky,
+namely running the tests concurrently and dealing with file clean up when a
+test fail or panic halfway.
+
+## Concurrency
+
 By default, `cargo test` run your Rust tests in multiple threads.
 Depending on your tests, if you're using the same filename in multiple test
 cases, it might caused unexpected failures.
@@ -30,7 +35,7 @@ At the time of writing, the
 [`ThreadId`](https://doc.rust-lang.org/std/thread/struct.ThreadId.html) can
 only be typecast to `u64` with `as_u64()` in the nightly version.
 
-## File clean up after panic
+## File clean up
 
 In general, file clean up can be achieve by calling `std::fs::remove_file` at
 the end of each test case:
