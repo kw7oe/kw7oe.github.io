@@ -7,13 +7,14 @@ Writing a simple Redis Protocol parser in Elixir | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.90.0" />
+<meta name="generator" content="Hugo 0.98.0" />
+
 
 
 
 
   
-  <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.70efcba323ef569acc57fdb926562ad7a43adfae5545cf62511809f4d53b4c80.css" integrity="sha256-cO/LoyPvVprMV/25JlYq16Q6365VRc9iURgJ9NU7TIA=">
+  <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.33e171ff5e13e3b33dad65126b55d844a2e93e9c729ae431e1313b1b67f2b092.css" integrity="sha256-M+Fx/14T47M9rWUSa1XYRKLpPpxymuQx4TE7G2fysJI=">
   <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -232,7 +233,7 @@ how a command is represented in RESP, especially <code>GET</code> and <code>SET<
 <h4 id="get-command"><code>GET</code> command</h4>
 <p>From the <code>GET</code> command <a href="https://redis.io/commands/get">documentation</a>, we know that
 the command support one argument. So to represent it as arrays, it will look something as follow:</p>
-<pre tabindex="0"><code>[&quot;GET&quot;, &quot;key&quot;]
+<pre tabindex="0"><code>[&#34;GET&#34;, &#34;key&#34;]
 </code></pre><p>But, what would the raw command looks like if we were to send to the server as a client encoded it as RESP?</p>
 <p>Let&rsquo;s apply what we know about RESP. We know that we need to:</p>
 <ul>
@@ -242,76 +243,76 @@ and <code>Bulk String</code>. Hence, it will contain multiple parts.</li>
 <p>This is what we need to send to the server to represent a <code>GET</code> command:</p>
 <pre tabindex="0"><code>*2\r\n$3\r\nGET\r\n$3\r\nkey\r\n
 </code></pre><p>To make it easier to understand, let&rsquo;s break down each parts into separate lines:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># Indicate an array with 2 elements</span>
-*2<span class="se">\r\n</span>
-
-<span class="c1"># Indicate the first element is a Bulk String of 3 character</span>
-<span class="nv">$3</span><span class="se">\r\n</span>
-
-<span class="c1"># Actual content of the first element</span>
-GET<span class="se">\r\n</span>
-
-<span class="c1"># Indicate the second element is a Bulk String of 3 character</span>
-<span class="nv">$3</span><span class="se">\r\n</span>
-
-<span class="c1"># Actual content of the second element</span>
-key<span class="se">\r\n</span>
-</code></pre></div><h4 id="set-command"><code>SET</code> command</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># Indicate an array with 2 elements</span>
+</span></span><span class="line"><span class="cl">*2<span class="se">\r\n</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Indicate the first element is a Bulk String of 3 character</span>
+</span></span><span class="line"><span class="cl"><span class="nv">$3</span><span class="se">\r\n</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Actual content of the first element</span>
+</span></span><span class="line"><span class="cl">GET<span class="se">\r\n</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Indicate the second element is a Bulk String of 3 character</span>
+</span></span><span class="line"><span class="cl"><span class="nv">$3</span><span class="se">\r\n</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Actual content of the second element</span>
+</span></span><span class="line"><span class="cl">key<span class="se">\r\n</span>
+</span></span></code></pre></div><h4 id="set-command"><code>SET</code> command</h4>
 <p>For <code>SET</code> command, we will be focusing on the basic one without supporting the
 additional options:</p>
-<pre tabindex="0"><code>[&quot;SET&quot;, &quot;key&quot;, &quot;value&quot;]
+<pre tabindex="0"><code>[&#34;SET&#34;, &#34;key&#34;, &#34;value&#34;]
 </code></pre><p>I&rsquo;ll leave it as an exercise for you to come up with the raw reply. If you have
 trouble coming up with it, try to break it into multiple parts first, and then
 encode it with RESP.</p>
 <p>Divide and Conquer.</p>
 <h3 id="are-you-correct">Are you correct?</h3>
 <p>How do we know if we have the correct answer? Let&rsquo;s pull in Elixir Redis client <code>redix</code>.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="nc">Mix</span><span class="o">.</span><span class="n">install</span><span class="p">([</span><span class="ss">:redix</span><span class="p">])</span>
-</code></pre></div><p>Since <code>redix</code> library include the <code>Redix.Protocol</code> module that is in charge
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="line"><span class="cl"><span class="nc">Mix</span><span class="o">.</span><span class="n">install</span><span class="p">([</span><span class="ss">:redix</span><span class="p">])</span>
+</span></span></code></pre></div><p>Since <code>redix</code> library include the <code>Redix.Protocol</code> module that is in charge
 of parsing the protocol, we will use it to verify our answer.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="p">[</span><span class="s2">&#34;SET&#34;</span><span class="p">,</span> <span class="s2">&#34;key&#34;</span><span class="p">,</span> <span class="s2">&#34;value&#34;</span><span class="p">]</span>
-<span class="o">|&gt;</span> <span class="nc">Redix.Protocol</span><span class="o">.</span><span class="n">pack</span><span class="p">()</span>
-<span class="o">|&gt;</span> <span class="nc">IO</span><span class="o">.</span><span class="n">iodata_to_binary</span><span class="p">()</span>
-
-<span class="c1">#=&gt; &#34;*3\r\n$3\r\nSET\r\n$3\r\nkey\r\n$5\r\nvalue\r\n&#34;</span>
-</code></pre></div><p>By now, we should able to understand how RESP works. So let&rsquo;s proceed to the next stage
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="line"><span class="cl"><span class="p">[</span><span class="s2">&#34;SET&#34;</span><span class="p">,</span> <span class="s2">&#34;key&#34;</span><span class="p">,</span> <span class="s2">&#34;value&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">|&gt;</span> <span class="nc">Redix.Protocol</span><span class="o">.</span><span class="n">pack</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="o">|&gt;</span> <span class="nc">IO</span><span class="o">.</span><span class="n">iodata_to_binary</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#=&gt; &#34;*3\r\n$3\r\nSET\r\n$3\r\nkey\r\n$5\r\nvalue\r\n&#34;</span>
+</span></span></code></pre></div><p>By now, we should able to understand how RESP works. So let&rsquo;s proceed to the next stage
 where we write our code to encode and decode the raw input to a data structure and vice versa.</p>
 <h2 id="writing-our-parser">Writing our Parser</h2>
 <p>Before we started to write our own parser, let&rsquo;s write some test case to help with us to verify
 our implementation easily.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">ParserTest</span> <span class="k">do</span>
-  <span class="kn">use</span> <span class="nc">ExUnit.Case</span><span class="p">,</span> <span class="ss">async</span><span class="p">:</span> <span class="no">true</span>
-
-  <span class="n">test</span> <span class="s2">&#34;encode&#34;</span> <span class="k">do</span>
-    <span class="n">list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;SET&#34;</span><span class="p">,</span> <span class="s2">&#34;key&#34;</span><span class="p">,</span> <span class="s2">&#34;value&#34;</span><span class="p">]</span>
-    <span class="n">assert</span> <span class="s2">&#34;*3</span><span class="se">\r\n</span><span class="s2">$3</span><span class="se">\r\n</span><span class="s2">SET</span><span class="se">\r\n</span><span class="s2">$3</span><span class="se">\r\n</span><span class="s2">key</span><span class="se">\r\n</span><span class="s2">$5</span><span class="se">\r\n</span><span class="s2">value</span><span class="se">\r\n</span><span class="s2">&#34;</span> <span class="o">==</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
-  <span class="k">end</span>
-
-  <span class="n">test</span> <span class="s2">&#34;decode&#34;</span> <span class="k">do</span>
-    <span class="n">reply</span> <span class="o">=</span> <span class="s2">&#34;*2</span><span class="se">\r\n</span><span class="s2">$3</span><span class="se">\r\n</span><span class="s2">GET</span><span class="se">\r\n</span><span class="s2">$3</span><span class="se">\r\n</span><span class="s2">key</span><span class="se">\r\n</span><span class="s2">&#34;</span>
-    <span class="n">assert</span> <span class="p">[</span><span class="s2">&#34;GET&#34;</span><span class="p">,</span> <span class="s2">&#34;key&#34;</span><span class="p">]</span> <span class="o">==</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">reply</span><span class="p">)</span>
-  <span class="k">end</span>
-
-  <span class="n">test</span> <span class="s2">&#34;encode and decode&#34;</span> <span class="k">do</span>
-    <span class="n">reply</span> <span class="o">=</span> <span class="s2">&#34;*2</span><span class="se">\r\n</span><span class="s2">$3</span><span class="se">\r\n</span><span class="s2">GET</span><span class="se">\r\n</span><span class="s2">$3</span><span class="se">\r\n</span><span class="s2">key</span><span class="se">\r\n</span><span class="s2">&#34;</span>
-    <span class="n">assert</span> <span class="n">reply</span> <span class="o">==</span> <span class="n">reply</span> <span class="o">|&gt;</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span> <span class="o">|&gt;</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
-
-    <span class="n">list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;GET&#34;</span><span class="p">,</span> <span class="s2">&#34;KEY&#34;</span><span class="p">]</span>
-    <span class="n">assert</span> <span class="n">list</span> <span class="o">==</span> <span class="n">list</span> <span class="o">|&gt;</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span> <span class="o">|&gt;</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
-  <span class="k">end</span>
-<span class="k">end</span>
-</code></pre></div><p>If we run the code above, we&rsquo;ll get <code>Parser.decode/1</code> undefined error since we haven&rsquo;t
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="line"><span class="cl"><span class="kd">defmodule</span> <span class="nc">ParserTest</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">use</span> <span class="nc">ExUnit.Case</span><span class="p">,</span> <span class="ss">async</span><span class="p">:</span> <span class="no">true</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">test</span> <span class="s2">&#34;encode&#34;</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="n">list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;SET&#34;</span><span class="p">,</span> <span class="s2">&#34;key&#34;</span><span class="p">,</span> <span class="s2">&#34;value&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">assert</span> <span class="s2">&#34;*3</span><span class="se">\r\n</span><span class="s2">$3</span><span class="se">\r\n</span><span class="s2">SET</span><span class="se">\r\n</span><span class="s2">$3</span><span class="se">\r\n</span><span class="s2">key</span><span class="se">\r\n</span><span class="s2">$5</span><span class="se">\r\n</span><span class="s2">value</span><span class="se">\r\n</span><span class="s2">&#34;</span> <span class="o">==</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">test</span> <span class="s2">&#34;decode&#34;</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="n">reply</span> <span class="o">=</span> <span class="s2">&#34;*2</span><span class="se">\r\n</span><span class="s2">$3</span><span class="se">\r\n</span><span class="s2">GET</span><span class="se">\r\n</span><span class="s2">$3</span><span class="se">\r\n</span><span class="s2">key</span><span class="se">\r\n</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">assert</span> <span class="p">[</span><span class="s2">&#34;GET&#34;</span><span class="p">,</span> <span class="s2">&#34;key&#34;</span><span class="p">]</span> <span class="o">==</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">reply</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">test</span> <span class="s2">&#34;encode and decode&#34;</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="n">reply</span> <span class="o">=</span> <span class="s2">&#34;*2</span><span class="se">\r\n</span><span class="s2">$3</span><span class="se">\r\n</span><span class="s2">GET</span><span class="se">\r\n</span><span class="s2">$3</span><span class="se">\r\n</span><span class="s2">key</span><span class="se">\r\n</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">assert</span> <span class="n">reply</span> <span class="o">==</span> <span class="n">reply</span> <span class="o">|&gt;</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span> <span class="o">|&gt;</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;GET&#34;</span><span class="p">,</span> <span class="s2">&#34;KEY&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">assert</span> <span class="n">list</span> <span class="o">==</span> <span class="n">list</span> <span class="o">|&gt;</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span> <span class="o">|&gt;</span> <span class="nc">Parser</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">  <span class="k">end</span>
+</span></span><span class="line"><span class="cl"><span class="k">end</span>
+</span></span></code></pre></div><p>If we run the code above, we&rsquo;ll get <code>Parser.decode/1</code> undefined error since we haven&rsquo;t
 implement our module yet. So let&rsquo;s write some code!</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">Parser</span> <span class="k">do</span>
-  <span class="kd">def</span> <span class="n">encode</span><span class="p">(</span><span class="n">_commands</span><span class="p">)</span> <span class="k">do</span>
-    <span class="c1"># your impl</span>
-  <span class="k">end</span>
-
-  <span class="kd">def</span> <span class="n">decode</span><span class="p">(</span><span class="n">_string</span><span class="p">)</span> <span class="k">do</span>
-    <span class="c1"># your impl</span>
-  <span class="k">end</span>
-<span class="k">end</span>
-</code></pre></div><p>If you&rsquo;re up to the challenge, implement the above first and utilize
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="line"><span class="cl"><span class="kd">defmodule</span> <span class="nc">Parser</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">def</span> <span class="n">encode</span><span class="p">(</span><span class="n">_commands</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># your impl</span>
+</span></span><span class="line"><span class="cl">  <span class="k">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">def</span> <span class="n">decode</span><span class="p">(</span><span class="n">_string</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># your impl</span>
+</span></span><span class="line"><span class="cl">  <span class="k">end</span>
+</span></span><span class="line"><span class="cl"><span class="k">end</span>
+</span></span></code></pre></div><p>If you&rsquo;re up to the challenge, implement the above first and utilize
 the existing test to verify your implementation.</p>
 <hr>
 <p><em>Purposely left blank for those who want to implement it themselves first</em></p>
@@ -322,42 +323,42 @@ the existing test to verify your implementation.</p>
 <p>&hellip;</p>
 <hr>
 <p>Are you ready for my version of implmentation? Here it is.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">Parser</span> <span class="k">do</span>
-  <span class="kd">def</span> <span class="n">encode</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span> <span class="ow">when</span> <span class="n">is_list</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span> <span class="k">do</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="s2">&#34;*</span><span class="si">#{</span><span class="n">length</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span><span class="si">}</span><span class="se">\r\n</span><span class="s2">&#34;</span>
-
-    <span class="nc">Enum</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="k">fn</span> <span class="n">command</span><span class="p">,</span> <span class="n">result</span> <span class="o">-&gt;</span>
-      <span class="n">result</span> <span class="o">&lt;&gt;</span> <span class="s2">&#34;$</span><span class="si">#{</span><span class="nc">String</span><span class="o">.</span><span class="n">length</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="si">}</span><span class="se">\r\n</span><span class="si">#{</span><span class="n">command</span><span class="si">}</span><span class="se">\r\n</span><span class="s2">&#34;</span>
-    <span class="k">end</span><span class="p">)</span>
-  <span class="k">end</span>
-
-  <span class="kd">def</span> <span class="n">decode</span><span class="p">(</span><span class="n">string</span><span class="p">)</span> <span class="ow">when</span> <span class="n">is_binary</span><span class="p">(</span><span class="n">string</span><span class="p">)</span> <span class="k">do</span>
-    <span class="p">%{</span><span class="ss">commands</span><span class="p">:</span> <span class="n">commands</span><span class="p">}</span> <span class="o">=</span>
-      <span class="n">string</span>
-      <span class="o">|&gt;</span> <span class="nc">String</span><span class="o">.</span><span class="n">trim</span><span class="p">()</span>
-      <span class="o">|&gt;</span> <span class="nc">String</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&#34;</span><span class="se">\r\n</span><span class="s2">&#34;</span><span class="p">)</span>
-      <span class="o">|&gt;</span> <span class="nc">Enum</span><span class="o">.</span><span class="n">reduce</span><span class="p">(%{},</span> <span class="k">fn</span> <span class="n">reply</span><span class="p">,</span> <span class="n">state</span> <span class="o">-&gt;</span>
-        <span class="k">case</span> <span class="n">reply</span> <span class="k">do</span>
-          <span class="s2">&#34;*&#34;</span> <span class="o">&lt;&gt;</span> <span class="n">length</span> <span class="o">-&gt;</span>
-            <span class="n">state</span>
-            <span class="o">|&gt;</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="ss">:type</span><span class="p">,</span> <span class="s2">&#34;array&#34;</span><span class="p">)</span>
-            <span class="o">|&gt;</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="ss">:array_length</span><span class="p">,</span> <span class="nc">String</span><span class="o">.</span><span class="n">to_integer</span><span class="p">(</span><span class="n">length</span><span class="p">))</span>
-
-          <span class="s2">&#34;$&#34;</span> <span class="o">&lt;&gt;</span> <span class="n">length</span> <span class="o">-&gt;</span>
-            <span class="n">state</span>
-            <span class="o">|&gt;</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="ss">:type</span><span class="p">,</span> <span class="s2">&#34;bulk_string&#34;</span><span class="p">)</span>
-            <span class="o">|&gt;</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="ss">:bulk_string_length</span><span class="p">,</span> <span class="nc">String</span><span class="o">.</span><span class="n">to_integer</span><span class="p">(</span><span class="n">length</span><span class="p">))</span>
-
-          <span class="n">value</span> <span class="o">-&gt;</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="nc">String</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-            <span class="nc">Map</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="ss">:commands</span><span class="p">,</span> <span class="p">[</span><span class="n">value</span><span class="p">],</span> <span class="k">fn</span> <span class="n">list</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">value</span> <span class="o">|</span> <span class="n">list</span><span class="p">]</span> <span class="k">end</span><span class="p">)</span>
-        <span class="k">end</span>
-      <span class="k">end</span><span class="p">)</span>
-
-    <span class="nc">Enum</span><span class="o">.</span><span class="n">reverse</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span>
-  <span class="k">end</span>
-<span class="k">end</span>
-</code></pre></div><h3 id="encode">Encode</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="line"><span class="cl"><span class="kd">defmodule</span> <span class="nc">Parser</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">def</span> <span class="n">encode</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span> <span class="ow">when</span> <span class="n">is_list</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="n">result</span> <span class="o">=</span> <span class="s2">&#34;*</span><span class="si">#{</span><span class="n">length</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span><span class="si">}</span><span class="se">\r\n</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nc">Enum</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="k">fn</span> <span class="n">command</span><span class="p">,</span> <span class="n">result</span> <span class="o">-&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="n">result</span> <span class="o">&lt;&gt;</span> <span class="s2">&#34;$</span><span class="si">#{</span><span class="nc">String</span><span class="o">.</span><span class="n">length</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="si">}</span><span class="se">\r\n</span><span class="si">#{</span><span class="n">command</span><span class="si">}</span><span class="se">\r\n</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">end</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">def</span> <span class="n">decode</span><span class="p">(</span><span class="n">string</span><span class="p">)</span> <span class="ow">when</span> <span class="n">is_binary</span><span class="p">(</span><span class="n">string</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="p">%{</span><span class="ss">commands</span><span class="p">:</span> <span class="n">commands</span><span class="p">}</span> <span class="o">=</span>
+</span></span><span class="line"><span class="cl">      <span class="n">string</span>
+</span></span><span class="line"><span class="cl">      <span class="o">|&gt;</span> <span class="nc">String</span><span class="o">.</span><span class="n">trim</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">      <span class="o">|&gt;</span> <span class="nc">String</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&#34;</span><span class="se">\r\n</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="o">|&gt;</span> <span class="nc">Enum</span><span class="o">.</span><span class="n">reduce</span><span class="p">(%{},</span> <span class="k">fn</span> <span class="n">reply</span><span class="p">,</span> <span class="n">state</span> <span class="o">-&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">case</span> <span class="n">reply</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">          <span class="s2">&#34;*&#34;</span> <span class="o">&lt;&gt;</span> <span class="n">length</span> <span class="o">-&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">state</span>
+</span></span><span class="line"><span class="cl">            <span class="o">|&gt;</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="ss">:type</span><span class="p">,</span> <span class="s2">&#34;array&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="o">|&gt;</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="ss">:array_length</span><span class="p">,</span> <span class="nc">String</span><span class="o">.</span><span class="n">to_integer</span><span class="p">(</span><span class="n">length</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">          <span class="s2">&#34;$&#34;</span> <span class="o">&lt;&gt;</span> <span class="n">length</span> <span class="o">-&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">state</span>
+</span></span><span class="line"><span class="cl">            <span class="o">|&gt;</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="ss">:type</span><span class="p">,</span> <span class="s2">&#34;bulk_string&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="o">|&gt;</span> <span class="nc">Map</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="ss">:bulk_string_length</span><span class="p">,</span> <span class="nc">String</span><span class="o">.</span><span class="n">to_integer</span><span class="p">(</span><span class="n">length</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">          <span class="n">value</span> <span class="o">-&gt;</span>
+</span></span><span class="line"><span class="cl">            <span class="n">value</span> <span class="o">=</span> <span class="nc">String</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="nc">Map</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="ss">:commands</span><span class="p">,</span> <span class="p">[</span><span class="n">value</span><span class="p">],</span> <span class="k">fn</span> <span class="n">list</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">value</span> <span class="o">|</span> <span class="n">list</span><span class="p">]</span> <span class="k">end</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">end</span>
+</span></span><span class="line"><span class="cl">      <span class="k">end</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nc">Enum</span><span class="o">.</span><span class="n">reverse</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">end</span>
+</span></span><span class="line"><span class="cl"><span class="k">end</span>
+</span></span></code></pre></div><h3 id="encode">Encode</h3>
 <p>Writing the <code>encode/1</code> is fairly straightforward since we already know how to represent
 arrays and bulk string in RESP. All we need to do is to first specify the <code>Array</code> type and then
 concantenate it with all the <code>Bulk String</code> type we have by looping through it with <code>Enum.reduce/2</code>.</p>
@@ -377,7 +378,7 @@ mykey &lt;-- What we want
 $3
 foo &lt;-- What we want
 </code></pre><p>and further convert it into:</p>
-<pre tabindex="0"><code>[&quot;SET&quot;, &quot;mykey&quot;, &quot;foo&quot;]
+<pre tabindex="0"><code>[&#34;SET&#34;, &#34;mykey&#34;, &#34;foo&#34;]
 </code></pre><p>by ignoring any line that indicate the type.</p>
 <p>It can also be implemented as a recursive function that might result in a better readability.
 Is this the ideal implementation? Definitely not! But this is a good start.</p>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>
+Things I learn while testing files in Rust | kw7oe
+</title>
+
+
+
+<meta name="generator" content="Hugo 0.98.0" />
+
+
+
+
+
+  
+  <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.33e171ff5e13e3b33dad65126b55d844a2e93e9c729ae431e1313b1b67f2b092.css" integrity="sha256-M+Fx/14T47M9rWUSa1XYRKLpPpxymuQx4TE7G2fysJI=">
+  <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora&family=Source+Sans+Pro:wght@400;600&display=swap" rel="stylesheet">
+
+
+<body class="flex flex-col min-h-screen px-6 max-w-prose md:w-2/3 m-auto"><nav class="mt-8">
+  <ul id="nav-menu" class="w-full flex items-center list-reset">
+    
+    <li>
+      <a href="https://kaiwern.com/">Home</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/fragments/">Fragments</a>
+    </li>
+    
+
+    
+
+
+    
+    <li>
+      <a href="https://kaiwern.com/about/">About</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/tags/">Tags</a>
+    </li>
+    
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+  </ul>
+</nav>
+
+
+    <main class="flex-1 mt-10 sm:mt-12">
+<div>
+  <header class="mb-8 font-sans-serif">
+    
+    <div class="text-sm font-gray-700 mb-8">
+      <p class="uppercase font-semibold">
+      <a class="text-gray-700" href="/fragments">fragments</a>
+      </p>
+      <p>May 20, 2022</p>
+    </div>
+    
+
+    <h1 class="text-3xl mb-1 font-semibold">Things I learn while testing files in Rust</h1>
+    
+      <p class="italic text-xs">Last updated at: May 20, 2022</p>
+    
+  </header>
+
+  <article class="prose serif mb-16 text-gray-800">
+    <p>Dealing with files while running tests in Rust can be tricky,
+namely running the tests concurrently and dealing with file clean up when a
+test fail or panic halfway.</p>
+<h2 id="concurrency">Concurrency</h2>
+<p>By default, <code>cargo test</code> run your Rust tests in multiple threads.
+Depending on your tests, if you&rsquo;re using the same filename in multiple test
+cases, it might caused unexpected failures.</p>
+<p>The easiest way to overcome this is to limit <code>cargo test</code> to run only on a
+single thread:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">cargo <span class="nb">test</span> -- --test-threads<span class="o">=</span><span class="m">1</span>
+</span></span></code></pre></div><p>However, this will caused your <code>cargo test</code> to takes longer time to complete.
+To overcome this, use a different filename in each of your
+test cases. It can be done dynamically in a thread safe manner utilizing the
+current thread information:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="fm">format!</span><span class="p">(</span><span class="s">&#34;file-{:?}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">std</span>::<span class="n">thread</span>::<span class="n">current</span><span class="p">().</span><span class="n">id</span><span class="p">());</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// file-ThreadId(1)
+</span></span></span></code></pre></div><p>At the time of writing, the
+<a href="https://doc.rust-lang.org/std/thread/struct.ThreadId.html"><code>ThreadId</code></a> can
+only be typecast to <code>u64</code> with <code>as_u64()</code> in the nightly version.</p>
+<h2 id="file-clean-up">File clean up</h2>
+<p>In general, file clean up can be achieve by calling <code>std::fs::remove_file</code> at
+the end of each test case:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="kd">let</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span>::<span class="n">fs</span>::<span class="n">remove_file</span><span class="p">(</span><span class="fm">format!</span><span class="p">(</span><span class="s">&#34;test-{:?}.db&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">std</span>::<span class="n">thread</span>::<span class="n">current</span><span class="p">().</span><span class="n">id</span><span class="p">()));</span><span class="w">
+</span></span></span></code></pre></div><p>However, there will be sometime where you&rsquo;re working on the correct
+implementation and running the tests might caused panic and thus not calling
+the file clean up code as expected.</p>
+<p>We can overcome this by setting up a custom panic hook with
+<a href="https://doc.rust-lang.org/std/panic/fn.set_hook.html"><code>std::panic::set_hook</code></a>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="n">std</span>::<span class="n">panic</span>::<span class="n">set_hook</span><span class="p">(</span><span class="nb">Box</span>::<span class="n">new</span><span class="p">(</span><span class="o">|</span><span class="n">p</span><span class="o">|</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="kd">let</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span>::<span class="n">fs</span>::<span class="n">remove_file</span><span class="p">(</span><span class="fm">format!</span><span class="p">(</span><span class="s">&#34;test-{:?}.db&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">std</span>::<span class="n">thread</span>::<span class="n">current</span><span class="p">().</span><span class="n">id</span><span class="p">()));</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;{p}&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}));</span><span class="w">
+</span></span></span></code></pre></div><p>We are calling <code>println!(&quot;{p}&quot;)</code> again to mimic the default panic behaviour. I
+learn about this thanks to <a href="https://users.rust-lang.org/t/cleaning-up-after-test-failure/15840/6">this topic in Rust forum</a>.</p>
+
+
+    <div class="float-right mb-8">
+      <p class="text-sm mb-4 font-gray-700 italic">(230 words)</p>
+    </div>
+  </article>
+
+</div>
+
+    </main>
+
+
+
+
+<hr/>
+<footer class="w-full text-center p-4 pin-b text-xs text-gray-400">
+    <p>made with <a href="https://gohugo.io" class="underline hover:text-blue-400">Hugo</a> and <a href="https://tailwindcss.com" class="underline hover:text-blue-400">TailwindCSS</a></p>
+</footer>
+</body>
+</html>

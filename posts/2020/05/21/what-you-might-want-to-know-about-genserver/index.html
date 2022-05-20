@@ -7,13 +7,14 @@ What you might want to know about GenServer | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.90.0" />
+<meta name="generator" content="Hugo 0.98.0" />
+
 
 
 
 
   
-  <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.70efcba323ef569acc57fdb926562ad7a43adfae5545cf62511809f4d53b4c80.css" integrity="sha256-cO/LoyPvVprMV/25JlYq16Q6365VRc9iURgJ9NU7TIA=">
+  <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.33e171ff5e13e3b33dad65126b55d844a2e93e9c729ae431e1313b1b67f2b092.css" integrity="sha256-M+Fx/14T47M9rWUSa1XYRKLpPpxymuQx4TE7G2fysJI=">
   <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -123,24 +124,24 @@ battle-tested production system. The OTP behaviours also take care of some
 of the edge cases for you.</p>
 <p>When we <code>use GenServer</code>, we are using GenServer behaviour and
 implementing our own callback modules.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="c1"># Our own callback module</span>
-<span class="kd">def</span> <span class="nc">MyServer</span> <span class="k">do</span>
-  <span class="kn">use</span> <span class="nc">GenServer</span>
-
-  <span class="kd">def</span> <span class="n">init</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">do</span>
-    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="p">[]}</span>
-  <span class="k">end</span>
-
-  <span class="kd">def</span> <span class="n">handle_call</span><span class="p">(</span><span class="ss">:ping</span><span class="p">,</span> <span class="n">_from</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span> <span class="k">do</span>
-    <span class="p">{</span><span class="ss">:reply</span><span class="p">,</span> <span class="ss">:pong</span><span class="p">,</span> <span class="n">state</span><span class="p">}</span>
-  <span class="k">end</span>
-<span class="k">end</span>
-
-<span class="c1"># Using GenServer generic behaviour to interact with our own callback modules</span>
-<span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">pid</span><span class="p">}</span> <span class="o">=</span> <span class="nc">GenServer</span><span class="o">.</span><span class="n">start_link</span><span class="p">(</span><span class="nc">MyServer</span><span class="p">,</span> <span class="p">[])</span>
-<span class="nc">GenServer</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="ss">:ping</span><span class="p">)</span>
-<span class="c1">#=&gt; :pong</span>
-</code></pre></div><p>When using GenServer, we don&rsquo;t need to know the internal implementation of
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="line"><span class="cl"><span class="c1"># Our own callback module</span>
+</span></span><span class="line"><span class="cl"><span class="kd">def</span> <span class="nc">MyServer</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">use</span> <span class="nc">GenServer</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">def</span> <span class="n">init</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="p">[]}</span>
+</span></span><span class="line"><span class="cl">  <span class="k">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">def</span> <span class="n">handle_call</span><span class="p">(</span><span class="ss">:ping</span><span class="p">,</span> <span class="n">_from</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="ss">:reply</span><span class="p">,</span> <span class="ss">:pong</span><span class="p">,</span> <span class="n">state</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="k">end</span>
+</span></span><span class="line"><span class="cl"><span class="k">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Using GenServer generic behaviour to interact with our own callback modules</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">pid</span><span class="p">}</span> <span class="o">=</span> <span class="nc">GenServer</span><span class="o">.</span><span class="n">start_link</span><span class="p">(</span><span class="nc">MyServer</span><span class="p">,</span> <span class="p">[])</span>
+</span></span><span class="line"><span class="cl"><span class="nc">GenServer</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="ss">:ping</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#=&gt; :pong</span>
+</span></span></code></pre></div><p>When using GenServer, we don&rsquo;t need to know the internal implementation of
 GenServer. All we need to is to implement the behaviour callbacks. The callbacks
 act as the interface between GenServer and our module. This decouple the
 logic of managing process <em>(what GenServer do)</em> from our business logic <em>(what
@@ -250,38 +251,38 @@ Starting <code>ets</code> table in a <code>GenServer</code> is definitely the wa
 <p>This is because <code>ets</code> table is owned by the process create it. If the process
 is terminated, the <code>ets</code> table is also deleted. However, do avoid wrapping
 <code>ets</code> call with <code>GenServer</code> callbacks as follows:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defmodule</span> <span class="nc">MyETS</span> <span class="k">do</span>
-  <span class="kn">use</span> <span class="nc">GenServer</span>
-  <span class="na">@table_name</span> <span class="ss">:table</span>
-
-  <span class="kd">def</span> <span class="n">init</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">do</span>
-    <span class="ss">:ets</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="na">@table_name</span><span class="p">,</span> <span class="p">[</span><span class="ss">:set</span><span class="p">,</span> <span class="ss">:named_table</span><span class="p">,</span> <span class="ss">:public</span><span class="p">,</span> <span class="ss">read_concurrency</span><span class="p">:</span> <span class="no">true</span><span class="p">])</span>
-    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="p">[]}</span>
-  <span class="k">end</span>
-
-  <span class="c1"># AVOID THIS</span>
-  <span class="c1"># Wrapping look up in a GenServer.call</span>
-  <span class="kd">def</span> <span class="n">lookup</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="k">do</span>
-    <span class="nc">GenServer</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">__MODULE__</span><span class="p">,</span> <span class="p">{</span><span class="ss">:lookup</span><span class="p">,</span> <span class="n">key</span><span class="p">})</span>
-  <span class="k">end</span>
-
-  <span class="c1"># DO THIS instead</span>
-  <span class="c1"># Call :ets.lookup directly</span>
-  <span class="kd">def</span> <span class="n">lookup_v2</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="k">do</span>
-    <span class="k">case</span> <span class="ss">:ets</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="na">@table_name</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="k">do</span>
-      <span class="p">[{</span><span class="o">^</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">}]</span> <span class="o">-&gt;</span> <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">value</span><span class="p">}</span>
-      <span class="n">_</span> <span class="o">-&gt;</span> <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="ss">:not_found</span><span class="p">}</span>
-    <span class="k">end</span>
-  <span class="k">end</span>
-
-  <span class="kd">def</span> <span class="n">handle_call</span><span class="p">({</span><span class="ss">:lookup</span><span class="p">,</span> <span class="n">key</span><span class="p">},</span> <span class="n">_from</span><span class="p">,</span> <span class="n">_state</span><span class="p">)</span> <span class="k">do</span>
-    <span class="k">case</span> <span class="ss">:ets</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="na">@table_name</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="k">do</span>
-      <span class="p">[{</span><span class="o">^</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">}]</span> <span class="o">-&gt;</span> <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">value</span><span class="p">}</span>
-      <span class="n">_</span> <span class="o">-&gt;</span> <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="ss">:not_found</span><span class="p">}</span>
-    <span class="k">end</span>
-  <span class="k">end</span>
-<span class="k">end</span>
-</code></pre></div><p>This is because if we are wrapping <code>:ets.lookup</code> in the <code>GenServer.call</code>, we
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="line"><span class="cl"><span class="kd">defmodule</span> <span class="nc">MyETS</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">use</span> <span class="nc">GenServer</span>
+</span></span><span class="line"><span class="cl">  <span class="na">@table_name</span> <span class="ss">:table</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">def</span> <span class="n">init</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="ss">:ets</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="na">@table_name</span><span class="p">,</span> <span class="p">[</span><span class="ss">:set</span><span class="p">,</span> <span class="ss">:named_table</span><span class="p">,</span> <span class="ss">:public</span><span class="p">,</span> <span class="ss">read_concurrency</span><span class="p">:</span> <span class="no">true</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="p">[]}</span>
+</span></span><span class="line"><span class="cl">  <span class="k">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># AVOID THIS</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># Wrapping look up in a GenServer.call</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">def</span> <span class="n">lookup</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="nc">GenServer</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">__MODULE__</span><span class="p">,</span> <span class="p">{</span><span class="ss">:lookup</span><span class="p">,</span> <span class="n">key</span><span class="p">})</span>
+</span></span><span class="line"><span class="cl">  <span class="k">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># DO THIS instead</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># Call :ets.lookup directly</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">def</span> <span class="n">lookup_v2</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="ss">:ets</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="na">@table_name</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[{</span><span class="o">^</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">}]</span> <span class="o">-&gt;</span> <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">value</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="n">_</span> <span class="o">-&gt;</span> <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="ss">:not_found</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">end</span>
+</span></span><span class="line"><span class="cl">  <span class="k">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">def</span> <span class="n">handle_call</span><span class="p">({</span><span class="ss">:lookup</span><span class="p">,</span> <span class="n">key</span><span class="p">},</span> <span class="n">_from</span><span class="p">,</span> <span class="n">_state</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="ss">:ets</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="na">@table_name</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[{</span><span class="o">^</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">}]</span> <span class="o">-&gt;</span> <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">value</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="n">_</span> <span class="o">-&gt;</span> <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="ss">:not_found</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">end</span>
+</span></span><span class="line"><span class="cl">  <span class="k">end</span>
+</span></span><span class="line"><span class="cl"><span class="k">end</span>
+</span></span></code></pre></div><p>This is because if we are wrapping <code>:ets.lookup</code> in the <code>GenServer.call</code>, we
 are losing the performance gained from using <code>ets</code> and limiting our usage of
 <code>ets</code>, like reading and writing concurrently with <code>ets</code>.</p>
 <p>The <code>GenServer.call</code>
@@ -348,10 +349,10 @@ too.
 <p>When we <code>use GenServer</code>, Elixir actually include a default catch all
 <code>handle_info</code> implementation <em>(from the source code <a href="https://github.com/elixir-lang/elixir/blob/master/lib/elixir/lib/gen_server.ex#L781">here</a>)</em>. However,
 when you start overwriting by defining your own callback:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">def</span> <span class="n">handle_info</span><span class="p">(</span><span class="n">...</span><span class="p">)</span> <span class="k">do</span>
-  <span class="n">...</span>
-<span class="k">end</span>
-</code></pre></div><p>The default callback is then overridden.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="line"><span class="cl"><span class="kd">def</span> <span class="n">handle_info</span><span class="p">(</span><span class="n">...</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">  <span class="n">...</span>
+</span></span><span class="line"><span class="cl"><span class="k">end</span>
+</span></span></code></pre></div><p>The default callback is then overridden.</p>
 <p>If you don&rsquo;t want unmatch message to raise error in your GenServer, don&rsquo;t
 forget to implement a catch all <code>handle_info</code>.</p>
 <h3 id="3-do-understand-when-to-use-cast-and-when-to-use-call">3. Do understand when to use <code>cast</code> and when to use <code>call</code>.</h3>

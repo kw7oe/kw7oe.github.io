@@ -8,6 +8,16 @@
     <language>en-us</language>
     <lastBuildDate>Wed, 15 May 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://kaiwern.com/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Things I learn while testing files in Rust</title>
+      <link>https://kaiwern.com/fragments/things-i-learn-while-testing-files-in-rust/</link>
+      <pubDate>Fri, 20 May 2022 21:09:09 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/fragments/things-i-learn-while-testing-files-in-rust/</guid>
+      <description>Dealing with files while running tests in Rust can be tricky, namely running the tests concurrently and dealing with file clean up when a test fail or panic halfway.
+Concurrency By default, cargo test run your Rust tests in multiple threads. Depending on your tests, if you&amp;rsquo;re using the same filename in multiple test cases, it might caused unexpected failures.</description>
+    </item>
+    
+    <item>
       <title>First 6 weeks in the Recurse Center</title>
       <link>https://kaiwern.com/posts/2022/05/12/first-6-weeks-in-the-recurse-center/</link>
       <pubDate>Thu, 12 May 2022 10:47:06 +0800</pubDate>

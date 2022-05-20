@@ -7,13 +7,14 @@ Using Markdown for Static Pages in Rails | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.90.0" />
+<meta name="generator" content="Hugo 0.98.0" />
+
 
 
 
 
   
-  <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.70efcba323ef569acc57fdb926562ad7a43adfae5545cf62511809f4d53b4c80.css" integrity="sha256-cO/LoyPvVprMV/25JlYq16Q6365VRc9iURgJ9NU7TIA=">
+  <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.33e171ff5e13e3b33dad65126b55d844a2e93e9c729ae431e1313b1b67f2b092.css" integrity="sha256-M+Fx/14T47M9rWUSa1XYRKLpPpxymuQx4TE7G2fysJI=">
   <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -127,56 +128,56 @@ there is a request.</li>
 <li>Bind ERB environment if instance variables <code>@variable</code> is used in the view</li>
 </ul>
 <p>To compile a Markdown file is fairly straighforward in <code>ruby</code>:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ruby" data-lang="ruby"><span class="c1"># gem install kramdown if not found</span>
-<span class="nb">require</span> <span class="s1">&#39;kramdown&#39;</span>
-
-<span class="n">file</span> <span class="o">=</span> <span class="no">File</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;about.md&#39;</span><span class="p">)</span>
-<span class="n">html</span> <span class="o">=</span> <span class="no">Kramdown</span><span class="o">::</span><span class="no">Document</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="p">{</span><span class="ss">input</span><span class="p">:</span> <span class="s2">&#34;GFM&#34;</span><span class="p">})</span><span class="o">.</span><span class="n">to_html</span>
-<span class="c1"># Configuring {input: &#34;GFM&#34;} to set kramdown to use GFM parser</span>
-<span class="c1"># instead of the defaut one. GFM parser can parse Github Flavour Markdown.</span>
-<span class="nb">p</span> <span class="n">html</span>
-<span class="c1">#=&gt; &lt;html&gt;...&lt;/html&gt;</span>
-</code></pre></div><p>To use it in a Rails application:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ruby" data-lang="ruby"><span class="line"><span class="cl"><span class="c1"># gem install kramdown if not found</span>
+</span></span><span class="line"><span class="cl"><span class="nb">require</span> <span class="s1">&#39;kramdown&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">file</span> <span class="o">=</span> <span class="no">File</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;about.md&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">html</span> <span class="o">=</span> <span class="no">Kramdown</span><span class="o">::</span><span class="no">Document</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="p">{</span><span class="ss">input</span><span class="p">:</span> <span class="s2">&#34;GFM&#34;</span><span class="p">})</span><span class="o">.</span><span class="n">to_html</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Configuring {input: &#34;GFM&#34;} to set kramdown to use GFM parser</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># instead of the defaut one. GFM parser can parse Github Flavour Markdown.</span>
+</span></span><span class="line"><span class="cl"><span class="nb">p</span> <span class="n">html</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#=&gt; &lt;html&gt;...&lt;/html&gt;</span>
+</span></span></code></pre></div><p>To use it in a Rails application:</p>
 <p>Add <code>kramdown</code> to <code>Gemfile</code></p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ruby" data-lang="ruby"><span class="n">gem</span> <span class="s1">&#39;kramdown&#39;</span><span class="p">,</span> <span class="nb">require</span><span class="p">:</span> <span class="kp">false</span>
-<span class="c1"># require: false since we are going to require it only</span>
-<span class="c1"># when we need it</span>
-</code></pre></div><p>In the <code>app/views/pages/about.md</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ruby" data-lang="ruby"><span class="line"><span class="cl"><span class="n">gem</span> <span class="s1">&#39;kramdown&#39;</span><span class="p">,</span> <span class="nb">require</span><span class="p">:</span> <span class="kp">false</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># require: false since we are going to require it only</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># when we need it</span>
+</span></span></code></pre></div><p>In the <code>app/views/pages/about.md</code>:</p>
 <pre tabindex="0"><code>### Hi, &lt;%= @name %&gt;
 </code></pre><p>In the <code>app/views/pages/about.html.erb</code>:</p>
 <pre tabindex="0"><code class="language-erb" data-lang="erb">&lt;%= raw @content %&gt;
 # We want the raw output of the @content instead of escaped
 </code></pre><p>In the <code>app/controllers/pages_controller.rb</code>:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">&#39;kramdown&#39;</span>
-
-<span class="k">class</span> <span class="nc">PagesController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
-  <span class="k">def</span> <span class="nf">about</span>
-    <span class="n">file_path</span> <span class="o">=</span> <span class="n">lookup_context</span><span class="o">.</span><span class="n">find_template</span><span class="p">(</span><span class="s2">&#34;</span><span class="si">#{</span><span class="n">controller_path</span><span class="si">}</span><span class="s2">/</span><span class="si">#{</span><span class="n">action_name</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
-      <span class="o">.</span><span class="n">identifier</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&#34;.html.erb&#34;</span><span class="p">,</span> <span class="s2">&#34;.md&#34;</span><span class="p">)</span>
-    <span class="vi">@name</span> <span class="o">=</span> <span class="s2">&#34;Kai&#34;</span>
-
-    <span class="c1"># Compiled with ERB</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="no">ERB</span><span class="o">.</span><span class="n">new</span><span class="p">(</span>
-      <span class="no">File</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">(</span><span class="nb">binding</span><span class="p">)</span>
-
-    <span class="c1"># Convert MD to HTML</span>
-    <span class="vi">@content</span> <span class="o">=</span> <span class="no">Kramdown</span><span class="o">::</span><span class="no">Document</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="p">{</span><span class="ss">input</span><span class="p">:</span> <span class="s2">&#34;GFM&#34;</span><span class="p">})</span><span class="o">.</span><span class="n">to_html</span>
-  <span class="k">end</span>
-<span class="k">end</span>
-</code></pre></div><p>All the views file are self-explanatory, so let&rsquo;s just focus on the controller.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ruby" data-lang="ruby"><span class="line"><span class="cl"><span class="nb">require</span> <span class="s1">&#39;kramdown&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">PagesController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span></span><span class="line"><span class="cl">  <span class="k">def</span> <span class="nf">about</span>
+</span></span><span class="line"><span class="cl">    <span class="n">file_path</span> <span class="o">=</span> <span class="n">lookup_context</span><span class="o">.</span><span class="n">find_template</span><span class="p">(</span><span class="s2">&#34;</span><span class="si">#{</span><span class="n">controller_path</span><span class="si">}</span><span class="s2">/</span><span class="si">#{</span><span class="n">action_name</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="o">.</span><span class="n">identifier</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&#34;.html.erb&#34;</span><span class="p">,</span> <span class="s2">&#34;.md&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="vi">@name</span> <span class="o">=</span> <span class="s2">&#34;Kai&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Compiled with ERB</span>
+</span></span><span class="line"><span class="cl">    <span class="n">result</span> <span class="o">=</span> <span class="no">ERB</span><span class="o">.</span><span class="n">new</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">      <span class="no">File</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">)</span><span class="o">.</span><span class="n">result</span><span class="p">(</span><span class="nb">binding</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Convert MD to HTML</span>
+</span></span><span class="line"><span class="cl">    <span class="vi">@content</span> <span class="o">=</span> <span class="no">Kramdown</span><span class="o">::</span><span class="no">Document</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="p">{</span><span class="ss">input</span><span class="p">:</span> <span class="s2">&#34;GFM&#34;</span><span class="p">})</span><span class="o">.</span><span class="n">to_html</span>
+</span></span><span class="line"><span class="cl">  <span class="k">end</span>
+</span></span><span class="line"><span class="cl"><span class="k">end</span>
+</span></span></code></pre></div><p>All the views file are self-explanatory, so let&rsquo;s just focus on the controller.</p>
 <p>First of all, we need to get the <code>md</code> file in our controller. We can achieive
 it by hardcoding it like <code>file_path = &quot;../views/pages/about.md&quot;</code>. But it is
 better to make it dynamically look up the right <code>md</code> file depending on the
 action of the controller.</p>
 <p>So we use:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ruby" data-lang="ruby"><span class="n">template</span> <span class="o">=</span> <span class="n">lookup_context</span><span class="o">.</span><span class="n">find_template</span><span class="p">(</span><span class="s2">&#34;</span><span class="si">#{</span><span class="n">controller_path</span><span class="si">}</span><span class="s2">/</span><span class="si">#{</span><span class="n">action_name</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
-<span class="c1">#=&gt; app/views/pages/about.html.erb</span>
-<span class="n">template</span><span class="o">.</span><span class="n">identifier</span>
-<span class="c1">#=&gt; &#34;/Users/.../app/views/pages/about.html.erb&#34;</span>
-<span class="n">template</span><span class="o">.</span><span class="n">identifier</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&#34;.html.erb&#34;</span><span class="p">,</span> <span class="s2">&#34;.md&#34;</span><span class="p">)</span>
-<span class="c1">#=&gt; &#34;/Users/.../app/views/pages/about.md&#34;</span>
-</code></pre></div><p>How I know I should use this method to lookup for the file? Google search leads me to this <a href="https://stackoverflow.com/questions/34126212/get-path-of-corresponding-controller-action-view-file">Stackoverflow</a> question and answer.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ruby" data-lang="ruby"><span class="line"><span class="cl"><span class="n">template</span> <span class="o">=</span> <span class="n">lookup_context</span><span class="o">.</span><span class="n">find_template</span><span class="p">(</span><span class="s2">&#34;</span><span class="si">#{</span><span class="n">controller_path</span><span class="si">}</span><span class="s2">/</span><span class="si">#{</span><span class="n">action_name</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#=&gt; app/views/pages/about.html.erb</span>
+</span></span><span class="line"><span class="cl"><span class="n">template</span><span class="o">.</span><span class="n">identifier</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#=&gt; &#34;/Users/.../app/views/pages/about.html.erb&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">template</span><span class="o">.</span><span class="n">identifier</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&#34;.html.erb&#34;</span><span class="p">,</span> <span class="s2">&#34;.md&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#=&gt; &#34;/Users/.../app/views/pages/about.md&#34;</span>
+</span></span></code></pre></div><p>How I know I should use this method to lookup for the file? Google search leads me to this <a href="https://stackoverflow.com/questions/34126212/get-path-of-corresponding-controller-action-view-file">Stackoverflow</a> question and answer.</p>
 <p>After that, we need to compile the <code>md</code> file first with <code>ERB</code> since we are <code>erb</code> syntax. After that, we just need to convert the result to HTML using <code>kramdown</code>.</p>
 <p>The benefit of this approach is:</p>
 <ul>
@@ -195,19 +196,19 @@ converted from the Markdown files to the visitors.</p>
 </ul>
 <p>To do that, we can write a <code>rake</code> task. Add the following code into your
 <code>Rakefile</code>.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ruby" data-lang="ruby"><span class="c1"># Get all files in /app/views/page ending with md</span>
-<span class="no">SOURCE_FILES</span> <span class="o">=</span> <span class="no">Rake</span><span class="o">::</span><span class="no">FileList</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&#34;app/views/pages/*md&#34;</span><span class="p">)</span>
-
-<span class="c1"># Define a task</span>
-<span class="n">task</span> <span class="ss">:compile_md</span> <span class="o">=&gt;</span> <span class="no">SOURCE_FILES</span><span class="o">.</span><span class="n">pathmap</span><span class="p">(</span><span class="s2">&#34;%X.html.erb&#34;</span><span class="p">)</span>
-
-<span class="c1"># Define rule for the task</span>
-<span class="n">rule</span> <span class="s1">&#39;.html.erb&#39;</span> <span class="o">=&gt;</span> <span class="no">SOURCE_FILES</span> <span class="k">do</span> <span class="o">|</span><span class="n">t</span><span class="o">|</span>
-  <span class="nb">require</span> <span class="s1">&#39;kramdown&#39;</span>
-  <span class="n">content</span> <span class="o">=</span> <span class="no">Kramdown</span><span class="o">::</span><span class="no">Document</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="no">File</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">source</span><span class="p">),</span> <span class="p">{</span><span class="ss">input</span><span class="p">:</span> <span class="s2">&#34;GFM&#34;</span><span class="p">})</span><span class="o">.</span><span class="n">to_html</span>
-  <span class="no">File</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
-<span class="k">end</span>
-</code></pre></div><p>This code block is a bit tricky. To summarize, what it does is scan through all
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ruby" data-lang="ruby"><span class="line"><span class="cl"><span class="c1"># Get all files in /app/views/page ending with md</span>
+</span></span><span class="line"><span class="cl"><span class="no">SOURCE_FILES</span> <span class="o">=</span> <span class="no">Rake</span><span class="o">::</span><span class="no">FileList</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&#34;app/views/pages/*md&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Define a task</span>
+</span></span><span class="line"><span class="cl"><span class="n">task</span> <span class="ss">:compile_md</span> <span class="o">=&gt;</span> <span class="no">SOURCE_FILES</span><span class="o">.</span><span class="n">pathmap</span><span class="p">(</span><span class="s2">&#34;%X.html.erb&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Define rule for the task</span>
+</span></span><span class="line"><span class="cl"><span class="n">rule</span> <span class="s1">&#39;.html.erb&#39;</span> <span class="o">=&gt;</span> <span class="no">SOURCE_FILES</span> <span class="k">do</span> <span class="o">|</span><span class="n">t</span><span class="o">|</span>
+</span></span><span class="line"><span class="cl">  <span class="nb">require</span> <span class="s1">&#39;kramdown&#39;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">content</span> <span class="o">=</span> <span class="no">Kramdown</span><span class="o">::</span><span class="no">Document</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="no">File</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">source</span><span class="p">),</span> <span class="p">{</span><span class="ss">input</span><span class="p">:</span> <span class="s2">&#34;GFM&#34;</span><span class="p">})</span><span class="o">.</span><span class="n">to_html</span>
+</span></span><span class="line"><span class="cl">  <span class="no">File</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">end</span>
+</span></span></code></pre></div><p>This code block is a bit tricky. To summarize, what it does is scan through all
 the <code>.md</code> files located in <code>/app/views/page</code> and compile it into <code>.html.erb</code> if
 any changes is made.</p>
 <p>We can then run <code>rake compile_md</code> to manually compile our Markdown file into

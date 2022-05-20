@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>rust on kw7oe</title>
-    <link>https://kaiwern.com/tags/rust/</link>
-    <description>Recent content in rust on kw7oe</description>
+    <title>testing on kw7oe</title>
+    <link>https://kaiwern.com/tags/testing/</link>
+    <description>Recent content in testing on kw7oe</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 20 May 2022 21:09:09 +0800</lastBuildDate><atom:link href="https://kaiwern.com/tags/rust/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 20 May 2022 21:09:09 +0800</lastBuildDate><atom:link href="https://kaiwern.com/tags/testing/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Things I learn while testing files in Rust</title>
       <link>https://kaiwern.com/fragments/things-i-learn-while-testing-files-in-rust/</link>
@@ -15,16 +15,6 @@
       <guid>https://kaiwern.com/fragments/things-i-learn-while-testing-files-in-rust/</guid>
       <description>Dealing with files while running tests in Rust can be tricky, namely running the tests concurrently and dealing with file clean up when a test fail or panic halfway.
 Concurrency By default, cargo test run your Rust tests in multiple threads. Depending on your tests, if you&amp;rsquo;re using the same filename in multiple test cases, it might caused unexpected failures.</description>
-    </item>
-    
-    <item>
-      <title>Logging Thread ID in Rust</title>
-      <link>https://kaiwern.com/fragments/logging-thread-id-in-rust/</link>
-      <pubDate>Sat, 07 May 2022 15:14:16 +0800</pubDate>
-      
-      <guid>https://kaiwern.com/fragments/logging-thread-id-in-rust/</guid>
-      <description>Recently, I am working on implementing concurrent operations for B+ Tree index in Rust. Dealing with concurrency bugs can be pain in the ass and and being able to print the thread ID along with by my debug message definitely help me understand the interleaving operations better.
-Here I&amp;rsquo;m going to share how I do it.</description>
     </item>
     
   </channel>

@@ -7,13 +7,14 @@ Benchmarking and writing a concurrent mini Redis in Elixir | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.90.0" />
+<meta name="generator" content="Hugo 0.98.0" />
+
 
 
 
 
   
-  <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.70efcba323ef569acc57fdb926562ad7a43adfae5545cf62511809f4d53b4c80.css" integrity="sha256-cO/LoyPvVprMV/25JlYq16Q6365VRc9iURgJ9NU7TIA=">
+  <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.33e171ff5e13e3b33dad65126b55d844a2e93e9c729ae431e1313b1b67f2b092.css" integrity="sha256-M+Fx/14T47M9rWUSa1XYRKLpPpxymuQx4TE7G2fysJI=">
   <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -138,58 +139,58 @@ the series of implementing mini Redis in Elixir:</em></p>
 <p>We can benchmark our mini Redis server by running the <code>redis-benchmark</code>.</p>
 <p>Before the benchmark send the actual commands, it also send some <code>CONFIG</code> commands to
 get some configuration. Let&rsquo;s make sure we handle those as well so that our server doesn&rsquo;t crash because of unmatched patterns:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-diff" data-lang="diff">defp handle_command(socket, command) do
-  case command do
-    [&#34;SET&#34;, key, value] -&gt;
-      MiniRedis.KV.set(key, value)
-      reply(socket, &#34;+OK\r\n&#34;)
-
-    [&#34;GET&#34;, key] -&gt;
-      case MiniRedis.KV.get(key) do
-        {:ok, value} -&gt; reply(socket, &#34;+#{value}\r\n&#34;)
-        {:error, :not_found} -&gt; reply(socket, &#34;$-1\r\n&#34;)
-      end
-<span class="gi">+   _ -&gt;
-</span><span class="gi">+     reply(socket, &#34;+OK\r\n&#34;)
-</span><span class="gi"></span>  end
-end
-</code></pre></div><p>With that, we could run the benchmark by running the following command:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="c1"># In project terminal</span>
-mix run --no-halt
-
-<span class="c1"># In another terminal</span>
-<span class="c1"># -t set: to specify to just benchmark SET command</span>
-<span class="c1"># -c 1: Limit the parallel client to 1</span>
-redis-benchmark -t <span class="nb">set</span> -c <span class="m">1</span>
-</code></pre></div><p>upon running this in my local machine, this is the output I get:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh">╰─➤  redis-benchmark -t <span class="nb">set</span> -c <span class="m">1</span>
-
-ERROR: failed to fetch CONFIG from 127.0.0.1:6379
-WARN: could not fetch server <span class="nv">CONFIG</span>
-<span class="o">======</span> <span class="nv">SET</span> <span class="o">======</span>
-  <span class="m">100000</span> requests completed in 6.70 seconds
-  <span class="m">1</span> parallel clients
-  <span class="m">3</span> bytes payload
-  keep alive: <span class="m">1</span>
-  multi-thread: no
-
-Latency by percentile distribution:
-0.000% &lt;<span class="o">=</span> 0.031 milliseconds <span class="o">(</span>cumulative count 3499<span class="o">)</span>
-50.000% &lt;<span class="o">=</span> 0.063 milliseconds <span class="o">(</span>cumulative count 53168<span class="o">)</span>
-<span class="c1"># ....</span>
-100.000% &lt;<span class="o">=</span> 12.223 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
-
-Cumulative distribution of latencies:
-<span class="c1"># ....</span>
-99.999% &lt;<span class="o">=</span> 11.103 milliseconds <span class="o">(</span>cumulative count 99999<span class="o">)</span>
-100.000% &lt;<span class="o">=</span> 13.103 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
-
-Summary:
-  throughput summary: 14927.60 requests per second
-  latency summary <span class="o">(</span>msec<span class="o">)</span>:
-        avg       min       p50       p95       p99       max
-        0.063     0.024     0.063     0.087     0.159    12.223
-</code></pre></div><p>Result maybe vary based on your hardware specification. 14k requests per second, not bad.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-diff" data-lang="diff"><span class="line"><span class="cl">defp handle_command(socket, command) do
+</span></span><span class="line"><span class="cl">  case command do
+</span></span><span class="line"><span class="cl">    [&#34;SET&#34;, key, value] -&gt;
+</span></span><span class="line"><span class="cl">      MiniRedis.KV.set(key, value)
+</span></span><span class="line"><span class="cl">      reply(socket, &#34;+OK\r\n&#34;)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    [&#34;GET&#34;, key] -&gt;
+</span></span><span class="line"><span class="cl">      case MiniRedis.KV.get(key) do
+</span></span><span class="line"><span class="cl">        {:ok, value} -&gt; reply(socket, &#34;+#{value}\r\n&#34;)
+</span></span><span class="line"><span class="cl">        {:error, :not_found} -&gt; reply(socket, &#34;$-1\r\n&#34;)
+</span></span><span class="line"><span class="cl">      end
+</span></span><span class="line"><span class="cl"><span class="gi">+   _ -&gt;
+</span></span></span><span class="line"><span class="cl"><span class="gi">+     reply(socket, &#34;+OK\r\n&#34;)
+</span></span></span><span class="line"><span class="cl"><span class="gi"></span>  end
+</span></span><span class="line"><span class="cl">end
+</span></span></code></pre></div><p>With that, we could run the benchmark by running the following command:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1"># In project terminal</span>
+</span></span><span class="line"><span class="cl">mix run --no-halt
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># In another terminal</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># -t set: to specify to just benchmark SET command</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># -c 1: Limit the parallel client to 1</span>
+</span></span><span class="line"><span class="cl">redis-benchmark -t <span class="nb">set</span> -c <span class="m">1</span>
+</span></span></code></pre></div><p>upon running this in my local machine, this is the output I get:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">╰─➤  redis-benchmark -t <span class="nb">set</span> -c <span class="m">1</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">ERROR: failed to fetch CONFIG from 127.0.0.1:6379
+</span></span><span class="line"><span class="cl">WARN: could not fetch server <span class="nv">CONFIG</span>
+</span></span><span class="line"><span class="cl"><span class="o">======</span> <span class="nv">SET</span> <span class="o">======</span>
+</span></span><span class="line"><span class="cl">  <span class="m">100000</span> requests completed in 6.70 seconds
+</span></span><span class="line"><span class="cl">  <span class="m">1</span> parallel clients
+</span></span><span class="line"><span class="cl">  <span class="m">3</span> bytes payload
+</span></span><span class="line"><span class="cl">  keep alive: <span class="m">1</span>
+</span></span><span class="line"><span class="cl">  multi-thread: no
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Latency by percentile distribution:
+</span></span><span class="line"><span class="cl">0.000% &lt;<span class="o">=</span> 0.031 milliseconds <span class="o">(</span>cumulative count 3499<span class="o">)</span>
+</span></span><span class="line"><span class="cl">50.000% &lt;<span class="o">=</span> 0.063 milliseconds <span class="o">(</span>cumulative count 53168<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># ....</span>
+</span></span><span class="line"><span class="cl">100.000% &lt;<span class="o">=</span> 12.223 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Cumulative distribution of latencies:
+</span></span><span class="line"><span class="cl"><span class="c1"># ....</span>
+</span></span><span class="line"><span class="cl">99.999% &lt;<span class="o">=</span> 11.103 milliseconds <span class="o">(</span>cumulative count 99999<span class="o">)</span>
+</span></span><span class="line"><span class="cl">100.000% &lt;<span class="o">=</span> 13.103 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Summary:
+</span></span><span class="line"><span class="cl">  throughput summary: 14927.60 requests per second
+</span></span><span class="line"><span class="cl">  latency summary <span class="o">(</span>msec<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">        avg       min       p50       p95       p99       max
+</span></span><span class="line"><span class="cl">        0.063     0.024     0.063     0.087     0.159    12.223
+</span></span></code></pre></div><p>Result maybe vary based on your hardware specification. 14k requests per second, not bad.</p>
 <p>If we try to bump up the <code>-c</code> to multiple clients, weird things happen. In my
 local machine, this is how it behaves. It start with:</p>
 <pre tabindex="0"><code>SET: rps=12500.0 (overall: 13326.7) avg_msec=0.076 (overall: 0.071)
@@ -201,46 +202,46 @@ SET: rps=0.0 (overall: 2423.4) avg_msec=nan (overall: 0.069)).069))
 SET: rps=0.0 (overall: 1817.5) avg_msec=nan (overall: 0.069)).069))
 </code></pre><p>and it seems like taking forever to complete the benchmark. After minutes,
 here&rsquo;s the output I obtained:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh">╰─➤  redis-benchmark -t <span class="nb">set</span> -c <span class="m">2</span>
-
-ERROR: failed to fetch CONFIG from 127.0.0.1:6379
-WARN: could not fetch server <span class="nv">CONFIG</span>
-<span class="o">======</span> <span class="nv">SET</span> <span class="o">======</span>
-  <span class="m">100000</span> requests completed in 682.69 seconds
-  <span class="m">2</span> parallel clients
-  <span class="m">3</span> bytes payload
-  keep alive: <span class="m">1</span>
-  multi-thread: no
-
-Latency by percentile distribution:
-0.000% &lt;<span class="o">=</span> 0.031 milliseconds <span class="o">(</span>cumulative count 12<span class="o">)</span>
-50.000% &lt;<span class="o">=</span> 0.071 milliseconds <span class="o">(</span>cumulative count 78123<span class="o">)</span>
-<span class="c1"># ....</span>
-100.000% &lt;<span class="o">=</span> 7.671 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
-
-Cumulative distribution of latencies:
-<span class="c1"># ....</span>
-99.998% &lt;<span class="o">=</span> 5.103 milliseconds <span class="o">(</span>cumulative count 99998<span class="o">)</span>
-99.999% &lt;<span class="o">=</span> 6.103 milliseconds <span class="o">(</span>cumulative count 99999<span class="o">)</span>
-100.000% &lt;<span class="o">=</span> 8.103 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
-
-Summary:
-  throughput summary: 146.48 requests per second
-  latency summary <span class="o">(</span>msec<span class="o">)</span>:
-          avg       min       p50       p95       p99       max
-        0.069     0.024     0.071     0.095     0.151     7.671
-</code></pre></div><p>146 requests per second&hellip; Seems like something is not right with our
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">╰─➤  redis-benchmark -t <span class="nb">set</span> -c <span class="m">2</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">ERROR: failed to fetch CONFIG from 127.0.0.1:6379
+</span></span><span class="line"><span class="cl">WARN: could not fetch server <span class="nv">CONFIG</span>
+</span></span><span class="line"><span class="cl"><span class="o">======</span> <span class="nv">SET</span> <span class="o">======</span>
+</span></span><span class="line"><span class="cl">  <span class="m">100000</span> requests completed in 682.69 seconds
+</span></span><span class="line"><span class="cl">  <span class="m">2</span> parallel clients
+</span></span><span class="line"><span class="cl">  <span class="m">3</span> bytes payload
+</span></span><span class="line"><span class="cl">  keep alive: <span class="m">1</span>
+</span></span><span class="line"><span class="cl">  multi-thread: no
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Latency by percentile distribution:
+</span></span><span class="line"><span class="cl">0.000% &lt;<span class="o">=</span> 0.031 milliseconds <span class="o">(</span>cumulative count 12<span class="o">)</span>
+</span></span><span class="line"><span class="cl">50.000% &lt;<span class="o">=</span> 0.071 milliseconds <span class="o">(</span>cumulative count 78123<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># ....</span>
+</span></span><span class="line"><span class="cl">100.000% &lt;<span class="o">=</span> 7.671 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Cumulative distribution of latencies:
+</span></span><span class="line"><span class="cl"><span class="c1"># ....</span>
+</span></span><span class="line"><span class="cl">99.998% &lt;<span class="o">=</span> 5.103 milliseconds <span class="o">(</span>cumulative count 99998<span class="o">)</span>
+</span></span><span class="line"><span class="cl">99.999% &lt;<span class="o">=</span> 6.103 milliseconds <span class="o">(</span>cumulative count 99999<span class="o">)</span>
+</span></span><span class="line"><span class="cl">100.000% &lt;<span class="o">=</span> 8.103 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Summary:
+</span></span><span class="line"><span class="cl">  throughput summary: 146.48 requests per second
+</span></span><span class="line"><span class="cl">  latency summary <span class="o">(</span>msec<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">          avg       min       p50       p95       p99       max
+</span></span><span class="line"><span class="cl">        0.069     0.024     0.071     0.095     0.151     7.671
+</span></span></code></pre></div><p>146 requests per second&hellip; Seems like something is not right with our
 implementation.</p>
 <h3 id="whats-making-it-slow">What&rsquo;s making it slow?</h3>
 <p>Can you guess what it is? The hint is in the title of this post.</p>
 <p>Remember the code that we wrote below?</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defp</span> <span class="n">loop_acceptor</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span> <span class="k">do</span>
-  <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">client</span><span class="p">}</span> <span class="o">=</span> <span class="ss">:gen_tcp</span><span class="o">.</span><span class="n">accept</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
-  <span class="nc">Logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&#34;Accepting client </span><span class="si">#{</span><span class="n">inspect</span><span class="p">(</span><span class="n">client</span><span class="p">)</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
-  <span class="n">serve</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="s2">&#34;&#34;</span><span class="p">)</span>
-  <span class="n">loop_acceptor</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
-<span class="k">end</span>
-</code></pre></div><p>Here, we are only accepting another client (connection), until we <code>serve</code> the
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="line"><span class="cl"><span class="kd">defp</span> <span class="n">loop_acceptor</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">client</span><span class="p">}</span> <span class="o">=</span> <span class="ss">:gen_tcp</span><span class="o">.</span><span class="n">accept</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="nc">Logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&#34;Accepting client </span><span class="si">#{</span><span class="n">inspect</span><span class="p">(</span><span class="n">client</span><span class="p">)</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">serve</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="s2">&#34;&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">loop_acceptor</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">end</span>
+</span></span></code></pre></div><p>Here, we are only accepting another client (connection), until we <code>serve</code> the
 previous client successfully. In short, it is handling the incoming requests sequentially. Our code is not written to handle concurrent requests.</p>
 <p>Let&rsquo;s update our server to deal with it better.</p>
 <h2 id="handling-concurrent-requests-in-our-tcp-server">Handling concurrent requests in our TCP server</h2>
@@ -250,21 +251,21 @@ Supervisor</a>
 section.</p>
 <p>Essentially, we will be serving the client on a separate process using
 <code>Task.Supervisor</code>:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="kd">defp</span> <span class="n">loop_acceptor</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span> <span class="k">do</span>
-  <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">client</span><span class="p">}</span> <span class="o">=</span> <span class="ss">:gen_tcp</span><span class="o">.</span><span class="n">accept</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
-  <span class="nc">Logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&#34;Accepting client </span><span class="si">#{</span><span class="n">inspect</span><span class="p">(</span><span class="n">client</span><span class="p">)</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
-
-  <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">pid</span><span class="p">}</span> <span class="o">=</span>
-    <span class="nc">Task.Supervisor</span><span class="o">.</span><span class="n">start_child</span><span class="p">(</span><span class="nc">MiniRedis.TaskSupervisor</span><span class="p">,</span> <span class="k">fn</span> <span class="o">-&gt;</span>
-      <span class="n">serve</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="s2">&#34;&#34;</span><span class="p">)</span>
-    <span class="k">end</span><span class="p">)</span>
-
-  <span class="nc">Logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&#34;Serving new client with pid: </span><span class="si">#{</span><span class="n">inspect</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span><span class="si">}</span><span class="s2">...&#34;</span><span class="p">)</span>
-  <span class="ss">:ok</span> <span class="o">=</span> <span class="ss">:gen_tcp</span><span class="o">.</span><span class="n">controlling_process</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">pid</span><span class="p">)</span>
-
-  <span class="n">loop_acceptor</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
-<span class="k">end</span>
-</code></pre></div><p>The need of calling <code>:gen_tcp.controlling_process</code> has been explained as well
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="line"><span class="cl"><span class="kd">defp</span> <span class="n">loop_acceptor</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">client</span><span class="p">}</span> <span class="o">=</span> <span class="ss">:gen_tcp</span><span class="o">.</span><span class="n">accept</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="nc">Logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&#34;Accepting client </span><span class="si">#{</span><span class="n">inspect</span><span class="p">(</span><span class="n">client</span><span class="p">)</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">pid</span><span class="p">}</span> <span class="o">=</span>
+</span></span><span class="line"><span class="cl">    <span class="nc">Task.Supervisor</span><span class="o">.</span><span class="n">start_child</span><span class="p">(</span><span class="nc">MiniRedis.TaskSupervisor</span><span class="p">,</span> <span class="k">fn</span> <span class="o">-&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="n">serve</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="s2">&#34;&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">end</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nc">Logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&#34;Serving new client with pid: </span><span class="si">#{</span><span class="n">inspect</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span><span class="si">}</span><span class="s2">...&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="ss">:ok</span> <span class="o">=</span> <span class="ss">:gen_tcp</span><span class="o">.</span><span class="n">controlling_process</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">pid</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">loop_acceptor</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">end</span>
+</span></span></code></pre></div><p>The need of calling <code>:gen_tcp.controlling_process</code> has been explained as well
 in
 the guide mentioned above. Here&rsquo;s a direct quote from it:</p>
 <blockquote>
@@ -275,44 +276,44 @@ would be tied to the process that accepted them (which is the default behaviour)
 </blockquote>
 <p>Also, let&rsquo;s don&rsquo;t forget to include the <code>Task.Supervisor</code> in our application
 supervisor. In <code>lib/mini_redis/application.ex</code>:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-diff" data-lang="diff">children = [
-  # Starts a worker by calling: MiniRedis.Worker.start_link(arg)
-  # {MiniRedis.Worker, arg}
-  MiniRedis.KV,
-<span class="gi">+ {Task.Supervisor, name: MiniRedis.TaskSupervisor},
-</span><span class="gi"></span>  {Task, fn -&gt; MiniRedis.Server.accept(String.to_integer(System.get_env(&#34;PORT&#34;) || &#34;6379&#34;)) end},
-]
-</code></pre></div><p>Let&rsquo;s run the benchmark again with more concurrency to see the outcome of
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-diff" data-lang="diff"><span class="line"><span class="cl">children = [
+</span></span><span class="line"><span class="cl">  # Starts a worker by calling: MiniRedis.Worker.start_link(arg)
+</span></span><span class="line"><span class="cl">  # {MiniRedis.Worker, arg}
+</span></span><span class="line"><span class="cl">  MiniRedis.KV,
+</span></span><span class="line"><span class="cl"><span class="gi">+ {Task.Supervisor, name: MiniRedis.TaskSupervisor},
+</span></span></span><span class="line"><span class="cl"><span class="gi"></span>  {Task, fn -&gt; MiniRedis.Server.accept(String.to_integer(System.get_env(&#34;PORT&#34;) || &#34;6379&#34;)) end},
+</span></span><span class="line"><span class="cl">]
+</span></span></code></pre></div><p>Let&rsquo;s run the benchmark again with more concurrency to see the outcome of
 our small changes:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh">redis-benchmark -t <span class="nb">set</span> -c <span class="m">5</span>
-</code></pre></div><p>With 5 clients, we are now at around 52k requests per second:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh">╰─➤  redis-benchmark -t <span class="nb">set</span> -c <span class="m">5</span>
-ERROR: failed to fetch CONFIG from 127.0.0.1:6379
-WARN: could not fetch server <span class="nv">CONFIG</span>
-<span class="o">======</span> <span class="nv">SET</span> <span class="o">======</span>
-  <span class="m">100000</span> requests completed in 1.92 seconds
-  <span class="m">5</span> parallel clients
-  <span class="m">3</span> bytes payload
-  keep alive: <span class="m">1</span>
-  multi-thread: no
-
-Latency by percentile distribution:
-0.000% &lt;<span class="o">=</span> 0.031 milliseconds <span class="o">(</span>cumulative count 65<span class="o">)</span>
-50.000% &lt;<span class="o">=</span> 0.087 milliseconds <span class="o">(</span>cumulative count 58111<span class="o">)</span>
-<span class="c1"># ....</span>
-100.000% &lt;<span class="o">=</span> 6.751 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
-
-Cumulative distribution of latencies:
-73.668% &lt;<span class="o">=</span> 0.103 milliseconds <span class="o">(</span>cumulative count 73668<span class="o">)</span>
-<span class="c1"># ....</span>
-100.000% &lt;<span class="o">=</span> 7.103 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
-
-Summary:
-  throughput summary: 51975.05 requests per second
-  latency summary <span class="o">(</span>msec<span class="o">)</span>:
-          avg       min       p50       p95       p99       max
-        0.089     0.024     0.087     0.151     0.199     6.751
-</code></pre></div><p>It seems like our requests per second (RPS) scale linearly to our number of
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">redis-benchmark -t <span class="nb">set</span> -c <span class="m">5</span>
+</span></span></code></pre></div><p>With 5 clients, we are now at around 52k requests per second:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">╰─➤  redis-benchmark -t <span class="nb">set</span> -c <span class="m">5</span>
+</span></span><span class="line"><span class="cl">ERROR: failed to fetch CONFIG from 127.0.0.1:6379
+</span></span><span class="line"><span class="cl">WARN: could not fetch server <span class="nv">CONFIG</span>
+</span></span><span class="line"><span class="cl"><span class="o">======</span> <span class="nv">SET</span> <span class="o">======</span>
+</span></span><span class="line"><span class="cl">  <span class="m">100000</span> requests completed in 1.92 seconds
+</span></span><span class="line"><span class="cl">  <span class="m">5</span> parallel clients
+</span></span><span class="line"><span class="cl">  <span class="m">3</span> bytes payload
+</span></span><span class="line"><span class="cl">  keep alive: <span class="m">1</span>
+</span></span><span class="line"><span class="cl">  multi-thread: no
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Latency by percentile distribution:
+</span></span><span class="line"><span class="cl">0.000% &lt;<span class="o">=</span> 0.031 milliseconds <span class="o">(</span>cumulative count 65<span class="o">)</span>
+</span></span><span class="line"><span class="cl">50.000% &lt;<span class="o">=</span> 0.087 milliseconds <span class="o">(</span>cumulative count 58111<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># ....</span>
+</span></span><span class="line"><span class="cl">100.000% &lt;<span class="o">=</span> 6.751 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Cumulative distribution of latencies:
+</span></span><span class="line"><span class="cl">73.668% &lt;<span class="o">=</span> 0.103 milliseconds <span class="o">(</span>cumulative count 73668<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># ....</span>
+</span></span><span class="line"><span class="cl">100.000% &lt;<span class="o">=</span> 7.103 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Summary:
+</span></span><span class="line"><span class="cl">  throughput summary: 51975.05 requests per second
+</span></span><span class="line"><span class="cl">  latency summary <span class="o">(</span>msec<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">          avg       min       p50       p95       p99       max
+</span></span><span class="line"><span class="cl">        0.089     0.024     0.087     0.151     0.199     6.751
+</span></span></code></pre></div><p>It seems like our requests per second (RPS) scale linearly to our number of
 clients. <em>(Okay, not exactly linearly, but my point is, it does scale as we
 increase the number of clients)</em>.</p>
 <h3 id="pushing-it-by-a-little-bit">Pushing it by a little bit</h3>
@@ -355,76 +356,76 @@ incoming requests that can&rsquo;t be handle yet. Here&rsquo;s what the document
 start facing issue when there is 6 clients.</p>
 <p>Hence, to resolve it, it is as simple as updating the options we provide when
 calling <code>;gen_tcp.listen</code>:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-diff" data-lang="diff"><span class="gi">+ case :gen_tcp.listen(port, [:binary, packet: :line, backlog: 50, active: false, reuseaddr: true]) do
-</span><span class="gi"></span><span class="gd">- case :gen_tcp.listen(port, [:binary, packet: :line, active: false, reuseaddr: true]) do
-</span></code></pre></div><p>with this changes, we could rerun the benchmark again, and it should work as
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-diff" data-lang="diff"><span class="line"><span class="cl"><span class="gi">+ case :gen_tcp.listen(port, [:binary, packet: :line, backlog: 50, active: false, reuseaddr: true]) do
+</span></span></span><span class="line"><span class="cl"><span class="gi"></span><span class="gd">- case :gen_tcp.listen(port, [:binary, packet: :line, active: false, reuseaddr: true]) do
+</span></span></span></code></pre></div><p>with this changes, we could rerun the benchmark again, and it should work as
 expected:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh">╰─➤  redis-benchmark -t <span class="nb">set</span> -c <span class="m">6</span>
-ERROR: failed to fetch CONFIG from 127.0.0.1:6379
-WARN: could not fetch server <span class="nv">CONFIG</span>
-<span class="o">======</span> <span class="nv">SET</span> <span class="o">======</span>
-  <span class="m">100000</span> requests completed in 1.45 seconds
-  <span class="m">6</span> parallel clients
-  <span class="m">3</span> bytes payload
-  keep alive: <span class="m">1</span>
-  multi-thread: no
-
-Latency by percentile distribution:
-0.000% &lt;<span class="o">=</span> 0.031 milliseconds <span class="o">(</span>cumulative count 63<span class="o">)</span>
-50.000% &lt;<span class="o">=</span> 0.079 milliseconds <span class="o">(</span>cumulative count 59243<span class="o">)</span>
-<span class="c1"># ....</span>
-100.000% &lt;<span class="o">=</span> 1.599 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
-
-Cumulative distribution of latencies:
-81.055% &lt;<span class="o">=</span> 0.103 milliseconds <span class="o">(</span>cumulative count 81055<span class="o">)</span>
-<span class="c1"># ....</span>
-100.000% &lt;<span class="o">=</span> 1.607 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
-
-Summary:
-  throughput summary: 68775.79 requests per second
-  latency summary <span class="o">(</span>msec<span class="o">)</span>:
-          avg       min       p50       p95       p99       max
-        0.080     0.024     0.079     0.143     0.183     1.599
-</code></pre></div><p>68k requests per second. Seems great!</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">╰─➤  redis-benchmark -t <span class="nb">set</span> -c <span class="m">6</span>
+</span></span><span class="line"><span class="cl">ERROR: failed to fetch CONFIG from 127.0.0.1:6379
+</span></span><span class="line"><span class="cl">WARN: could not fetch server <span class="nv">CONFIG</span>
+</span></span><span class="line"><span class="cl"><span class="o">======</span> <span class="nv">SET</span> <span class="o">======</span>
+</span></span><span class="line"><span class="cl">  <span class="m">100000</span> requests completed in 1.45 seconds
+</span></span><span class="line"><span class="cl">  <span class="m">6</span> parallel clients
+</span></span><span class="line"><span class="cl">  <span class="m">3</span> bytes payload
+</span></span><span class="line"><span class="cl">  keep alive: <span class="m">1</span>
+</span></span><span class="line"><span class="cl">  multi-thread: no
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Latency by percentile distribution:
+</span></span><span class="line"><span class="cl">0.000% &lt;<span class="o">=</span> 0.031 milliseconds <span class="o">(</span>cumulative count 63<span class="o">)</span>
+</span></span><span class="line"><span class="cl">50.000% &lt;<span class="o">=</span> 0.079 milliseconds <span class="o">(</span>cumulative count 59243<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># ....</span>
+</span></span><span class="line"><span class="cl">100.000% &lt;<span class="o">=</span> 1.599 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Cumulative distribution of latencies:
+</span></span><span class="line"><span class="cl">81.055% &lt;<span class="o">=</span> 0.103 milliseconds <span class="o">(</span>cumulative count 81055<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># ....</span>
+</span></span><span class="line"><span class="cl">100.000% &lt;<span class="o">=</span> 1.607 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Summary:
+</span></span><span class="line"><span class="cl">  throughput summary: 68775.79 requests per second
+</span></span><span class="line"><span class="cl">  latency summary <span class="o">(</span>msec<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">          avg       min       p50       p95       p99       max
+</span></span><span class="line"><span class="cl">        0.080     0.024     0.079     0.143     0.183     1.599
+</span></span></code></pre></div><p>68k requests per second. Seems great!</p>
 <h2 id="comparing-with-the-real-redis-server">Comparing with the real Redis server</h2>
 <p>It&rsquo;s not clear yet if 68k requests per second of a synthetic benchmark is good
 or not. So let&rsquo;s try to compare it with the actual Redis implementation:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="c1"># Make sure we close our Redis server before starting the real one.</span>
-
-<span class="c1"># In a separate terminal, start the redis server</span>
-redis-server
-
-<span class="c1"># In current terminal</span>
-redis-benchmark -t <span class="nb">set</span>  -c <span class="m">6</span>
-</code></pre></div><p>Here&rsquo;s the output running on my local machine:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh">╰─➤  redis-benchmark -t <span class="nb">set</span>  -c <span class="nv">6</span>
-
-<span class="o">======</span> <span class="nv">SET</span> <span class="o">======</span>
-  <span class="m">100000</span> requests completed in 0.83 seconds
-  <span class="m">6</span> parallel clients
-  <span class="m">3</span> bytes payload
-  keep alive: <span class="m">1</span>
-  host configuration <span class="s2">&#34;save&#34;</span>: <span class="m">3600</span> <span class="m">1</span> <span class="m">300</span> <span class="m">100</span> <span class="m">60</span> <span class="m">10000</span>
-  host configuration <span class="s2">&#34;appendonly&#34;</span>: no
-  multi-thread: no
-
-Latency by percentile distribution:
-0.000% &lt;<span class="o">=</span> 0.015 milliseconds <span class="o">(</span>cumulative count 846<span class="o">)</span>
-50.000% &lt;<span class="o">=</span> 0.039 milliseconds <span class="o">(</span>cumulative count 61555<span class="o">)</span>
-<span class="c1"># ....</span>
-100.000% &lt;<span class="o">=</span> 0.455 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
-
-Cumulative distribution of latencies:
-<span class="c1"># ....</span>
-99.994% &lt;<span class="o">=</span> 0.303 milliseconds <span class="o">(</span>cumulative count 99994<span class="o">)</span>
-100.000% &lt;<span class="o">=</span> 0.503 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
-
-Summary:
-  throughput summary: 120772.95 requests per second
-  latency summary <span class="o">(</span>msec<span class="o">)</span>:
-          avg       min       p50       p95       p99       max
-        0.038     0.008     0.039     0.063     0.087     0.455
-</code></pre></div><p>120k requests per second, 60k requests faster than our implementation. Given
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl"><span class="c1"># Make sure we close our Redis server before starting the real one.</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># In a separate terminal, start the redis server</span>
+</span></span><span class="line"><span class="cl">redis-server
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># In current terminal</span>
+</span></span><span class="line"><span class="cl">redis-benchmark -t <span class="nb">set</span>  -c <span class="m">6</span>
+</span></span></code></pre></div><p>Here&rsquo;s the output running on my local machine:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">╰─➤  redis-benchmark -t <span class="nb">set</span>  -c <span class="nv">6</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">======</span> <span class="nv">SET</span> <span class="o">======</span>
+</span></span><span class="line"><span class="cl">  <span class="m">100000</span> requests completed in 0.83 seconds
+</span></span><span class="line"><span class="cl">  <span class="m">6</span> parallel clients
+</span></span><span class="line"><span class="cl">  <span class="m">3</span> bytes payload
+</span></span><span class="line"><span class="cl">  keep alive: <span class="m">1</span>
+</span></span><span class="line"><span class="cl">  host configuration <span class="s2">&#34;save&#34;</span>: <span class="m">3600</span> <span class="m">1</span> <span class="m">300</span> <span class="m">100</span> <span class="m">60</span> <span class="m">10000</span>
+</span></span><span class="line"><span class="cl">  host configuration <span class="s2">&#34;appendonly&#34;</span>: no
+</span></span><span class="line"><span class="cl">  multi-thread: no
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Latency by percentile distribution:
+</span></span><span class="line"><span class="cl">0.000% &lt;<span class="o">=</span> 0.015 milliseconds <span class="o">(</span>cumulative count 846<span class="o">)</span>
+</span></span><span class="line"><span class="cl">50.000% &lt;<span class="o">=</span> 0.039 milliseconds <span class="o">(</span>cumulative count 61555<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># ....</span>
+</span></span><span class="line"><span class="cl">100.000% &lt;<span class="o">=</span> 0.455 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Cumulative distribution of latencies:
+</span></span><span class="line"><span class="cl"><span class="c1"># ....</span>
+</span></span><span class="line"><span class="cl">99.994% &lt;<span class="o">=</span> 0.303 milliseconds <span class="o">(</span>cumulative count 99994<span class="o">)</span>
+</span></span><span class="line"><span class="cl">100.000% &lt;<span class="o">=</span> 0.503 milliseconds <span class="o">(</span>cumulative count 100000<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Summary:
+</span></span><span class="line"><span class="cl">  throughput summary: 120772.95 requests per second
+</span></span><span class="line"><span class="cl">  latency summary <span class="o">(</span>msec<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">          avg       min       p50       p95       p99       max
+</span></span><span class="line"><span class="cl">        0.038     0.008     0.039     0.063     0.087     0.455
+</span></span></code></pre></div><p>120k requests per second, 60k requests faster than our implementation. Given
 that how much code we have written, and how easy it is, I think it is fair enough.</p>
 <h3 id="note-about-our-benchmark">Note about our benchmark</h3>
 <p>Since this is a synthetic benchmark, don&rsquo;t take it super seriously. Our system might
@@ -436,14 +437,14 @@ improve it further.</p>
 the Redis, I have found that our implementation have degradaded
 performance after passing certain number of clients. At the number of clients
 of 15:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh">redis-benchmark -t <span class="nb">set</span> -c <span class="m">15</span>
-<span class="c1"># ....</span>
-Summary:
-  throughput summary: 44883.30 requests per second
-  latency summary <span class="o">(</span>msec<span class="o">)</span>:
-          avg       min       p50       p95       p99       max
-        0.326     0.048     0.319     0.519     0.719     4.031
-</code></pre></div><p>I&rsquo;m ending up with way worse performance than before. That is not the true if I
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">redis-benchmark -t <span class="nb">set</span> -c <span class="m">15</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># ....</span>
+</span></span><span class="line"><span class="cl">Summary:
+</span></span><span class="line"><span class="cl">  throughput summary: 44883.30 requests per second
+</span></span><span class="line"><span class="cl">  latency summary <span class="o">(</span>msec<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">          avg       min       p50       p95       p99       max
+</span></span><span class="line"><span class="cl">        0.326     0.048     0.319     0.519     0.719     4.031
+</span></span></code></pre></div><p>I&rsquo;m ending up with way worse performance than before. That is not the true if I
 run the benchmark against the Redis server:</p>
 <pre tabindex="0"><code>redis-benchmark -t set -c 15
 ...

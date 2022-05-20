@@ -7,13 +7,14 @@ Advent of Code 2018: Day 1 Part 1 | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.90.0" />
+<meta name="generator" content="Hugo 0.98.0" />
+
 
 
 
 
   
-  <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.70efcba323ef569acc57fdb926562ad7a43adfae5545cf62511809f4d53b4c80.css" integrity="sha256-cO/LoyPvVprMV/25JlYq16Q6365VRc9iURgJ9NU7TIA=">
+  <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.33e171ff5e13e3b33dad65126b55d844a2e93e9c729ae431e1313b1b67f2b092.css" integrity="sha256-M+Fx/14T47M9rWUSa1XYRKLpPpxymuQx4TE7G2fysJI=">
   <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -132,16 +133,16 @@ the frequencies. For example, from the problem descriptions:</p>
 -11
 -75223
 </code></pre><p><strong>Solution:</strong></p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="k">case</span> <span class="nc">File</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&#34;input.txt&#34;</span><span class="p">)</span> <span class="k">do</span>
-  <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">content</span><span class="p">}</span> <span class="o">-&gt;</span>
-    <span class="n">content</span>
-    <span class="o">|&gt;</span> <span class="nc">String</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-    <span class="o">|&gt;</span> <span class="nc">Enum</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="nc">String</span><span class="o">.</span><span class="n">to_integer</span><span class="o">/</span><span class="mi">1</span><span class="p">)</span>
-    <span class="o">|&gt;</span> <span class="nc">Enum</span><span class="o">.</span><span class="n">sum</span>
-    <span class="o">|&gt;</span> <span class="nc">IO</span><span class="o">.</span><span class="n">inspect</span>
-  <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="n">_</span><span class="p">}</span> <span class="o">-&gt;</span> <span class="nc">IO</span><span class="o">.</span><span class="n">puts</span> <span class="s2">&#34;Error opening files&#34;</span>
-<span class="k">end</span>
-</code></pre></div><ol>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="line"><span class="cl"><span class="k">case</span> <span class="nc">File</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&#34;input.txt&#34;</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span><span class="ss">:ok</span><span class="p">,</span> <span class="n">content</span><span class="p">}</span> <span class="o">-&gt;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">content</span>
+</span></span><span class="line"><span class="cl">    <span class="o">|&gt;</span> <span class="nc">String</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="o">|&gt;</span> <span class="nc">Enum</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="nc">String</span><span class="o">.</span><span class="n">to_integer</span><span class="o">/</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="o">|&gt;</span> <span class="nc">Enum</span><span class="o">.</span><span class="n">sum</span>
+</span></span><span class="line"><span class="cl">    <span class="o">|&gt;</span> <span class="nc">IO</span><span class="o">.</span><span class="n">inspect</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span><span class="ss">:error</span><span class="p">,</span> <span class="n">_</span><span class="p">}</span> <span class="o">-&gt;</span> <span class="nc">IO</span><span class="o">.</span><span class="n">puts</span> <span class="s2">&#34;Error opening files&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="k">end</span>
+</span></span></code></pre></div><ol>
 <li>First, we read in the input from <code>input.txt</code> using <code>File.read/1</code></li>
 <li>Next, we split the content by newline using <code>String.split/1</code>.
 Now, we have a list of string representing the frequency.</li>

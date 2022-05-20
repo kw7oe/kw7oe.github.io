@@ -7,13 +7,14 @@ Identify and specify Identity File used by SSH | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.90.0" />
+<meta name="generator" content="Hugo 0.98.0" />
+
 
 
 
 
   
-  <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.70efcba323ef569acc57fdb926562ad7a43adfae5545cf62511809f4d53b4c80.css" integrity="sha256-cO/LoyPvVprMV/25JlYq16Q6365VRc9iURgJ9NU7TIA=">
+  <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.33e171ff5e13e3b33dad65126b55d844a2e93e9c729ae431e1313b1b67f2b092.css" integrity="sha256-M+Fx/14T47M9rWUSa1XYRKLpPpxymuQx4TE7G2fysJI=">
   <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -105,13 +106,13 @@ key that is supposed to be expired, however, I can still successfully <code>ssh<
 into the application server. This seem weird. So I&rsquo;ll need to find out which
 private key that <code>ssh</code> used to allow me to access the server. After some google
 search, I found the answer <a href="https://serverfault.com/questions/339355/how-to-findout-which-key-was-being-used-to-login-for-an-ssh-session">here</a>, which is:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">ssh -v user@ip_address
-</code></pre></div><p>After running the above you&rsquo;ll see additional logs on what <code>ssh</code> go through
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">ssh -v user@ip_address
+</span></span></code></pre></div><p>After running the above you&rsquo;ll see additional logs on what <code>ssh</code> go through
 before connecting to the remote server, which looks like this:</p>
 <pre tabindex="0"><code>OpenSSH_7.9p1, LibreSSL 2.7.3
 debug1: Reading configuration data /Users/kai/.ssh/config
 ...
-debug1: Authenticating to &lt;ip_address&gt;:&lt;port&gt; as '&lt;user&gt;'
+debug1: Authenticating to &lt;ip_address&gt;:&lt;port&gt; as &#39;&lt;user&gt;&#39;
 ...
 debug1: Will attempt key: /Users/kai/.ssh/id_rsa RSA SHA256:LJnPQHkVlt+cqWslxTzObpDezpdjgIKdfh8qa7u4ftM agent
 debug1: Will attempt key:  RSA SHA256:klrkbMg/32KGGbqW2GCEeWIx4MQ4aYJZonF0XIexVlI agent
@@ -131,9 +132,9 @@ debug1: Server accepts key: /Users/kai/.ssh/id_rsa RSA SHA256:LJnPQHkVlt+cqWslxT
 authenticated by the remote server. To identify which key pair is used, we&rsquo;ll
 need to get the fingerprint of each key pair we have. We can use <code>ssh-keygen</code>
 to achieve that:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">ssh-keygen -lf ~/.ssh/id_rsa.pub
-<span class="c1">#=&gt; 2048 SHA256:LJnPQHkVlt+cqWslxTzObpDezpdjgIKdfh8qa7u4ftM kai@KW.local (RSA)</span>
-</code></pre></div><p>If the fingerprint match <em>(as in this case)</em>, than you got it. You know that is
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">ssh-keygen -lf ~/.ssh/id_rsa.pub
+</span></span><span class="line"><span class="cl"><span class="c1">#=&gt; 2048 SHA256:LJnPQHkVlt+cqWslxTzObpDezpdjgIKdfh8qa7u4ftM kai@KW.local (RSA)</span>
+</span></span></code></pre></div><p>If the fingerprint match <em>(as in this case)</em>, than you got it. You know that is
 the key pair that successfully get accepted by the remote server. However, if
 it doesn&rsquo;t match, try to get the fingerprint of other ssh key pair you have
 used before.</p>
@@ -148,9 +149,9 @@ public key placed in the server)</em> . So in order to prevent
 <code>ssh</code> to attempt other public key that might be accepted the remote server, we
 need to tell <code>ssh</code> to only use the identity file we provide, which can be done
 like this:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># Note that I am passing private key file</span>
-ssh -o <span class="nv">IdentitiesOnly</span><span class="o">=</span>yes -i my_rsa_key user@ip_address
-</code></pre></div><p>With this, <code>ssh</code> will only attempt to use the identity file you provided in the
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># Note that I am passing private key file</span>
+</span></span><span class="line"><span class="cl">ssh -o <span class="nv">IdentitiesOnly</span><span class="o">=</span>yes -i my_rsa_key user@ip_address
+</span></span></code></pre></div><p>With this, <code>ssh</code> will only attempt to use the identity file you provided in the
 command. However, do note that if the file does not exist, <code>ssh</code> will still
 attempt to use all the identity files you have.</p>
 <h2 id="wrap-up">Wrap Up</h2>

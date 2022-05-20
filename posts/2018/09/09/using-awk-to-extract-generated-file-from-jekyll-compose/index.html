@@ -7,13 +7,14 @@ Using AWK to extract generated file from jekyll-compose | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.90.0" />
+<meta name="generator" content="Hugo 0.98.0" />
+
 
 
 
 
   
-  <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.70efcba323ef569acc57fdb926562ad7a43adfae5545cf62511809f4d53b4c80.css" integrity="sha256-cO/LoyPvVprMV/25JlYq16Q6365VRc9iURgJ9NU7TIA=">
+  <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.33e171ff5e13e3b33dad65126b55d844a2e93e9c729ae431e1313b1b67f2b092.css" integrity="sha256-M+Fx/14T47M9rWUSa1XYRKLpPpxymuQx4TE7G2fysJI=">
   <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -125,7 +126,7 @@ following actions.</p>
 <h4 id="1-extraction">1. Extraction</h4>
 <p>Hence, to extract out the file path from the line <code>New post created at _posts/&lt;DATE&gt;-&lt;TITLE&gt;</code>,
 we can use the following command:</p>
-<pre tabindex="0"><code>echo 'New post created at _posts/&lt;DATE&gt;-&lt;TITLE&gt;' | awk '{print $5}'
+<pre tabindex="0"><code>echo &#39;New post created at _posts/&lt;DATE&gt;-&lt;TITLE&gt;&#39; | awk &#39;{print $5}&#39;
 </code></pre><p><code>$5</code> is used since the file path is the fifth column of the line.</p>
 <h4 id="2-only-extract-second-line">2. Only Extract Second Line</h4>
 <p>Since we just wanted to extract the second line of the command output, the
@@ -133,7 +134,7 @@ command above is not enough. What we really wanted is to say:</p>
 <p><em>if the line is second row, then we extract it</em></p>
 <p>To achieve that in <code>AWK</code>, we can use <code>AWK</code> built-in variables <code>FNR</code>, which
 refers to the current line number of the file, to form a condition.</p>
-<pre tabindex="0"><code>echo -e &quot;Configuration file: /Users/kai/Desktop/notes/_config.yml\nNew post created at _posts/&lt;DATE&gt;-&lt;TITLE&gt;&quot; | awk 'FNR==2{ print $5 }'
+<pre tabindex="0"><code>echo -e &#34;Configuration file: /Users/kai/Desktop/notes/_config.yml\nNew post created at _posts/&lt;DATE&gt;-&lt;TITLE&gt;&#34; | awk &#39;FNR==2{ print $5 }&#39;
 </code></pre><h3 id="summary">Summary</h3>
 <ol>
 <li>You can use <code>AWK</code> to print specific column of lines with <code>awk {print $N}</code></li>
@@ -142,14 +143,14 @@ refers to the current line number of the file, to form a condition.</p>
 text-processing.</li>
 <li>Code snippet to generate and open the file.</li>
 </ol>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="k">function</span> newpost<span class="o">()</span> <span class="o">{</span>
-  vim <span class="k">$(</span>
-    bundle <span class="nb">exec</span> jekyll post <span class="nv">$1</span> <span class="p">|</span>
-    <span class="c1"># substr is used to remove the ending &#39;.&#39; of the extracted string</span>
-    awk <span class="s1">&#39;FNR == 2{print substr($5, 1, length($5) - 1)}&#39;</span>
-  <span class="k">)</span>
-<span class="o">}</span>
-</code></pre></div><hr>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="k">function</span> newpost<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  vim <span class="k">$(</span>
+</span></span><span class="line"><span class="cl">    bundle <span class="nb">exec</span> jekyll post <span class="nv">$1</span> <span class="p">|</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># substr is used to remove the ending &#39;.&#39; of the extracted string</span>
+</span></span><span class="line"><span class="cl">    awk <span class="s1">&#39;FNR == 2{print substr($5, 1, length($5) - 1)}&#39;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><hr>
 <ol>
 <li>
 <p>If you are interested in more command line tools, you can consider purchase
@@ -160,14 +161,14 @@ text-processing.</li>
 because of a single typo of <code>-</code>. Instead of:</p>
 </li>
 </ol>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yml" data-lang="yml"><span class="c"># The correct one</span><span class="w">
-</span><span class="w"></span><span class="nt">jekyll_compose</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">auto_open</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
-</span></code></pre></div><p>I use:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yml" data-lang="yml"><span class="c"># The wrong one</span><span class="w">
-</span><span class="w"></span><span class="nt">jekyll-compose</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">auto_open</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
-</span></code></pre></div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yml" data-lang="yml"><span class="line"><span class="cl"><span class="c"># The correct one</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">jekyll_compose</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">auto_open</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span></code></pre></div><p>I use:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yml" data-lang="yml"><span class="line"><span class="cl"><span class="c"># The wrong one</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">jekyll-compose</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">auto_open</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span></code></pre></div>
 </article>
 
     </main>

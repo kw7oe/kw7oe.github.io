@@ -7,13 +7,14 @@ Blue Green Deployment with Nginx for Elixir/Phoenix Release | kw7oe
 
 
 
-<meta name="generator" content="Hugo 0.90.0" />
+<meta name="generator" content="Hugo 0.98.0" />
+
 
 
 
 
   
-  <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.70efcba323ef569acc57fdb926562ad7a43adfae5545cf62511809f4d53b4c80.css" integrity="sha256-cO/LoyPvVprMV/25JlYq16Q6365VRc9iURgJ9NU7TIA=">
+  <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.33e171ff5e13e3b33dad65126b55d844a2e93e9c729ae431e1313b1b67f2b092.css" integrity="sha256-M+Fx/14T47M9rWUSa1XYRKLpPpxymuQx4TE7G2fysJI=">
   <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
 
 
@@ -187,44 +188,44 @@ version of our application process at different port.</li>
 <p>Let&rsquo;s start by writing our blue <em>(also our initial)</em> nginx configuration file
 <em>(<a href="https://hexdocs.pm/phoenix/1.3.0-rc.1/phoenix_behind_proxy.html">refer from Phoenix Documentation</a>)</em> and placed it
 under <code>/etc/nginx/sites-available/blue</code>:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-nginx" data-lang="nginx"><span class="k">upstream</span> <span class="s">phoenix-blue</span> <span class="p">{</span>
-  <span class="c1"># Assuming your application is running on PORT 4000
-</span><span class="c1"></span>  <span class="kn">server</span> <span class="n">127.0.0.1</span><span class="p">:</span><span class="mi">4000</span> <span class="s">max_fails=5</span> <span class="s">fail_timeout=60s</span><span class="p">;</span>
-<span class="p">}</span>
-
-<span class="k">server</span> <span class="p">{</span>
-  <span class="kn">server_name</span> <span class="s">domain.app</span><span class="p">;</span>
-  <span class="kn">listen</span> <span class="mi">80</span><span class="p">;</span>
-
-  <span class="kn">location</span> <span class="s">/deployment_id</span> <span class="p">{</span>
-    <span class="kn">return</span> <span class="mi">200</span> <span class="s">&#34;blue&#34;</span><span class="p">;</span>
-  <span class="p">}</span>
-
-  <span class="kn">location</span> <span class="s">/</span> <span class="p">{</span>
-    <span class="kn">allow</span> <span class="s">all</span><span class="p">;</span>
-
-    <span class="c1"># Proxy Headers
-</span><span class="c1"></span>    <span class="kn">proxy_http_version</span> <span class="mi">1</span><span class="s">.1</span><span class="p">;</span>
-    <span class="kn">proxy_set_header</span> <span class="s">X-Forwarded-For</span> <span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
-    <span class="kn">proxy_set_header</span> <span class="s">Host</span> <span class="nv">$http_host</span><span class="p">;</span>
-    <span class="kn">proxy_set_header</span> <span class="s">X-Cluster-Client-Ip</span> <span class="nv">$remote_addr</span><span class="p">;</span>
-
-    <span class="c1"># The Important Websocket Bits!
-</span><span class="c1"></span>    <span class="kn">proxy_set_header</span> <span class="s">Upgrade</span> <span class="nv">$http_upgrade</span><span class="p">;</span>
-    <span class="kn">proxy_set_header</span> <span class="s">Connection</span> <span class="s">&#34;upgrade&#34;</span><span class="p">;</span>
-
-    <span class="kn">proxy_pass</span> <span class="s">http://phoenix-blue</span><span class="p">;</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div><p>We are putting it in <code>sites-available</code> instead of <code>sites-enabled</code> because as
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-nginx" data-lang="nginx"><span class="line"><span class="cl"><span class="k">upstream</span> <span class="s">phoenix-blue</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># Assuming your application is running on PORT 4000
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kn">server</span> <span class="n">127.0.0.1</span><span class="p">:</span><span class="mi">4000</span> <span class="s">max_fails=5</span> <span class="s">fail_timeout=60s</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">server</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">server_name</span> <span class="s">domain.app</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">listen</span> <span class="mi">80</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kn">location</span> <span class="s">/deployment_id</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">return</span> <span class="mi">200</span> <span class="s">&#34;blue&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kn">location</span> <span class="s">/</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">allow</span> <span class="s">all</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Proxy Headers
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kn">proxy_http_version</span> <span class="mi">1</span><span class="s">.1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">proxy_set_header</span> <span class="s">X-Forwarded-For</span> <span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">proxy_set_header</span> <span class="s">Host</span> <span class="nv">$http_host</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">proxy_set_header</span> <span class="s">X-Cluster-Client-Ip</span> <span class="nv">$remote_addr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># The Important Websocket Bits!
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kn">proxy_set_header</span> <span class="s">Upgrade</span> <span class="nv">$http_upgrade</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">proxy_set_header</span> <span class="s">Connection</span> <span class="s">&#34;upgrade&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kn">proxy_pass</span> <span class="s">http://phoenix-blue</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>We are putting it in <code>sites-available</code> instead of <code>sites-enabled</code> because as
 demonstrated above,  we would need to symlink different configuration file to
 our domain. Now we can symlink our configuration file to <code>sites-enabled</code>
 with:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh">sudo ln -sf /etc/nginx/sites-available/blue /etc/nginx/sites-enabled/domain.app
-</code></pre></div><p>then, we can reload our nginx services to have it use our updated
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">sudo ln -sf /etc/nginx/sites-available/blue /etc/nginx/sites-enabled/domain.app
+</span></span></code></pre></div><p>then, we can reload our nginx services to have it use our updated
 configuration:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh">sudo systemctl reload nginx
-</code></pre></div><p>In your machine, <code>curl domain.app/deployment_id</code>, you should see a <code>blue</code> text as a
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">sudo systemctl reload nginx
+</span></span></code></pre></div><p>In your machine, <code>curl domain.app/deployment_id</code>, you should see a <code>blue</code> text as a
 result.</p>
 <p>Assuming you have your application process listening to port 400, visiting to
 <code>domain.app</code> will display your application correctly.</p>
@@ -254,65 +255,65 @@ proceed to setup the green version next!</p>
 point to our green application process. It would look very similar with the
 blue version configuration with some minor changes as follow in
 <code>/etc/nginx/sites-available/green</code>:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-nginx" data-lang="nginx"><span class="c1"># Define another upstream and point to a different PORT
-</span><span class="c1"></span><span class="k">upstream</span> <span class="s">phoenix-green</span> <span class="p">{</span>
-  <span class="c1"># Assuming your &#39;green&#39; application is running on PORT 5000
-</span><span class="c1"></span>  <span class="kn">server</span> <span class="n">127.0.0.1</span><span class="p">:</span><span class="mi">5000</span> <span class="s">max_fails=5</span> <span class="s">fail_timeout=60s</span><span class="p">;</span>
-<span class="p">}</span>
-
-<span class="k">server</span> <span class="p">{</span>
-  <span class="kn">server_name</span> <span class="s">domain.app</span><span class="p">;</span>
-  <span class="kn">listen</span> <span class="mi">80</span><span class="p">;</span>
-
-  <span class="c1"># Return &#39;green&#39; instead.
-</span><span class="c1"></span>  <span class="kn">location</span> <span class="s">/deployment_id</span> <span class="p">{</span>
-    <span class="kn">return</span> <span class="mi">200</span> <span class="s">&#34;green&#34;</span><span class="p">;</span>
-  <span class="p">}</span>
-
-  <span class="kn">location</span> <span class="s">/</span> <span class="p">{</span>
-    <span class="kn">allow</span> <span class="s">all</span><span class="p">;</span>
-
-    <span class="c1"># Proxy Headers
-</span><span class="c1"></span>    <span class="kn">proxy_http_version</span> <span class="mi">1</span><span class="s">.1</span><span class="p">;</span>
-    <span class="kn">proxy_set_header</span> <span class="s">X-Forwarded-For</span> <span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
-    <span class="kn">proxy_set_header</span> <span class="s">Host</span> <span class="nv">$http_host</span><span class="p">;</span>
-    <span class="kn">proxy_set_header</span> <span class="s">X-Cluster-Client-Ip</span> <span class="nv">$remote_addr</span><span class="p">;</span>
-
-    <span class="c1"># The Important Websocket Bits!
-</span><span class="c1"></span>    <span class="kn">proxy_set_header</span> <span class="s">Upgrade</span> <span class="nv">$http_upgrade</span><span class="p">;</span>
-    <span class="kn">proxy_set_header</span> <span class="s">Connection</span> <span class="s">&#34;upgrade&#34;</span><span class="p">;</span>
-
-    <span class="c1"># Point to our upstream defined above.
-</span><span class="c1"></span>    <span class="kn">proxy_pass</span> <span class="s">http://phoenix-green</span><span class="p">;</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div><p>To <em>promote</em> our green application to live, is to symlink
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-nginx" data-lang="nginx"><span class="line"><span class="cl"><span class="c1"># Define another upstream and point to a different PORT
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">upstream</span> <span class="s">phoenix-green</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># Assuming your &#39;green&#39; application is running on PORT 5000
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kn">server</span> <span class="n">127.0.0.1</span><span class="p">:</span><span class="mi">5000</span> <span class="s">max_fails=5</span> <span class="s">fail_timeout=60s</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">server</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">server_name</span> <span class="s">domain.app</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">listen</span> <span class="mi">80</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># Return &#39;green&#39; instead.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kn">location</span> <span class="s">/deployment_id</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">return</span> <span class="mi">200</span> <span class="s">&#34;green&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kn">location</span> <span class="s">/</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">allow</span> <span class="s">all</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Proxy Headers
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kn">proxy_http_version</span> <span class="mi">1</span><span class="s">.1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">proxy_set_header</span> <span class="s">X-Forwarded-For</span> <span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">proxy_set_header</span> <span class="s">Host</span> <span class="nv">$http_host</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">proxy_set_header</span> <span class="s">X-Cluster-Client-Ip</span> <span class="nv">$remote_addr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># The Important Websocket Bits!
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kn">proxy_set_header</span> <span class="s">Upgrade</span> <span class="nv">$http_upgrade</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">proxy_set_header</span> <span class="s">Connection</span> <span class="s">&#34;upgrade&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Point to our upstream defined above.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kn">proxy_pass</span> <span class="s">http://phoenix-green</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>To <em>promote</em> our green application to live, is to symlink
 it to be used as our domain configuration with the following command:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh">sudo ln -sf /etc/nginx/sites-available/green /etc/nginx/sites-enabled/domain.app
-</code></pre></div><p>follow by reloading our nginx service configuration:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh">sudo systemctl reload nginx
-</code></pre></div><p><code>curl domain.app/deployment_id</code> and you&rsquo;ll see a <code>green</code>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">sudo ln -sf /etc/nginx/sites-available/green /etc/nginx/sites-enabled/domain.app
+</span></span></code></pre></div><p>follow by reloading our nginx service configuration:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sh" data-lang="sh"><span class="line"><span class="cl">sudo systemctl reload nginx
+</span></span></code></pre></div><p><code>curl domain.app/deployment_id</code> and you&rsquo;ll see a <code>green</code>
 text returned.  However, if you try to visit <code>domain.app</code> and visit
 other path of your application, you might get a 502 Bad Gateway.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">╰─➤  curl domain.app/deployment_id
-green%
-╭─kai at KW.local ~/Desktop/mini-hackathon/life ‹1.11.3-otp-23› ‹main*›
-╰─➤  curl domain.app/health
-&lt;html&gt;
-&lt;head&gt;&lt;title&gt;502 Bad Gateway&lt;/title&gt;&lt;/head&gt;
-&lt;body&gt;
-&lt;center&gt;&lt;h1&gt;502 Bad Gateway&lt;/h1&gt;&lt;/center&gt;
-&lt;hr&gt;&lt;center&gt;nginx/1.18.0 <span class="o">(</span>Ubuntu<span class="o">)</span>&lt;/center&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre></div><p>That&rsquo;s because we
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">╰─➤  curl domain.app/deployment_id
+</span></span><span class="line"><span class="cl">green%
+</span></span><span class="line"><span class="cl">╭─kai at KW.local ~/Desktop/mini-hackathon/life ‹1.11.3-otp-23› ‹main*›
+</span></span><span class="line"><span class="cl">╰─➤  curl domain.app/health
+</span></span><span class="line"><span class="cl">&lt;html&gt;
+</span></span><span class="line"><span class="cl">&lt;head&gt;&lt;title&gt;502 Bad Gateway&lt;/title&gt;&lt;/head&gt;
+</span></span><span class="line"><span class="cl">&lt;body&gt;
+</span></span><span class="line"><span class="cl">&lt;center&gt;&lt;h1&gt;502 Bad Gateway&lt;/h1&gt;&lt;/center&gt;
+</span></span><span class="line"><span class="cl">&lt;hr&gt;&lt;center&gt;nginx/1.18.0 <span class="o">(</span>Ubuntu<span class="o">)</span>&lt;/center&gt;
+</span></span><span class="line"><span class="cl">&lt;/body&gt;
+</span></span><span class="line"><span class="cl">&lt;/html&gt;
+</span></span></code></pre></div><p>That&rsquo;s because we
 haven&rsquo;t run any copy of our application on port <code>5000</code> yet as specified in
 our <code>nginx</code> configuration.</p>
 <p>Let&rsquo;s revert our changes here by promoting our blue
 version to live at this moment first:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">sudo ln -sf /etc/nginx/sites-available/blue /etc/nginx/sites-enabled/domain.app
-sudo systemctl reload nginx
-</code></pre></div><p>We will be <a href="#promoting-our-green-version-to-live">promoting our green version to
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo ln -sf /etc/nginx/sites-available/blue /etc/nginx/sites-enabled/domain.app
+</span></span><span class="line"><span class="cl">sudo systemctl reload nginx
+</span></span></code></pre></div><p>We will be <a href="#promoting-our-green-version-to-live">promoting our green version to
 live</a> after we run the green copy of
 our application successfully.</p>
 <div class="callout callout-info">
@@ -330,241 +331,241 @@ simple as changing the <code>PORT</code> value right?</p>
 <p>So, all we need to do is to just update part of our bash script to
 conditionally deploy our release with different ports! Easy. So, here&rsquo;s what we
 got:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$deploy_version</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;blue&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-  ssh <span class="nv">$HOST</span> <span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; PORT=4000 ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> daemon&#34;</span>
-<span class="k">else</span>
-  ssh <span class="nv">$HOST</span> <span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; PORT=5000 ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> daemon&#34;</span>
-<span class="k">fi</span>
-</code></pre></div><p>But, how do we know about our current live version?</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$deploy_version</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;blue&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">  ssh <span class="nv">$HOST</span> <span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; PORT=4000 ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> daemon&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="k">else</span>
+</span></span><span class="line"><span class="cl">  ssh <span class="nv">$HOST</span> <span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; PORT=5000 ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> daemon&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="k">fi</span>
+</span></span></code></pre></div><p>But, how do we know about our current live version?</p>
 <p>Remember that <code>/deployment_id</code> in our nginx configuration? That&rsquo;s how we can
 get our current live version:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nv">LIVE_VERSION</span><span class="o">=</span><span class="k">$(</span>curl -s -w <span class="s2">&#34;\n&#34;</span> <span class="s2">&#34;https://domain.app/deployment_id&#34;</span><span class="k">)</span>
-
-<span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$LIVE_VERSION</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;blue&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-  <span class="nv">deploy_version</span><span class="o">=</span><span class="s2">&#34;green&#34;</span>
-<span class="k">else</span>
-  <span class="nv">deploy_version</span><span class="o">=</span><span class="s2">&#34;blue&#34;</span>
-<span class="k">fi</span>
-
-<span class="c1"># The previous bash script</span>
-<span class="c1"># continue here...</span>
-</code></pre></div><p>We are done right? Not quite. If we run our deploy script and go into our
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nv">LIVE_VERSION</span><span class="o">=</span><span class="k">$(</span>curl -s -w <span class="s2">&#34;\n&#34;</span> <span class="s2">&#34;https://domain.app/deployment_id&#34;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$LIVE_VERSION</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;blue&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">deploy_version</span><span class="o">=</span><span class="s2">&#34;green&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="k">else</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">deploy_version</span><span class="o">=</span><span class="s2">&#34;blue&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="k">fi</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># The previous bash script</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># continue here...</span>
+</span></span></code></pre></div><p>We are done right? Not quite. If we run our deploy script and go into our
 server and check with <code>lsof</code> <em>(list open file description)</em>:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ lsof -i :5000
-<span class="c1">#=&gt; empty result</span>
-
-$ lsof -i :4000
-COMMAND   PID    USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
-beam.smp <span class="m">5162</span> vagrant   20u  IPv6  <span class="m">39660</span>      0t0  TCP *:4000 <span class="o">(</span>LISTEN<span class="o">)</span>
-</code></pre></div><p>You&rsquo;ll see that our application release doesn&rsquo;t get started successfully.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ lsof -i :5000
+</span></span><span class="line"><span class="cl"><span class="c1">#=&gt; empty result</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">$ lsof -i :4000
+</span></span><span class="line"><span class="cl">COMMAND   PID    USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+</span></span><span class="line"><span class="cl">beam.smp <span class="m">5162</span> vagrant   20u  IPv6  <span class="m">39660</span>      0t0  TCP *:4000 <span class="o">(</span>LISTEN<span class="o">)</span>
+</span></span></code></pre></div><p>You&rsquo;ll see that our application release doesn&rsquo;t get started successfully.</p>
 <h3 id="run-multiple-copies-of-same-elixir-release-in-a-single-server">Run multiple copies of same Elixir release in a single server</h3>
 <p>Let&rsquo;s attempt to start it manually and see what actually happen:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ <span class="nb">source</span> .env <span class="o">&amp;&amp;</span> <span class="nv">PORT</span><span class="o">=</span><span class="m">5000</span> &lt;app_version&gt;/bin/&lt;app_name&gt; start
-Protocol <span class="s1">&#39;inet_tcp&#39;</span>: the name &lt;app_name&gt;@&lt;hostname&gt; seems to be in use by another Erlang node
-</code></pre></div><p>Seems like it failed to start.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ <span class="nb">source</span> .env <span class="o">&amp;&amp;</span> <span class="nv">PORT</span><span class="o">=</span><span class="m">5000</span> &lt;app_version&gt;/bin/&lt;app_name&gt; start
+</span></span><span class="line"><span class="cl">Protocol <span class="s1">&#39;inet_tcp&#39;</span>: the name &lt;app_name&gt;@&lt;hostname&gt; seems to be in use by another Erlang node
+</span></span></code></pre></div><p>Seems like it failed to start.</p>
 <p>What is this error about? Well everytime, our release is started, a default
 node name is actually provided according to our application name. Furthermore, in a
 single server, we can&rsquo;t have two same release running with the same node name.</p>
 <p>You can replicate the above behaviour easily in your local machine by
 running the following in two different terminals:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">iex --cookie <span class="m">1234</span> --sname apple
-</code></pre></div><p>which will result in:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># In terminal one</span>
-╰─➤  iex --cookie <span class="m">1234</span> --sname apple
-Erlang/OTP <span class="m">23</span> <span class="o">[</span>erts-11.1.1<span class="o">]</span> <span class="o">[</span>source<span class="o">]</span> <span class="o">[</span>64-bit<span class="o">]</span> <span class="o">[</span>smp:4:4<span class="o">]</span> <span class="o">[</span>ds:4:4:10<span class="o">]</span> <span class="o">[</span>async-threads:1<span class="o">]</span> <span class="o">[</span>hipe<span class="o">]</span>
-
-Interactive Elixir <span class="o">(</span>1.11.3<span class="o">)</span> - press Ctrl+C to <span class="nb">exit</span> <span class="o">(</span><span class="nb">type</span> h<span class="o">()</span> ENTER <span class="k">for</span> <span class="nb">help</span><span class="o">)</span>
-iex<span class="o">(</span>apple@KW<span class="o">)</span>1&gt;
-
-<span class="c1"># In terminal two</span>
-╰─➤  iex --cookie <span class="m">1234</span> --sname apple
-Protocol <span class="s1">&#39;inet_tcp&#39;</span>: the name apple@KW seems to be in use by another Erlang node
-</code></pre></div><p>To resolve this, we need to specify a different node name when starting our
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">iex --cookie <span class="m">1234</span> --sname apple
+</span></span></code></pre></div><p>which will result in:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># In terminal one</span>
+</span></span><span class="line"><span class="cl">╰─➤  iex --cookie <span class="m">1234</span> --sname apple
+</span></span><span class="line"><span class="cl">Erlang/OTP <span class="m">23</span> <span class="o">[</span>erts-11.1.1<span class="o">]</span> <span class="o">[</span>source<span class="o">]</span> <span class="o">[</span>64-bit<span class="o">]</span> <span class="o">[</span>smp:4:4<span class="o">]</span> <span class="o">[</span>ds:4:4:10<span class="o">]</span> <span class="o">[</span>async-threads:1<span class="o">]</span> <span class="o">[</span>hipe<span class="o">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Interactive Elixir <span class="o">(</span>1.11.3<span class="o">)</span> - press Ctrl+C to <span class="nb">exit</span> <span class="o">(</span><span class="nb">type</span> h<span class="o">()</span> ENTER <span class="k">for</span> <span class="nb">help</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">iex<span class="o">(</span>apple@KW<span class="o">)</span>1&gt;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># In terminal two</span>
+</span></span><span class="line"><span class="cl">╰─➤  iex --cookie <span class="m">1234</span> --sname apple
+</span></span><span class="line"><span class="cl">Protocol <span class="s1">&#39;inet_tcp&#39;</span>: the name apple@KW seems to be in use by another Erlang node
+</span></span></code></pre></div><p>To resolve this, we need to specify a different node name when starting our
 release:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ <span class="nb">source</span> .env <span class="o">&amp;&amp;</span> <span class="nv">PORT</span><span class="o">=</span><span class="m">5000</span> <span class="nv">RELEASE_NODE</span><span class="o">=</span>green &lt;app_version&gt;/bin/&lt;app_name&gt; start
-15:46:40.449 <span class="o">[</span>info<span class="o">]</span> Running Web.Endpoint with cowboy 2.8.0 at :::5000 <span class="o">(</span>http<span class="o">)</span>
-15:46:40.450 <span class="o">[</span>info<span class="o">]</span> Access Web.Endpoint at http://example.com
-</code></pre></div><h3 id="bash-script-for-deploying-multiple-elixir-releases">Bash script for deploying multiple Elixir releases</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ <span class="nb">source</span> .env <span class="o">&amp;&amp;</span> <span class="nv">PORT</span><span class="o">=</span><span class="m">5000</span> <span class="nv">RELEASE_NODE</span><span class="o">=</span>green &lt;app_version&gt;/bin/&lt;app_name&gt; start
+</span></span><span class="line"><span class="cl">15:46:40.449 <span class="o">[</span>info<span class="o">]</span> Running Web.Endpoint with cowboy 2.8.0 at :::5000 <span class="o">(</span>http<span class="o">)</span>
+</span></span><span class="line"><span class="cl">15:46:40.450 <span class="o">[</span>info<span class="o">]</span> Access Web.Endpoint at http://example.com
+</span></span></code></pre></div><h3 id="bash-script-for-deploying-multiple-elixir-releases">Bash script for deploying multiple Elixir releases</h3>
 <p>At this point, this is how our <code>./deploy.sh</code> script looks like:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="cp">#!/bin/bash
-</span><span class="cp"></span><span class="nb">set</span> -e
-
-<span class="nv">APP_NAME</span><span class="o">=</span><span class="s2">&#34;</span><span class="k">$(</span>grep <span class="s1">&#39;app:&#39;</span> mix.exs <span class="p">|</span> sed -e <span class="s1">&#39;s/\[//g&#39;</span> -e <span class="s1">&#39;s/ //g&#39;</span> -e <span class="s1">&#39;s/app://&#39;</span> -e <span class="s1">&#39;s/[:,]//g&#39;</span><span class="k">)</span><span class="s2">&#34;</span>
-<span class="nv">APP_VSN</span><span class="o">=</span><span class="s2">&#34;</span><span class="k">$(</span>grep <span class="s1">&#39;version:&#39;</span> mix.exs <span class="p">|</span> cut -d <span class="s1">&#39;&#34;&#39;</span> -f2<span class="k">)</span><span class="s2">&#34;</span>
-<span class="nv">TAR_FILENAME</span><span class="o">=</span><span class="si">${</span><span class="nv">APP_NAME</span><span class="si">}</span>-<span class="si">${</span><span class="nv">APP_VSN</span><span class="si">}</span>.tar.gz
-<span class="c1"># I&#39;m using vagrant to run and test locally,</span>
-<span class="c1"># can be replaced by your remote server ip and user.</span>
-<span class="nv">HOST</span><span class="o">=</span><span class="s2">&#34;vagrant@192.168.33.40&#34;</span>
-
-bold_echo<span class="o">()</span> <span class="o">{</span>
-  <span class="nb">echo</span> -e <span class="s2">&#34;\033[1m---&gt; </span><span class="nv">$1</span><span class="s2">\033[0m&#34;</span>
-<span class="o">}</span>
-
-build_release<span class="o">()</span> <span class="o">{</span>
-  bold_echo <span class="s2">&#34;Building Docker images...&#34;</span>
-  docker build -t app .
-
-  bold_echo <span class="s2">&#34;Extracting release tar file...&#34;</span>
-  <span class="nv">ID</span><span class="o">=</span><span class="k">$(</span>docker create app<span class="k">)</span>
-  docker cp <span class="s2">&#34;</span><span class="nv">$ID</span><span class="s2">:/app/</span><span class="nv">$TAR_FILENAME</span><span class="s2">&#34;</span> .
-  docker rm <span class="s2">&#34;</span><span class="nv">$ID</span><span class="s2">&#34;</span>
-<span class="o">}</span>
-
-deploy_release<span class="o">()</span> <span class="o">{</span>
-  bold_echo <span class="s2">&#34;Creating directory if not exist...&#34;</span>
-
-  ssh <span class="nv">$HOST</span> mkdir -p <span class="s2">&#34;</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">&#34;</span>
-
-  bold_echo <span class="s2">&#34;Copying environment variables...&#34;</span>
-  scp .env.production <span class="nv">$HOST</span>:<span class="s2">&#34;~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env&#34;</span>
-
-  bold_echo <span class="s2">&#34;Copying release to remote...&#34;</span>
-  scp <span class="s2">&#34;</span><span class="nv">$TAR_FILENAME</span><span class="s2">&#34;</span> <span class="nv">$HOST</span>:<span class="s2">&#34;~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$TAR_FILENAME</span><span class="s2">&#34;</span>
-
-  <span class="c1"># Notice that we are extracting the tar file to it respective version</span>
-  <span class="c1"># folder instead of replacing it at $APP_NAME as previois blog posts.</span>
-
-  <span class="c1"># The reason of doing so is explained in the section of</span>
-  <span class="c1"># &#34;Deploying new blue and green version&#34; of this post later on.</span>
-  ssh <span class="nv">$HOST</span> tar -xzf <span class="s2">&#34;</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$TAR_FILENAME</span><span class="s2">&#34;</span> -C <span class="s2">&#34;</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">&#34;</span>
-
-  start_release
-
-  bold_echo <span class="s2">&#34;Removing remote tar file...&#34;</span>
-  ssh <span class="nv">$HOST</span> rm <span class="s2">&#34;~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$TAR_FILENAME</span><span class="s2">&#34;</span>
-<span class="o">}</span>
-
-start_release<span class="o">()</span> <span class="o">{</span>
-  <span class="nv">LIVE_VERSION</span><span class="o">=</span><span class="k">$(</span>curl -s -w <span class="s2">&#34;\n&#34;</span> <span class="s2">&#34;domain.app/deployment_id&#34;</span><span class="k">)</span>
-
-  <span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$LIVE_VERSION</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;blue&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-    <span class="nv">deploy_version</span><span class="o">=</span><span class="s2">&#34;green&#34;</span>
-  <span class="k">else</span>
-    <span class="nv">deploy_version</span><span class="o">=</span><span class="s2">&#34;blue&#34;</span>
-  <span class="k">fi</span>
-
-  bold_echo <span class="s2">&#34;Starting release ...&#34;</span>
-  <span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$deploy_version</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;blue&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-    ssh <span class="nv">$HOST</span> <span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; PORT=4000 ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> daemon&#34;</span>
-  <span class="k">else</span>
-    ssh <span class="nv">$HOST</span> <span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; PORT=5000 RELEASE_NODE=green ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> daemon&#34;</span>
-  <span class="k">fi</span>
-
-<span class="o">}</span>
-
-clean_up<span class="o">()</span> <span class="o">{</span>
-  bold_echo <span class="s2">&#34;Removing local tar file...&#34;</span>
-  rm <span class="s2">&#34;</span><span class="nv">$APP_NAME</span><span class="s2">-&#34;</span>*.tar.gz
-<span class="o">}</span>
-
-
-<span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;build&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-  build_release
-<span class="k">else</span>
-  build_release
-  deploy_release
-  clean_up
-<span class="k">fi</span>
-</code></pre></div><p>Running <code>./deploy.sh</code> now the second time <em>(initial green build)</em> will now
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="cp">#!/bin/bash
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="nb">set</span> -e
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">APP_NAME</span><span class="o">=</span><span class="s2">&#34;</span><span class="k">$(</span>grep <span class="s1">&#39;app:&#39;</span> mix.exs <span class="p">|</span> sed -e <span class="s1">&#39;s/\[//g&#39;</span> -e <span class="s1">&#39;s/ //g&#39;</span> -e <span class="s1">&#39;s/app://&#39;</span> -e <span class="s1">&#39;s/[:,]//g&#39;</span><span class="k">)</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">APP_VSN</span><span class="o">=</span><span class="s2">&#34;</span><span class="k">$(</span>grep <span class="s1">&#39;version:&#39;</span> mix.exs <span class="p">|</span> cut -d <span class="s1">&#39;&#34;&#39;</span> -f2<span class="k">)</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">TAR_FILENAME</span><span class="o">=</span><span class="si">${</span><span class="nv">APP_NAME</span><span class="si">}</span>-<span class="si">${</span><span class="nv">APP_VSN</span><span class="si">}</span>.tar.gz
+</span></span><span class="line"><span class="cl"><span class="c1"># I&#39;m using vagrant to run and test locally,</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># can be replaced by your remote server ip and user.</span>
+</span></span><span class="line"><span class="cl"><span class="nv">HOST</span><span class="o">=</span><span class="s2">&#34;vagrant@192.168.33.40&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">bold_echo<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nb">echo</span> -e <span class="s2">&#34;\033[1m---&gt; </span><span class="nv">$1</span><span class="s2">\033[0m&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">build_release<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  bold_echo <span class="s2">&#34;Building Docker images...&#34;</span>
+</span></span><span class="line"><span class="cl">  docker build -t app .
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  bold_echo <span class="s2">&#34;Extracting release tar file...&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">ID</span><span class="o">=</span><span class="k">$(</span>docker create app<span class="k">)</span>
+</span></span><span class="line"><span class="cl">  docker cp <span class="s2">&#34;</span><span class="nv">$ID</span><span class="s2">:/app/</span><span class="nv">$TAR_FILENAME</span><span class="s2">&#34;</span> .
+</span></span><span class="line"><span class="cl">  docker rm <span class="s2">&#34;</span><span class="nv">$ID</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">deploy_release<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  bold_echo <span class="s2">&#34;Creating directory if not exist...&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  ssh <span class="nv">$HOST</span> mkdir -p <span class="s2">&#34;</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  bold_echo <span class="s2">&#34;Copying environment variables...&#34;</span>
+</span></span><span class="line"><span class="cl">  scp .env.production <span class="nv">$HOST</span>:<span class="s2">&#34;~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  bold_echo <span class="s2">&#34;Copying release to remote...&#34;</span>
+</span></span><span class="line"><span class="cl">  scp <span class="s2">&#34;</span><span class="nv">$TAR_FILENAME</span><span class="s2">&#34;</span> <span class="nv">$HOST</span>:<span class="s2">&#34;~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$TAR_FILENAME</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># Notice that we are extracting the tar file to it respective version</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># folder instead of replacing it at $APP_NAME as previois blog posts.</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># The reason of doing so is explained in the section of</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># &#34;Deploying new blue and green version&#34; of this post later on.</span>
+</span></span><span class="line"><span class="cl">  ssh <span class="nv">$HOST</span> tar -xzf <span class="s2">&#34;</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$TAR_FILENAME</span><span class="s2">&#34;</span> -C <span class="s2">&#34;</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  start_release
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  bold_echo <span class="s2">&#34;Removing remote tar file...&#34;</span>
+</span></span><span class="line"><span class="cl">  ssh <span class="nv">$HOST</span> rm <span class="s2">&#34;~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$TAR_FILENAME</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">start_release<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">LIVE_VERSION</span><span class="o">=</span><span class="k">$(</span>curl -s -w <span class="s2">&#34;\n&#34;</span> <span class="s2">&#34;domain.app/deployment_id&#34;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$LIVE_VERSION</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;blue&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">deploy_version</span><span class="o">=</span><span class="s2">&#34;green&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">else</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">deploy_version</span><span class="o">=</span><span class="s2">&#34;blue&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">fi</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  bold_echo <span class="s2">&#34;Starting release ...&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$deploy_version</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;blue&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">    ssh <span class="nv">$HOST</span> <span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; PORT=4000 ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> daemon&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">else</span>
+</span></span><span class="line"><span class="cl">    ssh <span class="nv">$HOST</span> <span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; PORT=5000 RELEASE_NODE=green ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> daemon&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">fi</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">clean_up<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  bold_echo <span class="s2">&#34;Removing local tar file...&#34;</span>
+</span></span><span class="line"><span class="cl">  rm <span class="s2">&#34;</span><span class="nv">$APP_NAME</span><span class="s2">-&#34;</span>*.tar.gz
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;build&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">  build_release
+</span></span><span class="line"><span class="cl"><span class="k">else</span>
+</span></span><span class="line"><span class="cl">  build_release
+</span></span><span class="line"><span class="cl">  deploy_release
+</span></span><span class="line"><span class="cl">  clean_up
+</span></span><span class="line"><span class="cl"><span class="k">fi</span>
+</span></span></code></pre></div><p>Running <code>./deploy.sh</code> now the second time <em>(initial green build)</em> will now
 deploy another copy of our application with the latest changes. The initial
 build will still be running and nothing is impacted.</p>
 <h2 id="promoting-our-green-version-to-live">Promoting our green version to live</h2>
 <p>The current live version is still blue. So, in order to promote our green
 version to live. All we need to do is to run:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">sudo ln -sf /etc/nginx/sites-available/green /etc/nginx/sites-enabled/domain.app
-sudo systemctl reload nginx
-</code></pre></div><p>Similar with how we start our release differently, we are going to rely on
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo ln -sf /etc/nginx/sites-available/green /etc/nginx/sites-enabled/domain.app
+</span></span><span class="line"><span class="cl">sudo systemctl reload nginx
+</span></span></code></pre></div><p>Similar with how we start our release differently, we are going to rely on
 <code>/deployment_id</code> to get the current live version and user input to decide which
 version we want to promote to live. So here&rsquo;s how the bash script looks like
 now:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># Other code here...</span>
-
-promote<span class="o">()</span> <span class="o">{</span>
-  bold_echo <span class="s2">&#34;Attempting to promote to </span><span class="nv">$1</span><span class="s2">...&#34;</span>
-  <span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$LIVE_VERSION</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-    <span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2"> is already the live version!&#34;</span>
-    <span class="k">return</span>
-  <span class="k">elif</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;green&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-    <span class="nv">target_nginx_file</span><span class="o">=</span><span class="s2">&#34;green&#34;</span>
-  <span class="k">else</span>
-    <span class="nv">target_nginx_file</span><span class="o">=</span><span class="s2">&#34;blue&#34;</span>
-  <span class="k">fi</span>
-
-  ssh <span class="nv">$HOST</span> <span class="s2">&#34;sudo ln -sf /etc/nginx/sites-available/</span><span class="nv">$target_nginx_file</span><span class="s2"> /etc/nginx/sites-enabled/domain.app &amp;&amp; sudo systemctl reload nginx&#34;</span>
-<span class="o">}</span>
-
-
-<span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;build&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-  build_release
-<span class="k">elif</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;promote&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-  promote <span class="nv">$2</span>
-<span class="k">else</span>
-  build_release
-  deploy_release
-  clean_up
-<span class="k">fi</span>
-</code></pre></div><p>To promote green version to live, all we have to run is:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">./deploy.sh promote green
-</code></pre></div><p>Now, visiting to <code>domain.app</code> and you shall see your latest changes for your application is live.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># Other code here...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">promote<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  bold_echo <span class="s2">&#34;Attempting to promote to </span><span class="nv">$1</span><span class="s2">...&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$LIVE_VERSION</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2"> is already the live version!&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span>
+</span></span><span class="line"><span class="cl">  <span class="k">elif</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;green&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">target_nginx_file</span><span class="o">=</span><span class="s2">&#34;green&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">else</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">target_nginx_file</span><span class="o">=</span><span class="s2">&#34;blue&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">fi</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  ssh <span class="nv">$HOST</span> <span class="s2">&#34;sudo ln -sf /etc/nginx/sites-available/</span><span class="nv">$target_nginx_file</span><span class="s2"> /etc/nginx/sites-enabled/domain.app &amp;&amp; sudo systemctl reload nginx&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;build&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">  build_release
+</span></span><span class="line"><span class="cl"><span class="k">elif</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;promote&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">  promote <span class="nv">$2</span>
+</span></span><span class="line"><span class="cl"><span class="k">else</span>
+</span></span><span class="line"><span class="cl">  build_release
+</span></span><span class="line"><span class="cl">  deploy_release
+</span></span><span class="line"><span class="cl">  clean_up
+</span></span><span class="line"><span class="cl"><span class="k">fi</span>
+</span></span></code></pre></div><p>To promote green version to live, all we have to run is:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">./deploy.sh promote green
+</span></span></code></pre></div><p>Now, visiting to <code>domain.app</code> and you shall see your latest changes for your application is live.</p>
 <p>Alternatively, if things went wrong and you decided to rollback to blue version, all you need
 to run is just:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">./deploy.sh promote blue
-</code></pre></div><p>Do note that, at this point, we are running <strong>2 copies of our application</strong> on
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">./deploy.sh promote blue
+</span></span></code></pre></div><p>Do note that, at this point, we are running <strong>2 copies of our application</strong> on
 our remote server, which means we are consuming twice as much resources as
 well.</p>
 <h2 id="running-migration-and-console">Running migration and console</h2>
 <p>Assuming you have follow the <a href="https://hexdocs.pm/phoenix/releases.html#ecto-migrations-and-custom-commands">guide to setup ecto migration</a> on the official Phoenix Documentation,
 you should be able to run migration by running the following comamnd:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ <span class="nb">source</span> ~/<span class="nv">$APP_NAME</span>/.env <span class="o">&amp;&amp;</span> ~/<span class="nv">$APP_NAME</span>/<span class="nv">$version</span>/bin/<span class="nv">$APP_NAME</span> <span class="nb">eval</span> <span class="s1">&#39;AppName.Release.migrate()&#39;</span>
-</code></pre></div><p>similarly, to run the remote console is just as simple as:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ ~/<span class="nv">$APP_NAME</span>/<span class="nv">$version</span>/bin/<span class="nv">$APP_NAME</span> remote
-</code></pre></div><p>Notice that we don&rsquo;t need to <code>source .env</code> while running <code>remote</code> command
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ <span class="nb">source</span> ~/<span class="nv">$APP_NAME</span>/.env <span class="o">&amp;&amp;</span> ~/<span class="nv">$APP_NAME</span>/<span class="nv">$version</span>/bin/<span class="nv">$APP_NAME</span> <span class="nb">eval</span> <span class="s1">&#39;AppName.Release.migrate()&#39;</span>
+</span></span></code></pre></div><p>similarly, to run the remote console is just as simple as:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ ~/<span class="nv">$APP_NAME</span>/<span class="nv">$version</span>/bin/<span class="nv">$APP_NAME</span> remote
+</span></span></code></pre></div><p>Notice that we don&rsquo;t need to <code>source .env</code> while running <code>remote</code> command
 because it is  connecting to our running process.</p>
 <p>More details will be cover below.</p>
 <h3 id="running-migration">Running migration</h3>
 <p>Let&rsquo;s assume we have released both version <code>0.1.0</code> as <code>blue</code> and <code>0.1.1</code> as
 <code>green</code>. To run migration for the <code>0.1.0</code> release, it&rsquo;s the same as usual:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ <span class="nb">source</span> ~/app_name/.env <span class="o">&amp;&amp;</span> ~/app_name/0.1.0/bin/app_name <span class="nb">eval</span> <span class="s1">&#39;AppName.Release.migrate()&#39;</span>
-</code></pre></div><p>For the latest <code>0.1.1</code> version,
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ <span class="nb">source</span> ~/app_name/.env <span class="o">&amp;&amp;</span> ~/app_name/0.1.0/bin/app_name <span class="nb">eval</span> <span class="s1">&#39;AppName.Release.migrate()&#39;</span>
+</span></span></code></pre></div><p>For the latest <code>0.1.1</code> version,
 to run the migration is also the same as above:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ <span class="nb">source</span> ~/app_name/.env <span class="o">&amp;&amp;</span> ~/app_name/0.1.1/bin/app_name <span class="nb">eval</span> <span class="s1">&#39;AppName.Release.migrate()&#39;</span>
-</code></pre></div><p>To simplify things, we can write a bash script to do this:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">migrate<span class="o">()</span> <span class="o">{</span>
-  <span class="nv">LIVE_VERSION</span><span class="o">=</span><span class="k">$(</span>curl -s -w <span class="s2">&#34;\n&#34;</span> <span class="s2">&#34;</span><span class="nv">$DOMAIN</span><span class="s2">/deployment_id&#34;</span><span class="k">)</span>
-
-  <span class="k">if</span> <span class="o">[</span> -z <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-    bold_echo <span class="s2">&#34;Setting blue green version to </span><span class="nv">$LIVE_VERSION</span><span class="s2"> since none specified.&#34;</span>
-    <span class="nv">deploy_version</span><span class="o">=</span><span class="nv">$LIVE_VERSION</span>
-  <span class="k">else</span>
-    bold_echo <span class="s2">&#34;Setting blue green version to </span><span class="nv">$1</span><span class="s2">&#34;</span>
-    <span class="nv">deploy_version</span><span class="o">=</span><span class="nv">$1</span>
-  <span class="k">fi</span>
-
-  <span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$deploy_version</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;green&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-    <span class="nv">version_file</span><span class="o">=</span><span class="s2">&#34;green_version.txt&#34;</span>
-    <span class="nv">env</span><span class="o">=</span><span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; RELEASE_NODE=green PORT=5000 &#34;</span>
-  <span class="k">else</span>
-    <span class="nv">env</span><span class="o">=</span><span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; PORT=4000 &#34;</span>
-    <span class="nv">version_file</span><span class="o">=</span><span class="s2">&#34;blue_version.txt&#34;</span>
-  <span class="k">fi</span>
-
-  <span class="nv">version</span><span class="o">=</span><span class="k">$(</span>cat <span class="nv">$version_file</span><span class="k">)</span>
-  bold_echo <span class="s2">&#34;Running migration for database for release </span><span class="nv">$version</span><span class="s2">...&#34;</span>
-
-  ssh <span class="nv">$HOST</span> <span class="s2">&#34;</span><span class="nv">$env</span><span class="s2"> ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$version</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> eval &#39;AppName.Release.migrate()&#39;&#34;</span>
-<span class="o">}</span>
-
-<span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;migrate&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-  migrate <span class="s2">&#34;</span><span class="nv">$2</span><span class="s2">&#34;</span>
-<span class="k">fi</span>
-</code></pre></div><h3 id="running-remote-console">Running remote console</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ <span class="nb">source</span> ~/app_name/.env <span class="o">&amp;&amp;</span> ~/app_name/0.1.1/bin/app_name <span class="nb">eval</span> <span class="s1">&#39;AppName.Release.migrate()&#39;</span>
+</span></span></code></pre></div><p>To simplify things, we can write a bash script to do this:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">migrate<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">LIVE_VERSION</span><span class="o">=</span><span class="k">$(</span>curl -s -w <span class="s2">&#34;\n&#34;</span> <span class="s2">&#34;</span><span class="nv">$DOMAIN</span><span class="s2">/deployment_id&#34;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="o">[</span> -z <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">    bold_echo <span class="s2">&#34;Setting blue green version to </span><span class="nv">$LIVE_VERSION</span><span class="s2"> since none specified.&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">deploy_version</span><span class="o">=</span><span class="nv">$LIVE_VERSION</span>
+</span></span><span class="line"><span class="cl">  <span class="k">else</span>
+</span></span><span class="line"><span class="cl">    bold_echo <span class="s2">&#34;Setting blue green version to </span><span class="nv">$1</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">deploy_version</span><span class="o">=</span><span class="nv">$1</span>
+</span></span><span class="line"><span class="cl">  <span class="k">fi</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$deploy_version</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;green&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">version_file</span><span class="o">=</span><span class="s2">&#34;green_version.txt&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">env</span><span class="o">=</span><span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; RELEASE_NODE=green PORT=5000 &#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">else</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">env</span><span class="o">=</span><span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; PORT=4000 &#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">version_file</span><span class="o">=</span><span class="s2">&#34;blue_version.txt&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">fi</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nv">version</span><span class="o">=</span><span class="k">$(</span>cat <span class="nv">$version_file</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">  bold_echo <span class="s2">&#34;Running migration for database for release </span><span class="nv">$version</span><span class="s2">...&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  ssh <span class="nv">$HOST</span> <span class="s2">&#34;</span><span class="nv">$env</span><span class="s2"> ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$version</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> eval &#39;AppName.Release.migrate()&#39;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;migrate&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">  migrate <span class="s2">&#34;</span><span class="nv">$2</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="k">fi</span>
+</span></span></code></pre></div><h3 id="running-remote-console">Running remote console</h3>
 <p>Now, let&rsquo;s say that we want to run a remote console on our <code>0.1.0</code> deployed as
 <code>blue</code>. It is same as usual:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ ~/app_name/0.1.0/bin/app_name remote
-</code></pre></div><p>However, if we want to do the same For the <code>0.1.1</code> version deployed as <code>green</code>,
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ ~/app_name/0.1.0/bin/app_name remote
+</span></span></code></pre></div><p>However, if we want to do the same For the <code>0.1.1</code> version deployed as <code>green</code>,
 the following will not work as expected</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ ~/app_name/0.1.1/bin/app_name remote
-</code></pre></div><p>and you&rsquo;ll get the following error message complaining that the node is down:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ ~/app_name/0.1.1/bin/app_name remote
+</span></span></code></pre></div><p>and you&rsquo;ll get the following error message complaining that the node is down:</p>
 <pre tabindex="0"><code>Erlang/OTP 23 [erts-11.1.8] [source] [64-bit] [smp:2:2] [ds:2:2:10] [async-threads:1] [hipe]
 
 Could not contact remote node app_name@hostname, reason: :nodedown. Aborting...
@@ -572,19 +573,19 @@ Could not contact remote node app_name@hostname, reason: :nodedown. Aborting...
 It&rsquo;s because of that.</p>
 <p>To resolve it, we need to specify our node name explicitly again when running
 the command:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nv">RELEASE_NODE</span><span class="o">=</span>green ~/app_name/0.1.1/bin/app_name remote
-</code></pre></div><p>And voila, it works!</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nv">RELEASE_NODE</span><span class="o">=</span>green ~/app_name/0.1.1/bin/app_name remote
+</span></span></code></pre></div><p>And voila, it works!</p>
 <h4 id="why-eval-works-without-additional-environment-configuration">Why <code>eval</code> works without additional environment configuration?</h4>
 <p>If you run:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ ~/app_name/0.1.1/bin/app_name
-</code></pre></div><p>You&rsquo;ll get a more detailed description of each command. And if you read about
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ ~/app_name/0.1.1/bin/app_name
+</span></span></code></pre></div><p>You&rsquo;ll get a more detailed description of each command. And if you read about
 <code>eval</code>, you&rsquo;ll find that it actually execute the command on a new non booted
 system.</p>
 <pre tabindex="0"><code>The known commands are:
 
     ...
-    eval &quot;EXPR&quot;    Executes the given expression on a new, non-booted system
-    rpc &quot;EXPR&quot;     Executes the given expression remotely on the running system
+    eval &#34;EXPR&#34;    Executes the given expression on a new, non-booted system
+    rpc &#34;EXPR&#34;     Executes the given expression remotely on the running system
     remote         Connects to the running system via a remote shell
     ...
 </code></pre><p>Hence, unlike <code>remote</code> command that connected to our running system, <code>eval</code> is
@@ -614,15 +615,15 @@ server, we cannot just extract our release into <code>$APP_NAME</code> format as
 <a href="https://kaiwern.com/posts/2020/07/20/deploying-elixir/phoenix-release-to-production/#steps-for-initial-release">before</a>.</p>
 <p>Instead, we need to extract the release for different version to different
 folder in this format <code>$APP_NAME/$APP_VSN</code>:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># Old build script</span>
-ssh <span class="nv">$HOST</span> tar -xzf <span class="nv">$APP_NAME</span>/releases/<span class="nv">$TAR_FILENAME</span> -C <span class="nv">$APP_NAME</span>
-
-<span class="c1"># New build script</span>
-ssh <span class="nv">$HOST</span> tar -xzf <span class="s2">&#34;</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$TAR_FILENAME</span><span class="s2">&#34;</span> -C <span class="s2">&#34;</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">&#34;</span>
-</code></pre></div><p>which, allow us to run multiple version of our application at the same time.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># Old build script</span>
+</span></span><span class="line"><span class="cl">ssh <span class="nv">$HOST</span> tar -xzf <span class="nv">$APP_NAME</span>/releases/<span class="nv">$TAR_FILENAME</span> -C <span class="nv">$APP_NAME</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># New build script</span>
+</span></span><span class="line"><span class="cl">ssh <span class="nv">$HOST</span> tar -xzf <span class="s2">&#34;</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$TAR_FILENAME</span><span class="s2">&#34;</span> -C <span class="s2">&#34;</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">&#34;</span>
+</span></span></code></pre></div><p>which, allow us to run multiple version of our application at the same time.</p>
 <p>With this changes, we can stop the running application with:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">ssh <span class="nv">$HOST</span> <span class="s2">&#34;~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$version</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> stop&#34;</span>
-</code></pre></div><p>However, it&rsquo;s not as straightforward as it seems. We still need
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">ssh <span class="nv">$HOST</span> <span class="s2">&#34;~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$version</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> stop&#34;</span>
+</span></span></code></pre></div><p>However, it&rsquo;s not as straightforward as it seems. We still need
 to know the current blue/green version our applications are running.</p>
 <h3 id="solution">Solution</h3>
 <p>To resolve this, we need to get our last deployed blue/green version from
@@ -635,262 +636,262 @@ data:</p>
 <h4 id="using-version">Using <code>/version</code></h4>
 <p>We can extract our blue/green running version in our bash script by doing
 something like:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ruby" data-lang="ruby"><span class="k">if</span> <span class="n">live_version</span> <span class="o">==</span> <span class="s2">&#34;blue&#34;</span> <span class="k">do</span>
-  <span class="n">curl</span> <span class="s2">&#34;localhost:5000/version&#34;</span>
-<span class="k">else</span>
-  <span class="n">curl</span> <span class="s2">&#34;localhost:4000/version&#34;</span>
-<span class="k">end</span>
-</code></pre></div><p>We would need to handle cases where none of blue/green version is deployed before. This can be quite tricky to write in bash.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-ruby" data-lang="ruby"><span class="line"><span class="cl"><span class="k">if</span> <span class="n">live_version</span> <span class="o">==</span> <span class="s2">&#34;blue&#34;</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">  <span class="n">curl</span> <span class="s2">&#34;localhost:5000/version&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="k">else</span>
+</span></span><span class="line"><span class="cl">  <span class="n">curl</span> <span class="s2">&#34;localhost:4000/version&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="k">end</span>
+</span></span></code></pre></div><p>We would need to handle cases where none of blue/green version is deployed before. This can be quite tricky to write in bash.</p>
 <p>Technically, I think is still possible to solve it with, <em>&ldquo;if the connection to the server failed, we skip the stopping
 phase&rdquo;</em>.</p>
 <p>But for now, I&rsquo;ll just leave it to you all if you prefer to do it this way.</p>
 <h4 id="store-version-in-a-file">Store version in a file</h4>
 <p>Instead, I am going to just write it to a file directly.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># Deploying to blue with 1.0.0</span>
-<span class="nb">echo</span> 1.0.0 &gt; blue_version.txt
-
-<span class="c1"># Deploying to green with 1.0.1</span>
-<span class="nb">echo</span> 1.0.1 &gt; green_version.txt
-</code></pre></div><p>We are using <code>&gt;</code> to overwrite the file instead of appending it.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># Deploying to blue with 1.0.0</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> 1.0.0 &gt; blue_version.txt
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Deploying to green with 1.0.1</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> 1.0.1 &gt; green_version.txt
+</span></span></code></pre></div><p>We are using <code>&gt;</code> to overwrite the file instead of appending it.</p>
 <p>Alternatively, you can also write it to a object storage like AWS S3 or Google
 Cloud Storage.</p>
 <p>Since, we are writing to a file here, to check if we have deployed before is as
 simple as using bash specific operator to check if a file exist:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="k">if</span> <span class="o">[</span> -f filename <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-  <span class="nb">echo</span> <span class="s2">&#34;filename exist&#34;</span>
-<span class="k">fi</span>
-</code></pre></div><h3 id="bash-script-for-deploying-new-bluegreen-version">Bash script for deploying new blue/green version</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="k">if</span> <span class="o">[</span> -f filename <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">  <span class="nb">echo</span> <span class="s2">&#34;filename exist&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="k">fi</span>
+</span></span></code></pre></div><h3 id="bash-script-for-deploying-new-bluegreen-version">Bash script for deploying new blue/green version</h3>
 <p>Combining the above, the final bash script for this part
 will looks like this:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">start_release<span class="o">()</span> <span class="o">{</span>
-  <span class="nv">LIVE_VERSION</span><span class="o">=</span><span class="k">$(</span>curl -s -w <span class="s2">&#34;\n&#34;</span> <span class="s2">&#34;domain.app/deployment_id&#34;</span><span class="k">)</span>
-
-  <span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$LIVE_VERSION</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;blue&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-    <span class="nv">version_file</span><span class="o">=</span><span class="s2">&#34;green_version.txt&#34;</span>
-    <span class="nv">deploy_version</span><span class="o">=</span><span class="s2">&#34;green&#34;</span>
-
-    <span class="c1"># Since we need to check if our process is running with pid command</span>
-    <span class="nv">env</span><span class="o">=</span><span class="s2">&#34;RELEASE_NODE=green&#34;</span>
-  <span class="k">else</span>
-    <span class="nv">version_file</span><span class="o">=</span><span class="s2">&#34;blue_version.txt&#34;</span>
-    <span class="nv">deploy_version</span><span class="o">=</span><span class="s2">&#34;blue&#34;</span>
-    <span class="nv">env</span><span class="o">=</span><span class="s2">&#34;&#34;</span>
-  <span class="k">fi</span>
-
-  <span class="c1"># Check if the file exist.</span>
-  <span class="c1"># If it doesn&#39;t exist, it means that we haven&#39;t deploy</span>
-  <span class="c1"># the initial version yet.</span>
-  <span class="c1"># Hence, we can skip the stopping phase entirely.</span>
-  <span class="k">if</span> <span class="o">[</span> -f <span class="nv">$version_file</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-    <span class="nv">version</span><span class="o">=</span><span class="k">$(</span>cat <span class="nv">$version_file</span><span class="k">)</span>
-
-    <span class="c1"># Don&#39;t exit on error so we can caputure</span>
-    <span class="nb">set</span> +e
-    ssh <span class="nv">$HOST</span> <span class="s2">&#34;</span><span class="nv">$env</span><span class="s2"> ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$version</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> pid&#34;</span>
-
-    <span class="k">if</span> <span class="o">[</span> <span class="nv">$?</span> -ne <span class="m">0</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-      bold_echo <span class="s2">&#34;</span><span class="nv">$APP_NAME</span><span class="s2"> </span><span class="nv">$version</span><span class="s2"> is not running anymore...&#34;</span>
-    <span class="k">else</span>
-      bold_echo  <span class="s2">&#34;Stopping previous </span><span class="nv">$deploy_version</span><span class="s2">, release </span><span class="nv">$version</span><span class="s2">...&#34;</span>
-      ssh <span class="nv">$HOST</span> <span class="s2">&#34;</span><span class="nv">$env</span><span class="s2"> ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$version</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> stop&#34;</span>
-
-      bold_echo  <span class="s2">&#34;Waiting </span><span class="nv">$deploy_version</span><span class="s2">, release </span><span class="nv">$version</span><span class="s2"> to stop...&#34;</span>
-      ssh <span class="nv">$HOST</span> <span class="s2">&#34;</span><span class="nv">$env</span><span class="s2"> ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$version</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> pid&#34;</span>
-      <span class="k">while</span> <span class="o">[</span> <span class="nv">$?</span> -ne <span class="m">1</span> <span class="o">]</span>
-      <span class="k">do</span>
-        bold_echo  <span class="s2">&#34;Waiting </span><span class="nv">$deploy_version</span><span class="s2">, release </span><span class="nv">$version</span><span class="s2"> to stop...&#34;</span>
-        ssh <span class="nv">$HOST</span> <span class="s2">&#34;</span><span class="nv">$env</span><span class="s2"> ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$version</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> pid&#34;</span>
-      <span class="k">done</span>
-    <span class="k">fi</span>
-    <span class="nb">set</span> -e
-  <span class="k">fi</span>
-
-
-  <span class="c1"># Start Release</span>
-  <span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$deploy_version</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;blue&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-    ssh <span class="nv">$HOST</span> <span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; PORT=4000 ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> daemon&#34;</span>
-  <span class="k">else</span>
-    ssh <span class="nv">$HOST</span> <span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env  &amp;&amp; PORT=5000 RELEASE_NODE=green ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> daemon&#34;</span>
-  <span class="k">fi</span>
-
-  <span class="c1"># Update our version in our version file.</span>
-  <span class="c1"># So that next time, we know this is the version we are currently</span>
-  <span class="c1"># running</span>
-  <span class="nb">echo</span> <span class="nv">$APP_VSN</span> &gt; <span class="nv">$version_file</span>
-<span class="o">}</span>
-</code></pre></div><h2 id="glue-it-all-together">Glue it all together</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">start_release<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">LIVE_VERSION</span><span class="o">=</span><span class="k">$(</span>curl -s -w <span class="s2">&#34;\n&#34;</span> <span class="s2">&#34;domain.app/deployment_id&#34;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$LIVE_VERSION</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;blue&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">version_file</span><span class="o">=</span><span class="s2">&#34;green_version.txt&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">deploy_version</span><span class="o">=</span><span class="s2">&#34;green&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Since we need to check if our process is running with pid command</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">env</span><span class="o">=</span><span class="s2">&#34;RELEASE_NODE=green&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">else</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">version_file</span><span class="o">=</span><span class="s2">&#34;blue_version.txt&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">deploy_version</span><span class="o">=</span><span class="s2">&#34;blue&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">env</span><span class="o">=</span><span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">fi</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># Check if the file exist.</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># If it doesn&#39;t exist, it means that we haven&#39;t deploy</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># the initial version yet.</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># Hence, we can skip the stopping phase entirely.</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="o">[</span> -f <span class="nv">$version_file</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">version</span><span class="o">=</span><span class="k">$(</span>cat <span class="nv">$version_file</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Don&#39;t exit on error so we can caputure</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">set</span> +e
+</span></span><span class="line"><span class="cl">    ssh <span class="nv">$HOST</span> <span class="s2">&#34;</span><span class="nv">$env</span><span class="s2"> ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$version</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> pid&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">[</span> <span class="nv">$?</span> -ne <span class="m">0</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">      bold_echo <span class="s2">&#34;</span><span class="nv">$APP_NAME</span><span class="s2"> </span><span class="nv">$version</span><span class="s2"> is not running anymore...&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span>
+</span></span><span class="line"><span class="cl">      bold_echo  <span class="s2">&#34;Stopping previous </span><span class="nv">$deploy_version</span><span class="s2">, release </span><span class="nv">$version</span><span class="s2">...&#34;</span>
+</span></span><span class="line"><span class="cl">      ssh <span class="nv">$HOST</span> <span class="s2">&#34;</span><span class="nv">$env</span><span class="s2"> ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$version</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> stop&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      bold_echo  <span class="s2">&#34;Waiting </span><span class="nv">$deploy_version</span><span class="s2">, release </span><span class="nv">$version</span><span class="s2"> to stop...&#34;</span>
+</span></span><span class="line"><span class="cl">      ssh <span class="nv">$HOST</span> <span class="s2">&#34;</span><span class="nv">$env</span><span class="s2"> ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$version</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> pid&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">while</span> <span class="o">[</span> <span class="nv">$?</span> -ne <span class="m">1</span> <span class="o">]</span>
+</span></span><span class="line"><span class="cl">      <span class="k">do</span>
+</span></span><span class="line"><span class="cl">        bold_echo  <span class="s2">&#34;Waiting </span><span class="nv">$deploy_version</span><span class="s2">, release </span><span class="nv">$version</span><span class="s2"> to stop...&#34;</span>
+</span></span><span class="line"><span class="cl">        ssh <span class="nv">$HOST</span> <span class="s2">&#34;</span><span class="nv">$env</span><span class="s2"> ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$version</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> pid&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">done</span>
+</span></span><span class="line"><span class="cl">    <span class="k">fi</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">set</span> -e
+</span></span><span class="line"><span class="cl">  <span class="k">fi</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># Start Release</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$deploy_version</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;blue&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">    ssh <span class="nv">$HOST</span> <span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; PORT=4000 ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> daemon&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">else</span>
+</span></span><span class="line"><span class="cl">    ssh <span class="nv">$HOST</span> <span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env  &amp;&amp; PORT=5000 RELEASE_NODE=green ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> daemon&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">fi</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># Update our version in our version file.</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># So that next time, we know this is the version we are currently</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># running</span>
+</span></span><span class="line"><span class="cl">  <span class="nb">echo</span> <span class="nv">$APP_VSN</span> &gt; <span class="nv">$version_file</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div><h2 id="glue-it-all-together">Glue it all together</h2>
 <p>Finally, the outcome of it is as follow:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="cp">#!/bin/bash
-</span><span class="cp"></span><span class="nb">set</span> -e
-
-<span class="c1"># Getting your app name from mix.exs</span>
-<span class="c1"># I probably copy the code from somewhere so...</span>
-<span class="nv">APP_NAME</span><span class="o">=</span><span class="s2">&#34;</span><span class="k">$(</span>grep <span class="s1">&#39;app:&#39;</span> mix.exs <span class="p">|</span> sed -e <span class="s1">&#39;s/\[//g&#39;</span> -e <span class="s1">&#39;s/ //g&#39;</span> -e <span class="s1">&#39;s/app://&#39;</span> -e <span class="s1">&#39;s/[:,]//g&#39;</span><span class="k">)</span><span class="s2">&#34;</span>
-<span class="nv">APP_VSN</span><span class="o">=</span><span class="s2">&#34;</span><span class="k">$(</span>grep <span class="s1">&#39;version:&#39;</span> mix.exs <span class="p">|</span> cut -d <span class="s1">&#39;&#34;&#39;</span> -f2<span class="k">)</span><span class="s2">&#34;</span>
-<span class="nv">TAR_FILENAME</span><span class="o">=</span><span class="si">${</span><span class="nv">APP_NAME</span><span class="si">}</span>-<span class="si">${</span><span class="nv">APP_VSN</span><span class="si">}</span>.tar.gz
-
-<span class="c1"># I&#39;m using vagrant to test out the application.</span>
-<span class="c1"># So change this to your own host.</span>
-<span class="nv">HOST</span><span class="o">=</span><span class="s2">&#34;vagrant@192.168.33.40&#34;</span>
-
-<span class="c1"># The domain name to curl the blue/green version of your</span>
-<span class="c1"># service.</span>
-<span class="nv">DOMAIN</span><span class="o">=</span><span class="s2">&#34;domain.app&#34;</span>
-
-bold_echo<span class="o">()</span> <span class="o">{</span>
-  <span class="nb">echo</span> -e <span class="s2">&#34;\033[1m---&gt; </span><span class="nv">$1</span><span class="s2">\033[0m&#34;</span>
-<span class="o">}</span>
-
-build_release<span class="o">()</span> <span class="o">{</span>
-  bold_echo <span class="s2">&#34;Building Docker images...&#34;</span>
-  docker build -t <span class="nv">$APP_NAME</span> .
-
-  bold_echo <span class="s2">&#34;Extracting release tar file...&#34;</span>
-  <span class="nv">ID</span><span class="o">=</span><span class="k">$(</span>docker create <span class="nv">$APP_NAME</span><span class="k">)</span>
-  docker cp <span class="s2">&#34;</span><span class="nv">$ID</span><span class="s2">:/app/</span><span class="nv">$TAR_FILENAME</span><span class="s2">&#34;</span> .
-  docker rm <span class="s2">&#34;</span><span class="nv">$ID</span><span class="s2">&#34;</span>
-<span class="o">}</span>
-
-deploy_release<span class="o">()</span> <span class="o">{</span>
-  bold_echo <span class="s2">&#34;Creating directory if not exist...&#34;</span>
-  ssh <span class="nv">$HOST</span> mkdir -p <span class="s2">&#34;</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">&#34;</span>
-
-  bold_echo <span class="s2">&#34;Copying environment variables...&#34;</span>
-
-  <span class="c1"># I&#39;m storing my production environment variable in my local machine</span>
-  <span class="c1"># and scp it over to the host every time.</span>
-  <span class="c1"># Not the recommended way to manage your sercret.</span>
-  scp .env.production <span class="nv">$HOST</span>:<span class="s2">&#34;~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env&#34;</span>
-
-  bold_echo <span class="s2">&#34;Copying release to remote...&#34;</span>
-  scp <span class="s2">&#34;</span><span class="nv">$TAR_FILENAME</span><span class="s2">&#34;</span> <span class="nv">$HOST</span>:<span class="s2">&#34;~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$TAR_FILENAME</span><span class="s2">&#34;</span>
-  ssh <span class="nv">$HOST</span> tar -xzf <span class="s2">&#34;</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$TAR_FILENAME</span><span class="s2">&#34;</span> -C <span class="s2">&#34;</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">&#34;</span>
-
-  start_release
-
-  bold_echo <span class="s2">&#34;Removing remote tar file...&#34;</span>
-  ssh <span class="nv">$HOST</span> rm <span class="s2">&#34;~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$TAR_FILENAME</span><span class="s2">&#34;</span>
-<span class="o">}</span>
-
-start_release<span class="o">()</span> <span class="o">{</span>
-  <span class="nv">LIVE_VERSION</span><span class="o">=</span><span class="k">$(</span>curl -s -w <span class="s2">&#34;\n&#34;</span> <span class="s2">&#34;</span><span class="nv">$DOMAIN</span><span class="s2">/deployment_id&#34;</span><span class="k">)</span>
-
-  <span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$LIVE_VERSION</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;blue&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-    <span class="nv">version_file</span><span class="o">=</span><span class="s2">&#34;green_version.txt&#34;</span>
-    <span class="nv">deploy_version</span><span class="o">=</span><span class="s2">&#34;green&#34;</span>
-
-    <span class="c1"># Since we need to check if our process is running with pid command</span>
-    <span class="nv">env</span><span class="o">=</span><span class="s2">&#34;RELEASE_NODE=green&#34;</span>
-  <span class="k">else</span>
-    <span class="nv">version_file</span><span class="o">=</span><span class="s2">&#34;blue_version.txt&#34;</span>
-    <span class="nv">deploy_version</span><span class="o">=</span><span class="s2">&#34;blue&#34;</span>
-    <span class="nv">env</span><span class="o">=</span><span class="s2">&#34;&#34;</span>
-  <span class="k">fi</span>
-
-  <span class="c1"># Check if the file exist.</span>
-  <span class="c1"># If it doesn&#39;t exist, it means that we haven&#39;t deploy</span>
-  <span class="c1"># the initial version yet.</span>
-  <span class="c1"># Hence, we can skip the stopping phase entirely.</span>
-  <span class="k">if</span> <span class="o">[</span> -f <span class="nv">$version_file</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-    <span class="nv">version</span><span class="o">=</span><span class="k">$(</span>cat <span class="nv">$version_file</span><span class="k">)</span>
-
-    <span class="c1"># Don&#39;t exit on error so we can caputure</span>
-    <span class="nb">set</span> +e
-    ssh <span class="nv">$HOST</span> <span class="s2">&#34;</span><span class="nv">$env</span><span class="s2"> ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$version</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> pid&#34;</span>
-
-    <span class="k">if</span> <span class="o">[</span> <span class="nv">$?</span> -ne <span class="m">0</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-      bold_echo <span class="s2">&#34;</span><span class="nv">$APP_NAME</span><span class="s2"> </span><span class="nv">$version</span><span class="s2"> is not running anymore...&#34;</span>
-    <span class="k">else</span>
-      bold_echo  <span class="s2">&#34;Stopping previous </span><span class="nv">$deploy_version</span><span class="s2">, release </span><span class="nv">$version</span><span class="s2">...&#34;</span>
-      ssh <span class="nv">$HOST</span> <span class="s2">&#34;</span><span class="nv">$env</span><span class="s2"> ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$version</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> stop&#34;</span>
-
-      bold_echo  <span class="s2">&#34;Waiting </span><span class="nv">$deploy_version</span><span class="s2">, release </span><span class="nv">$version</span><span class="s2"> to stop...&#34;</span>
-      ssh <span class="nv">$HOST</span> <span class="s2">&#34;</span><span class="nv">$env</span><span class="s2"> ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$version</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> pid&#34;</span>
-      <span class="k">while</span> <span class="o">[</span> <span class="nv">$?</span> -ne <span class="m">1</span> <span class="o">]</span>
-      <span class="k">do</span>
-        bold_echo  <span class="s2">&#34;Waiting </span><span class="nv">$deploy_version</span><span class="s2">, release </span><span class="nv">$version</span><span class="s2"> to stop...&#34;</span>
-        ssh <span class="nv">$HOST</span> <span class="s2">&#34;</span><span class="nv">$env</span><span class="s2"> ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$version</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> pid&#34;</span>
-      <span class="k">done</span>
-    <span class="k">fi</span>
-    <span class="nb">set</span> -e
-  <span class="k">fi</span>
-
-  <span class="c1"># Start Release</span>
-  <span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$deploy_version</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;blue&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-    ssh <span class="nv">$HOST</span> <span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; PORT=4000 ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> daemon&#34;</span>
-  <span class="k">else</span>
-    ssh <span class="nv">$HOST</span> <span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; PORT=5000 ELIXIR_ERL_OPTIONS=&#39;-sname green&#39; ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> daemon&#34;</span>
-  <span class="k">fi</span>
-
-  <span class="c1"># Update our version in our version file.</span>
-  <span class="c1"># So that next time, we know this is the version we are currently</span>
-  <span class="c1"># running</span>
-  <span class="nb">echo</span> <span class="nv">$APP_VSN</span> &gt; <span class="nv">$version_file</span>
-<span class="o">}</span>
-
-promote<span class="o">()</span> <span class="o">{</span>
-  <span class="nv">LIVE_VERSION</span><span class="o">=</span><span class="k">$(</span>curl -s -w <span class="s2">&#34;\n&#34;</span> <span class="s2">&#34;</span><span class="nv">$DOMAIN</span><span class="s2">/deployment_id&#34;</span><span class="k">)</span>
-
-  bold_echo <span class="s2">&#34;Attempting to promote to </span><span class="nv">$1</span><span class="s2">...&#34;</span>
-  <span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$LIVE_VERSION</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-    <span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2"> is already the live version!&#34;</span>
-    <span class="k">return</span>
-  <span class="k">elif</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;green&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-    <span class="nv">target_nginx_file</span><span class="o">=</span><span class="s2">&#34;green&#34;</span>
-  <span class="k">else</span>
-    <span class="nv">target_nginx_file</span><span class="o">=</span><span class="s2">&#34;blue&#34;</span>
-  <span class="k">fi</span>
-
-  ssh <span class="nv">$HOST</span> <span class="s2">&#34;sudo ln -sf /etc/nginx/sites-available/</span><span class="nv">$target_nginx_file</span><span class="s2"> /etc/nginx/sites-enabled/</span><span class="nv">$DOMAIN</span><span class="s2"> &amp;&amp; sudo systemctl reload nginx&#34;</span>
-
-  <span class="nv">LIVE_VERSION</span><span class="o">=</span><span class="k">$(</span>curl -s -w <span class="s2">&#34;\n&#34;</span> <span class="s2">&#34;</span><span class="nv">$DOMAIN</span><span class="s2">/deployment_id&#34;</span><span class="k">)</span>
-  bold_echo <span class="s2">&#34;Promoted live to </span><span class="nv">$LIVE_VERSION</span><span class="s2">&#34;</span>
-<span class="o">}</span>
-
-clean_up<span class="o">()</span> <span class="o">{</span>
-  bold_echo <span class="s2">&#34;Removing local tar file...&#34;</span>
-  rm <span class="s2">&#34;</span><span class="nv">$APP_NAME</span><span class="s2">-&#34;</span>*.tar.gz
-<span class="o">}</span>
-
-migrate<span class="o">()</span> <span class="o">{</span>
-  <span class="nv">LIVE_VERSION</span><span class="o">=</span><span class="k">$(</span>curl -s -w <span class="s2">&#34;\n&#34;</span> <span class="s2">&#34;</span><span class="nv">$DOMAIN</span><span class="s2">/deployment_id&#34;</span><span class="k">)</span>
-
-  <span class="k">if</span> <span class="o">[</span> -z <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-    bold_echo <span class="s2">&#34;Setting blue green version to </span><span class="nv">$LIVE_VERSION</span><span class="s2"> since none specified.&#34;</span>
-    <span class="nv">deploy_version</span><span class="o">=</span><span class="nv">$LIVE_VERSION</span>
-  <span class="k">else</span>
-    bold_echo <span class="s2">&#34;Setting blue green version to </span><span class="nv">$1</span><span class="s2">&#34;</span>
-    <span class="nv">deploy_version</span><span class="o">=</span><span class="nv">$1</span>
-  <span class="k">fi</span>
-
-  <span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$deploy_version</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;green&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-    <span class="nv">version_file</span><span class="o">=</span><span class="s2">&#34;green_version.txt&#34;</span>
-    <span class="nv">env</span><span class="o">=</span><span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; RELEASE_NODE=green PORT=5000 &#34;</span>
-  <span class="k">else</span>
-    <span class="nv">env</span><span class="o">=</span><span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; PORT=4000 &#34;</span>
-    <span class="nv">version_file</span><span class="o">=</span><span class="s2">&#34;blue_version.txt&#34;</span>
-  <span class="k">fi</span>
-
-  <span class="nv">version</span><span class="o">=</span><span class="k">$(</span>cat <span class="nv">$version_file</span><span class="k">)</span>
-  bold_echo <span class="s2">&#34;Running migration for database for release </span><span class="nv">$version</span><span class="s2">...&#34;</span>
-
-  ssh <span class="nv">$HOST</span> <span class="s2">&#34;</span><span class="nv">$env</span><span class="s2"> ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$version</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> eval &#39;AppName.Release.migrate()&#39;&#34;</span>
-<span class="o">}</span>
-
-<span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;build&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-  build_release
-<span class="k">elif</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;start&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-  start_release
-<span class="k">elif</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;promote&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-  promote <span class="s2">&#34;</span><span class="nv">$2</span><span class="s2">&#34;</span>
-<span class="k">elif</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;migrate&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-  migrate <span class="s2">&#34;</span><span class="nv">$2</span><span class="s2">&#34;</span>
-<span class="k">else</span>
-  build_release
-  deploy_release
-  clean_up
-<span class="k">fi</span>
-</code></pre></div><h2 id="wrap-up">Wrap Up</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="cp">#!/bin/bash
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="nb">set</span> -e
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Getting your app name from mix.exs</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># I probably copy the code from somewhere so...</span>
+</span></span><span class="line"><span class="cl"><span class="nv">APP_NAME</span><span class="o">=</span><span class="s2">&#34;</span><span class="k">$(</span>grep <span class="s1">&#39;app:&#39;</span> mix.exs <span class="p">|</span> sed -e <span class="s1">&#39;s/\[//g&#39;</span> -e <span class="s1">&#39;s/ //g&#39;</span> -e <span class="s1">&#39;s/app://&#39;</span> -e <span class="s1">&#39;s/[:,]//g&#39;</span><span class="k">)</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">APP_VSN</span><span class="o">=</span><span class="s2">&#34;</span><span class="k">$(</span>grep <span class="s1">&#39;version:&#39;</span> mix.exs <span class="p">|</span> cut -d <span class="s1">&#39;&#34;&#39;</span> -f2<span class="k">)</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">TAR_FILENAME</span><span class="o">=</span><span class="si">${</span><span class="nv">APP_NAME</span><span class="si">}</span>-<span class="si">${</span><span class="nv">APP_VSN</span><span class="si">}</span>.tar.gz
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># I&#39;m using vagrant to test out the application.</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># So change this to your own host.</span>
+</span></span><span class="line"><span class="cl"><span class="nv">HOST</span><span class="o">=</span><span class="s2">&#34;vagrant@192.168.33.40&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># The domain name to curl the blue/green version of your</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># service.</span>
+</span></span><span class="line"><span class="cl"><span class="nv">DOMAIN</span><span class="o">=</span><span class="s2">&#34;domain.app&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">bold_echo<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nb">echo</span> -e <span class="s2">&#34;\033[1m---&gt; </span><span class="nv">$1</span><span class="s2">\033[0m&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">build_release<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  bold_echo <span class="s2">&#34;Building Docker images...&#34;</span>
+</span></span><span class="line"><span class="cl">  docker build -t <span class="nv">$APP_NAME</span> .
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  bold_echo <span class="s2">&#34;Extracting release tar file...&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">ID</span><span class="o">=</span><span class="k">$(</span>docker create <span class="nv">$APP_NAME</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">  docker cp <span class="s2">&#34;</span><span class="nv">$ID</span><span class="s2">:/app/</span><span class="nv">$TAR_FILENAME</span><span class="s2">&#34;</span> .
+</span></span><span class="line"><span class="cl">  docker rm <span class="s2">&#34;</span><span class="nv">$ID</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">deploy_release<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  bold_echo <span class="s2">&#34;Creating directory if not exist...&#34;</span>
+</span></span><span class="line"><span class="cl">  ssh <span class="nv">$HOST</span> mkdir -p <span class="s2">&#34;</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  bold_echo <span class="s2">&#34;Copying environment variables...&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># I&#39;m storing my production environment variable in my local machine</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># and scp it over to the host every time.</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># Not the recommended way to manage your sercret.</span>
+</span></span><span class="line"><span class="cl">  scp .env.production <span class="nv">$HOST</span>:<span class="s2">&#34;~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  bold_echo <span class="s2">&#34;Copying release to remote...&#34;</span>
+</span></span><span class="line"><span class="cl">  scp <span class="s2">&#34;</span><span class="nv">$TAR_FILENAME</span><span class="s2">&#34;</span> <span class="nv">$HOST</span>:<span class="s2">&#34;~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$TAR_FILENAME</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">  ssh <span class="nv">$HOST</span> tar -xzf <span class="s2">&#34;</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$TAR_FILENAME</span><span class="s2">&#34;</span> -C <span class="s2">&#34;</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  start_release
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  bold_echo <span class="s2">&#34;Removing remote tar file...&#34;</span>
+</span></span><span class="line"><span class="cl">  ssh <span class="nv">$HOST</span> rm <span class="s2">&#34;~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$TAR_FILENAME</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">start_release<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">LIVE_VERSION</span><span class="o">=</span><span class="k">$(</span>curl -s -w <span class="s2">&#34;\n&#34;</span> <span class="s2">&#34;</span><span class="nv">$DOMAIN</span><span class="s2">/deployment_id&#34;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$LIVE_VERSION</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;blue&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">version_file</span><span class="o">=</span><span class="s2">&#34;green_version.txt&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">deploy_version</span><span class="o">=</span><span class="s2">&#34;green&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Since we need to check if our process is running with pid command</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">env</span><span class="o">=</span><span class="s2">&#34;RELEASE_NODE=green&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">else</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">version_file</span><span class="o">=</span><span class="s2">&#34;blue_version.txt&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">deploy_version</span><span class="o">=</span><span class="s2">&#34;blue&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">env</span><span class="o">=</span><span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">fi</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># Check if the file exist.</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># If it doesn&#39;t exist, it means that we haven&#39;t deploy</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># the initial version yet.</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># Hence, we can skip the stopping phase entirely.</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="o">[</span> -f <span class="nv">$version_file</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">version</span><span class="o">=</span><span class="k">$(</span>cat <span class="nv">$version_file</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Don&#39;t exit on error so we can caputure</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">set</span> +e
+</span></span><span class="line"><span class="cl">    ssh <span class="nv">$HOST</span> <span class="s2">&#34;</span><span class="nv">$env</span><span class="s2"> ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$version</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> pid&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">[</span> <span class="nv">$?</span> -ne <span class="m">0</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">      bold_echo <span class="s2">&#34;</span><span class="nv">$APP_NAME</span><span class="s2"> </span><span class="nv">$version</span><span class="s2"> is not running anymore...&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span>
+</span></span><span class="line"><span class="cl">      bold_echo  <span class="s2">&#34;Stopping previous </span><span class="nv">$deploy_version</span><span class="s2">, release </span><span class="nv">$version</span><span class="s2">...&#34;</span>
+</span></span><span class="line"><span class="cl">      ssh <span class="nv">$HOST</span> <span class="s2">&#34;</span><span class="nv">$env</span><span class="s2"> ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$version</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> stop&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      bold_echo  <span class="s2">&#34;Waiting </span><span class="nv">$deploy_version</span><span class="s2">, release </span><span class="nv">$version</span><span class="s2"> to stop...&#34;</span>
+</span></span><span class="line"><span class="cl">      ssh <span class="nv">$HOST</span> <span class="s2">&#34;</span><span class="nv">$env</span><span class="s2"> ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$version</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> pid&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">while</span> <span class="o">[</span> <span class="nv">$?</span> -ne <span class="m">1</span> <span class="o">]</span>
+</span></span><span class="line"><span class="cl">      <span class="k">do</span>
+</span></span><span class="line"><span class="cl">        bold_echo  <span class="s2">&#34;Waiting </span><span class="nv">$deploy_version</span><span class="s2">, release </span><span class="nv">$version</span><span class="s2"> to stop...&#34;</span>
+</span></span><span class="line"><span class="cl">        ssh <span class="nv">$HOST</span> <span class="s2">&#34;</span><span class="nv">$env</span><span class="s2"> ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$version</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> pid&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="k">done</span>
+</span></span><span class="line"><span class="cl">    <span class="k">fi</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">set</span> -e
+</span></span><span class="line"><span class="cl">  <span class="k">fi</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># Start Release</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$deploy_version</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;blue&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">    ssh <span class="nv">$HOST</span> <span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; PORT=4000 ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> daemon&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">else</span>
+</span></span><span class="line"><span class="cl">    ssh <span class="nv">$HOST</span> <span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; PORT=5000 ELIXIR_ERL_OPTIONS=&#39;-sname green&#39; ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$APP_VSN</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> daemon&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">fi</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># Update our version in our version file.</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># So that next time, we know this is the version we are currently</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># running</span>
+</span></span><span class="line"><span class="cl">  <span class="nb">echo</span> <span class="nv">$APP_VSN</span> &gt; <span class="nv">$version_file</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">promote<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">LIVE_VERSION</span><span class="o">=</span><span class="k">$(</span>curl -s -w <span class="s2">&#34;\n&#34;</span> <span class="s2">&#34;</span><span class="nv">$DOMAIN</span><span class="s2">/deployment_id&#34;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  bold_echo <span class="s2">&#34;Attempting to promote to </span><span class="nv">$1</span><span class="s2">...&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$LIVE_VERSION</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2"> is already the live version!&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span>
+</span></span><span class="line"><span class="cl">  <span class="k">elif</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;green&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">target_nginx_file</span><span class="o">=</span><span class="s2">&#34;green&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">else</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">target_nginx_file</span><span class="o">=</span><span class="s2">&#34;blue&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">fi</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  ssh <span class="nv">$HOST</span> <span class="s2">&#34;sudo ln -sf /etc/nginx/sites-available/</span><span class="nv">$target_nginx_file</span><span class="s2"> /etc/nginx/sites-enabled/</span><span class="nv">$DOMAIN</span><span class="s2"> &amp;&amp; sudo systemctl reload nginx&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nv">LIVE_VERSION</span><span class="o">=</span><span class="k">$(</span>curl -s -w <span class="s2">&#34;\n&#34;</span> <span class="s2">&#34;</span><span class="nv">$DOMAIN</span><span class="s2">/deployment_id&#34;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">  bold_echo <span class="s2">&#34;Promoted live to </span><span class="nv">$LIVE_VERSION</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">clean_up<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  bold_echo <span class="s2">&#34;Removing local tar file...&#34;</span>
+</span></span><span class="line"><span class="cl">  rm <span class="s2">&#34;</span><span class="nv">$APP_NAME</span><span class="s2">-&#34;</span>*.tar.gz
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">migrate<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">LIVE_VERSION</span><span class="o">=</span><span class="k">$(</span>curl -s -w <span class="s2">&#34;\n&#34;</span> <span class="s2">&#34;</span><span class="nv">$DOMAIN</span><span class="s2">/deployment_id&#34;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="o">[</span> -z <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">    bold_echo <span class="s2">&#34;Setting blue green version to </span><span class="nv">$LIVE_VERSION</span><span class="s2"> since none specified.&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">deploy_version</span><span class="o">=</span><span class="nv">$LIVE_VERSION</span>
+</span></span><span class="line"><span class="cl">  <span class="k">else</span>
+</span></span><span class="line"><span class="cl">    bold_echo <span class="s2">&#34;Setting blue green version to </span><span class="nv">$1</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">deploy_version</span><span class="o">=</span><span class="nv">$1</span>
+</span></span><span class="line"><span class="cl">  <span class="k">fi</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$deploy_version</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;green&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">version_file</span><span class="o">=</span><span class="s2">&#34;green_version.txt&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">env</span><span class="o">=</span><span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; RELEASE_NODE=green PORT=5000 &#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">else</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">env</span><span class="o">=</span><span class="s2">&#34;source ~/</span><span class="nv">$APP_NAME</span><span class="s2">/.env &amp;&amp; PORT=4000 &#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">version_file</span><span class="o">=</span><span class="s2">&#34;blue_version.txt&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">fi</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nv">version</span><span class="o">=</span><span class="k">$(</span>cat <span class="nv">$version_file</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">  bold_echo <span class="s2">&#34;Running migration for database for release </span><span class="nv">$version</span><span class="s2">...&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  ssh <span class="nv">$HOST</span> <span class="s2">&#34;</span><span class="nv">$env</span><span class="s2"> ~/</span><span class="nv">$APP_NAME</span><span class="s2">/</span><span class="nv">$version</span><span class="s2">/bin/</span><span class="nv">$APP_NAME</span><span class="s2"> eval &#39;AppName.Release.migrate()&#39;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;build&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">  build_release
+</span></span><span class="line"><span class="cl"><span class="k">elif</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;start&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">  start_release
+</span></span><span class="line"><span class="cl"><span class="k">elif</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;promote&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">  promote <span class="s2">&#34;</span><span class="nv">$2</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="k">elif</span> <span class="o">[</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="o">=</span> <span class="s2">&#34;migrate&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">  migrate <span class="s2">&#34;</span><span class="nv">$2</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="k">else</span>
+</span></span><span class="line"><span class="cl">  build_release
+</span></span><span class="line"><span class="cl">  deploy_release
+</span></span><span class="line"><span class="cl">  clean_up
+</span></span><span class="line"><span class="cl"><span class="k">fi</span>
+</span></span></code></pre></div><h2 id="wrap-up">Wrap Up</h2>
 <p>While this blue green deployment works for our simple use case, there are a few
 drawbacks that one need to be aware of.</p>
 <h3 id="1-every-new-deployment-need-to-have-their-version-bump">1. Every new deployment need to have their version bump.</h3>

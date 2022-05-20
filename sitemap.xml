@@ -2,6 +2,21 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://kaiwern.com/tags/files/</loc>
+    <lastmod>2022-05-20T21:13:14+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/tags/rust/</loc>
+    <lastmod>2022-05-20T21:13:14+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/tags/</loc>
+    <lastmod>2022-05-20T21:13:14+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/tags/testing/</loc>
+    <lastmod>2022-05-20T21:13:14+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/fragments/things-i-learn-while-testing-files-in-rust/</loc>
+    <lastmod>2022-05-20T21:13:14+08:00</lastmod>
+  </url><url>
     <loc>https://kaiwern.com/categories/</loc>
     <lastmod>2022-05-12T22:47:17+08:00</lastmod>
   </url><url>
@@ -17,13 +32,7 @@
     <loc>https://kaiwern.com/tags/recurse-center/</loc>
     <lastmod>2022-05-12T22:47:17+08:00</lastmod>
   </url><url>
-    <loc>https://kaiwern.com/tags/</loc>
-    <lastmod>2022-05-12T22:47:17+08:00</lastmod>
-  </url><url>
     <loc>https://kaiwern.com/fragments/logging-thread-id-in-rust/</loc>
-    <lastmod>2022-05-07T15:47:48+08:00</lastmod>
-  </url><url>
-    <loc>https://kaiwern.com/tags/rust/</loc>
     <lastmod>2022-05-07T15:47:48+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/fragments/decomposition/</loc>
