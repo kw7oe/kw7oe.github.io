@@ -6,8 +6,8 @@ draft: true
 ---
 
 **TLDR:**
-Read the [diff of the PR](https://github.com/elixir-lang/elixir/pull/11788/files),
-with just 3 files changes, 65 lines of addition and 2 lines of deletion. Half
+Read the [diff of the PR](https://github.com/elixir-lang/elixir/pull/11788/files).
+It's just 3 files changes, 65 lines of addition and 2 lines of deletion. Half
 of the addition is probably test.
 
 ---
@@ -18,8 +18,8 @@ One of the challenges I faced when I'm writing the Livebook for my
 to rerun test that has been written.
 
 Once a test is run in Livebook, executing `ExUnit.run` again doesn't rerun the
-test, unless you redefine the module. To reduce the duplicated test code in Livebook
-to rerun tests, we can use the following `Module.create/3` hack:
+test, unless you redefine the module. To reduce the duplicated test code in Livebook,
+we can use the following `Module.create/3` hack:
 
 ```elixir
 test_content =
@@ -58,9 +58,16 @@ I tweeted about it and got this reply:
 <blockquote class="twitter-tweet" data-conversation="none" data-dnt="true" data-theme="light"><p lang="en" dir="ltr">There is currently no way to re-run tests for a given module. You should consider sending a pull request to <a href="https://twitter.com/elixirlang?ref_src=twsrc%5Etfw">@elixirlang</a> that adds ExUnit.rerun(list_of_modules)!</p>&mdash; Livebook (@livebookdev) <a href="https://twitter.com/livebookdev/status/1514310933673304065?ref_src=twsrc%5Etfw">April 13, 2022</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 Hence, I begin my journey to implement `ExUnit.rerun/1` to support reruning test modules.
-In this post, I'm going to share how we can approach implementing this without
-knowing much about Elixir codebase.
+In this post, I'm going to share I approach implementing this without
+knowing much about the Elixir codebase. It can be breakdown in the following
+sections:
 
+- [Navigating the `ExUnit` code](#navigating-the-exunit-code)
+- [Implementing `ExUnit.rerun/1`](#implementing-exunitrerun1)
+- [Conditionally adding sync and async
+module](#conditionally-adding-sync-and-async-module)
+- [Asking question](#asking-question)
+- [Closing](#closing)
 
 ## Navigating the `ExUnit` code
 
@@ -82,10 +89,10 @@ end
 
 The code is fairly straightforward. From here we know that, the code rely on
 `ExUnit.Server` and `ExUnit.Runner` modules. Since the `ExUnit.Runner.run`
-would probably the core implmentation of how our tests would be run, let's head
+probably contains the core implementation of how tests get run, let's head
 over there and read the code as well.
 
-### `ExUnit.Runner`
+### `ExUnit.Runner.run/2`
 
 The implementation is a bit lengthy due to the need of handling various stuff,
 so we will skip to the important parts. Essentially, `ExUnit.Runner.run` looks
@@ -109,7 +116,7 @@ def run_with_trap(opts, load_us) do
 end
 ```
 
-To sum up a bit, basically `run` called `run_with_trap`, which then called
+Basically, `run` called `run_with_trap`, which then called
 `async_loop`. So `async_loop` is the real deal here. Let's take a look at
 it's implementation:
 
@@ -150,30 +157,29 @@ defp async_loop(config, running, async_once?) do
 end
 ```
 
-It's fairly straightforward to understand the code. It is roughly equivalent
+It's straightforward to understand the code. It is roughly equivalent
 to:
 
 - First, we try to check if there's anything is available, if not we wait for one.
 - If there is, we try to take a couple of async modules, and spawn the modules
 to run the test.
 - Once we finish running async test modules, we get all of our sync test
-modules, and run each of the sync test modules.
+modules, and run each of the sync test module.
 
 Here we came across `ExUnit.Server` again, most notably the `take_sync_modules`
-and `take_async_modules` function. We can know quite a bit from the function
-name itself. This is how the `ExUnit.run` get the test modules to be run.
+and `take_async_modules` functions. We can know quite a bit from the
+names. It is how the `ExUnit.run` get the test modules to be run.
 
 Upon knowing how `ExUnit.Runner.run` run our tests, and knowing that it's
 basically taking the test modules from `ExUnit.Server`, the next thing we want
 to figure out is how are those test modules are added in the first place.
-Since, `ExUnit.rerun/1` is about adding those test modules aagin so that it
-would be rerun.
-
+Since, `ExUnit.rerun/1` is about adding those test modules again so that it
+would be rerun, we will need to know how to add test modules as well.
 Let's take a look at the `ExUnit.Server` module next.
 
 ### `ExUnit.Server`
 
-Upon looking at the code, we see what we wanted:
+Upon looking at the module, we see what we wanted:
 
 ```elixir
 defmodule ExUnit.Server do
@@ -190,6 +196,16 @@ defmodule ExUnit.Server do
   def add_async_module(name), do: add(name, :async)
   def add_sync_module(name), do: add(name, :sync)
 
+  defp add(name, type) do
+    case GenServer.call(@name, {:add, name, type}, @timeout) do
+      :ok ->
+        :ok
+
+      :already_running ->
+        raise "cannot add #{type} case named #{inspect(name)} to test suite after the suite starts running"
+    end
+  end
+
   # ...
 end
 ```
@@ -198,7 +214,7 @@ That's how we add the module into `ExUnit.Server`. Since it's a `GenServer`, it
 means that it's also the process that is holding the states of the modules
 available to be run by `ExUnit.Runner`.
 
-Let's look at the `add/2` function:
+Let's look at the `handle_call/3` function that handle `{:add, name, type}`:
 
 ```elixir
 def handle_call({:add, name, :async}, _from, %{loaded: loaded} = state)
@@ -217,11 +233,9 @@ def handle_call({:add, _name, _type}, _from, state),
   do: {:reply, :already_running, state}
 ```
 
-Pretty standard, the code update the `async_modules` and `sync_modules`
-values in the `state`.
-
-Do we have have enough information to work on our `ExUnit.rerun/1` at this
-point? Mostly likely yes!
+The code update the `async_modules` and `sync_modules`
+values in the `state`. Do we have now have enough information to
+work on our `ExUnit.rerun/1`?  Mostly likely yes!
 
 ## Implementing `ExUnit.rerun/1`
 
@@ -351,7 +365,12 @@ def __after_compile__(%{module: module}, _) do
 end
 ```
 
-Ha! We could call `Module.get_attribute/2` to find out if a test module is async. It is a straightforward fix then:
+After compiling a test module, the add module function is called.
+That explained why in the beginning our tests can be rerun once we
+redefine/recreate our test modules.
+
+And the `Module.get_attribute/2` function is used to find out if a test module is async.
+Let's use this information we just gained to implement what we want then:
 
 ```elixir
 def rerun(modules) do
@@ -376,7 +395,7 @@ Upon running the test, we got an error:
 Use the Module.__info__/1 callback or Code.fetch_docs/1 instead
 ```
 
-It seems like we can't use `Module.get_attribute/2` after a module is compile.
+It seems like we can't use `Module.get_attribute/2` after a module is compiled.
 Thanks to the helpful error message, we know how to overcome it. Let's use
 the `Module.__info__/1` callback instead:
 
@@ -392,22 +411,21 @@ for module <- additional_modules do
 end
 ```
 
-As mentioned in the doc [`Module.__info__/1`
+As mentioned in the [`Module.__info__/1`
 callback](https://hexdocs.pm/elixir/1.13/Module.html#c:__info__/1)
-, we could get the attributes of a module by passing in `:attributes` atom,
+doc, we could get the attributes of a module by passing in `:attributes` atom,
 which return us a keyword list.
 
-We use `Keyword.fetch!/2` to fetch the attribute we wanted. Using `fetch!` will
+We then use `Keyword.fetch!/2` to fetch the attribute we wanted. Using `fetch!` will
 catch the scenario where `:ex_unit_async` attribute is not available in our list and
-our code end up with calling `add_sync_module`.
+our code end up calling `add_sync_module` for async modules again.
 
 {{% callout %}}
 
 In my PR, I'm using `Keyword.get/2` instead. It's only when I write this post,
 I realize that while our test pass, it's not behaving correctly as well.
 
-Hence, to demonstrate the need of it and have the test show that,
-`Keyword.fetch!/2` is used instead.
+To demonstrate it, `Keyword.fetch!/2` is used instead.
 
 {{% /callout %}}
 
@@ -441,7 +459,7 @@ mentioned it, and most importantly, the `Module.register_attribute/3` function:
 Seems like all we need to do is calling `Module.register_attribute/3` to
 persist the `ex_unit_async` module attribute. But where?
 
-Once again, searching for the `ex_unit_async` in the codebase quickly lead us
+Once again, searching for the `ex_unit_async` in the codebase lead us
 to `ExUnit.Case`:
 
 ```elixir
@@ -483,7 +501,7 @@ def __register__(module, opts) do
 end
 ```
 
-With this changes, now our test run sucessfully!
+With this changes, now our test run successfully!
 
 ## Asking question
 
@@ -500,16 +518,20 @@ And in a couple of hours, José Valim reply it:
 
 If you're stuck on anything after trying a couple times, there's no harm asking question about it!
 
+The reason I didn't include it above is to demonstrate how I
+could have figured out if I spend a bit more time on it.
+
 ## Closing
 
-When I first saw the reply from `@livebookdev`, I thought this would be a simple change! Indeed it is.
-
-Elixir codebase is really easy to navigate and José Valim has been really responsive
-in providing feedbacks and guidance.
+When I first saw the reply from @livebookdev, I thought it is a simple change!
+In reality, the process of implementing it is not quite easy, but still manageable.
 
 The whole process for implementing this take roughly a week for me. It would be
 shorter if I'm less blur. Once I'm in a better condition, the actual work took
 around 2 days to implement and the PR got merged in a day once the PR is up.
 
-Hopefully this post shed some light for you and encourage you to contribute to the
-Elixir ecosystem as well!
+In retrospect, the changes do looks simple.
+
+The Elixir codebase is easy to navigate and José Valim has been really responsive
+in providing feedbacks and guidance. Hopefully this post shed some light for you
+and encourage you to contribute to the Elixir ecosystem as well!
