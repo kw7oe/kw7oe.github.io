@@ -1,7 +1,7 @@
 ---
-title: "Support tests rerun in ExUnit.run/1 in Elixir"
-date: 2022-05-15T15:02:19+08:00
-tags: ["elixir"]
+title: "Implementing tests rerun in `ExUnit.run` in Elixir"
+date: 2022-05-21T23:02:19+08:00
+tags: ["elixir", "oss"]
 draft: true
 ---
 
@@ -57,8 +57,8 @@ I tweeted about it and got this reply:
 
 <blockquote class="twitter-tweet" data-conversation="none" data-dnt="true" data-theme="light"><p lang="en" dir="ltr">There is currently no way to re-run tests for a given module. You should consider sending a pull request to <a href="https://twitter.com/elixirlang?ref_src=twsrc%5Etfw">@elixirlang</a> that adds ExUnit.rerun(list_of_modules)!</p>&mdash; Livebook (@livebookdev) <a href="https://twitter.com/livebookdev/status/1514310933673304065?ref_src=twsrc%5Etfw">April 13, 2022</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
-Hence, I begin my journey to implement `ExUnit.rerun/1` to support reruning test modules.
-In this post, I'm going to share I approach implementing this without
+Hence, I began my journey to implement `ExUnit.rerun/1` to support reruning test modules.
+In this post, I'm going to share how I approach implementing this without
 knowing much about the Elixir codebase. It can be breakdown in the following
 sections:
 
@@ -522,6 +522,10 @@ The reason I didn't include it above is to demonstrate how I
 could have figured out if I spend a bit more time on it.
 
 ## Closing
+
+In the PR, the `rerun/1` implementation was move to `run/1` instead.
+So in the latest branch, `ExUnit.run` now takes an optional list of modules to
+be run.
 
 When I first saw the reply from @livebookdev, I thought it is a simple change!
 In reality, the process of implementing it is not quite easy, but still manageable.
