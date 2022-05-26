@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>
+Implementing tests rerun in `ExUnit.run` in Elixir | kw7oe
+</title>
+
+
+
+<meta name="generator" content="Hugo 0.98.0" />
+
+
+
+
+
+  
+  <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.33e171ff5e13e3b33dad65126b55d844a2e93e9c729ae431e1313b1b67f2b092.css" integrity="sha256-M+Fx/14T47M9rWUSa1XYRKLpPpxymuQx4TE7G2fysJI=">
+  <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora&family=Source+Sans+Pro:wght@400;600&display=swap" rel="stylesheet">
+
+<body class="flex flex-col min-h-screen px-6 max-w-prose md:w-2/3 m-auto"><nav class="mt-8">
+  <ul id="nav-menu" class="w-full flex items-center list-reset">
+    
+    <li>
+      <a href="https://kaiwern.com/">Home</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/fragments/">Fragments</a>
+    </li>
+    
+
+    
+
+
+    
+    <li>
+      <a href="https://kaiwern.com/about/">About</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/tags/">Tags</a>
+    </li>
+    
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+  </ul>
+</nav>
+
+    
+
+    <main class="flex-1 mt-10 sm:mt-12">
+<header class="mb-8 font-sans-serif">
+  <div class="text-sm font-gray-700 mb-8">
+      <p class="uppercase font-semibold">
+      <a class="text-gray-700" href="/posts">posts</a>
+      </p>
+      <p>May 26, 2022</p>
+  </div>
+
+  <h1 class="title mb-2">Implementing tests rerun in `ExUnit.run` in Elixir</h1>
+  <p class="text-sm font-gray-700 mb-4 italic">Estimated Reading Time: 11 minutes (2197 words) </p>
+
+   
+  <div id="tags">
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/elixir/">elixir</a>
+    </span>
+    
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/oss/">oss</a>
+    </span>
+    
+    
+  </div>
+</header>
+
+<article class="prose serif mb-12 text-gray-800">
+  
+
+  <p><strong>TLDR:</strong>
+Read the <a href="https://github.com/elixir-lang/elixir/pull/11788/files">diff of the PR</a>.
+It&rsquo;s just 3 files changes, 65 lines of addition and 2 lines of deletion. Half
+of the addition is probably test.</p>
+<hr>
+<p>One of the challenges I faced when I&rsquo;m writing the Livebook for my
+<a href="https://kaiwern.com/posts/2022/01/04/writing-a-simple-redis-protocol-parser-in-elixir/">Writing a simple Redis Protocol parser in Elixir</a> post is
+to rerun test that has been written.</p>
+<p>Once a test is run in Livebook, executing <code>ExUnit.run</code> again doesn&rsquo;t rerun the
+test, unless you redefine the module. To reduce the duplicated test code in Livebook,
+we can use the following <code>Module.create/3</code> hack:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="line"><span class="cl"><span class="n">test_content</span> <span class="o">=</span>
+</span></span><span class="line"><span class="cl">  <span class="k">quote</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">use</span> <span class="nc">ExUnit.Case</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">test</span> <span class="s2">&#34;it pass&#34;</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">      <span class="n">assert</span> <span class="nc">MyMath</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span>
+</span></span><span class="line"><span class="cl">    <span class="k">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">test</span> <span class="s2">&#34;it fails&#34;</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">      <span class="n">refute</span> <span class="nc">MyMath</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span>
+</span></span><span class="line"><span class="cl">    <span class="k">end</span>
+</span></span><span class="line"><span class="cl">  <span class="k">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nc">Module</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="nc">SampleTest</span><span class="p">,</span> <span class="n">test_content</span><span class="p">,</span> <span class="nc">Macro.Env</span><span class="o">.</span><span class="n">location</span><span class="p">(</span><span class="n">__ENV__</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="nc">ExUnit</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">defmodule</span> <span class="nc">MyMath</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">def</span> <span class="n">add</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># wrong impl</span>
+</span></span><span class="line"><span class="cl">    <span class="n">a</span> <span class="o">-</span> <span class="n">b</span>
+</span></span><span class="line"><span class="cl">  <span class="k">end</span>
+</span></span><span class="line"><span class="cl"><span class="k">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nc">Module</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="nc">SampleTest</span><span class="p">,</span> <span class="n">test_content</span><span class="p">,</span> <span class="nc">Macro.Env</span><span class="o">.</span><span class="n">location</span><span class="p">(</span><span class="n">__ENV__</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="nc">ExUnit</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</span></span></code></pre></div><p>We call <code>Module.create</code> to redefine the <code>SampleTest</code> module
+which then &ldquo;refresh&rdquo; the state of our <code>ExUnit</code> <em>(it&rsquo;s not exactly refresh, but
+for now you can understand it that way)</em>.</p>
+<p>I tweeted about it and got this reply:</p>
+<blockquote class="twitter-tweet" data-conversation="none" data-dnt="true" data-theme="light"><p lang="en" dir="ltr">There is currently no way to re-run tests for a given module. You should consider sending a pull request to <a href="https://twitter.com/elixirlang?ref_src=twsrc%5Etfw">@elixirlang</a> that adds ExUnit.rerun(list_of_modules)!</p>&mdash; Livebook (@livebookdev) <a href="https://twitter.com/livebookdev/status/1514310933673304065?ref_src=twsrc%5Etfw">April 13, 2022</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<p>Hence, I began my journey to implement <code>ExUnit.rerun/1</code> to support reruning test modules.
+In this post, I&rsquo;m going to share how I approach implementing this without
+knowing much about the Elixir codebase. It can be breakdown in the following
+sections:</p>
+<ul>
+<li><a href="#navigating-the-exunit-code">Navigating the <code>ExUnit</code> code</a></li>
+<li><a href="#implementing-exunitrerun1">Implementing <code>ExUnit.rerun/1</code></a></li>
+<li><a href="#conditionally-adding-sync-and-async-module">Conditionally adding sync and async
+module</a></li>
+<li><a href="#asking-question">Asking question</a></li>
+<li><a href="#closing">Closing</a></li>
+</ul>
+<h2 id="navigating-the-exunit-code">Navigating the <code>ExUnit</code> code</h2>
+<p>Since I know nothing much about <code>ExUnit</code>, the very first
+thing I do is to read the code. I start with reading the
+<code>ExUnit.run/0</code> implementation:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="line"><span class="cl"><span class="kd">defmodule</span> <span class="nc">ExUnit</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># ...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">def</span> <span class="n">run</span><span class="p">()</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="n">_</span> <span class="o">=</span> <span class="nc">ExUnit.Server</span><span class="o">.</span><span class="n">modules_loaded</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">options</span> <span class="o">=</span> <span class="n">persist_defaults</span><span class="p">(</span><span class="n">configuration</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">    <span class="nc">ExUnit.Runner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="no">nil</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">end</span>
+</span></span><span class="line"><span class="cl"><span class="k">end</span>
+</span></span></code></pre></div><p>The code is fairly straightforward. From here we know that, the code rely on
+<code>ExUnit.Server</code> and <code>ExUnit.Runner</code> modules. Since the <code>ExUnit.Runner.run</code>
+probably contains the core implementation of how tests get run, let&rsquo;s head
+over there and read the code as well.</p>
+<h3 id="exunitrunnerrun2"><code>ExUnit.Runner.run/2</code></h3>
+<p>The implementation is a bit lengthy due to the need of handling various stuff,
+so we will skip to the important parts. Essentially, <code>ExUnit.Runner.run</code> looks
+roughly like this:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="line"><span class="cl"><span class="kd">def</span> <span class="n">run</span><span class="p">(</span><span class="n">opts</span><span class="p">,</span> <span class="n">load_us</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># .... trapping signal</span>
+</span></span><span class="line"><span class="cl">  <span class="n">run_with_trap</span><span class="p">(</span><span class="n">opts</span><span class="p">,</span> <span class="n">load_us</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">def</span> <span class="n">run_with_trap</span><span class="p">(</span><span class="n">opts</span><span class="p">,</span> <span class="n">load_us</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># .... some setup code</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">start_time</span> <span class="o">=</span> <span class="nc">System</span><span class="o">.</span><span class="n">monotonic_time</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">  <span class="nc">EM</span><span class="o">.</span><span class="n">suite_started</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">manager</span><span class="p">,</span> <span class="n">opts</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">async_stop_time</span> <span class="o">=</span> <span class="n">async_loop</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="p">%{},</span> <span class="no">false</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">stop_time</span> <span class="o">=</span> <span class="nc">System</span><span class="o">.</span><span class="n">monotonic_time</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># .... some other code to compute stats</span>
+</span></span><span class="line"><span class="cl"><span class="k">end</span>
+</span></span></code></pre></div><p>Basically, <code>run</code> called <code>run_with_trap</code>, which then called
+<code>async_loop</code>. So <code>async_loop</code> is the real deal here. Let&rsquo;s take a look at
+it&rsquo;s implementation:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="line"><span class="cl"><span class="kd">defp</span> <span class="n">async_loop</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">running</span><span class="p">,</span> <span class="n">async_once?</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">  <span class="n">available</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">max_cases</span> <span class="o">-</span> <span class="n">map_size</span><span class="p">(</span><span class="n">running</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">cond</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># No modules available, wait for one</span>
+</span></span><span class="line"><span class="cl">    <span class="n">available</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="o">-&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="n">running</span> <span class="o">=</span> <span class="n">wait_until_available</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">running</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="n">async_loop</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">running</span><span class="p">,</span> <span class="n">async_once?</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Slots are available, start with async modules</span>
+</span></span><span class="line"><span class="cl">    <span class="n">modules</span> <span class="o">=</span> <span class="nc">ExUnit.Server</span><span class="o">.</span><span class="n">take_async_modules</span><span class="p">(</span><span class="n">available</span><span class="p">)</span> <span class="o">-&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="n">running</span> <span class="o">=</span> <span class="n">spawn_modules</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">modules</span><span class="p">,</span> <span class="n">running</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="n">async_loop</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">running</span><span class="p">,</span> <span class="no">true</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="no">true</span> <span class="o">-&gt;</span>
+</span></span><span class="line"><span class="cl">      <span class="n">sync_modules</span> <span class="o">=</span> <span class="nc">ExUnit.Server</span><span class="o">.</span><span class="n">take_sync_modules</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="c1"># Wait for all async modules</span>
+</span></span><span class="line"><span class="cl">      <span class="mi">0</span> <span class="o">=</span>
+</span></span><span class="line"><span class="cl">        <span class="n">running</span>
+</span></span><span class="line"><span class="cl">        <span class="o">|&gt;</span> <span class="nc">Enum</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">running</span><span class="p">,</span> <span class="k">fn</span> <span class="n">_</span><span class="p">,</span> <span class="n">acc</span> <span class="o">-&gt;</span> <span class="n">wait_until_available</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">acc</span><span class="p">)</span> <span class="k">end</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="o">|&gt;</span> <span class="n">map_size</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="n">async_stop_time</span> <span class="o">=</span> <span class="k">if</span> <span class="n">async_once?</span><span class="p">,</span> <span class="ss">do</span><span class="p">:</span> <span class="nc">System</span><span class="o">.</span><span class="n">monotonic_time</span><span class="p">(),</span> <span class="ss">else</span><span class="p">:</span> <span class="no">nil</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="c1"># Run all sync modules directly</span>
+</span></span><span class="line"><span class="cl">      <span class="k">for</span> <span class="n">module</span> <span class="o">&lt;-</span> <span class="n">sync_modules</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">        <span class="n">running</span> <span class="o">=</span> <span class="n">spawn_modules</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="p">[</span><span class="n">module</span><span class="p">],</span> <span class="p">%{})</span>
+</span></span><span class="line"><span class="cl">        <span class="n">running</span> <span class="o">!=</span> <span class="p">%{}</span> <span class="ow">and</span> <span class="n">wait_until_available</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">running</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="k">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="n">async_stop_time</span>
+</span></span><span class="line"><span class="cl">  <span class="k">end</span>
+</span></span><span class="line"><span class="cl"><span class="k">end</span>
+</span></span></code></pre></div><p>It&rsquo;s straightforward to understand the code. It is roughly equivalent
+to:</p>
+<ul>
+<li>First, we try to check if there&rsquo;s anything is available, if not we wait for one.</li>
+<li>If there is, we try to take a couple of async modules, and spawn the modules
+to run the test.</li>
+<li>Once we finish running async test modules, we get all of our sync test
+modules, and run each of the sync test module.</li>
+</ul>
+<p>Here we came across <code>ExUnit.Server</code> again, most notably the <code>take_sync_modules</code>
+and <code>take_async_modules</code> functions. We can know quite a bit from the
+names. It is how the <code>ExUnit.run</code> get the test modules to be run.</p>
+<p>Upon knowing how <code>ExUnit.Runner.run</code> run our tests, and knowing that it&rsquo;s
+basically taking the test modules from <code>ExUnit.Server</code>, the next thing we want
+to figure out is how are those test modules are added in the first place.
+Since, <code>ExUnit.rerun/1</code> is about adding those test modules again so that it
+would be rerun, we will need to know how to add test modules as well.
+Let&rsquo;s take a look at the <code>ExUnit.Server</code> module next.</p>
+<h3 id="exunitserver"><code>ExUnit.Server</code></h3>
+<p>Upon looking at the module, we see what we wanted:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="line"><span class="cl"><span class="kd">defmodule</span> <span class="nc">ExUnit.Server</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">  <span class="na">@moduledoc</span> <span class="no">false</span>
+</span></span><span class="line"><span class="cl">  <span class="na">@name</span> <span class="n">__MODULE__</span>
+</span></span><span class="line"><span class="cl">  <span class="na">@timeout</span> <span class="ss">:infinity</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kn">use</span> <span class="nc">GenServer</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">def</span> <span class="n">start_link</span><span class="p">(</span><span class="n">_opts</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="nc">GenServer</span><span class="o">.</span><span class="n">start_link</span><span class="p">(</span><span class="n">__MODULE__</span><span class="p">,</span> <span class="ss">:ok</span><span class="p">,</span> <span class="ss">name</span><span class="p">:</span> <span class="na">@name</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">def</span> <span class="n">add_async_module</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="ss">do</span><span class="p">:</span> <span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="ss">:async</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">def</span> <span class="n">add_sync_module</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="ss">do</span><span class="p">:</span> <span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="ss">:sync</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">defp</span> <span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">type</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="nc">GenServer</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="na">@name</span><span class="p">,</span> <span class="p">{</span><span class="ss">:add</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">type</span><span class="p">},</span> <span class="na">@timeout</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">      <span class="ss">:ok</span> <span class="o">-&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="ss">:ok</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="ss">:already_running</span> <span class="o">-&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">raise</span> <span class="s2">&#34;cannot add </span><span class="si">#{</span><span class="n">type</span><span class="si">}</span><span class="s2"> case named </span><span class="si">#{</span><span class="n">inspect</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="si">}</span><span class="s2"> to test suite after the suite starts running&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">end</span>
+</span></span><span class="line"><span class="cl">  <span class="k">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># ...</span>
+</span></span><span class="line"><span class="cl"><span class="k">end</span>
+</span></span></code></pre></div><p>That&rsquo;s how we add the module into <code>ExUnit.Server</code>. Since it&rsquo;s a <code>GenServer</code>, it
+means that it&rsquo;s also the process that is holding the states of the modules
+available to be run by <code>ExUnit.Runner</code>.</p>
+<p>Let&rsquo;s look at the <code>handle_call/3</code> function that handle <code>{:add, name, type}</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="line"><span class="cl"><span class="kd">def</span> <span class="n">handle_call</span><span class="p">({</span><span class="ss">:add</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="ss">:async</span><span class="p">},</span> <span class="n">_from</span><span class="p">,</span> <span class="p">%{</span><span class="ss">loaded</span><span class="p">:</span> <span class="n">loaded</span><span class="p">}</span> <span class="o">=</span> <span class="n">state</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="ow">when</span> <span class="n">is_integer</span><span class="p">(</span><span class="n">loaded</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">  <span class="n">state</span> <span class="o">=</span> <span class="n">update_in</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">async_modules</span><span class="p">,</span> <span class="o">&amp;</span><span class="p">[</span><span class="n">name</span> <span class="o">|</span> <span class="ni">&amp;1</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span><span class="ss">:reply</span><span class="p">,</span> <span class="ss">:ok</span><span class="p">,</span> <span class="n">take_modules</span><span class="p">(</span><span class="n">state</span><span class="p">)}</span>
+</span></span><span class="line"><span class="cl"><span class="k">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">def</span> <span class="n">handle_call</span><span class="p">({</span><span class="ss">:add</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="ss">:sync</span><span class="p">},</span> <span class="n">_from</span><span class="p">,</span> <span class="p">%{</span><span class="ss">loaded</span><span class="p">:</span> <span class="n">loaded</span><span class="p">}</span> <span class="o">=</span> <span class="n">state</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="ow">when</span> <span class="n">is_integer</span><span class="p">(</span><span class="n">loaded</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">  <span class="n">state</span> <span class="o">=</span> <span class="n">update_in</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">sync_modules</span><span class="p">,</span> <span class="o">&amp;</span><span class="p">[</span><span class="n">name</span> <span class="o">|</span> <span class="ni">&amp;1</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">  <span class="p">{</span><span class="ss">:reply</span><span class="p">,</span> <span class="ss">:ok</span><span class="p">,</span> <span class="n">state</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="k">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">def</span> <span class="n">handle_call</span><span class="p">({</span><span class="ss">:add</span><span class="p">,</span> <span class="n">_name</span><span class="p">,</span> <span class="n">_type</span><span class="p">},</span> <span class="n">_from</span><span class="p">,</span> <span class="n">state</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">  <span class="ss">do</span><span class="p">:</span> <span class="p">{</span><span class="ss">:reply</span><span class="p">,</span> <span class="ss">:already_running</span><span class="p">,</span> <span class="n">state</span><span class="p">}</span>
+</span></span></code></pre></div><p>The code update the <code>async_modules</code> and <code>sync_modules</code>
+values in the <code>state</code>. Do we have now have enough information to
+work on our <code>ExUnit.rerun/1</code>?  Mostly likely yes!</p>
+<h2 id="implementing-exunitrerun1">Implementing <code>ExUnit.rerun/1</code></h2>
+<p>After having all these information and knowledge, implementing the minimal
+working version of <code>ExUnit.rerun/1</code> is straightforward.</p>
+<p>Copy the code from <code>ExUnit.run/1</code>, accept a list of modules as argument,
+loop through it and called <code>add_sync_module</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="line"><span class="cl"><span class="kd">def</span> <span class="n">rerun</span><span class="p">(</span><span class="n">modules</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="n">module</span> <span class="o">&lt;-</span> <span class="n">modules</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="nc">ExUnit.Server</span><span class="o">.</span><span class="n">add_sync_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">_</span> <span class="o">=</span> <span class="nc">ExUnit.Server</span><span class="o">.</span><span class="n">modules_loaded</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">  <span class="n">options</span> <span class="o">=</span> <span class="n">persist_defaults</span><span class="p">(</span><span class="n">configuration</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">  <span class="nc">ExUnit.Runner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="no">nil</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">end</span>
+</span></span></code></pre></div><p>It&rsquo;s not working unless we prove otherwise, so let&rsquo;s write a test case as well.
+In <code>lib/ex_unit/test/ex_unit_test.exs</code>, add :</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="line"><span class="cl"><span class="nc">Code</span><span class="o">.</span><span class="n">require_file</span><span class="p">(</span><span class="s2">&#34;test_helper.exs&#34;</span><span class="p">,</span> <span class="n">__DIR__</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">defmodule</span> <span class="nc">ExUnitTest</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">use</span> <span class="nc">ExUnit.Case</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># other tests case ...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">test</span> <span class="s2">&#34;supports rerunning given modules&#34;</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">defmodule</span> <span class="nc">SampleAsyncTest</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">      <span class="kn">use</span> <span class="nc">ExUnit.Case</span><span class="p">,</span> <span class="ss">async</span><span class="p">:</span> <span class="no">true</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="n">test</span> <span class="s2">&#34;true&#34;</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">        <span class="n">assert</span> <span class="no">false</span>
+</span></span><span class="line"><span class="cl">      <span class="k">end</span>
+</span></span><span class="line"><span class="cl">    <span class="k">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">defmodule</span> <span class="nc">SampleSyncTest</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">      <span class="kn">use</span> <span class="nc">ExUnit.Case</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="n">test</span> <span class="s2">&#34;true&#34;</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">        <span class="n">assert</span> <span class="no">false</span>
+</span></span><span class="line"><span class="cl">      <span class="k">end</span>
+</span></span><span class="line"><span class="cl">    <span class="k">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">defmodule</span> <span class="nc">IgnoreTest</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">      <span class="kn">use</span> <span class="nc">ExUnit.Case</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="n">test</span> <span class="s2">&#34;true&#34;</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">        <span class="n">assert</span> <span class="no">false</span>
+</span></span><span class="line"><span class="cl">      <span class="k">end</span>
+</span></span><span class="line"><span class="cl">    <span class="k">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">configure_and_reload_on_exit</span><span class="p">([])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">assert</span> <span class="n">capture_io</span><span class="p">(</span><span class="k">fn</span> <span class="o">-&gt;</span>
+</span></span><span class="line"><span class="cl">             <span class="n">assert</span> <span class="nc">ExUnit</span><span class="o">.</span><span class="n">run</span><span class="p">()</span> <span class="o">==</span> <span class="p">%{</span>
+</span></span><span class="line"><span class="cl">                      <span class="ss">failures</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                      <span class="ss">skipped</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                      <span class="ss">total</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                      <span class="ss">excluded</span><span class="p">:</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">           <span class="k">end</span><span class="p">)</span> <span class="o">=~</span> <span class="s2">&#34;</span><span class="se">\n</span><span class="s2">3 tests, 3 failures</span><span class="se">\n</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">assert</span> <span class="n">capture_io</span><span class="p">(</span><span class="k">fn</span> <span class="o">-&gt;</span>
+</span></span><span class="line"><span class="cl">             <span class="n">assert</span> <span class="nc">ExUnit</span><span class="o">.</span><span class="n">rerun</span><span class="p">([</span><span class="nc">SampleSyncTest</span><span class="p">,</span> <span class="nc">SampleAsyncTest</span><span class="p">])</span> <span class="o">==</span> <span class="p">%{</span>
+</span></span><span class="line"><span class="cl">                      <span class="ss">failures</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                      <span class="ss">skipped</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                      <span class="ss">total</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                      <span class="ss">excluded</span><span class="p">:</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">           <span class="k">end</span><span class="p">)</span> <span class="o">=~</span> <span class="s2">&#34;</span><span class="se">\n</span><span class="s2">2 tests, 2 failures</span><span class="se">\n</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">   <span class="k">end</span>
+</span></span><span class="line"><span class="cl"><span class="k">end</span>
+</span></span></code></pre></div><p>We are just copying the test case of <code>supports many runs and loads</code> and make some modification to suit our need.</p>
+<p>We define 3 different test modules, one for sync, one for async and one that
+will no be rerun. We first trigger <code>ExUnit.run/0</code> to simulate the test running
+through once and trigger <code>ExUnit.rerun/1</code> with the test modules we wanted to
+rerun.</p>
+<p>For assertion, we basically assert:</p>
+<ul>
+<li>the return map about the stats of the test</li>
+<li>we are writing to the <code>IO</code> by capturing the <code>IO</code> with
+<code>capture_io</code> and regex match that include the output we expected.</li>
+</ul>
+<div class="callout prose prose-p:mx-0 callout-info">
+  <h5 class="text-lg font-semibold mb-2">Print debugger beware of <code>capture_io</code></h5>
+<p>When I first wrote the test and trying to use <code>IO.inspect</code> or any sort of print
+debugging to figure out how things work, I was so confused by why nothing is
+printed out.</p>
+<p>I ended up putting it off this work for a couple of days. When I came back
+working on it again, I managed to find out it&rsquo;s because of we are capturing IO
+in our test, hence all the <code>IO.inspect</code> output is captured and not printed out.</p>
+</div>
+<p>You might be wondering:</p>
+<blockquote>
+<p>Hey, this isn&rsquo;t totally correct, our async modules is added as sync module&hellip;</p>
+</blockquote>
+<p>That&rsquo;s correct. Hence, it&rsquo;s our minimal working implementation. Next, we are
+going to conditionally call the <code>add_async_module</code> and <code>add_sync_module</code>.</p>
+<h2 id="conditionally-adding-sync-and-async-module">Conditionally adding sync and async module</h2>
+<p>How do we know if a test module is marked as async? The quickest way to
+find out is to see how the existing code work! Let&rsquo;s do a quick search on the
+Elixir codebase on those function. With that, I found out that <code>ExUnit.Case</code> is
+one of the caller of the function:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="line"><span class="cl"><span class="na">@doc</span> <span class="no">false</span>
+</span></span><span class="line"><span class="cl"><span class="kd">def</span> <span class="n">__after_compile__</span><span class="p">(%{</span><span class="ss">module</span><span class="p">:</span> <span class="n">module</span><span class="p">},</span> <span class="n">_</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="nc">Module</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="ss">:ex_unit_async</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="nc">ExUnit.Server</span><span class="o">.</span><span class="n">add_async_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">else</span>
+</span></span><span class="line"><span class="cl">    <span class="nc">ExUnit.Server</span><span class="o">.</span><span class="n">add_sync_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">end</span>
+</span></span><span class="line"><span class="cl"><span class="k">end</span>
+</span></span></code></pre></div><p>After compiling a test module, the add module function is called.
+That explained why in the beginning our tests can be rerun once we
+redefine/recreate our test modules.</p>
+<p>And the <code>Module.get_attribute/2</code> function is used to find out if a test module is async.
+Let&rsquo;s use this information we just gained to implement what we want then:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="line"><span class="cl"><span class="kd">def</span> <span class="n">rerun</span><span class="p">(</span><span class="n">modules</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="n">module</span> <span class="o">&lt;-</span> <span class="n">modules</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nc">Module</span><span class="o">.</span><span class="n">get_attribute</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="ss">:ex_unit_async</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">      <span class="nc">ExUnit.Server</span><span class="o">.</span><span class="n">add_async_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span>
+</span></span><span class="line"><span class="cl">      <span class="nc">ExUnit.Server</span><span class="o">.</span><span class="n">add_sync_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">end</span>
+</span></span><span class="line"><span class="cl">  <span class="k">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">_</span> <span class="o">=</span> <span class="nc">ExUnit.Server</span><span class="o">.</span><span class="n">modules_loaded</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">  <span class="n">options</span> <span class="o">=</span> <span class="n">persist_defaults</span><span class="p">(</span><span class="n">configuration</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">  <span class="nc">ExUnit.Runner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="no">nil</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">end</span>
+</span></span></code></pre></div><p>Upon running the test, we got an error:</p>
+<pre tabindex="0"><code>** (ArgumentError) could not call Module.get_attribute/2 because the module ExUnitTest.SampleSyncTest is already compiled.
+Use the Module.__info__/1 callback or Code.fetch_docs/1 instead
+</code></pre><p>It seems like we can&rsquo;t use <code>Module.get_attribute/2</code> after a module is compiled.
+Thanks to the helpful error message, we know how to overcome it. Let&rsquo;s use
+the <code>Module.__info__/1</code> callback instead:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="line"><span class="cl"><span class="k">for</span> <span class="n">module</span> <span class="o">&lt;-</span> <span class="n">additional_modules</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">  <span class="n">module_attributes</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">__info__</span><span class="p">(</span><span class="ss">:attributes</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="nc">Keyword</span><span class="o">.</span><span class="n">fetch!</span><span class="p">(</span><span class="n">module_attributes</span><span class="p">,</span> <span class="ss">:ex_unit_async</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    <span class="nc">ExUnit.Server</span><span class="o">.</span><span class="n">add_async_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">else</span>
+</span></span><span class="line"><span class="cl">    <span class="nc">ExUnit.Server</span><span class="o">.</span><span class="n">add_sync_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">end</span>
+</span></span><span class="line"><span class="cl"><span class="k">end</span>
+</span></span></code></pre></div><p>As mentioned in the <a href="https://hexdocs.pm/elixir/1.13/Module.html#c:__info__/1"><code>Module.__info__/1</code>
+callback</a>
+doc, we could get the attributes of a module by passing in <code>:attributes</code> atom,
+which return us a keyword list.</p>
+<p>We then use <code>Keyword.fetch!/2</code> to fetch the attribute we wanted. Using <code>fetch!</code> will
+catch the scenario where <code>:ex_unit_async</code> attribute is not available in our list and
+our code end up calling <code>add_sync_module</code> for async modules again.</p>
+<div class="callout prose prose-p:mx-0 callout-info">
+<p>In my PR, I&rsquo;m using <code>Keyword.get/2</code> instead. It&rsquo;s only when I write this post,
+I realize that while our test pass, it&rsquo;s not behaving correctly as well.</p>
+<p>To demonstrate it, <code>Keyword.fetch!/2</code> is used instead.</p>
+</div>
+<p>Running our test again, we got another error instead:</p>
+<pre tabindex="0"><code>** (KeyError) key :ex_unit_async not found in: [vsn: [92364997537872194208385758077352902316]]
+</code></pre><p>Why does it works on <code>Modules.get_attribute/2</code> and not with
+<code>Module.__info__/1</code>? Let&rsquo;s read the documentation again to see if we miss out
+anything. Here&rsquo;s what the docs said about <code>Module.__info__(:attributes)</code>:</p>
+<blockquote>
+<p>:attributes - a keyword list with all persisted attributes</p>
+</blockquote>
+<p>Hmm, it mentioned list of all <em>persisted</em> attributes. Does that mean the
+<code>ex_unit_async</code> is not persisted?</p>
+<h3 id="persisting-the-ex_unit_async-attribute">Persisting the <code>ex_unit_async</code> attribute</h3>
+<p>By searching <code>persisted</code> in the documentation, we can see a few places
+mentioned it, and most importantly, the <code>Module.register_attribute/3</code> function:</p>
+<blockquote>
+<p>When registering an attribute, two options can be given:</p>
+</blockquote>
+<blockquote>
+<p>:accumulate - several calls to the same attribute will accumulate instead of overriding the previous one. New attributes are always added to the top of the accumulated list.</p>
+</blockquote>
+<blockquote>
+<p>:persist - the attribute will be persisted in the Erlang Abstract Format. Useful when interfacing with Erlang libraries.</p>
+</blockquote>
+<p>Seems like all we need to do is calling <code>Module.register_attribute/3</code> to
+persist the <code>ex_unit_async</code> module attribute. But where?</p>
+<p>Once again, searching for the <code>ex_unit_async</code> in the codebase lead us
+to <code>ExUnit.Case</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="line"><span class="cl"><span class="kd">def</span> <span class="n">__register__</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">opts</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># ...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">attributes</span> <span class="o">=</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="ss">before_compile</span><span class="p">:</span> <span class="nc">ExUnit.Case</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="ss">after_compile</span><span class="p">:</span> <span class="nc">ExUnit.Case</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="ss">ex_unit_async</span><span class="p">:</span> <span class="no">false</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nc">Enum</span><span class="o">.</span><span class="n">each</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span> <span class="k">fn</span> <span class="p">{</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">}</span> <span class="o">-&gt;</span> <span class="nc">Module</span><span class="o">.</span><span class="n">put_attribute</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">end</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># ...</span>
+</span></span><span class="line"><span class="cl"><span class="k">end</span>
+</span></span></code></pre></div><p>By default, <code>ExUnit.Case</code> does not persist the attribute. To fix this is rather
+straightforward:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-elixir" data-lang="elixir"><span class="line"><span class="cl"><span class="kd">def</span> <span class="n">__register__</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">opts</span><span class="p">)</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># ...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">persisted_attributes</span> <span class="o">=</span> <span class="p">[</span><span class="ss">:ex_unit_async</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="nc">Enum</span><span class="o">.</span><span class="n">each</span><span class="p">(</span><span class="n">persisted_attributes</span><span class="p">,</span> <span class="o">&amp;</span><span class="nc">Module</span><span class="o">.</span><span class="n">register_attribute</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="ni">&amp;1</span><span class="p">,</span> <span class="ss">persist</span><span class="p">:</span> <span class="no">true</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">attributes</span> <span class="o">=</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="ss">before_compile</span><span class="p">:</span> <span class="nc">ExUnit.Case</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="ss">after_compile</span><span class="p">:</span> <span class="nc">ExUnit.Case</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="ss">ex_unit_async</span><span class="p">:</span> <span class="no">false</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nc">Enum</span><span class="o">.</span><span class="n">each</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span> <span class="k">fn</span> <span class="p">{</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">}</span> <span class="o">-&gt;</span> <span class="nc">Module</span><span class="o">.</span><span class="n">put_attribute</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">end</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1"># ...</span>
+</span></span><span class="line"><span class="cl"><span class="k">end</span>
+</span></span></code></pre></div><p>With this changes, now our test run successfully!</p>
+<h2 id="asking-question">Asking question</h2>
+<p>In actual, I did not figure out the <code>register_attribute</code> part myself. Instead,
+I ask about it in my PR:</p>
+<blockquote>
+<p>However, didn&rsquo;t have any luck with it as <code>Modules.get_attribute/3</code> won&rsquo;t work as the test module have been compiled.
+Tried using <code>module.__info__(:attributes)</code> as well, but upon inspecting I only have the vsn key &hellip;
+Probably need some pointers here</p>
+</blockquote>
+<p>And in a couple of hours, José Valim reply it:</p>
+<blockquote>
+<p>You will need to say that :ex_unit_async is a persisted attribute via <code>Module.register_attribute</code> :)</p>
+</blockquote>
+<p>If you&rsquo;re stuck on anything after trying a couple times, there&rsquo;s no harm asking question about it!</p>
+<p>The reason I didn&rsquo;t include it above is to demonstrate how I
+could have figured out if I spend a bit more time on it.</p>
+<h2 id="closing">Closing</h2>
+<p>In the PR, the <code>rerun/1</code> implementation was move to <code>run/1</code> instead.
+So in the latest branch, <code>ExUnit.run</code> now takes an optional list of modules to
+be run.</p>
+<p>When I first saw the reply from @livebookdev, I thought it is a simple change!
+In reality, the process of implementing it is not quite easy, but still manageable.</p>
+<p>The whole process for implementing this take roughly a week for me. It would be
+shorter if I&rsquo;m less blur. Once I&rsquo;m in a better condition, the actual work took
+around 2 days to implement and the PR got merged in a day once the PR is up.</p>
+<p>In retrospect, the changes do looks simple.</p>
+<p>The Elixir codebase is easy to navigate and José Valim has been really responsive
+in providing feedbacks and guidance. Hopefully this post shed some light for you
+and encourage you to contribute to the Elixir ecosystem as well!</p>
+
+</article>
+
+    </main>
+
+
+
+
+<hr/>
+<footer class="w-full text-center p-4 pin-b text-xs text-gray-400">
+    <p>made with <a href="https://gohugo.io" class="underline hover:text-blue-400">Hugo</a> and <a href="https://tailwindcss.com" class="underline hover:text-blue-400">TailwindCSS</a></p>
+</footer>
+</body>
+</html>

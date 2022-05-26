@@ -2,13 +2,25 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://kaiwern.com/tags/elixir/</loc>
+    <lastmod>2022-05-26T17:29:37+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/posts/2022/05/26/implementing-tests-rerun-in-exunit.run-in-elixir/</loc>
+    <lastmod>2022-05-26T17:29:37+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/tags/oss/</loc>
+    <lastmod>2022-05-26T17:29:37+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/posts/</loc>
+    <lastmod>2022-05-26T17:29:37+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/tags/</loc>
+    <lastmod>2022-05-26T17:29:37+08:00</lastmod>
+  </url><url>
     <loc>https://kaiwern.com/tags/files/</loc>
     <lastmod>2022-05-20T21:13:14+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/tags/rust/</loc>
-    <lastmod>2022-05-20T21:13:14+08:00</lastmod>
-  </url><url>
-    <loc>https://kaiwern.com/tags/</loc>
     <lastmod>2022-05-20T21:13:14+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/tags/testing/</loc>
@@ -24,9 +36,6 @@
     <lastmod>2022-05-12T22:47:17+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/categories/life/</loc>
-    <lastmod>2022-05-12T22:47:17+08:00</lastmod>
-  </url><url>
-    <loc>https://kaiwern.com/posts/</loc>
     <lastmod>2022-05-12T22:47:17+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/tags/recurse-center/</loc>
@@ -55,9 +64,6 @@
   </url><url>
     <loc>https://kaiwern.com/tags/database/</loc>
     <lastmod>2022-04-26T17:27:00+08:00</lastmod>
-  </url><url>
-    <loc>https://kaiwern.com/tags/elixir/</loc>
-    <lastmod>2022-04-26T20:56:35+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/tags/mini-redis/</loc>
     <lastmod>2022-04-26T17:27:00+08:00</lastmod>
