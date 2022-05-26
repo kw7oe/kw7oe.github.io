@@ -2064,14 +2064,6 @@ nav#TableOfContents > ul > li {
   justify-content: center;
 }
 
-.justify-between {
-  justify-content: space-between;
-}
-
-.justify-around {
-  justify-content: space-around;
-}
-
 .rounded-lg {
   border-radius: 0.5rem;
 }
