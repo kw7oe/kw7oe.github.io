@@ -1,8 +1,7 @@
 ---
 title: "Implementing tests rerun in `ExUnit.run` in Elixir"
-date: 2022-05-21T23:02:19+08:00
+date: 2022-05-26T17:27:19+08:00
 tags: ["elixir", "oss"]
-draft: true
 ---
 
 **TLDR:**
