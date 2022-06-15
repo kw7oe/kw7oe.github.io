@@ -45,7 +45,7 @@ Concurrency By default, cargo test run your Rust tests in multiple threads. Depe
       
       <guid>https://kaiwern.com/fragments/logging-thread-id-in-rust/</guid>
       <description>Recently, I am working on implementing concurrent operations for B+ Tree index in Rust. Dealing with concurrency bugs can be pain in the ass and and being able to print the thread ID along with by my debug message definitely help me understand the interleaving operations better.
-Here I&amp;rsquo;m going to share how I do it.</description>
+Here&amp;rsquo;s how I learn to do it using env_logger crate and tracing crate.</description>
     </item>
     
     <item>

@@ -84,7 +84,7 @@ Logging Thread ID in Rust | kw7oe
 
     <h1 class="text-3xl mb-1 font-semibold">Logging Thread ID in Rust</h1>
     
-      <p class="italic text-xs">Last updated at: May 07, 2022</p>
+      <p class="italic text-xs">Last updated at: May 27, 2022</p>
     
   </header>
 
@@ -93,7 +93,7 @@ Logging Thread ID in Rust | kw7oe
 index in Rust. Dealing with concurrency bugs can be pain in the ass and
 and being able to print the thread ID along with by my debug message definitely
 help me understand the interleaving operations better.</p>
-<p>Here I&rsquo;m going to share how I do it.</p>
+<p>Here&rsquo;s how I learn to do it using <a href="#env-logger">env_logger</a> crate and <a href="#tracing">tracing</a> crate.</p>
 <h3 id="env-logger">Env Logger</h3>
 <p>I was using <a href="https://docs.rs/env_logger/latest/env_logger/"><code>env_logger</code></a> to
 log my message. Upon realizing that <code>std::thread::current()</code> allow me to get
@@ -124,8 +124,7 @@ using the <code>Builder::format</code> method. So I ended up with this:</p>
 </code></pre><h3 id="tracing">Tracing</h3>
 <p>Later on, I switch to using <a href="https://github.com/tokio-rs/tracing"><code>tracing</code></a>
 and the setup is much simpler as follow:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="kd">let</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tracing_subscriber</span>::<span class="n">fmt</span>::<span class="n">format</span><span class="p">().</span><span class="n">with_thread_ids</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">tracing_subscriber</span>::<span class="n">fmt</span><span class="p">().</span><span class="n">event_format</span><span class="p">(</span><span class="n">format</span><span class="p">).</span><span class="n">init</span><span class="p">();</span><span class="w">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="n">tracing_subscriber</span>::<span class="n">fmt</span><span class="p">().</span><span class="n">with_thread_ids</span><span class="p">(</span><span class="kc">true</span><span class="p">).</span><span class="n">init</span><span class="p">();</span><span class="w">
 </span></span></span></code></pre></div><p>It turns out <code>tracing_subscriber</code> formatter come with the <code>with_thread_ids</code>
 method to include your thread id in your logs once set to <code>true</code>. Here&rsquo;s
 how the messsage look like:</p>
@@ -136,7 +135,7 @@ so do have a look at the
 
 
     <div class="float-right mb-8">
-      <p class="text-sm mb-4 font-gray-700 italic">(218 words)</p>
+      <p class="text-sm mb-4 font-gray-700 italic">(222 words)</p>
     </div>
   </article>
 
