@@ -19,7 +19,7 @@ more consistently.
 Currently, I am attending [RC](https://www.recurse.com/). During my time here,
 I'll be focusing on:
 
-- Writing [simple database in Rust](https://github.com/kw7oe/sqlite-rust), inspired by
+- Writing [simple database in Rust](https://github.com/kw7oe/mini-db), inspired by
 [Let's Build a Simple Database](https://cstack.github.io/db_tutorial/) tutorial.
 - Writing a book about building a simple database in Rust, based on my work
 above and inspired by
