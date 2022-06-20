@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>
+Handy `lsof` options to know | kw7oe
+</title>
+
+
+
+<meta name="generator" content="Hugo 0.98.0" />
+
+
+
+
+
+  
+  <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.33e171ff5e13e3b33dad65126b55d844a2e93e9c729ae431e1313b1b67f2b092.css" integrity="sha256-M+Fx/14T47M9rWUSa1XYRKLpPpxymuQx4TE7G2fysJI=">
+  <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora&family=Source+Sans+Pro:wght@400;600&display=swap" rel="stylesheet">
+
+<body class="flex flex-col min-h-screen px-6 max-w-prose md:w-2/3 m-auto"><nav class="mt-8">
+  <ul id="nav-menu" class="w-full flex items-center list-reset">
+    
+    <li>
+      <a href="https://kaiwern.com/">Home</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/fragments/">Fragments</a>
+    </li>
+    
+
+    
+
+
+    
+    <li>
+      <a href="https://kaiwern.com/about/">About</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/tags/">Tags</a>
+    </li>
+    
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+  </ul>
+</nav>
+
+    
+
+    <main class="flex-1 mt-10 sm:mt-12">
+<header class="mb-8 font-sans-serif">
+  <div class="text-sm font-gray-700 mb-8">
+      <p class="uppercase font-semibold">
+      <a class="text-gray-700" href="/posts">posts</a>
+      </p>
+      <p>Jun 20, 2022</p>
+  </div>
+
+  <h1 class="title mb-2">Handy `lsof` options to know</h1>
+  <p class="text-sm font-gray-700 mb-4 italic">Estimated Reading Time: 4 minutes (701 words) </p>
+
+   
+  <div id="tags">
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/tips/">tips</a>
+    </span>
+    
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/lsof/">lsof</a>
+    </span>
+    
+    
+  </div>
+</header>
+
+<article class="prose serif mb-12 text-gray-800">
+  
+
+  <p>When working with lower level network programming, we often want to know the information
+about our OS network connections. There are a couple of command line that can
+help us to achieve that like <code>netstat</code>, <code>ss</code> and <code>lsof</code>.</p>
+<p><code>netstat</code> is one of the commonly used command line, available on almost
+every OS, however, it&rsquo;s really hard to learn it. While <code>ss</code> is splendid to use,
+unfortunately, it&rsquo;s not available for MacOS.</p>
+<p>That left us with <code>lsof</code>, which is short of <code>list open files</code>.
+Hence, I&rsquo;ll share some of the <code>lsof</code> options I found useful day to day in this
+post.</p>
+<p><strong>TLDR:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">lsof -P -i :3000 -s TCP:LISTEN
+</span></span></code></pre></div><ul>
+<li><code>-i &lt;PORT&gt;</code></li>
+<li><code>-s &lt;STATE&gt;</code></li>
+<li><code>-P</code></li>
+</ul>
+<h2 id="details">Details</h2>
+<h3 id="-i-port"><code>-i :&lt;PORT&gt;</code></h3>
+<p>List all the network connection on port <code>&lt;PORT&gt;</code>. Example:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># List all connection listening or connecting to port 1313</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">╰─➤  lsof -i :1313
+</span></span><span class="line"><span class="cl">COMMAND   PID USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+</span></span><span class="line"><span class="cl">firefox   <span class="m">771</span>  kai   48u  IPv4 0x2eddb902ae36cf51      0t0  TCP localhost:64030-&gt;localhost:bmc_patroldb <span class="o">(</span>ESTABLISHED<span class="o">)</span>
+</span></span><span class="line"><span class="cl">firefox   <span class="m">771</span>  kai   93u  IPv4 0x2eddb902aa4dd9e1      0t0  TCP localhost:64021-&gt;localhost:bmc_patroldb <span class="o">(</span>ESTABLISHED<span class="o">)</span>
+</span></span><span class="line"><span class="cl">hugo    <span class="m">32849</span>  kai    7u  IPv4 0x2eddb902b289fa31      0t0  TCP localhost:bmc_patroldb <span class="o">(</span>LISTEN<span class="o">)</span>
+</span></span><span class="line"><span class="cl">hugo    <span class="m">32849</span>  kai  118u  IPv4 0x2eddb902a91a84c1      0t0  TCP localhost:bmc_patroldb-&gt;localhost:64021 <span class="o">(</span>ESTABLISHED<span class="o">)</span>
+</span></span><span class="line"><span class="cl">hugo    <span class="m">32849</span>  kai  127u  IPv4 0x2eddb902a8f6d9e1      0t0  TCP localhost:bmc_patroldb-&gt;localhost:64030 <span class="o">(</span>ESTABLISHED<span class="o">)</span>
+</span></span></code></pre></div><p>How about multiple ports? Or a range of ports? Or does it support wildcard?</p>
+<p>Turns out that <code>lsof -i</code> support more than just a single port. It support
+taking in a range of ports <code>-i :3000-4000</code> or multiple ports <code>-i :300,4000</code>. As
+far as I know, wildcard seems to be not supported but I might be wrong. Here&rsquo;s
+some demonstration:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># Listing port numbers from 3001 to 4000</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">╰─➤  lsof -P -i :3001-4000 -s TCP:LISTEN
+</span></span><span class="line"><span class="cl">COMMAND    PID USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+</span></span><span class="line"><span class="cl">rapportd   <span class="m">519</span>  kai   11u  IPv4 0x2eddb9077fb98929      0t0  UDP *:3722
+</span></span><span class="line"><span class="cl">server   <span class="m">72892</span>  kai    9u  IPv4 0x2eddb902a7186511      0t0  TCP localhost:3001 <span class="o">(</span>LISTEN<span class="o">)</span>
+</span></span><span class="line"><span class="cl">server   <span class="m">72892</span>  kai   12u  IPv4 0x2eddb902ad6e2511      0t0  TCP localhost:3004 <span class="o">(</span>LISTEN<span class="o">)</span>
+</span></span><span class="line"><span class="cl">server   <span class="m">72892</span>  kai   15u  IPv4 0x2eddb902ae8299e1      0t0  TCP localhost:3003 <span class="o">(</span>LISTEN<span class="o">)</span>
+</span></span><span class="line"><span class="cl">beam.smp <span class="m">72915</span>  kai   53u  IPv4 0x2eddb902b1b44f51      0t0  TCP localhost:4000 <span class="o">(</span>LISTEN<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Listing only port numbers 3001 and 4000</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">╰─➤  lsof -P -i :3001,4000 -s TCP:LISTEN
+</span></span><span class="line"><span class="cl">COMMAND    PID USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+</span></span><span class="line"><span class="cl">server   <span class="m">72892</span>  kai    9u  IPv4 0x2eddb902a7186511      0t0  TCP localhost:3001 <span class="o">(</span>LISTEN<span class="o">)</span>
+</span></span><span class="line"><span class="cl">beam.smp <span class="m">72915</span>  kai   53u  IPv4 0x2eddb902b1b44f51      0t0  TCP localhost:4000 <span class="o">(</span>LISTEN<span class="o">)</span>
+</span></span></code></pre></div><p>Wait, what is <code>-s TCP:LISTEN</code> and <code>-P</code>? That&rsquo;s what we are going to cover next.</p>
+<h3 id="-s-tcplisten"><code>-s TCP:LISTEN</code></h3>
+<p>List the TCP connection that is listening to <code>&lt;PORT&gt;</code>.
+This filter out connections that are connecting to <code>PORT</code>
+as clients. Example:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># List the connection listening to port 1313.</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">╰─➤  lsof -i :1313 -s TCP:LISTEN
+</span></span><span class="line"><span class="cl">COMMAND   PID USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+</span></span><span class="line"><span class="cl">hugo    <span class="m">32849</span>  kai    7u  IPv4 0x2eddb902b289fa31      0t0  TCP localhost:bmc_patroldb <span class="o">(</span>LISTEN<span class="o">)</span>
+</span></span></code></pre></div><p>You could replace <code>TCP:LISTEN</code> with <code>TCP:ESTABLISHED</code> if you want to the
+connection established from the client side to the server.</p>
+<p>Notice that, there&rsquo;s not <code>1313</code> anywhere in our result! That&rsquo;s because <code>lsof</code>
+is using the port name <code>bmc_patroldb</code> instead of port number!</p>
+<div class="callout prose prose-p:mx-0 callout-info">
+  <h5 class="text-lg font-semibold mb-2">How is port name defined?</h5>
+<p>Based on what I found <a href="https://unix.stackexchange.com/questions/611406/how-to-assign-a-friendly-name-to-a-port-number-in-linux">here</a> on StackExchange, the port name is defined in our <code>/etc/services</code>. Here&rsquo;s how my <code>/etc/services</code> files looks like:</p>
+<pre tabindex="0"><code>#			   Don Stedman &lt;dones@stisystems.com&gt;
+bmc_patroldb    1313/udp    # BMC_PATROLDB
+bmc_patroldb    1313/tcp    # BMC_PATROLDB
+</code></pre><p>Hence, <code>bmc_patroldb</code> is shown instead of the port number.</p>
+</div>
+<p>So, the next command will be come in handy if you would like to prevent that
+conversion from happening.</p>
+<h3 id="-p"><code>-P</code></h3>
+<p>This basically prevent the conversion of port numbers to port names. Here&rsquo;s
+what the <code>man</code> page said:</p>
+<blockquote>
+<p>inhibits the conversion of port numbers to port names for network files.</p>
+</blockquote>
+<p>By combining the above command with <code>-P</code> here&rsquo;s what we can get:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">╰─➤  lsof -P -i :1313 -s TCP:LISTEN
+</span></span><span class="line"><span class="cl">COMMAND   PID USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+</span></span><span class="line"><span class="cl">hugo    <span class="m">32849</span>  kai    7u  IPv4 0x2eddb902b289fa31      0t0  TCP localhost:1313 <span class="o">(</span>LISTEN<span class="o">)</span>
+</span></span></code></pre></div><h2 id="closing">Closing</h2>
+<p>Is that all the options available for <code>lsof</code>? Definitely not, there&rsquo;s also <code>-u &lt;username&gt;</code> where you can use to list connection opened by a particular user.
+If you want to find out more, you can read the <code>man</code> page of <code>lsof</code>.</p>
+<p>Alternatively, if you just want to have quick access on tips and tricks to use
+<code>lsof</code>, bookmark this page, or consider installing <a href="https://github.com/tldr-pages/tldr"><code>tldr</code></a> and access the
+cheatsheet of <code>lsof</code> by calling <code>tldr lsof</code> in your terminal.</p>
+
+</article>
+
+    </main>
+
+
+
+
+<hr/>
+<footer class="w-full text-center p-4 pin-b text-xs text-gray-400">
+    <p>made with <a href="https://gohugo.io" class="underline hover:text-blue-400">Hugo</a> and <a href="https://tailwindcss.com" class="underline hover:text-blue-400">TailwindCSS</a></p>
+</footer>
+</body>
+</html>

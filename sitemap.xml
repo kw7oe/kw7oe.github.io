@@ -2,6 +2,21 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://kaiwern.com/posts/2022/06/20/handy-lsof-options-to-know/</loc>
+    <lastmod>2022-06-20T16:50:50+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/tags/lsof/</loc>
+    <lastmod>2022-06-20T16:50:50+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/posts/</loc>
+    <lastmod>2022-06-20T16:50:50+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/tags/</loc>
+    <lastmod>2022-06-20T16:50:50+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/tags/tips/</loc>
+    <lastmod>2022-06-20T16:50:50+08:00</lastmod>
+  </url><url>
     <loc>https://kaiwern.com/tags/elixir/</loc>
     <lastmod>2022-05-26T17:29:37+08:00</lastmod>
   </url><url>
@@ -10,12 +25,6 @@
   </url><url>
     <loc>https://kaiwern.com/tags/oss/</loc>
     <lastmod>2022-05-26T17:29:37+08:00</lastmod>
-  </url><url>
-    <loc>https://kaiwern.com/posts/</loc>
-    <lastmod>2022-05-26T17:29:37+08:00</lastmod>
-  </url><url>
-    <loc>https://kaiwern.com/tags/</loc>
-    <lastmod>2022-05-27T08:09:22+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/tags/files/</loc>
     <lastmod>2022-05-20T21:13:14+08:00</lastmod>
@@ -117,7 +126,7 @@
     <lastmod>2022-04-26T17:24:39+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/about/</loc>
-    <lastmod>2022-06-15T16:21:35+08:00</lastmod>
+    <lastmod>2022-06-20T16:55:52+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/posts/2021/06/15/the-one-simple-trick-to-accomplish-your-so-many-goals/</loc>
     <lastmod>2022-04-26T17:24:39+08:00</lastmod>
