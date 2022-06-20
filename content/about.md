@@ -25,8 +25,15 @@ I'll be focusing on:
 above and inspired by
 [Let's Build a Simple Database](https://cstack.github.io/db_tutorial/) and
 [Crafting Intepreters](https://craftinginterpreters.com/).
+- Implementing [Viewstamped Replication (VSR) in
+Elixir](https://github.com/kw7oe/vsr-elixir) based on this
+[paper](https://pmg.csail.mit.edu/papers/vr-revisited.pdf).
 - Learning more about database and exploring other lower level system like networking, observability and etc.
 - Publish and share more of my work publicly.
+
+Apart from that, I have also:
+
+- Wrote [`rok`](https://github.com/kw7oe/rok), a minimal reverse proxy inspired by [ngrok](https://ngrok.io).
 
 ## Abandoned Projects
 
