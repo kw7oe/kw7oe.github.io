@@ -1,7 +1,7 @@
 ---
-title: "Handy `lsof` command to know"
-date: 2022-05-26T17:32:46+08:00
-draft: true
+title: "Handy `lsof` options to know"
+date: 2022-06-20T16:32:46+08:00
+tags: ["tips", "lsof"]
 ---
 
 When working with lower level network programming, we often want to know the information
@@ -10,12 +10,26 @@ help us to achieve that like `netstat`, `ss` and `lsof`.
 
 `netstat` is one of the commonly used command line, available on almost
 every OS, however, it's really hard to learn it. While `ss` is splendid to use,
-unfortunately, it's not available for MacOS. That left us with `lsof`, which is
-short of `list open files`.
+unfortunately, it's not available for MacOS.
 
-So, let me share some of the `lsof` options I found useful day to day.
 
-### `lsof -i :<PORT>`
+That left us with `lsof`, which is short of `list open files`.
+Hence, I'll share some of the `lsof` options I found useful day to day in this
+post.
+
+**TLDR:**
+
+```bash
+lsof -P -i :3000 -s TCP:LISTEN
+```
+
+- `-i <PORT>`
+- `-s <STATE>`
+- `-P`
+
+## Details
+
+### `-i :<PORT>`
 
 List all the network connection on port `<PORT>`. Example:
 
@@ -60,7 +74,7 @@ beam.smp 72915  kai   53u  IPv4 0x2eddb902b1b44f51      0t0  TCP localhost:4000 
 Wait, what is `-s TCP:LISTEN` and `-P`? That's what we are going to cover next.
 
 
-### `lsof -i :<PORT> -s TCP:LISTEN`
+### `-s TCP:LISTEN`
 
 List the TCP connection that is listening to `<PORT>`.
 This filter out connections that are connecting to `PORT`
@@ -74,8 +88,11 @@ COMMAND   PID USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
 hugo    32849  kai    7u  IPv4 0x2eddb902b289fa31      0t0  TCP localhost:bmc_patroldb (LISTEN)
 ```
 
-Notice that, there's not `1313` anywhere in our result! That's because `hugo`
-use the port name `bmc_patroldb` instead of port number!
+You could replace `TCP:LISTEN` with `TCP:ESTABLISHED` if you want to the
+connection established from the client side to the server.
+
+Notice that, there's not `1313` anywhere in our result! That's because `lsof`
+is using the port name `bmc_patroldb` instead of port number!
 
 {{% callout title="How is port name defined?" %}}
 
@@ -94,7 +111,7 @@ Hence, `bmc_patroldb` is shown instead of the port number.
 So, the next command will be come in handy if you would like to prevent that
 conversion from happening.
 
-### `lsof -P`
+### `-P`
 
 This basically prevent the conversion of port numbers to port names. Here's
 what the `man` page said:
@@ -109,4 +126,16 @@ COMMAND   PID USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
 hugo    32849  kai    7u  IPv4 0x2eddb902b289fa31      0t0  TCP localhost:1313 (LISTEN)
 ```
 
+## Closing
+
+Is that all the options available for `lsof`? Definitely not, there's also `-u
+<username>` where you can use to list connection opened by a particular user.
+If you want to find out more, you can read the `man` page of `lsof`.
+
+Alternatively, if you just want to have quick access on tips and tricks to use
+`lsof`, bookmark this page, or consider installing [`tldr`][1] and access the
+cheatsheet of `lsof` by calling `tldr lsof` in your terminal.
+
+
 [0]: https://unix.stackexchange.com/questions/611406/how-to-assign-a-friendly-name-to-a-port-number-in-linux
+[1]: https://github.com/tldr-pages/tldr
