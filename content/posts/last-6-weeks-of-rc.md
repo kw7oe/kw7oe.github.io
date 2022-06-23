@@ -7,10 +7,28 @@ tags: ["recurse-center"]
 
 In my previous post, I talk about how my first 6 weeks in the Recurse Center
 (RC). I also closed up the post with some of the things I wanted to achieve on
-my next 6 weeks. So, in this post, I'm going to reflect on those.
-
+my next 6 weeks. In this post, I'm going to reflect about my last 6 weeks in RC
+and later on walkthrough and update on the goals I set out.
 
 ## Reflection
+
+Out of the the last 6 weeks in RC, I'm travelling and dealing with chores for around
+1 week.  During that time, I'm kind of like on and off in RC. I participated some events,
+wrote some checkin, but less time is spent on writing code.
+
+Despite the reduced time commitments and work done during that week, I still felt
+like I have learnt a lot more and achieve a lot more that I expected. One of
+such occassion is when I participated a talk about consensus protocol in
+distributed database system by TigerBeetle engineer. In an hour plus of the
+talk and Q&A, I had learnt a lot of things that would take quite
+a lot more time for me to discover otherwise. This one event made me feel that
+my week in RC was not wasted despite having less focus time than usual.
+
+Being in RC also broaden my horizons way more than I expected. Every
+week, I'll never know what new territory I would discover, or what
+cool and creative stuff that is possible through programming. I have learn that
+programming isn't just purely about solving technical problems, it can also be
+used to generate arts and do a lot of different creative stuff.
 
 - Pairing is great. Having a project that you can paired with people is really
 recommended to get the best out of your time in RC.
@@ -106,14 +124,6 @@ timezone)_ to just listen it and social a bit.
 
 Things don't always go well as we planned, so next, let's talk about things
 that don't progress as I expected.
-
-Before that, I want to add that during my last 6 weeks,
-there are 2 weeks where I was travelling around, For that 2 weeks, I went
-for a short vacation, spent some time with my family and deal
-with chores and adulting stuff. If I were to be able to commit fully 6 weeks,
-I think I would probably accomplished most of the things I set out to.
-Anyway, enough of excuse and let's talk about those goals that didn't progress
-as expected.
 
 Regarding my work on database system, it doesn't progress as much as I hope
 for. I'm currently still implementing the lock manager to allow concurrency
