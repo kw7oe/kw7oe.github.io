@@ -30,19 +30,18 @@ cool and creative stuff that is possible through programming. I have learn that
 programming isn't just purely about solving technical problems, it can also be
 used to generate arts and do a lot of different creative stuff.
 
-- Pairing is great. Having a project that you can paired with people is really
-recommended to get the best out of your time in RC.
-- You can come to RC with a plan, but make sure it is loosely held. If I stick
-to my plan I wrote 12 weeks ago, I would have enjoy my time here as much. Have
-a plan, but change things around when you came across other things you want to
-do.
-- 12 hours difference in timezone isn't stopping me from having fun. There are
-tough time when dealing with sleep cycle, but it's definitely worth it. The
-timezone also allow me to easily balance between spending time on events and
-focus work.
+Another thing that I realized during my time in RC is that pairing is great.
+Having a project that I can paired with people really get the best out of my time
+in RC. I have learnt so much from pairing with the others.
 
+In retrospect, I also think that having a plan on what I want to do in RC is
+great as long as it is loosely held. If I stick to my plan I wrote 12 weeks ago,
+I might not enjoy my time here as much. Have a plan, but change things around when
+you came across other things you want to do.
 
-## Accomplishments
+Overall, the last 6 weeks was great even there were some hiccups.
+
+## Review
 
 A quick recap on the goals of my last 6 weeks in RC:
 
@@ -54,8 +53,11 @@ A quick recap on the goals of my last 6 weeks in RC:
 having coffee chats.
 - Job hunting.
 
-Out of the 6 items, I think I accomplished 3 of them 🎉 Let's talk about
-each of it more.
+Out of the 6 items, I think I accomplished 3 of them 🎉
+
+## Accomplishments
+
+Let's start with the good one first.
 
 ### Build something related to networking.
 
@@ -147,3 +149,13 @@ Despite of not progressing well in my job searching, RC do have a great career s
 The career facilitators has been really helpful and professional in helping me in
 my journey to get a job.
 
+Never graduate. Alumni.
+
+Niceties
+
+## Thoughts
+
+12 hours difference in timezone isn't stopping me from having fun. There are
+tough time when dealing with sleep cycle, but it's definitely worth it. The
+timezone also allow me to easily balance between spending time on events and
+focus work.
