@@ -1,7 +1,6 @@
 ---
-title: "Adding new rules to iptables"
-date: 2022-06-30T12:50:46+08:00
-draft: true
+title: "Expose new port in iptables"
+date: 2022-07-02T13:50:46+08:00
 ---
 
 A while ago, I was trying to deploy a `ngrok` liked [reverse proxy
@@ -9,9 +8,8 @@ I implemented](https://github.com/kw7oe/rok) during my time in the Recurse Cente
 
 Since my implementation require to listen to different ports for different
 client, I'll need to expose those ports in my remote server in DigitalOcean.
-
-Long story short, it took me a while to figure out that by default DigitalOcean
-use `iptables` to block any incoming traffic from other ports.
+Long story short, it took me a while to figure out that the server is
+using `iptables` to block any incoming traffic from other ports.
 
 We can verify this by using the following `iptables` command:
 
@@ -19,7 +17,6 @@ We can verify this by using the following `iptables` command:
 kai@do:~$ sudo iptables --list
 Chain INPUT (policy ACCEPT)
 target     prot opt source     destination
-ACCEPT     all  --  anywhere   anywhere
 ACCEPT     tcp  --  anywhere   anywhere   tcp dpt:ssh
 ACCEPT     tcp  --  anywhere   anywhere   tcp dpt:http
 ACCEPT     tcp  --  anywhere   anywhere   tcp dpt:https
@@ -45,9 +42,11 @@ specifiying the port number by the end of the url:
 psychic-guide.example.com:3001
 ```
 
-This is still needed as by default port 80 is used for `http`.
+_(This is still needed as port 80 is used for `http` by default._)
+
 If you would like to learn more about `iptables`, DigitalOcean
-have some good resources:
+have some good resources to get started:
 
 - [Iptables Essentials: Common Firewall Rules and Commands](https://www.digitalocean.com/community/tutorials/iptables-essentials-common-firewall-rules-and-commands)
 - [How To List and Delete Iptables Firewall Rules](https://www.digitalocean.com/community/tutorials/how-to-list-and-delete-iptables-firewall-rules)
+
