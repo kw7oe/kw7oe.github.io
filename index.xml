@@ -8,6 +8,16 @@
     <language>en-us</language>
     <lastBuildDate>Wed, 15 May 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://kaiwern.com/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Expose new port in iptables</title>
+      <link>https://kaiwern.com/fragments/expose-new-port-in-iptables/</link>
+      <pubDate>Sat, 02 Jul 2022 13:50:46 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/fragments/expose-new-port-in-iptables/</guid>
+      <description>A while ago, I was trying to deploy a ngrok liked reverse proxy I implemented during my time in the Recurse Center to my DigitalOcean droplet.
+Since my implementation require to listen to different ports for different client, I&amp;rsquo;ll need to expose those ports in my remote server in DigitalOcean. Long story short, it took me a while to figure out that the server is using iptables to block any incoming traffic from other ports.</description>
+    </item>
+    
+    <item>
       <title>Handy `lsof` options to know</title>
       <link>https://kaiwern.com/posts/2022/06/20/handy-lsof-options-to-know/</link>
       <pubDate>Mon, 20 Jun 2022 16:32:46 +0800</pubDate>

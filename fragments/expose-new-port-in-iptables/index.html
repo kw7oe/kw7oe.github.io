@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>
+Expose new port in iptables | kw7oe
+</title>
+
+
+
+<meta name="generator" content="Hugo 0.98.0" />
+
+
+
+
+
+  
+  <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.dac98e0d40206aac10ee672374f9e62dc5ab71b0d1358edae64fdcff3a3f50e6.css" integrity="sha256-2smODUAgaqwQ7mcjdPnmLcWrcbDRNY7a5k/c/zo/UOY=">
+  <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora&family=Source+Sans+Pro:wght@400;600&display=swap" rel="stylesheet">
+
+
+<body class="flex flex-col min-h-screen px-6 max-w-prose md:w-2/3 m-auto"><nav class="mt-8">
+  <ul id="nav-menu" class="w-full flex items-center list-reset">
+    
+    <li>
+      <a href="https://kaiwern.com/">Home</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/fragments/">Fragments</a>
+    </li>
+    
+
+    
+
+
+    
+    <li>
+      <a href="https://kaiwern.com/about/">About</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/tags/">Tags</a>
+    </li>
+    
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+  </ul>
+</nav>
+
+
+    <main class="flex-1 mt-10 sm:mt-12">
+<div>
+  <header class="mb-8 font-sans-serif">
+    
+    <div class="text-sm font-gray-700 mb-8">
+      <p class="uppercase font-semibold">
+      <a class="text-gray-700" href="/fragments">fragments</a>
+      </p>
+      <p>Jul 02, 2022</p>
+    </div>
+    
+
+    <h1 class="text-3xl mb-1 font-semibold">Expose new port in iptables</h1>
+    
+      <p class="italic text-xs">Last updated at: Jul 02, 2022</p>
+    
+  </header>
+
+  <article class="prose serif mb-16 text-gray-800">
+    <p>A while ago, I was trying to deploy a <code>ngrok</code> liked <a href="https://github.com/kw7oe/rok">reverse proxy
+I implemented</a> during my time in the Recurse Center to my DigitalOcean droplet.</p>
+<p>Since my implementation require to listen to different ports for different
+client, I&rsquo;ll need to expose those ports in my remote server in DigitalOcean.
+Long story short, it took me a while to figure out that the server is
+using <code>iptables</code> to block any incoming traffic from other ports.</p>
+<p>We can verify this by using the following <code>iptables</code> command:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kai@do:~$ sudo iptables --list
+</span></span><span class="line"><span class="cl">Chain INPUT <span class="o">(</span>policy ACCEPT<span class="o">)</span>
+</span></span><span class="line"><span class="cl">target     prot opt <span class="nb">source</span>     destination
+</span></span><span class="line"><span class="cl">ACCEPT     tcp  --  anywhere   anywhere   tcp dpt:ssh
+</span></span><span class="line"><span class="cl">ACCEPT     tcp  --  anywhere   anywhere   tcp dpt:http
+</span></span><span class="line"><span class="cl">ACCEPT     tcp  --  anywhere   anywhere   tcp dpt:https
+</span></span><span class="line"><span class="cl">ACCEPT     icmp --  anywhere   anywhere
+</span></span><span class="line"><span class="cl">ACCEPT     udp  --  anywhere   anywhere   udp spt:ntp
+</span></span><span class="line"><span class="cl">ACCEPT     all  --  anywhere   anywhere   state RELATED,ESTABLISHED
+</span></span><span class="line"><span class="cl">LOG        all  --  anywhere   anywhere   limit: avg 15/min burst <span class="m">5</span> LOG level debug prefix <span class="s2">&#34;Dropped by firewall: &#34;</span>
+</span></span><span class="line"><span class="cl">DROP       all  --  anywhere   anywhere
+</span></span></code></pre></div><p>As you can see, some of the ports allowed are for the <code>ssh</code>, <code>http</code> and <code>https</code>
+protocol. To expose other ports, we need to add a new rule under the <code>INPUT</code>
+chain:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo iptables -I INPUT -p tcp -m tcp --dport <span class="m">3001</span> -j ACCEPT
+</span></span></code></pre></div><p>With this change, now I could reach the service I&rsquo;m running on port 3001 by
+specifiying the port number by the end of the url:</p>
+<pre tabindex="0"><code>psychic-guide.example.com:3001
+</code></pre><p><em>(This is still needed as port 80 is used for <code>http</code> by default.</em>)</p>
+<p>If you would like to learn more about <code>iptables</code>, DigitalOcean
+have some good resources to get started:</p>
+<ul>
+<li><a href="https://www.digitalocean.com/community/tutorials/iptables-essentials-common-firewall-rules-and-commands">Iptables Essentials: Common Firewall Rules and Commands</a></li>
+<li><a href="https://www.digitalocean.com/community/tutorials/how-to-list-and-delete-iptables-firewall-rules">How To List and Delete Iptables Firewall Rules</a></li>
+</ul>
+
+
+    <div class="float-right mb-8">
+      <p class="text-sm mb-4 font-gray-700 italic">(276 words)</p>
+    </div>
+  </article>
+
+</div>
+
+    </main>
+
+
+
+
+<hr/>
+<footer class="w-full text-center p-4 pin-b text-xs text-gray-400">
+    <p>made with <a href="https://gohugo.io" class="underline hover:text-blue-400">Hugo</a> and <a href="https://tailwindcss.com" class="underline hover:text-blue-400">TailwindCSS</a></p>
+</footer>
+</body>
+</html>
