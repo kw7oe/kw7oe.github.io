@@ -4,9 +4,10 @@ date: 2022-07-02T13:50:46+08:00
 ---
 
 A while ago, I was trying to deploy a `ngrok` liked [reverse proxy
-I implemented](https://github.com/kw7oe/rok) during my time in the Recurse Center to my DigitalOcean droplet.
+I implemented](https://github.com/kw7oe/rok) during my time in the [Recurse Center](https://www.recurse.com)
+to my DigitalOcean droplet.
 
-Since my implementation require to listen to different ports for different
+Since my implementation require listening to different ports for different
 client, I'll need to expose those ports in my remote server in DigitalOcean.
 Long story short, it took me a while to figure out that the server is
 using `iptables` to block any incoming traffic from other ports.
