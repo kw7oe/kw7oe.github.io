@@ -13,7 +13,7 @@
       
       <guid>https://kaiwern.com/fragments/expose-new-port-in-iptables/</guid>
       <description>A while ago, I was trying to deploy a ngrok liked reverse proxy I implemented during my time in the Recurse Center to my DigitalOcean droplet.
-Since my implementation require to listen to different ports for different client, I&amp;rsquo;ll need to expose those ports in my remote server in DigitalOcean. Long story short, it took me a while to figure out that the server is using iptables to block any incoming traffic from other ports.</description>
+Since my implementation require listening to different ports for different client, I&amp;rsquo;ll need to expose those ports in my remote server in DigitalOcean. Long story short, it took me a while to figure out that the server is using iptables to block any incoming traffic from other ports.</description>
     </item>
     
     <item>
