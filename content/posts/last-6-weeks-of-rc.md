@@ -5,16 +5,28 @@ draft: true
 tags: ["recurse-center"]
 ---
 
-In my previous post, I talk about how my first 6 weeks in the Recurse Center
-(RC). I also closed up the post with some of the things I wanted to achieve on
-my next 6 weeks. In this post, I'm going to reflect about my last 6 weeks in RC
-and later on walkthrough and update on the goals I set out.
+Another 6 weeks has passed since I wrote about my first 6 weeks in the Recurse
+Center (RC). Time flies once we enter the last 6 weeks of RC. Can't believe
+that in a blink of eye, I have "never graduated" from my RC batch.
+
+In the previous post, I closed up the things I wanted to achieve on
+my last 6 weeks in RC. In this post, I'm going to reflect about my last
+6 weeks in RC and later on walkthrough and update on the goals I set out.
+
+This post is structured as:
+
+- [Reflection](#reflection)
+- [Review](#review)
+  - [Achievements](#achievements)
+  - [Below Expectations](#below-expectations)
+- [What I like about RC](#what-i-like-about-rc)
+- [Closing](#closing)
 
 ## Reflection
 
-Out of the the last 6 weeks in RC, I'm travelling and dealing with chores for around
-1 week.  During that time, I'm kind of like on and off in RC. I participated some events,
-wrote some checkin, but less time is spent on writing code.
+For the the last 6 weeks in RC, I have been travelling and dealing with chores for
+a week. During that time, I'm kind of like on and off in RC. I participated some
+events, wrote some checkin, but less time is spent on writing code.
 
 Despite the reduced time commitments and work done during that week, I still felt
 like I have learnt a lot more and achieve a lot more that I expected. One of
@@ -31,7 +43,7 @@ programming isn't just purely about solving technical problems, it can also be
 used to generate arts and do a lot of different creative stuff.
 
 Another thing that I realized during my time in RC is that pairing is great.
-Having a project that I can paired with people really get the best out of my time
+Having a project that I can paired with people get the best out of my time
 in RC. I have learnt so much from pairing with the others.
 
 In retrospect, I also think that having a plan on what I want to do in RC is
@@ -55,11 +67,11 @@ having coffee chats.
 
 Out of the 6 items, I think I accomplished 3 of them 🎉
 
-## Accomplishments
+### Accomplishments
 
 Let's start with the good one first.
 
-### Build something related to networking.
+#### Build something related to networking.
 
 One of the proudest outcome I have during my last 6 weeks in RC is:
 
@@ -72,16 +84,16 @@ commitments.
 - I'm not the only coder. Half of the functionality of the project is a result
 of multiple pairings with another batch mate.
 
-This project will not be what it is if I have not paired with the others. Pairing on a project is a really great experience for me.
+This project will not be what it is if I have not paired with the others. Pairing on a project is a great experience for me.
 
 > Throughout my time in RC, pairing is definitely the activities with highest ROI. You
 get to social, have fun and also learn a tons from each other!
 
-I'm really glad that I decided to allocate some time to work on other stuff
+I'm glad that I decided to allocate some time to work on other stuff
 other than database system. This has not been possible otherwise!
 
 
-### Implement Raft Consensus protocol in Rust
+#### Implement Raft Consensus protocol in Rust
 
 While I didn't end up implementing Raft consesus protocol in Rust, I
 started implementing Viewstamped Replication (VSR) protocol in Elixir. This is
@@ -99,30 +111,31 @@ implementation can be categorised into 4 parts:
 At the time of writing, I have completed up to normal operations and going to
 implement the view changes protocol next.
 
-### Involve more socially
+#### Involve more socially
 
 On the social side of things, I think I'm doing slightly better than my first
 6 weeks.
 
 Thanks to the onboarding buddy practice of RC. I get to have a couple of
-coffee chat with with my onboarding buddies. Having those conversation is really
+coffee chat with with my onboarding buddies. Having those conversation is
 fun and I always learn something from people in RC.
 
 If you're someone like me who takes time to warm up to social, I would definitely
 recommend choosing 12 weeks batch. This allow you to be the onboarding buddy of the
-next batch. A little push and responsibilities like this really makes me be more
+next batch. A little push and responsibilities like this makes me be more
 proactive in socializing with people. Normally, RC will arrange people with
 similar interests to be your onboarding buddy.
 
-I also Participated a couple of events. One of the most memorable one is the talk about
+I also participated a couple of events. One of the most memorable one is the talk about
 distributed database design by TigerBeetle engineer. It explain Viewstamped Replication
-really well and it's part of the reason why I chose to implement VSR instead of Raft.
+well and it's part of the reason why I chose to implement VSR instead of Raft.
 The talk is available on Youtube [here](https://www.youtube.com/watch?v=rNmZZLant9o).
+
 Sometimes, I do also jump into Coaches _(basically zoom link where people just
 do stuff)_ and Coffee Consumption Group _(an event for early birds and EU
-timezone)_ to just listen it and social a bit.
+timezone)_ to just listen in and social a bit.
 
-## Below expectations
+### Below expectations
 
 Things don't always go well as we planned, so next, let's talk about things
 that don't progress as I expected.
@@ -135,7 +148,7 @@ afraid of misguiding people. Hence, I decided to put it off for a while and
 come back once I have a better understanding of database system implementation.
 
 Job searching has been on and off for me as well. Applied to a couple of
-companies and didn't really get passed the resume stage. Given that experience,
+companies and didn't get passed the resume stage. Given that experience,
 I'm struggling on what I should go for next. Ideally, I
 want to pivot my career into system programming but it's been quite tough to get
 an interview given my background.
@@ -143,17 +156,82 @@ an interview given my background.
 Considering that my time in RC is limited, I decided to postpone it after the end of
 my RC batch.
 
-## The good stuff about RC
+## What I like about RC
 
-Despite of not progressing well in my job searching, RC do have a great career service!
+Participating RC for a 12 weeks batch is one of the most memorable and beneficial
+experience I had in 2022. I have learnt and experience a lot and would
+recommend to anyone who want to become a better programmer or find joy in
+computing again. Let's talk about some of the things I really like about RC.
+
+### Serendipity
+
+Every day in RC is full of serendipity. As mentioned a few time above, I always
+came across something unexpected whenever I participated in any social events
+in RC. I have learnt so much of unknowns unknowns throughout my time here.
+
+Sometime, it feels kind of magical after an event or conversation.
+I'm not really good at expressing my thoughts on this so let me stop writing here.
+
+### Never Graduate
+
+Do you know that you can still participate in RC events after your batch ended?
+If you didn't, now you know. You don't graduate in RC, you become the alumni.
+
+While not every alumni is active in RC, there are still an outstanding amount of
+participations of alumni in day to day RC activities.
+
+I think this is part of what make RC a great place. As a participants, you get
+to learn and navigate this new unknown territory with the help of the alumni
+_(as well as your batch mate and facilitators)_. For example, I have an
+alumni from Malaysia reached out for a coffee chat and share some useful
+advices to me.
+
+As an alumni, your participation is optional. Sometime, people from a
+couple of batch ago still participate in events. Even for now, I still
+checkin weekly to share about my work and learn about what the others
+have been up to as well. It's a really great community to be in without much
+commitments.
+
+### Career Service
+
+RC have a great career service! In general, RC career service:
+
+> offers personalized career services to help you find a new job, based on your experience and what you’re looking for next in your career.
+
+Apart from helping you find a new job, they organize events to help people
+in their career as well. You could reach out to them to have a chat about your
+career.
+
 The career facilitators has been really helpful and professional in helping me in
-my journey to get a job.
+my journey to get a job. It's also kind of reaffirming to have people who have
+expertise in this area and know the market to talk about our career.
 
-Never graduate. Alumni.
+### Niceties
 
-Niceties
+Another thing I like a lot is about the niceties practice in RC. By the end of
+a batch, you are prompt to write some niceties to people who are in batch
+together with you, especially those where their batch is ending.
 
-## Thoughts
+One of the reason I like this is because, it guide me to reflect and be
+proactive to write nice things about people. We often take things for granted
+and are not good at expressing our thanks to the people who have helped us
+along the way. Niceties help us with that.
+
+Receiving niceties from people is also great. It kind of make you feel
+appreciated and more confidence about yourself?
+
+We often judge ourselves more critically. Others, tend to be able to have less
+bias. Hence, receiving niceties from the others also helpbalancing our
+critical view with the other perspectives.
+
+Personally, I felt really heartwarming and confidence about myself.
+
+While there is more I could write about how RC operates really well from my
+perspective, I guess I'll stop writing here first for the time being.
+
+## Closing
+
+_WIP_
 
 12 hours difference in timezone isn't stopping me from having fun. There are
 tough time when dealing with sleep cycle, but it's definitely worth it. The
