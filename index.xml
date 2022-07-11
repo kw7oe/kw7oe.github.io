@@ -174,17 +174,6 @@ After using recon_trace a few times and always needing to going back to the docu
     </item>
     
     <item>
-      <title>About</title>
-      <link>https://kaiwern.com/about/</link>
-      <pubDate>Sat, 19 Jun 2021 00:00:00 +0000</pubDate>
-      
-      <guid>https://kaiwern.com/about/</guid>
-      <description>Hi, I am Kai Wern.
-Welcome to my blog. Here I write about software and life. Some of the tools I used day to day are: vim, Elixir/Phoenix, Rust and PostgreSQL. You can expect posts about these from my blog.
-I&amp;rsquo;m now into photography and drawing as well and am trying to write more consistently.</description>
-    </item>
-    
-    <item>
       <title>The one simple trick to accomplish your (so many) goals</title>
       <link>https://kaiwern.com/posts/2021/06/15/the-one-simple-trick-to-accomplish-your-so-many-goals/</link>
       <pubDate>Tue, 15 Jun 2021 22:00:00 +0800</pubDate>
@@ -476,6 +465,17 @@ Initial Approach The first thought that come to my mind will be get the div#id o
       <description>In Ruby, .() is a syntatic sugar for call method.
 class Person def call &amp;#34;Hello World&amp;#34; end end Person.new.() #=&amp;gt; Hello World In this example, we declare a Person class and call method in the class. With this, we can later execute Person.new.() to call the call method.
 Note that, we need to initialize the Person object first by calling new, since the call is a instance method.</description>
+    </item>
+    
+    <item>
+      <title>About</title>
+      <link>https://kaiwern.com/about/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://kaiwern.com/about/</guid>
+      <description>Hi, welcome to my blog! I am Kai Wern.
+Here I write about software and life. Some of the tools I use daily are vim, Elixir/Phoenix, Rust, and PostgreSQL. You can expect posts about these from my blog.
+Recently, I just finished up my batch in RC. During my time in RC, I have work on:</description>
     </item>
     
   </channel>
