@@ -5,8 +5,9 @@ draft: true
 ---
 
 A couple of weeks ago, while I was working through the code in the article:
-[Request coalescing in async Rust](https://fasterthanli.me/articles/request-coalescing-in-async-rust), I
-failed to replicate the benchmark performance of the HTTP server written in Rust tokio.
+[Request coalescing in async Rust](https://fasterthanli.me/articles/request-coalescing-in-async-rust) and
+reach the benchmark section of the article, I always get capped at around 16k requests when I benchmark
+locally with `oha`.
 
 In the article, the author managed to have the server perform up to 400k over
 10 seconds:
@@ -22,16 +23,37 @@ Summary:
   Requests/sec: 46809.3602
 ```
 
-However, when I attempt to benchmark the same code in my machine with `oha`, I
-always get capped at around 16k requests.
+## Investigation
 
 I spent some of my time to research further and turn out that:
 
-There's a limit of ephemeral port so the code of accepting a new connection will
-always use one of its port.
+There's a limit of ephemeral port. Every time our `TcpListener` accept a new connection, it will
+use one of the ephemeral port. The range of the ports can be obtained by
+running `sysctl`:
 
-According to the TCP spec, once a socket is close, it will go into `TIME_WAIT` phase,
-which will wait for `2 * MSL time`, which can be set through the `net.inet.tcp.msl` with `sysctl`.
+```bash
+╰─➤  sudo sysctl net.inet.ip.portrange.hifirst
+net.inet.ip.portrange.hifirst: 49152
+╰─➤  sudo sysctl net.inet.ip.portrange.hilast
+net.inet.ip.portrange.hilast: 65535
+```
+
+By default, my machine have a total of around 16k ephemeral ports available to
+be used. So that explain partly why I'm getting stucked at 16k requests during
+benchmarking.
+
+But here come's the question:
+
+> aren't we closing the ports after a request is served?
+
+Yes. If that's the case, why the ports aren't avaiable to be used?
+
+It turn out that, according to the TCP spec, once a socket is close, it will go into `TIME_WAIT` phase.
+In the `TIME_WAIT` phase, the connection is still kept around to deal with
+delayed packets.
+
+By default, the `TIME_WAIT` phase will wait for `2 * MSL time`. This can be set through the `net.inet.tcp.msl`
+with `sysctl` as well.
 
 So after 16k requests, my laptop ran out of ephemeral ports, as most of it is still in `TIME_WAIT` phase.
 By defualt, MacOS have a `MSL time` of 15 seconds:
@@ -49,4 +71,5 @@ requests.
 - [ruby - Why does a simple Thin server stop responding at 16500 requests when benchmarking? - Stack Overflow](https://stackoverflow.com/questions/9156537/why-does-a-simple-thin-server-stop-responding-at-16500-requests-when-benchmarkin)
 - [Brian Pane » Blog Archive » Changing the length of the TIME_WAIT state on Mac OS X](http://web.archive.org/web/20090210151520/http://www.brianp.net/2008/10/03/changing-the-length-of-the-time_wait-state-on-mac-os-x/)
 - [What is the purpose of TIME WAIT in TCP connection tear down? - Network Engineering Stack Exchange](https://networkengineering.stackexchange.com/questions/19581/what-is-the-purpose-of-time-wait-in-tcp-connection-tear-down)
-
+- [tcp - What could cause so many TIME_WAIT connections to be open? - Stack Overflow](https://stackoverflow.com/questions/33177370/what-could-cause-so-many-time-wait-connections-to-be-open)
+- [Coping with the TCP TIME-WAIT state on busy Linux servers](https://vincent.bernat.ch/en/blog/2014-tcp-time-wait-state-linux)
