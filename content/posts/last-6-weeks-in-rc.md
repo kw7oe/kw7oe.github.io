@@ -1,7 +1,6 @@
 ---
 title: "Last 6 weeks in the Recurse Center"
-date: 2022-06-21T16:41:54+08:00
-draft: true
+date: 2022-07-12T16:00:54+08:00
 tags: ["recurse-center"]
 ---
 
