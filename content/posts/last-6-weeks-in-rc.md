@@ -213,9 +213,15 @@ Apart from helping you find a new job, they organize events to help people
 in their career as well. You could also reach out to them to have a chat about your
 career.
 
-The career facilitators have been really helpful and professional in helping me in
-my journey to get a job. It's also kind of reaffirming to have people who have
-expertise in this area and know the market to talk about our career.
+The career facilitators have been really helpful and professional. It's also kind of
+reaffirming to have people who have expertise in this area and know the market to
+talk about our career.
+
+Furthermore, you get to do mock interviews with the alumni. Some of the
+alumni will volunteer their time to conduct mock interviews to help folks
+to practice job interviewing. I got a lot of constructive feedbacks and felt
+more confident after two of the mock interviews I had. Definitely recommend it
+to anyone who's looking for jobs.
 
 ### Niceties
 
