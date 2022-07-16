@@ -4,10 +4,22 @@ date: 2022-07-09T21:53:53+08:00
 draft: true
 ---
 
-A couple of weeks ago, while I was working through the code in the article:
-[Request coalescing in async Rust](https://fasterthanli.me/articles/request-coalescing-in-async-rust) and
-reach the benchmark section of the article, I always get capped at around 16k requests when I benchmark
-locally with `oha`.
+A couple of weeks ago I was working through the article:
+[Request coalescing in async Rust](https://fasterthanli.me/articles/request-coalescing-in-async-rust)
+and faced a weird issue when reaching the benchmark section of the article.
+
+Here's the core code snippet of our HTTP server:
+
+```rust
+async fn run_server() -> Result<(), Box<dyn Error>> {
+    let addr: SocketAddr = "0.0.0.0:3779".parse()?;
+    let listener = TcpListener::bind(addr).await?;
+    loop {
+        let (stream, addr) = listener.accept().await?;
+        handle_connection(stream, addr).await?;
+    }
+}
+```
 
 In the article, the author managed to have the server perform up to 400k over
 10 seconds:
@@ -23,7 +35,52 @@ Summary:
   Requests/sec: 46809.3602
 ```
 
+However, when I benchmark it locally in my machine:
+```
+╰─➤  oha -z 10s http://localhost:3779
+Summary:
+  Success rate:	1.0000
+  Total:	10.0034 secs
+  Slowest:	6.7146 secs
+  Fastest:	0.0001 secs
+  Average:	0.0084 secs
+  Requests/sec:	1640.2498
+
+  Total data:	304.45 KiB
+  Size/request:	19 B
+  Size/sec:	30.43 KiB
+
+Response time histogram:
+  0.002 [15756] |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.005 [420]   |
+  0.007 [119]   |
+  0.009 [38]    |
+  0.012 [12]    |
+  0.014 [0]     |
+  0.016 [0]     |
+  0.018 [0]     |
+  0.021 [0]     |
+  0.023 [0]     |
+  0.025 [63]    |
+
+# ...
+
+Status code distribution:
+  [200] 16408 responses
+```
+
+It get capped at 16k requests, regardless of how many time I ran it.
+
 ## Investigation
+
+Core ideas:
+
+- Discover that those TCP connection is in TIME_WAIT state.
+- Why it can't be reused?
+- Talk about `netstat`.
+- Why stuck at 16k requests?
+- There's a limit of empheral ports.
+- Talk about `sysctl`
 
 I spent some of my time to research further and turn out that:
 
