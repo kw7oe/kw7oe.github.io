@@ -51,6 +51,7 @@
       "badge-primary",
       "callout",
       "callout-info",
+      "callout-warning",
       "chroma",
       "col-span-1",
       "col-span-8",
@@ -186,6 +187,7 @@
       "disconnect",
       "do-and-dont-of-genserver",
       "elimination-of-choice",
+      "emojify-function",
       "encode",
       "env-logger",
       "error-that-doesnt-require-any-action",
@@ -215,6 +217,7 @@
       "get-the-browser-current-active-tab-information",
       "getting-and-setting-your-database-timezone",
       "getting-return-tracevalue",
+      "getting-started",
       "glue-it-all-together",
       "glue-it-all-together-with-a-simple-bash-script",
       "goals",
@@ -365,6 +368,7 @@
       "timestamp-with-time-zone",
       "timestamp-without-time-zone",
       "tldr",
+      "to_title-function",
       "tracing",
       "tracing-function-with-return-tracevalue",
       "tracing-in-action",
@@ -413,7 +417,8 @@
       "writing-manifestjson",
       "writing-match-spec",
       "writing-our-parser",
-      "writing-the-dockerfile"
+      "writing-the-dockerfile",
+      "your-first-extension"
     ]
   }
 }

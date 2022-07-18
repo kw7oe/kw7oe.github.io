@@ -1329,6 +1329,13 @@ nav#TableOfContents > ul > li {
   border-color: rgb(59 130 246 / var(--tw-border-opacity));
 }
 
+.callout-warning {
+  --tw-bg-opacity: 1;
+  background-color: rgb(254 252 232 / var(--tw-bg-opacity));
+  --tw-border-opacity: 1;
+  border-color: rgb(234 179 8 / var(--tw-border-opacity));
+}
+
 .markdown blockquote {
   font-family: Lora, ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   font-family: 'Lora', sans-serif;

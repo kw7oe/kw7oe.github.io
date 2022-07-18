@@ -184,6 +184,11 @@ nav#TableOfContents > ul > li {
   @apply border-blue-500;
 }
 
+.callout-warning {
+  @apply bg-yellow-50;
+  @apply border-yellow-500;
+}
+
 .markdown blockquote {
   @apply font-serif;
   @apply my-4;
