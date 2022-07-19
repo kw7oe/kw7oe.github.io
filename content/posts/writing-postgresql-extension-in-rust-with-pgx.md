@@ -1,8 +1,7 @@
 ---
 title: "Writing PostgreSQL Extension in Rust With pgx"
-date: 2022-07-18T15:53:46+08:00
-draft: true
-tags: ['rust', 'postgresql']
+date: 2022-07-19T15:45:46+08:00
+tags: ['rust', 'postgresql', 'pgx']
 ---
 
 Recently, I came across how to write a PostgreSQL extension in Rust with `pgx`
@@ -13,7 +12,7 @@ out to be very straightforward to learn and write a PostgreSQL extension!
 this post are written in an evening _(a couple of hours)_ as a first timer learning about
 PostgreSQL extension and `pgx`.
 
-In this post, we are going to first walk-through the basic of using `pgx` to
+In this post, we are going to first walk through the basic of using `pgx` to
 write a PostgreSQL extension. Then, we are going to implement some custom
 string manipulation function such as `to_title` and `emojify` and expose it to
 PostgreSQL to be used.
@@ -32,17 +31,17 @@ prefer to follow the [official README][1].
 
 `pgx` have a great README and examples in their repository, so getting started
 is just as easy as following their [instructions][1] in the README. At the time of
-this writing, here's the steps needed:
+this writing, here are the steps needed:
 
 ```bash
 # Install cargo-pgx to make developing PostgreSQL extension
 # with pgx easily.
 
-# You'll going to use it the most during your development
+# You'll be going to use it the most during your development
 # and testing.
 cargo install cargo-pgx
 
-# Initialize pgx so it installed the dependencies it needed.
+# Initialize pgx, so it installed the dependencies it needed.
 # You'll only need to run it once.
 cargo pgx init
 ```
@@ -51,7 +50,7 @@ With this, you're all setup to write your first PostgreSQL extension in Rust.
 
 ## Your First Extension
 
-Let's write an Hello World example as usual. With `pgx`, we can use the
+Let's write a Hello World example as usual. With `pgx`, we can use the
 following command to generate our PostgreSQL extension project:
 
 ```
@@ -145,7 +144,7 @@ fn to_title(string: &str) -> String {
 }
 ```
 
-Every function we want to expose to PostgreSQL will need to be annotate with
+Every function we want to expose to PostgreSQL will need to be annotated with
 the `#[pg_extern]`. Here we take in a `&str` _(which are zero-copy)_ and return
 a `String` for our function.
 
@@ -217,7 +216,7 @@ Stopping Postgres
 ```
 
 Notice that, we are using the `#[pg_test]` annotations instead of `#[test]`.
-This allow `pgx` to run the unit test in-process within PostgreSQL. Hence, that
+This allows `pgx` to run the unit test in-process within PostgreSQL. Hence, that
 explain the `Stooping Postgres` text in the end of our output.
 
 You'll notice that `pgx` also help you to install the extension by coping some
@@ -243,7 +242,7 @@ If you ever faced a weird issue where your tests failed even after you fixed
 the implementation, try to run `cargo clean` and rerun the tests.
 
 It seems like there's some bug where if a test failed at first, the subsequent
-tests will continue to fail. Personally, I faced it in my machine but it could
+tests will continue to fail. Personally, I faced it in my machine, but it could
 be just me.
 
 {{% /callout %}}
@@ -383,7 +382,7 @@ function, we basically:
 1. Split the string by space.
 2. Map through each word to check if they are in the format of `:shortcode:`.
    We are using slice pattern matching here to match the string, so we'll need
-   to covert it into a `Vec<char>` first.
+   to convert it into a `Vec<char>` first.
 3. If the pattern matched, we get the shortcode by calling `emojis` function
    and then convert it to String. Else, we return the word unmodified.
 4. Lastly, we collect the words into `Vec<String>` and then join it back
@@ -440,10 +439,20 @@ CONTEXT:  src/lib.rs:39:26
 ## Wrap Up
 
 These are not the only thing we can do with `pgx` and PostgreSQL extension, if you would like
-to learn more, feel free to look into the [`pgx` examples][4]. Some of the
-examples also includes a link to a Twitch video highlight. For instance, I find
-the ["Bad Postgres Extension Ideas" with PGX][5] highlight to be really interesting!
+to learn more, feel free to look into the [`pgx` examples][4] and [articles][7] section.
+Some examples includes a link to a Twitch video highlight. For instance, I find
+the ["Bad Postgres Extension Ideas" with PGX][5] highlight to be fascinating!
 
+I haven't tried out writing my own PostgreSQL aggregates, if you want to learn
+more about it, I would suggest the following resources:
+
+- [How PostgreSQL aggregation works](https://www.timescale.com/blog/how-postgresql-aggregation-works-and-how-it-inspired-our-hyperfunctions-design-2/)
+- [PostgreSQL Aggregates with Rust](https://hoverbear.org/blog/postgresql-aggregates-with-rust/)
+
+The first article by Timescale is really recommended for someone who are new
+to the internals of PostgreSQL aggregates, and the second article covers some
+basic of `pgx`, PostgreSQL aggregates and ending up with writing
+aggregates in Rust with `pgx`.
 
 [0]: https://pganalyze.com/blog/5mins-postgres-custom-aggregates-rust-sql-pgx
 [1]: https://github.com/tcdi/pgx/tree/master#getting-started
@@ -452,3 +461,4 @@ the ["Bad Postgres Extension Ideas" with PGX][5] highlight to be really interest
 [4]: https://github.com/tcdi/pgx/tree/master/pgx-examples
 [5]: https://www.twitch.tv/videos/694514963
 [6]: https://pganalyze.com/blog
+[7]: https://github.com/tcdi/pgx/tree/master/articles
