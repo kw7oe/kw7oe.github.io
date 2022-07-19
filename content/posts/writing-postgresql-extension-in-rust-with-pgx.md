@@ -1,5 +1,5 @@
 ---
-title: "Writing PostgreSQL Extension in Rust With pgx"
+title: "Writing PostgreSQL extension in Rust With pgx"
 date: 2022-07-19T15:45:46+08:00
 tags: ['rust', 'postgresql', 'pgx']
 ---
