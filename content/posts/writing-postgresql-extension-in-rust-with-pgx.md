@@ -1,6 +1,6 @@
 ---
 title: "Writing PostgreSQL extension in Rust With pgx"
-date: 2022-07-19T15:45:46+08:00
+date: 2022-07-20T10:07:46+08:00
 tags: ['rust', 'postgresql', 'pgx']
 ---
 
@@ -21,11 +21,14 @@ The posts will be structured as:
 
 - [Getting Started](#getting-started)
 - [Your First Extension](#your-first-extension)
-- [`to_title` function](#to_title-function)
-- [`emojify` function](#emojify-function)
+  - [`to_title` function](#to_title-function)
+  - [`emojify` function](#emojify-function)
+- [Wrap Up](#wrap-up)
 
 Please skip to the last 2 sections if you are already well versed with `pgx` or
 prefer to follow the [official README][1].
+
+_All the codes are available in [this GitHub repository](https://github.com/kw7oe/pgx_strings_demo)._
 
 ## Getting Started
 
@@ -117,12 +120,13 @@ hello_world=# select hello_hello_world();
  Hello, hello_world
 ```
 
-## `to_title` function
+Our hello world is done!
 
-Well, that's kind of like cheating. So let's write our very first own
-extension, a `to_title` function, which:
+### `to_title` function
 
-> Convert a string to title case.
+Well, that's kind of like cheating. So let's write our own
+extension for real. We'll start with something simple, a `to_title` function,
+which convert a string to title case.
 
 {{% callout class="warning" %}}
 
@@ -131,7 +135,7 @@ application layer.
 
 {{% /callout %}}
 
-Writing a function is pretty straightforward, it's very similar to writing your
+Writing a custom PostgreSQL function is straightforward. It's similar to writing your
 usual Rust function with some caveats. For example, you'll have to ensure
 that the arguments and return type of the function is correct. Be sure to check
 out the documentation of `pgx` or [here][2].
@@ -179,8 +183,10 @@ it to a `String`.
 3. Then, collect all the transformed word into a `Vec<String>` and join it
 back with space again.
 
-There's probably a more performant and efficient implementation. Let's also
-write a simple test case to verify our implementation:
+There's probably a more performant and efficient implementation. Do let me
+know if you managed to come up with a better implementation.
+
+Let's also write a simple test case to verify our implementation:
 
 Under `mod tests`:
 
@@ -217,7 +223,7 @@ Stopping Postgres
 
 Notice that, we are using the `#[pg_test]` annotations instead of `#[test]`.
 This allows `pgx` to run the unit test in-process within PostgreSQL. Hence, that
-explain the `Stooping Postgres` text in the end of our output.
+explain the `Stoping Postgres` text in the end of our output.
 
 You'll notice that `pgx` also help you to install the extension by coping some
 files that are required by PostgreSQL for an extension.
@@ -254,7 +260,7 @@ cargo pgx run pg14
 ```
 
 Once you have the `psql` session running, you can check if your extension and
-function is available by running the following command:
+function is available by running the following command: `\dx` and `\df`:
 
 ```bash
 # List all the installed extensions
@@ -312,12 +318,9 @@ function.
 The `to_title` function is too simple to write, let's try something slightly
 more complex. Something that need an external crate.
 
-## `emojify` function
+### `emojify` function
 
-Next, let's write a `emojify` function that:
-
-> Convert the :shortcode: in a string to emoji.
-
+Next, let's write a `emojify` function that convert the `:shortcode:` in a string to emoji.
 For example:
 
 | Input | Output |
@@ -381,7 +384,7 @@ function, we basically:
 
 1. Split the string by space.
 2. Map through each word to check if they are in the format of `:shortcode:`.
-   We are using slice pattern matching here to match the string, so we'll need
+   We are using [slice pattern][8] matching here to match the string, so we'll need
    to convert it into a `Vec<char>` first.
 3. If the pattern matched, we get the shortcode by calling `emojis` function
    and then convert it to String. Else, we return the word unmodified.
@@ -454,6 +457,8 @@ to the internals of PostgreSQL aggregates, and the second article covers some
 basic of `pgx`, PostgreSQL aggregates and ending up with writing
 aggregates in Rust with `pgx`.
 
+Hopefully, you learn a thing or two from this post!
+
 [0]: https://pganalyze.com/blog/5mins-postgres-custom-aggregates-rust-sql-pgx
 [1]: https://github.com/tcdi/pgx/tree/master#getting-started
 [2]: https://github.com/tcdi/pgx#most-postgres-data-types-transparently-converted-to-rust
@@ -462,3 +467,4 @@ aggregates in Rust with `pgx`.
 [5]: https://www.twitch.tv/videos/694514963
 [6]: https://pganalyze.com/blog
 [7]: https://github.com/tcdi/pgx/tree/master/articles
+[8]: https://blog.thomasheartman.com/posts/feature(slice_patterns)
