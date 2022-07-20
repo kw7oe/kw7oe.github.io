@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>
+Writing PostgreSQL extension in Rust With pgx | kw7oe
+</title>
+
+
+
+<meta name="generator" content="Hugo 0.98.0" />
+
+
+
+
+
+  
+  <link rel="stylesheet" href="https://kaiwern.com/css/styles.min.da6e1927bcb6a0faebcb06ab9925c87524b8057860afacf48eab54fcbf9eef18.css" integrity="sha256-2m4ZJ7y2oPrrywarmSXIdSS4BXhgr6z0jqtU/L+e7xg=">
+  <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora&family=Source+Sans+Pro:wght@400;600&display=swap" rel="stylesheet">
+
+<body class="flex flex-col min-h-screen px-6 max-w-prose md:w-2/3 m-auto"><nav class="mt-8">
+  <ul id="nav-menu" class="w-full flex items-center list-reset">
+    
+    <li>
+      <a href="https://kaiwern.com/">Home</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/fragments/">Fragments</a>
+    </li>
+    
+
+    
+
+
+    
+    <li>
+      <a href="https://kaiwern.com/about/">About</a>
+    </li>
+    
+
+    
+    <li>
+      <a href="https://kaiwern.com/tags/">Tags</a>
+    </li>
+    
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+  </ul>
+</nav>
+
+    
+
+    <main class="flex-1 mt-10 sm:mt-12">
+<header class="mb-8 font-sans-serif">
+  <div class="text-sm font-gray-700 mb-8">
+      <p class="uppercase font-semibold">
+      <a class="text-gray-700" href="/posts">posts</a>
+      </p>
+      <p>Jul 20, 2022</p>
+  </div>
+
+  <h1 class="title mb-2">Writing PostgreSQL extension in Rust With pgx</h1>
+  <p class="text-sm font-gray-700 mb-4 italic">Estimated Reading Time: 8 minutes (1689 words) </p>
+
+   
+  <div id="tags">
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/rust/">rust</a>
+    </span>
+    
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/postgresql/">postgresql</a>
+    </span>
+    
+    
+    
+    
+    <span class="badge badge-primary rounded-badge">
+      <a href="https://kaiwern.com/tags/pgx/">pgx</a>
+    </span>
+    
+    
+  </div>
+</header>
+
+<article class="prose serif mb-12 text-gray-800">
+  
+
+  <p>Recently, I came across how to write a PostgreSQL extension in Rust with <code>pgx</code>
+from this <a href="https://pganalyze.com/blog/5mins-postgres-custom-aggregates-rust-sql-pgx">article</a> by <a href="https://pganalyze.com/blog">pganalyze</a>. I decided to play around with it. It turns
+out to be very straightforward to learn and write a PostgreSQL extension!</p>
+<p><code>pgx</code> does make it easy to write a PostgreSQL extensions in Rust! All the code of
+this post are written in an evening <em>(a couple of hours)</em> as a first timer learning about
+PostgreSQL extension and <code>pgx</code>.</p>
+<p>In this post, we are going to first walk through the basic of using <code>pgx</code> to
+write a PostgreSQL extension. Then, we are going to implement some custom
+string manipulation function such as <code>to_title</code> and <code>emojify</code> and expose it to
+PostgreSQL to be used.</p>
+<p>The posts will be structured as:</p>
+<ul>
+<li><a href="#getting-started">Getting Started</a></li>
+<li><a href="#your-first-extension">Your First Extension</a>
+<ul>
+<li><a href="#to_title-function"><code>to_title</code> function</a></li>
+<li><a href="#emojify-function"><code>emojify</code> function</a></li>
+</ul>
+</li>
+<li><a href="#wrap-up">Wrap Up</a></li>
+</ul>
+<p>Please skip to the last 2 sections if you are already well versed with <code>pgx</code> or
+prefer to follow the <a href="https://github.com/tcdi/pgx/tree/master#getting-started">official README</a>.</p>
+<p><em>All the codes are available in <a href="https://github.com/kw7oe/pgx_strings_demo">this GitHub repository</a>.</em></p>
+<h2 id="getting-started">Getting Started</h2>
+<p><code>pgx</code> have a great README and examples in their repository, so getting started
+is just as easy as following their <a href="https://github.com/tcdi/pgx/tree/master#getting-started">instructions</a> in the README. At the time of
+this writing, here are the steps needed:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># Install cargo-pgx to make developing PostgreSQL extension</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># with pgx easily.</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># You&#39;ll be going to use it the most during your development</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># and testing.</span>
+</span></span><span class="line"><span class="cl">cargo install cargo-pgx
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Initialize pgx, so it installed the dependencies it needed.</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># You&#39;ll only need to run it once.</span>
+</span></span><span class="line"><span class="cl">cargo pgx init
+</span></span></code></pre></div><p>With this, you&rsquo;re all setup to write your first PostgreSQL extension in Rust.</p>
+<h2 id="your-first-extension">Your First Extension</h2>
+<p>Let&rsquo;s write a Hello World example as usual. With <code>pgx</code>, we can use the
+following command to generate our PostgreSQL extension project:</p>
+<pre tabindex="0"><code>$ cargo pgx new hello_world
+</code></pre><p>Let&rsquo;s take a look at the generated <code>src/lib.rs</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="k">use</span><span class="w"> </span><span class="n">pgx</span>::<span class="o">*</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">pg_module_magic</span><span class="o">!</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cp">#[pg_extern]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">fn</span> <span class="nf">hello_hello_world</span><span class="p">()</span><span class="w"> </span>-&gt; <span class="kp">&amp;</span><span class="o">&#39;</span><span class="nb">static</span> <span class="kt">str</span> <span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="s">&#34;Hello, hello_world&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cp">#[cfg(any(test, feature = </span><span class="s">&#34;pg_test&#34;</span><span class="cp">))]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cp">#[pg_schema]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">mod</span> <span class="nn">tests</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">use</span><span class="w"> </span><span class="n">pgx</span>::<span class="o">*</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="cp">#[pg_test]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">fn</span> <span class="nf">test_hello_hello_world</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="fm">assert_eq!</span><span class="p">(</span><span class="s">&#34;Hello, hello_world&#34;</span><span class="p">,</span><span class="w"> </span><span class="k">crate</span>::<span class="n">hello_hello_world</span><span class="p">());</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="cp">#[cfg(test)]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">pub</span><span class="w"> </span><span class="k">mod</span> <span class="nn">pg_test</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">setup</span><span class="p">(</span><span class="n">_options</span>: <span class="nb">Vec</span><span class="o">&lt;&amp;</span><span class="kt">str</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c1">// perform one-off initialization when the pg_test framework starts
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">pub</span><span class="w"> </span><span class="k">fn</span> <span class="nf">postgresql_conf_options</span><span class="p">()</span><span class="w"> </span>-&gt; <span class="nb">Vec</span><span class="o">&lt;&amp;&#39;</span><span class="nb">static</span><span class="w"> </span><span class="kt">str</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c1">// return any postgresql.conf settings that are required for your tests
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">        </span><span class="fm">vec!</span><span class="p">[]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><p>We can see that the file contain three code sections: the implementation, tests
+and tests setup. For the rest of our post, we will mainly focus on writing the
+implementations and tests.</p>
+<p>And in fact, our first extension of Hello World is done. Let&rsquo;s run it!</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="n">cargo</span><span class="w"> </span><span class="n">pgx</span><span class="w"> </span><span class="n">run</span><span class="w"> </span><span class="n">pg14</span><span class="w">
+</span></span></span></code></pre></div><p>Then, before we run our <code>hello_hello_world</code> function, we will need to load
+the extension first using <code>CREATE EXTENSION</code> command:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">hello_world</span><span class="o">=#</span><span class="w"> </span><span class="k">CREATE</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="n">hello_world</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">CREATE</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">hello_world</span><span class="o">=#</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="n">hello_hello_world</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="n">hello_hello_world</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">--------------------
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w"> </span><span class="n">Hello</span><span class="p">,</span><span class="w"> </span><span class="n">hello_world</span><span class="w">
+</span></span></span></code></pre></div><p>Our hello world is done!</p>
+<h3 id="to_title-function"><code>to_title</code> function</h3>
+<p>Well, that&rsquo;s kind of like cheating. So let&rsquo;s write our own
+extension for real. We&rsquo;ll start with something simple, a <code>to_title</code> function,
+which convert a string to title case.</p>
+<div class="callout prose prose-p:mx-0 callout-warning">
+<p>In reality, you might not need this and should just transform it at the
+application layer.</p>
+</div>
+<p>Writing a custom PostgreSQL function is straightforward. It&rsquo;s similar to writing your
+usual Rust function with some caveats. For example, you&rsquo;ll have to ensure
+that the arguments and return type of the function is correct. Be sure to check
+out the documentation of <code>pgx</code> or <a href="https://github.com/tcdi/pgx#most-postgres-data-types-transparently-converted-to-rust">here</a>.</p>
+<p>Enough of intro, let&rsquo;s write some code:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="cp">#[pg_extern]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">fn</span> <span class="nf">to_title</span><span class="p">(</span><span class="n">string</span>: <span class="kp">&amp;</span><span class="kt">str</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nb">String</span> <span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><p>Every function we want to expose to PostgreSQL will need to be annotated with
+the <code>#[pg_extern]</code>. Here we take in a <code>&amp;str</code> <em>(which are zero-copy)</em> and return
+a <code>String</code> for our function.</p>
+<p>The actual implementation of <code>to_title</code> is as followed:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="n">string</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="sc">&#39; &#39;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">map</span><span class="p">(</span><span class="o">|</span><span class="n">word</span><span class="o">|</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">word</span><span class="p">.</span><span class="n">chars</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">.</span><span class="n">enumerate</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">.</span><span class="n">map</span><span class="p">(</span><span class="o">|</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">)</span><span class="o">|</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                    </span><span class="n">c</span><span class="p">.</span><span class="n">to_uppercase</span><span class="p">().</span><span class="n">to_string</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                    </span><span class="n">c</span><span class="p">.</span><span class="n">to_lowercase</span><span class="p">().</span><span class="n">to_string</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">})</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">.</span><span class="n">collect</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">})</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">collect</span>::<span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;&gt;</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#34; &#34;</span><span class="p">)</span><span class="w">
+</span></span></span></code></pre></div><p>Hopefully the code is self explainable:</p>
+<ol>
+<li>We first split the input by space. Alternatively, we could take in the
+splitter character from the user as well.</li>
+<li>Map through each <code>word</code>, for each character of the word, we either covert it
+to uppercase or lowercase depending on the position, and finally we collect
+it to a <code>String</code>.</li>
+<li>Then, collect all the transformed word into a <code>Vec&lt;String&gt;</code> and join it
+back with space again.</li>
+</ol>
+<p>There&rsquo;s probably a more performant and efficient implementation. Do let me
+know if you managed to come up with a better implementation.</p>
+<p>Let&rsquo;s also write a simple test case to verify our implementation:</p>
+<p>Under <code>mod tests</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="cp">#[pg_test]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">fn</span> <span class="nf">test_to_title</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="fm">assert_eq!</span><span class="p">(</span><span class="s">&#34;My Cool Extension&#34;</span><span class="p">,</span><span class="w"> </span><span class="k">crate</span>::<span class="n">to_title</span><span class="p">(</span><span class="s">&#34;my cool extension&#34;</span><span class="p">));</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><p>Now, let&rsquo;s test it by running <code>cargo test</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">running <span class="m">2</span> tests
+</span></span><span class="line"><span class="cl">building extension with features <span class="sb">`</span> pg_test<span class="sb">`</span>
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;cargo&#34;</span> <span class="s2">&#34;build&#34;</span> <span class="s2">&#34;--features&#34;</span> <span class="s2">&#34; pg_test&#34;</span> <span class="s2">&#34;--message-format=json-render-diagnostics&#34;</span>
+</span></span><span class="line"><span class="cl">   Compiling hello_world v0.0.0 <span class="o">(</span>/Users/kai/workspace/rust/extension/hello_world<span class="o">)</span>
+</span></span><span class="line"><span class="cl">    Finished dev <span class="o">[</span>unoptimized + debuginfo<span class="o">]</span> target<span class="o">(</span>s<span class="o">)</span> in 4.11s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">installing extension
+</span></span><span class="line"><span class="cl">     Copying control file to /Users/kai/.pgx/13.7/pgx-install/share/postgresql/extension/hello_world.control
+</span></span><span class="line"><span class="cl">     Copying shared library to /Users/kai/.pgx/13.7/pgx-install/lib/postgresql/hello_world.so
+</span></span><span class="line"><span class="cl"> Discovering SQL entities
+</span></span><span class="line"><span class="cl">  Discovered <span class="m">5</span> SQL entities: <span class="m">1</span> schemas <span class="o">(</span><span class="m">1</span> unique<span class="o">)</span>, <span class="m">4</span> functions, <span class="m">0</span> types, <span class="m">0</span> enums, <span class="m">0</span> sqls, <span class="m">0</span> ords, <span class="m">0</span> hashes, <span class="m">0</span> aggregates
+</span></span><span class="line"><span class="cl">     Writing SQL entities to /Users/kai/.pgx/13.7/pgx-install/share/postgresql/extension/hello_world--0.0.0.sql
+</span></span><span class="line"><span class="cl">    Finished installing hello_world
+</span></span><span class="line"><span class="cl"><span class="nb">test</span> tests::pg_test_to_title ... ok
+</span></span><span class="line"><span class="cl"><span class="nb">test</span> tests::pg_test_hello_hello_world ... ok
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">test</span> result: ok. <span class="m">2</span> passed<span class="p">;</span> <span class="m">0</span> failed<span class="p">;</span> <span class="m">0</span> ignored<span class="p">;</span> <span class="m">0</span> measured<span class="p">;</span> <span class="m">0</span> filtered out<span class="p">;</span> finished in 5.55s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Stopping Postgres
+</span></span></code></pre></div><p>Notice that, we are using the <code>#[pg_test]</code> annotations instead of <code>#[test]</code>.
+This allows <code>pgx</code> to run the unit test in-process within PostgreSQL. Hence, that
+explain the <code>Stoping Postgres</code> text in the end of our output.</p>
+<p>You&rsquo;ll notice that <code>pgx</code> also help you to install the extension by coping some
+files that are required by PostgreSQL for an extension.</p>
+<p>If you change the <code>#[pg_test]</code> to <code>#[test]</code>, the test would be run as normal
+Rust unit test:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">running <span class="m">2</span> tests
+</span></span><span class="line"><span class="cl"><span class="nb">test</span> tests::test_to_title ... ok <span class="c1"># &lt;-- Rust test get run first</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">building extension with features <span class="sb">`</span> pg_test<span class="sb">`</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># ... running other test in Postgres</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Stopping Postgres
+</span></span></code></pre></div><div class="callout prose prose-p:mx-0 callout-info">
+<p>If you ever faced a weird issue where your tests failed even after you fixed
+the implementation, try to run <code>cargo clean</code> and rerun the tests.</p>
+<p>It seems like there&rsquo;s some bug where if a test failed at first, the subsequent
+tests will continue to fail. Personally, I faced it in my machine, but it could
+be just me.</p>
+</div>
+<p>Now, let&rsquo;s run it in our PostgreSQL:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">cargo pgx run pg14
+</span></span></code></pre></div><p>Once you have the <code>psql</code> session running, you can check if your extension and
+function is available by running the following command: <code>\dx</code> and <code>\df</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># List all the installed extensions</span>
+</span></span><span class="line"><span class="cl"><span class="se">\d</span>x
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                   List of installed extensions
+</span></span><span class="line"><span class="cl">    Name     <span class="p">|</span> Version <span class="p">|</span>   Schema   <span class="p">|</span>         Description
+</span></span><span class="line"><span class="cl">-------------+---------+------------+------------------------------
+</span></span><span class="line"><span class="cl"> hello_world <span class="p">|</span> 0.0.0   <span class="p">|</span> public     <span class="p">|</span> hello_world:  Created by pgx
+</span></span><span class="line"><span class="cl"> plpgsql     <span class="p">|</span> 1.0     <span class="p">|</span> pg_catalog <span class="p">|</span> PL/pgSQL procedural language
+</span></span><span class="line"><span class="cl"><span class="o">(</span><span class="m">2</span> rows<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># List all functions</span>
+</span></span><span class="line"><span class="cl"><span class="se">\d</span>f
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                             List of functions
+</span></span><span class="line"><span class="cl"> Schema <span class="p">|</span>       Name        <span class="p">|</span> Result data <span class="nb">type</span> <span class="p">|</span> Argument data types <span class="p">|</span> Type
+</span></span><span class="line"><span class="cl">--------+-------------------+------------------+---------------------+------
+</span></span><span class="line"><span class="cl"> public <span class="p">|</span> hello_hello_world <span class="p">|</span> text             <span class="p">|</span>                     <span class="p">|</span> func
+</span></span><span class="line"><span class="cl"><span class="o">(</span><span class="m">1</span> row<span class="o">)</span>
+</span></span></code></pre></div><p>You&rsquo;ll notice that our new function is not added, so we&rsquo;ll have to reload our
+extension by dropping it and creating it again:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">drop</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">hello_world</span><span class="p">;</span><span class="w"> </span><span class="k">create</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">hello_world</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>Running <code>\df</code> again should show you the following:</p>
+<pre tabindex="0"><code>                             List of functions
+ Schema |       Name        | Result data type | Argument data types | Type
+--------+-------------------+------------------+---------------------+------
+ public | hello_hello_world | text             |                     | func
+ public | to_title          | text             | string text         | func
+(2 rows)
+</code></pre><p>Now we can finally test out our <code>to_title</code> function:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">select</span><span class="w"> </span><span class="n">to_title</span><span class="p">(</span><span class="s1">&#39;this is so cool&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">to_title</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-----------------
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w"> </span><span class="n">This</span><span class="w"> </span><span class="k">Is</span><span class="w"> </span><span class="n">So</span><span class="w"> </span><span class="n">Cool</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="k">row</span><span class="p">)</span><span class="w">
+</span></span></span></code></pre></div><p>With <code>pgx</code>, writing a PostgreSQL custom function is really like writing your day to day Rust
+function.</p>
+<p>The <code>to_title</code> function is too simple to write, let&rsquo;s try something slightly
+more complex. Something that need an external crate.</p>
+<h3 id="emojify-function"><code>emojify</code> function</h3>
+<p>Next, let&rsquo;s write a <code>emojify</code> function that convert the <code>:shortcode:</code> in a string to emoji.
+For example:</p>
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pgx is so cool :100:</td>
+<td>pgx is so cool 💯</td>
+</tr>
+</tbody>
+</table>
+<p>It should also handle multiple emoji seamlessly.</p>
+<div class="callout prose prose-p:mx-0 callout-warning">
+<p>In reality, you might not need this as well since you could probably convert it
+in the frontend&hellip;</p>
+</div>
+<p>It turns out that in Rust, we have the amazing <a href="https://crates.io/crates/emojis"><code>emojis</code></a> crate that we can
+use to implement our function. The <code>emojis</code> crate provide a
+<code>get_by_shortcode</code> function to get the emoji by GitHub shortcode.</p>
+<p>If you are using the Rust version 1.62.0 and above, you can add the crate by
+using <code>cargo add</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">cargo add emojis
+</span></span></code></pre></div><p>Alternatively, add the following to your <code>Cargo.toml</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-toml" data-lang="toml"><span class="line"><span class="cl"><span class="p">[</span><span class="nx">dependencies</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nx">emojis</span> <span class="p">=</span> <span class="s2">&#34;0.4.0&#34;</span>
+</span></span></code></pre></div><p>With that, implementing the <code>emojify</code> function will be pretty straightforward:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="cp">#[pg_extern]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">fn</span> <span class="nf">emojify</span><span class="p">(</span><span class="n">string</span>: <span class="kp">&amp;</span><span class="kt">str</span><span class="p">)</span><span class="w"> </span>-&gt; <span class="nb">String</span> <span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">string</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="sc">&#39; &#39;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">.</span><span class="n">map</span><span class="p">(</span><span class="o">|</span><span class="n">word</span><span class="o">|</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="kd">let</span><span class="w"> </span><span class="n">chars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">word</span><span class="p">.</span><span class="n">chars</span><span class="p">().</span><span class="n">collect</span>::<span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;&gt;</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">match</span><span class="w"> </span><span class="o">&amp;</span><span class="n">chars</span><span class="p">[</span><span class="o">..</span><span class="p">]</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="p">[</span><span class="sc">&#39;:&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">shortcode</span><span class="w"> </span><span class="o">@</span><span class="w"> </span><span class="o">..</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;:&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                    </span><span class="n">emojis</span>::<span class="n">get_by_shortcode</span><span class="p">(</span><span class="o">&amp;</span><span class="n">shortcode</span><span class="p">.</span><span class="n">iter</span><span class="p">().</span><span class="n">collect</span>::<span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;</span><span class="p">())</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                        </span><span class="p">.</span><span class="n">unwrap</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                        </span><span class="p">.</span><span class="n">to_string</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="n">_</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">word</span><span class="p">.</span><span class="n">to_string</span><span class="p">(),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">})</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">.</span><span class="n">collect</span>::<span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;&gt;</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#34; &#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><p>As usual, we take in <code>&amp;str</code> and return <code>String</code> for our function. In the
+function, we basically:</p>
+<ol>
+<li>Split the string by space.</li>
+<li>Map through each word to check if they are in the format of <code>:shortcode:</code>.
+We are using <a href="https://blog.thomasheartman.com/posts/feature(slice_patterns)">slice pattern</a> matching here to match the string, so we&rsquo;ll need
+to convert it into a <code>Vec&lt;char&gt;</code> first.</li>
+<li>If the pattern matched, we get the shortcode by calling <code>emojis</code> function
+and then convert it to String. Else, we return the word unmodified.</li>
+<li>Lastly, we collect the words into <code>Vec&lt;String&gt;</code> and then join it back
+with space.</li>
+</ol>
+<p>As usual, let&rsquo;s write a test as well for our function:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="cp">#[pg_test]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">fn</span> <span class="nf">test_emojify</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="fm">assert_eq!</span><span class="p">(</span><span class="s">&#34;pgx is so cool 💯&#34;</span><span class="p">,</span><span class="w"> </span><span class="k">crate</span>::<span class="n">emojify</span><span class="p">(</span><span class="s">&#34;pgx is so cool :100:&#34;</span><span class="p">));</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="fm">assert_eq!</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="s">&#34;multiple emojis: 💯 👍&#34;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">crate</span>::<span class="n">emojify</span><span class="p">(</span><span class="s">&#34;multiple emojis: :100: :+1:&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><p>Running <code>cargo test</code> should show that all of your tests have passed
+successfully. Now, let&rsquo;s run it in PostgreSQL:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">cargo pgx run pg14
+</span></span></code></pre></div><p>As usual, running <code>\df</code> will show that our new <code>emojify</code> function is not
+loaded, so let&rsquo;s reload our extension:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">drop</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">hello_world</span><span class="p">;</span><span class="w"> </span><span class="k">create</span><span class="w"> </span><span class="n">extension</span><span class="w"> </span><span class="n">hello_world</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>Then we can test it by:</p>
+<pre tabindex="0"><code>hello_world=# select emojify(&#39;pgx is so cool :100: :+1: :heart:&#39;);
+       emojify
+----------------------
+ pgx is so cool 💯 👍 ❤️
+(1 row)
+</code></pre><p>Yet another PostgreSQL function has been written in Rust.</p>
+<p>Notice that here, we didn&rsquo;t implement a proper handling. So <code>emojify</code> a
+string contain an invalid shortcode will throw an error as shown below:</p>
+<pre tabindex="0"><code>hello_world=# select emojify(&#39;pgx is so cool :100: :+1: :love:&#39;);
+ERROR:  called `Option::unwrap()` on a `None` value
+CONTEXT:  src/lib.rs:39:26
+</code></pre><h2 id="wrap-up">Wrap Up</h2>
+<p>These are not the only thing we can do with <code>pgx</code> and PostgreSQL extension, if you would like
+to learn more, feel free to look into the <a href="https://github.com/tcdi/pgx/tree/master/pgx-examples"><code>pgx</code> examples</a> and <a href="https://github.com/tcdi/pgx/tree/master/articles">articles</a> section.
+Some examples includes a link to a Twitch video highlight. For instance, I find
+the <a href="https://www.twitch.tv/videos/694514963">&ldquo;Bad Postgres Extension Ideas&rdquo; with PGX</a> highlight to be fascinating!</p>
+<p>I haven&rsquo;t tried out writing my own PostgreSQL aggregates, if you want to learn
+more about it, I would suggest the following resources:</p>
+<ul>
+<li><a href="https://www.timescale.com/blog/how-postgresql-aggregation-works-and-how-it-inspired-our-hyperfunctions-design-2/">How PostgreSQL aggregation works</a></li>
+<li><a href="https://hoverbear.org/blog/postgresql-aggregates-with-rust/">PostgreSQL Aggregates with Rust</a></li>
+</ul>
+<p>The first article by Timescale is really recommended for someone who are new
+to the internals of PostgreSQL aggregates, and the second article covers some
+basic of <code>pgx</code>, PostgreSQL aggregates and ending up with writing
+aggregates in Rust with <code>pgx</code>.</p>
+<p>Hopefully, you learn a thing or two from this post!</p>
+
+</article>
+
+    </main>
+
+
+
+
+<hr/>
+<footer class="w-full text-center p-4 pin-b text-xs text-gray-400">
+    <p>made with <a href="https://gohugo.io" class="underline hover:text-blue-400">Hugo</a> and <a href="https://tailwindcss.com" class="underline hover:text-blue-400">TailwindCSS</a></p>
+</footer>
+</body>
+</html>

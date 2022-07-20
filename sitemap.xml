@@ -2,6 +2,24 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://kaiwern.com/tags/pgx/</loc>
+    <lastmod>2022-07-20T10:09:10+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/tags/postgresql/</loc>
+    <lastmod>2022-07-20T10:09:10+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/posts/</loc>
+    <lastmod>2022-07-20T10:09:10+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/tags/rust/</loc>
+    <lastmod>2022-07-20T10:09:10+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/tags/</loc>
+    <lastmod>2022-07-20T10:09:10+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/posts/2022/07/20/writing-postgresql-extension-in-rust-with-pgx/</loc>
+    <lastmod>2022-07-20T10:09:10+08:00</lastmod>
+  </url><url>
     <loc>https://kaiwern.com/fragments/expose-new-port-in-iptables/</loc>
     <lastmod>2022-07-02T13:57:28+08:00</lastmod>
   </url><url>
@@ -9,12 +27,6 @@
     <lastmod>2022-06-20T16:50:50+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/tags/lsof/</loc>
-    <lastmod>2022-06-20T16:50:50+08:00</lastmod>
-  </url><url>
-    <loc>https://kaiwern.com/posts/</loc>
-    <lastmod>2022-06-20T16:50:50+08:00</lastmod>
-  </url><url>
-    <loc>https://kaiwern.com/tags/</loc>
     <lastmod>2022-06-20T16:50:50+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/tags/tips/</loc>
@@ -32,9 +44,6 @@
     <loc>https://kaiwern.com/tags/files/</loc>
     <lastmod>2022-05-20T21:13:14+08:00</lastmod>
   </url><url>
-    <loc>https://kaiwern.com/tags/rust/</loc>
-    <lastmod>2022-05-27T08:09:22+08:00</lastmod>
-  </url><url>
     <loc>https://kaiwern.com/tags/testing/</loc>
     <lastmod>2022-05-20T21:13:14+08:00</lastmod>
   </url><url>
@@ -51,7 +60,7 @@
     <lastmod>2022-05-12T22:47:17+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/tags/recurse-center/</loc>
-    <lastmod>2022-05-12T22:47:17+08:00</lastmod>
+    <lastmod>2022-07-20T10:09:10+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/fragments/logging-thread-id-in-rust/</loc>
     <lastmod>2022-05-27T08:09:22+08:00</lastmod>
@@ -108,9 +117,6 @@
     <lastmod>2022-04-26T17:24:39+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/posts/2021/12/13/2021-in-review/</loc>
-    <lastmod>2022-04-26T17:24:39+08:00</lastmod>
-  </url><url>
-    <loc>https://kaiwern.com/tags/postgresql/</loc>
     <lastmod>2022-04-26T17:24:39+08:00</lastmod>
   </url><url>
     <loc>https://kaiwern.com/tags/timezone/</loc>
@@ -265,5 +271,8 @@
   </url><url>
     <loc>https://kaiwern.com/fragments/</loc>
     <lastmod>2022-06-20T17:01:43+08:00</lastmod>
+  </url><url>
+    <loc>https://kaiwern.com/posts/1/01/01/last-6-weeks-in-the-recurse-center/</loc>
+    <lastmod>2022-07-20T10:09:10+08:00</lastmod>
   </url>
 </urlset>

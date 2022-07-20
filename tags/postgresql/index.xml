@@ -6,7 +6,17 @@
     <description>Recent content in postgresql on kw7oe</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 20 Jul 2021 20:30:00 +0800</lastBuildDate><atom:link href="https://kaiwern.com/tags/postgresql/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 20 Jul 2022 10:07:46 +0800</lastBuildDate><atom:link href="https://kaiwern.com/tags/postgresql/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Writing PostgreSQL extension in Rust With pgx</title>
+      <link>https://kaiwern.com/posts/2022/07/20/writing-postgresql-extension-in-rust-with-pgx/</link>
+      <pubDate>Wed, 20 Jul 2022 10:07:46 +0800</pubDate>
+      
+      <guid>https://kaiwern.com/posts/2022/07/20/writing-postgresql-extension-in-rust-with-pgx/</guid>
+      <description>Recently, I came across how to write a PostgreSQL extension in Rust with pgx from this article by pganalyze. I decided to play around with it. It turns out to be very straightforward to learn and write a PostgreSQL extension!
+pgx does make it easy to write a PostgreSQL extensions in Rust!</description>
+    </item>
+    
     <item>
       <title>What you need to know about PostgreSQL timezone</title>
       <link>https://kaiwern.com/posts/2021/07/20/what-you-need-to-know-about-postgresql-timezone/</link>
