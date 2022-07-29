@@ -307,3 +307,11 @@ for myself in the next 6 weeks in RC.
 Last but not least:
 
 <script async defer src="https://www.recurse-scout.com/loader.js?t=be2ff87ed4d98a9f986aa32a60d57250"></script>
+
+---
+
+_My thoughts and reflection on my last 6 weeks in RC has been published. You can
+check it out [here][0]._
+
+[0]: {{< ref "/posts/last-6-weeks-in-rc.md" >}}
+

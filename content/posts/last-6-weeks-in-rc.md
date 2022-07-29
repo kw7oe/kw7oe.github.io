@@ -4,9 +4,8 @@ date: 2022-07-29T08:18:00+08:00
 tags: ["recurse-center"]
 ---
 
-2 months has passed since I wrote about my [first 6 weeks in the Recurse
-Center][0] (RC). Can't believe that in a blink of an eye, I have "never graduated" from
-my RC batch.
+I first wrote about my [first 6 weeks in the Recurse Center][0] (RC) around 2
+months ago. In a blink of an eye, I have "never graduated" from my RC batch.
 
 I closed up my previous post with the things I wanted to achieve on my last 6 weeks in RC. In this post,
 I will first talk about my review of my last 6 week in RC, starting with a reflection and then review the goals
