@@ -1,6 +1,6 @@
 ---
 title: "Debugging Rust With `rust-lldb`"
-date: 2022-05-23T12:18:40+08:00
+date: 2022-07-20T10:18:40+08:00
 draft: true
 ---
 
