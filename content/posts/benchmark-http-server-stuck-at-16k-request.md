@@ -1,6 +1,6 @@
 ---
 title: "Benchmarking HTTP server stuck at 16k requests"
-date: 2022-08-08T10:53:53+08:00
+date: 2022-08-09T19:53:53+08:00
 draft: true
 ---
 
@@ -71,6 +71,19 @@ Status code distribution:
 
 It get capped at 16k requests _(running over 10 seconds)_, regardless of how many time I ran it.
 
+---
+
+Here's the structure of this post:
+
+- [Investigation](#investigation)
+  - [Ephemeral Ports](#ephemeral-ports)
+  - [TCP `TIME_WAIT` state](#tcp-time_wait-state)
+- [Using `netstat` to show `TIME_WAIT`
+connections](#using-netstat-to-show-time_wait-connections)
+- [References](#references)
+
+---
+
 ## Investigation
 
 I did some Google search and came across the following StackOverflow questions:
@@ -82,26 +95,26 @@ One of the answer mentioned that:
 
 > It sounds like you are running out of ephemeral ports. To check, use the `netstat` command and look for several thousand ports in the `TIME_WAIT` state.
 
-To fix it, one can either configure the empheral port range or reduce the maximum segment lifetime
+To fix it, one can either configure the ephemeral port range or reduce the maximum segment lifetime
 (msl) time with `sysctl`.
 
-### Empheral Ports
+### Ephemeral Ports
 
 Apparently, while our computer have 65,535 ports, not all of them can be used
-to establish a TCP connection. There's a limit of empheral ports. The range of the empheral ports
+to establish a TCP connection. There's a limit of ephemeral ports. The range of the ephemeral ports
 can be obtained by running `sysctl`:
 
 ```bash
-╰─➤  sudo sysctl net.inet.ip.portrange.hifirst
-net.inet.ip.portrange.hifirst: 49152
-╰─➤  sudo sysctl net.inet.ip.portrange.hilast
-net.inet.ip.portrange.hilast: 65535
+╰─➤  sudo sysctl net.inet.ip.portrange.first
+net.inet.ip.portrange.first: 49152
+╰─➤  sudo sysctl net.inet.ip.portrange.last
+net.inet.ip.portrange.last: 65535
 ```
 By default, my machine have a total of around 16k ephemeral ports available to
-be used, which explain partly why I'm getting stucked at 16k requests during
+be used, which explain partly why I'm getting stuck at 16k requests during
 benchmarking.
 
-Hence, one of the solution is increasing the empheral port range:
+Hence, one of the solution is increasing the ephemeral port range:
 
 ```
 sudo sysctl -w net.inet.ip.portrange.first=32768
@@ -117,11 +130,11 @@ the TCP `TIME_WAIT` state.
 ## TCP `TIME_WAIT` state
 
 When a TCP connection is closed from the server side, the port doesn't
-immediately available to be used because the connection will first transist
+immediately available to be used because the connection will first transits
 into `TIME_WAIT` state.  In the `TIME_WAIT` phase, the connection is still kept
 around to deal with delayed packets.
 
-By default, the `TIME_WAIT` phase will wait for `2 * msl time`. This can be get/set through
+By default, the `TIME_WAIT` phase will wait for `2 * msl` time. This can be get/set through
 the `net.inet.tcp.msl` with `sysctl` as well.
 
 ```
@@ -130,9 +143,9 @@ the `net.inet.tcp.msl` with `sysctl` as well.
 net.inet.tcp.msl: 15000
 ```
 
-By defualt, MacOS have a `MSL time` of 15 seconds. Hence, according to the
+By default, MacOS have a `msl` time of 15 seconds. Hence, according to the
 specs, the connection will have to wait around 30 seconds before it can
-transist into `CLOSED` state.
+transits into `CLOSED` state.
 
 So after 16k requests, my laptop ran out of ephemeral ports, as most of it is
 still in `TIME_WAIT` phase. Hence,  my benchmark can only cap at 16k requests.
@@ -150,10 +163,55 @@ this article:
 
 - [Coping with the TCP TIME-WAIT state on busy Linux servers](https://vincent.bernat.ch/en/blog/2014-tcp-time-wait-state-linux)
 
+That's all for the issue I faced. Next, I'm going to cover a bit on how you can use
+`netstat` to investigate this problem.
+
+## Using `netstat` to show `TIME_WAIT` connections
+
+Initially, I was trying to use `lsof` to pull out the TCP connection that are
+in the `TIME_WAIT` state. Unfortunately, `lsof` doesn't display the TCP state
+in its outputs. Hence, I have to fallback to using `netstat`. If you happen to
+know how to use `lsof` to achieve the same, do let me know!
+
+In MacOS, with `netstat` we can use the following to list out all TCP connections:
+
+```bash
+# -p to specify protocol, -n to prevent port name conversion.
+netstat -p tcp -n
+```
+
+For Linux system, a different arguments is needed as the `netstat` in MacOS
+behave differently than the one in Linux:
+
+```bash
+# -t to specify tcp protocol. -p in Linux show the PID of the program.
+# -n behave similarly.
+netstat -tn
+```
+
+Pairing with `grep`, we can filter out other TCP connections that we are not
+interested in:
+
+```bash
+╰─➤  netstat -p tcp -n  | grep TIME_WAIT
+tcp6       0      0  2001:f40:925:dc8.61797 2404:6800:4001:8.443   TIME_WAIT
+tcp6       0      0  2001:f40:925:dc8.61798 2404:6800:4001:8.443   TIME_WAIT
+tcp4       0      0  127.0.0.1.3779         127.0.0.1.61801        TIME_WAIT
+tcp4       0      0  127.0.0.1.3779         127.0.0.1.61807        TIME_WAIT
+tcp4       0      0  127.0.0.1.3779         127.0.0.1.61802        TIME_WAIT
+tcp4       0      0  127.0.0.1.3779         127.0.0.1.61800        TIME_WAIT
+tcp4       0      0  127.0.0.1.3779         127.0.0.1.61804        TIME_WAIT
+tcp4       0      0  127.0.0.1.3779         127.0.0.1.61805        TIME_WAIT
+tcp4       0      0  127.0.0.1.3779         127.0.0.1.61799        TIME_WAIT
+```
+
+With this, you can easily check if you have a bunch of TCP connections stuck
+in the `TIME_WAIT` state.
+
 
 ## References
 
-Here are some of the useful resources I have came across when attempting to
+Here are some of the other useful resources I have came across when attempting to
 understand more about this issue:
 
 - [Brian Pane » Blog Archive » Changing the length of the TIME_WAIT state on Mac OS X](http://web.archive.org/web/20090210151520/http://www.brianp.net/2008/10/03/changing-the-length-of-the-time_wait-state-on-mac-os-x/)
