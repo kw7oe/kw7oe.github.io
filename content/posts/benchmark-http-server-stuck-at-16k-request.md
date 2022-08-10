@@ -78,8 +78,8 @@ Here's the structure of this post:
 - [Investigation](#investigation)
   - [Ephemeral Ports](#ephemeral-ports)
   - [TCP `TIME_WAIT` state](#tcp-time_wait-state)
-- [Using `netstat` to show `TIME_WAIT`
-connections](#using-netstat-to-show-time_wait-connections)
+  - [Using `netstat` to show `TIME_WAIT` connections](#using-netstat-to-show-time_wait-connections)
+- [Other solution](#other-solution)
 - [References](#references)
 
 ---
@@ -127,7 +127,7 @@ But, doesn't those TCP connection get closed once a request is served? Why does
 our system not using the ports from those closed connection? That's because of
 the TCP `TIME_WAIT` state.
 
-## TCP `TIME_WAIT` state
+### TCP `TIME_WAIT` state
 
 When a TCP connection is closed from the server side, the port doesn't
 immediately available to be used because the connection will first transits
@@ -166,21 +166,22 @@ this article:
 That's all for the issue I faced. Next, I'm going to cover a bit on how you can use
 `netstat` to investigate this problem.
 
-## Using `netstat` to show `TIME_WAIT` connections
+### Using `netstat` to show `TIME_WAIT` connections
 
 Initially, I was trying to use `lsof` to pull out the TCP connection that are
 in the `TIME_WAIT` state. Unfortunately, `lsof` doesn't display the TCP state
-in its outputs. Hence, I have to fallback to using `netstat`. If you happen to
+in its outputs. Hence, I have to use `netstat` instead. If you happen to
 know how to use `lsof` to achieve the same, do let me know!
 
-In MacOS, with `netstat` we can use the following to list out all TCP connections:
+In MacOS, we can use the following arguments with `netstat` to list out all TCP
+connections:
 
 ```bash
 # -p to specify protocol, -n to prevent port name conversion.
 netstat -p tcp -n
 ```
 
-For Linux system, a different arguments is needed as the `netstat` in MacOS
+For Linux system, a different argument is needed as the `netstat` in MacOS
 behave differently than the one in Linux:
 
 ```bash
@@ -208,6 +209,19 @@ tcp4       0      0  127.0.0.1.3779         127.0.0.1.61799        TIME_WAIT
 With this, you can easily check if you have a bunch of TCP connections stuck
 in the `TIME_WAIT` state.
 
+## Other solution
+
+While we can tweak our `net.inet` configuration to partly solve the issues,
+it's really not the best solution, since there's a limit on how much we can
+tweak.
+
+The root cause is due to how we write HTTP server code. We are continuously
+accepting new connections using new ports. Instead, we can use a proper HTTP server
+library like [`axum`][0] or [`hyper`][1] to handle those better for us.
+
+I haven't figure out how exactly it works underneath, but I'm under the
+impression that it reuse the ports instead. If you happen to know how it works,
+do let me know!
 
 ## References
 
@@ -219,3 +233,6 @@ understand more about this issue:
 - [tcp - What could cause so many TIME_WAIT connections to be open? - Stack Overflow](https://stackoverflow.com/questions/33177370/what-could-cause-so-many-time-wait-connections-to-be-open)
 
 Hope you find it helpful as well!
+
+[0]: https://github.com/tokio-rs/axum
+[1]: https://github.com/hyperium/hyper
