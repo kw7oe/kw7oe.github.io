@@ -1,7 +1,7 @@
 ---
 title: "Benchmarking HTTP server stuck at 16k requests"
-date: 2022-08-09T19:53:53+08:00
-draft: true
+date: 2022-08-11T16:48:23+08:00
+tags: ["networking", "tcp"]
 ---
 
 A couple of weeks ago I was working through the article:
