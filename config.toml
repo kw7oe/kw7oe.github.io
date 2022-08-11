@@ -1,6 +1,5 @@
 baseURL = "https://kaiwern.com"
 languageCode = "en-us"
-title = "kw7oe"
 theme = "my-theme"
 
 pygmentsUseClasses = true
@@ -8,6 +7,11 @@ pygmentsCodeFences = true
 
 enableGitInfo = true
 summaryLength = 50
+
+[taxonomies]
+  category = 'categories'
+  tag = 'tags'
+  series = 'series'
 
 [permalinks]
 posts = "/:sections/:year/:month/:day/:slug/"

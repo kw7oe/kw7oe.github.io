@@ -6,6 +6,12 @@
     </li>
     {{ end }}
 
+    {{ with .Site.GetPage "/series" }}
+    <li>
+      <a href="{{ .Permalink }}">{{ .Title }}</a>
+    </li>
+    {{ end }}
+
     {{ with .Site.GetPage "/fragments" }}
     <li>
       <a href="{{ .Permalink }}">{{ .Title }}</a>

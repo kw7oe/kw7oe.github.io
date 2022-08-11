@@ -1,0 +1,32 @@
+{{ define "main" }}
+<div class="mb-8">
+  <h1 class="text-2xl mb-1 font-sans-serif font-semibold">{{ title .Title }}</h1>
+  <p class="text-xs text-gray-700 italic">({{ len .Pages }} series)</p>
+</div>
+
+<div>
+  <div class="mb-8 prose prose-sm serif">
+    {{ .Content }}
+  </div>
+
+  <hr/>
+
+  {{ range .Pages }}
+  <h3 class="mt-8 mb-2 text-xl font-bold">
+    {{ .Title }}
+  </h3>
+  <div class="mb-8">
+    <ul>
+      {{ range $index, $element := .Pages.ByDate }}
+        <li class="prose serif">
+          <a class="font-normal" href="{{ .Permalink }}">Part {{ add $index 1 }}: {{ .Title }}</a>
+          <span class="text-gray-500 text-xs">({{ .Date.Format "January 02" }})</span>
+        </li>
+      {{ end }}
+    </ul>
+
+  </div>
+</div>
+{{ end }}
+{{ end }}
+
