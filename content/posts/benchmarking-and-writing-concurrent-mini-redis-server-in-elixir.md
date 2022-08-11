@@ -2,6 +2,7 @@
 title: "Benchmarking and writing a concurrent mini Redis in Elixir"
 date: 2022-04-05T20:33:16+08:00
 tags: ['elixir', 'database', 'mini-redis', 'tutorial']
+series: "Building mini Redis in Elixir"
 ---
 
 In our [previous post][0] of this series, we wrote a mini Redis integrated with

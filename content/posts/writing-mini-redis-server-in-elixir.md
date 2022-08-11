@@ -2,6 +2,7 @@
 title: "Writing a mini Redis server in Elixir"
 date: 2022-04-04T20:32:56+08:00
 tags: ['elixir', 'database', 'mini-redis', 'tutorial']
+series: "Building mini Redis in Elixir"
 ---
 
 In the [previous post][0], we wrote a simple [Redis Protocol specification][1] (RESP) parser. That's just a

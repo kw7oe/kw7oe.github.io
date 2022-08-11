@@ -2,6 +2,7 @@
 title: "Deploying Elixir/Phoenix Release to Production"
 date: 2020-07-20T20:09:01+08:00
 tags: ["elixir", "phoenix", "deployment", "tutorial"]
+series: "Elixir/Phoenix deployment with release"
 ---
 
 _Updates (12th August 2020): Fix my mistake on using `bin/app restart`._

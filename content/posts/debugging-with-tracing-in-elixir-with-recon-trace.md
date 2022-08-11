@@ -1,7 +1,8 @@
 ---
 title: "Debugging with tracing in Elixir with recon_trace"
 date: 2021-06-27T18:42:02+08:00
-tags: ["elixir", "tracing", "debugging"]
+tags: ["elixir", "tracing", "debugging", "recon_trace"]
+series: "Debugging with tracing in Elixir"
 ---
 
 In my previous blog post, [Debugging with Tracing in Elixir]({{< ref "debugging-with-tracing-in-elixir" >}}),

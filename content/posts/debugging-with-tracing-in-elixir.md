@@ -1,7 +1,8 @@
 ---
 title: "Debugging With Tracing in Elixir"
 date: 2020-11-02T20:45:48+08:00
-tags: ["elixir", "tracing", "debugging"]
+tags: ["elixir", "dbg", "tracing", "debugging"]
+series: "Debugging with tracing in Elixir"
 ---
 
 _If you are a video person, and have 24 minutes to spend with, just jump over to
