@@ -3,6 +3,7 @@ title: "Blue Green Deployment with Nginx for Elixir/Phoenix Release"
 slug: "blue-green-deployment-with-nginx-for-elixir-phoenix-release"
 date: 2021-05-15T19:30:41+08:00
 tags: ["elixir", "phoenix", "deployment", "nginx", "tutorial"]
+series: "Elixir/Phoenix deployment with release"
 ---
 
 In this post today, I'll share about how I setup blue green deployment for my
