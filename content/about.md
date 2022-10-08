@@ -12,7 +12,7 @@ are vim, Elixir/Phoenix, Rust, and PostgreSQL. You can expect posts about these 
 Around March 2022, I attended the Spring batch of the [Recurse Center](https://www.recurse.com/) (RC)
 During my time in here, I have work on:
 
-- Writing [simple database in Rust](https://github.com/kw7oe/mini-db), inspired by
+- Writing [simple database in Rust][4], inspired by
 [Let's Build a Simple Database](https://cstack.github.io/db_tutorial/).
 - Writing [`rok`](https://github.com/kw7oe/rok), a minimal reverse proxy inspired by [ngrok](https://ngrok.io).
 - Implementing [Viewstamped Replication (VSR) in Elixir](https://github.com/kw7oe/vsr-elixir) based on this
@@ -21,13 +21,18 @@ During my time in here, I have work on:
 
 ## Now
 
-Currently I’m focusing on the following stuff:
+Recently, I got a new job and are busy handling some personal stuff in my life. 
+While I have lots of things I want to do like:
 
-- Getting a job.
-- Continue to work on my projects in RC, especially my database system.
-- Starting to make video content about programming.
-- Perhaps, write a series of articles about implmenting database system in
-Rust.
+- Writing more articles to share some of my knowledge.
+- Writing a series of articles on implementing a database system in Rust.
+- Continue to work on my [mini-db][4]. The plan is to implement the recovery mechanism for the database.
+- Start creating educational video contents about programming.
+
+If that sounds ambitious to you all, it is. However, given the amount of personal
+chores I have to deal with and other priorities I have in life, I don't think
+I'll have any great output regarding those. Hopefully, I can still make some small
+progress along the way.
 
 ## Abandoned Projects
 
@@ -40,3 +45,4 @@ These are the side projects that I worked in the past to learn, which now have b
 [1]: https://til.kaiwern.com
 [2]: https://expendere.herokuapp.com
 [3]: https://github.com/kw7oe/hbtrack
+[4]: https://github.com/kw7oe/mini-db
