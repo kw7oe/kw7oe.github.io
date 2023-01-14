@@ -32,11 +32,11 @@ So, stay tuned.
 
 These are the side projects that I worked in the past to learn, which now have been abandoned by me:
 
-- [TIL][1]: Today I learned a web application developed with Phoenix. It includes basic features like adding posts with Markdown and tagging. The idea of the application is inspired by Hashrocket TIL.
-- [Expendere][2]: A personal finance management web application that includes features like, expense tracking, budget, and recurring transaction (bills). It is developed with Ruby on Rails and a little bit of Preact. Due to limited time (and interest) available, it is abandoned now.
-- [hbtrack][3]: My first CLI to track habits! It’s written in Ruby and still functions well. But I stopped using it, and uss Streaks instead.
+- [TIL][1]: Today I learned a web application developed with Phoenix. It includes basic features like 
+adding posts with Markdown and tagging. The idea of the application is inspired by Hashrocket TIL.
+- [hbtrack][2]: My first CLI to track habits! It’s written in Ruby and still functions well. I stopped using it, 
+and uses Streaks instead.
 
 [1]: https://til.kaiwern.com
-[2]: https://expendere.herokuapp.com
-[3]: https://github.com/kw7oe/hbtrack
+[2]: https://github.com/kw7oe/hbtrack
 [4]: https://github.com/kw7oe/mini-db
