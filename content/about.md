@@ -4,10 +4,11 @@ date: 2022-07-29T10:37:11+0800
 title: About
 ---
 
-Hi, welcome to my blog! I am Kai Wern.
+Hi, welcome to my blog! I am Kai Wern, a Software Engineer at Ditto.
 
 Here I write about software and life. Some of the tools I use daily
-are vim, Elixir/Phoenix, Rust, and PostgreSQL. You can expect posts about these from my blog.
+are vim, Rust, Elixir/Phoenix, and PostgreSQL. You can expect posts about these
+from my blog.
 
 Around March 2022, I attended the Spring batch of the [Recurse Center](https://www.recurse.com/) (RC)
 During my time in here, I have work on:
@@ -21,18 +22,11 @@ During my time in here, I have work on:
 
 ## Now
 
-Recently, I got a new job and are busy handling some personal stuff in my life. 
-While I have lots of things I want to do like:
+I'm almost done with dealing with personal chores in my life and starting to
+get into a more stable routine. While I wish to get back into my previous
+routine, I'll take my time to reflect on what's my focus in 2023.
 
-- Writing more articles to share some of my knowledge.
-- Writing a series of articles on implementing a database system in Rust.
-- Continue to work on my [mini-db][4]. The plan is to implement the recovery mechanism for the database.
-- Start creating educational video contents about programming.
-
-If that sounds ambitious to you all, it is. However, given the amount of personal
-chores I have to deal with and other priorities I have in life, I don't think
-I'll have any great output regarding those. Hopefully, I can still make some small
-progress along the way.
+So, stay tuned.
 
 ## Abandoned Projects
 
