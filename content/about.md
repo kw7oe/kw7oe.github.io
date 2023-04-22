@@ -4,7 +4,7 @@ date: 2022-07-29T10:37:11+0800
 title: About
 ---
 
-Hi, welcome to my blog! I am Kai Wern, a Software Engineer at Ditto.
+Hi, welcome to my blog! I am Kai Wern, a Software Engineer at [Ditto][0].
 
 Here I write about software and life. Some of the tools I use daily
 are vim, Rust, Elixir/Phoenix, and PostgreSQL. You can expect posts about these
@@ -22,11 +22,18 @@ During my time in here, I have work on:
 
 ## Now
 
-I'm almost done with dealing with personal chores in my life and starting to
-get into a more stable routine. While I wish to get back into my previous
-routine, I'll take my time to reflect on what's my focus in 2023.
+I spend most of my time working in Ditto. After work, I'm mostly mentally exhausted 
+and would just have a good rest so I can do some chores before sleep.
 
-So, stay tuned.
+I'm still struggling to get back to writing, partly because my priority in life has changed 
+in 2023. Until I have progress enough in the other parts of life, writing and posting 
+consistently here will not be my focus.
+
+Apart from that, I realized I have so much to learn and I would like to devote more time
+learning in the next few months. Maybe I might write a little along the way, maybe not.
+If you happen to read this and look forward to my writings, thanks you and stay tuned. 
+
+I'll be back.
 
 ## Abandoned Projects
 
@@ -37,6 +44,7 @@ adding posts with Markdown and tagging. The idea of the application is inspired 
 - [hbtrack][2]: My first CLI to track habits! It’s written in Ruby and still functions well. I stopped using it, 
 and uses Streaks instead.
 
+[0]: https://www.ditto.live
 [1]: https://til.kaiwern.com
 [2]: https://github.com/kw7oe/hbtrack
 [4]: https://github.com/kw7oe/mini-db
