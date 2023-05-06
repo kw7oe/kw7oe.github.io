@@ -86,6 +86,18 @@ Docker images.
 
 ## Writing the Dockerfile
 
+{{% callout %}}
+With Phoenix 1.6.3 and above, you can now generate the release and Dockerfile
+using the `mix phx.gen.release --docker` command.
+
+This make most of this section
+_obselete_, except this line `COPY --from=build /app/_build/prod/app_name-*.tar.gz ./`,
+where
+we copy the generated `tar` file to our final output, which is crucial in the [next
+section](#extracting-tar-file).
+{{% /callout %}}
+
+
 To build your Docker image, you'll first need to write the Dockerfile. In the
 process of writing these Dockerfile, there are a few references that I refer
 to, which are:
