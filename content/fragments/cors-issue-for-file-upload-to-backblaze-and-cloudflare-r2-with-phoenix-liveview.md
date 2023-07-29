@@ -1,6 +1,7 @@
 ---
 title: "CORS issue using Phoenix LiveView to direct upload to Backblaze or Cloudflare R2"
 date: 2023-07-29T23:41:20+08:00
+draft: true
 tags: ["phoenix", "liveview"]
 ---
 
