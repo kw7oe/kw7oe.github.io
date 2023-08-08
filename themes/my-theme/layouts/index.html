@@ -3,11 +3,14 @@
     {{ .Content }}
   </div>
   {{ range .Site.RegularPages.GroupByDate "2006"  }}
-  <h3 class="mt-8 mb-2 font-bold">{{ .Key }}</h3>
-  <ul class="mb-12">
-    {{ range where .Pages "Type" "posts" }}
-      {{ partial "li.html" . }}
+  {{ $posts := where .Pages "Type" "posts" }}
+  {{ if ge (len $posts) 1 }}
+    <h3 class="mt-8 mb-2 font-bold">{{ .Key }}</h3>
+    <ul class="mb-12">
+      {{ range where .Pages "Type" "posts" }}
+        {{ partial "li.html" . }}
+      {{ end }}
+    </ul>
     {{ end }}
-  </ul>
   {{ end }}
 {{ end }}
