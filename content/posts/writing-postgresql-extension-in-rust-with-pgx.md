@@ -1,18 +1,26 @@
 ---
-title: "Writing PostgreSQL extension in Rust With pgx"
+title: "Writing PostgreSQL extension in Rust With pgrx"
 date: 2022-07-20T10:07:46+08:00
-tags: ['rust', 'postgresql', 'pgx']
+tags: ['rust', 'postgresql', 'pgrx']
+slug: "writing-postgresql-extension-in-rust-with-pgx"
 ---
 
-Recently, I came across how to write a PostgreSQL extension in Rust with `pgx`
+{{% callout %}}
+
+`pgx` has renamed to `pgrx` in around [April 2023][9]. The following post has
+also been updated to replace `pgx` with `pgrx` instead.
+
+{{% /callout %}}
+
+Recently, I came across how to write a PostgreSQL extension in Rust with `pgrx`
 from this [article][0] by [pganalyze][6]. I decided to play around with it. It turns
 out to be very straightforward to learn and write a PostgreSQL extension!
 
-`pgx` does make it easy to write a PostgreSQL extensions in Rust! All the code of
+`pgrx` does make it easy to write a PostgreSQL extensions in Rust! All the code of
 this post are written in an evening _(a couple of hours)_ as a first timer learning about
-PostgreSQL extension and `pgx`.
+PostgreSQL extension and `pgrx`.
 
-In this post, we are going to first walk through the basic of using `pgx` to
+In this post, we are going to first walk through the basic of using `pgrx` to
 write a PostgreSQL extension. Then, we are going to implement some custom
 string manipulation function such as `to_title` and `emojify` and expose it to
 PostgreSQL to be used.
@@ -25,47 +33,53 @@ The posts will be structured as:
   - [`emojify` function](#emojify-function)
 - [Wrap Up](#wrap-up)
 
-Please skip to the last 2 sections if you are already well versed with `pgx` or
+Please skip to the last 2 sections if you are already well versed with `pgrx` or
 prefer to follow the [official README][1].
 
-_All the codes are available in [this GitHub repository](https://github.com/kw7oe/pgx_strings_demo)._
+_All the codes are available in [this GitHub repository](https://github.com/kw7oe/pgrx_string_demo)._
 
 ## Getting Started
 
-`pgx` have a great README and examples in their repository, so getting started
-is just as easy as following their [instructions][1] in the README. At the time of
-this writing, here are the steps needed:
+`pgrx` have a great README and examples in their repository, so getting started
+is just as easy as following their [instructions][1] in the README. Be sure to
+check if you have the [System Requirements][10] as mentioned in the README before
+running the following steps.
+
+At the time of this writing, here are the steps needed:
 
 ```bash
-# Install cargo-pgx to make developing PostgreSQL extension
-# with pgx easily.
+# Install cargo-pgrx to make developing PostgreSQL extension
+# with pgrx easily. You'll be going to use it the most during
+# your development and testing.
+#
+# If the following command failed, please check the
+# System Requirements in the README:
+#
+# https://github.com/pgcentralfoundation/pgrx?tab=readme-ov-file#system-requirements
+cargo install --locked cargo-pgrx
 
-# You'll be going to use it the most during your development
-# and testing.
-cargo install cargo-pgx
-
-# Initialize pgx, so it installed the dependencies it needed.
+# Initialize pgrx, so it installed the dependencies it needed.
 # You'll only need to run it once.
-cargo pgx init
+cargo pgrx init
 ```
 
 With this, you're all setup to write your first PostgreSQL extension in Rust.
 
 ## Your First Extension
 
-Let's write a Hello World example as usual. With `pgx`, we can use the
+Let's write a Hello World example as usual. With `pgrx`, we can use the
 following command to generate our PostgreSQL extension project:
 
 ```
-$ cargo pgx new hello_world
+$ cargo pgrx new hello_world
 ```
 
 Let's take a look at the generated `src/lib.rs`:
 
 ```rust
-use pgx::*;
+use pgrx::prelude::*;
 
-pg_module_magic!();
+pgrx::pg_module_magic!();
 
 #[pg_extern]
 fn hello_hello_world() -> &'static str {
@@ -75,7 +89,7 @@ fn hello_hello_world() -> &'static str {
 #[cfg(any(test, feature = "pg_test"))]
 #[pg_schema]
 mod tests {
-    use pgx::*;
+    use pgrx::prelude::*;
 
     #[pg_test]
     fn test_hello_hello_world() {
@@ -84,6 +98,8 @@ mod tests {
 
 }
 
+/// This module is required by `cargo pgrx test` invocations.
+/// It must be visible at the root of your extension crate.
 #[cfg(test)]
 pub mod pg_test {
     pub fn setup(_options: Vec<&str>) {
@@ -104,7 +120,7 @@ implementations and tests.
 And in fact, our first extension of Hello World is done. Let's run it!
 
 ```rust
-cargo pgx run pg14
+cargo pgrx run pg15
 ```
 
 Then, before we run our `hello_hello_world` function, we will need to load
@@ -120,7 +136,7 @@ hello_world=# select hello_hello_world();
  Hello, hello_world
 ```
 
-Our hello world is done!
+Our hello world is done! To quit the `psql`, just type in `\q` and press enter.
 
 ### `to_title` function
 
@@ -138,7 +154,7 @@ application layer.
 Writing a custom PostgreSQL function is straightforward. It's similar to writing your
 usual Rust function with some caveats. For example, you'll have to ensure
 that the arguments and return type of the function is correct. Be sure to check
-out the documentation of `pgx` or [here][2].
+out the documentation of `pgrx` or [here][2].
 
 Enough of intro, let's write some code:
 
@@ -201,31 +217,34 @@ Now, let's test it by running `cargo test`:
 
 ```bash
 running 2 tests
-building extension with features ` pg_test`
-"cargo" "build" "--features" " pg_test" "--message-format=json-render-diagnostics"
-   Compiling hello_world v0.0.0 (/Users/kai/workspace/rust/extension/hello_world)
-    Finished dev [unoptimized + debuginfo] target(s) in 4.11s
-
-installing extension
-     Copying control file to /Users/kai/.pgx/13.7/pgx-install/share/postgresql/extension/hello_world.control
-     Copying shared library to /Users/kai/.pgx/13.7/pgx-install/lib/postgresql/hello_world.so
- Discovering SQL entities
-  Discovered 5 SQL entities: 1 schemas (1 unique), 4 functions, 0 types, 0 enums, 0 sqls, 0 ords, 0 hashes, 0 aggregates
-     Writing SQL entities to /Users/kai/.pgx/13.7/pgx-install/share/postgresql/extension/hello_world--0.0.0.sql
+    Building extension with features pg_test pg13
+    # ...
+test tests::pg_test_hello_hello_world has been running for over 60 seconds
+test tests::pg_test_to_title has been running for over 60 seconds
+  Installing extension
+     Copying control file to /Users/kai/.pgrx/13.14/pgrx-install/share/postgresql/extension/hello_world.control
+     Copying shared library to /Users/kai/.pgrx/13.14/pgrx-install/lib/postgresql/hello_world.so
     Finished installing hello_world
-test tests::pg_test_to_title ... ok
+
+    # ...
+
+Success. You can now start the database server using:
+
+    /Users/kai/.pgrx/13.14/pgrx-install/bin/pg_ctl -D /Users/kai/workspaces/hello_world/target/pgrx-test-data-13 -l logfile start
+
 test tests::pg_test_hello_hello_world ... ok
+test tests::pg_test_to_title ... ok
 
-test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.55s
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 84.07s
 
-Stopping Postgres
+stopping postgres (pid=80363)
 ```
 
 Notice that, we are using the `#[pg_test]` annotations instead of `#[test]`.
-This allows `pgx` to run the unit test in-process within PostgreSQL. Hence, that
-explain the `Stoping Postgres` text in the end of our output.
+This allows `pgrx` to run the unit test in-process within PostgreSQL. Hence, that
+explain the `stopping postgres` text in the end of our output.
 
-You'll notice that `pgx` also help you to install the extension by coping some
+You'll notice that `pgrx` also help you to install the extension by coping some
 files that are required by PostgreSQL for an extension.
 
 If you change the `#[pg_test]` to `#[test]`, the test would be run as normal
@@ -233,30 +252,25 @@ Rust unit test:
 
 ```bash
 running 2 tests
-test tests::test_to_title ... ok # <-- Rust test get run first
+test tests::test_to_title ... ok # <---- Rust test get run first
+    Building extension with features pg_test pg13
+     Running command "/Users/kai/.rustup/toolchains/stable-x86_64-apple-darwin/bin/cargo" "build" "--features" "pg_test pg13" "--no-default-features" "--message-format=json-render-diagnostics"
+  Installing extension
+     Copying control file to /Users/kai/.pgrx/13.14/pgrx-install/share/postgresql/extension/hello_world.control
+     Copying shared library to /Users/kai/.pgrx/13.14/pgrx-install/lib/postgresql/hello_world.so
+    Finished installing hello_world
+test tests::pg_test_hello_hello_world ... ok
 
-building extension with features ` pg_test`
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.26s
 
-# ... running other test in Postgres
-
-Stopping Postgres
+stopping postgres (pid=6902)
 ```
 
-{{% callout %}}
-
-If you ever faced a weird issue where your tests failed even after you fixed
-the implementation, try to run `cargo clean` and rerun the tests.
-
-It seems like there's some bug where if a test failed at first, the subsequent
-tests will continue to fail. Personally, I faced it in my machine, but it could
-be just me.
-
-{{% /callout %}}
 
 Now, let's run it in our PostgreSQL:
 
 ```bash
-cargo pgx run pg14
+cargo pgrx run pg15
 ```
 
 Once you have the `psql` session running, you can check if your extension and
@@ -269,7 +283,7 @@ function is available by running the following command: `\dx` and `\df`:
                    List of installed extensions
     Name     | Version |   Schema   |         Description
 -------------+---------+------------+------------------------------
- hello_world | 0.0.0   | public     | hello_world:  Created by pgx
+ hello_world | 0.0.0   | public     | hello_world:  Created by pgrx
  plpgsql     | 1.0     | pg_catalog | PL/pgSQL procedural language
 (2 rows)
 
@@ -312,7 +326,7 @@ select to_title('this is so cool');
 (1 row)
 ```
 
-With `pgx`, writing a PostgreSQL custom function is really like writing your day to day Rust
+With `pgrx`, writing a PostgreSQL custom function is really like writing your day to day Rust
 function.
 
 The `to_title` function is too simple to write, let's try something slightly
@@ -325,7 +339,7 @@ For example:
 
 | Input | Output |
 | --- | --- |
-| pgx is so cool :100: | pgx is so cool 💯 |
+| pgrx is so cool :100: | pgrx is so cool 💯 |
 
 
 It should also handle multiple emoji seamlessly.
@@ -353,7 +367,7 @@ Alternatively, add the following to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-emojis = "0.4.0"
+emojis = "0.6.1"
 ```
 
 With that, implementing the `emojify` function will be pretty straightforward:
@@ -396,7 +410,7 @@ As usual, let's write a test as well for our function:
 ```rust
 #[pg_test]
 fn test_emojify() {
-    assert_eq!("pgx is so cool 💯", crate::emojify("pgx is so cool :100:"));
+    assert_eq!("pgrx is so cool 💯", crate::emojify("pgrx is so cool :100:"));
     assert_eq!(
         "multiple emojis: 💯 👍",
         crate::emojify("multiple emojis: :100: :+1:")
@@ -408,7 +422,7 @@ Running `cargo test` should show that all of your tests have passed
 successfully. Now, let's run it in PostgreSQL:
 
 ```bash
-cargo pgx run pg14
+cargo pgrx run pg15
 ```
 
 As usual, running `\df` will show that our new `emojify` function is not
@@ -421,10 +435,10 @@ drop extension hello_world; create extension hello_world;
 Then we can test it by:
 
 ```
-hello_world=# select emojify('pgx is so cool :100: :+1: :heart:');
+hello_world=# select emojify('pgrx is so cool :100: :+1: :heart:');
        emojify
 ----------------------
- pgx is so cool 💯 👍 ❤️
+ pgrx is so cool 💯 👍 ❤️
 (1 row)
 ```
 
@@ -434,15 +448,14 @@ Notice that here, we didn't implement a proper handling. So `emojify` a
 string contain an invalid shortcode will throw an error as shown below:
 
 ```
-hello_world=# select emojify('pgx is so cool :100: :+1: :love:');
+hello_world=#  select emojify('pgrx is so cool :100: :+1: :love:');
 ERROR:  called `Option::unwrap()` on a `None` value
-CONTEXT:  src/lib.rs:39:26
 ```
 
 ## Wrap Up
 
-These are not the only thing we can do with `pgx` and PostgreSQL extension, if you would like
-to learn more, feel free to look into the [`pgx` examples][4] and [articles][7] section.
+These are not the only thing we can do with `pgrx` and PostgreSQL extension, if you would like
+to learn more, feel free to look into the [`pgrx` examples][4] and [articles][7] section.
 Some examples includes a link to a Twitch video highlight. For instance, I find
 the ["Bad Postgres Extension Ideas" with PGX][5] highlight to be fascinating!
 
@@ -454,17 +467,19 @@ more about it, I would suggest the following resources:
 
 The first article by Timescale is really recommended for someone who are new
 to the internals of PostgreSQL aggregates, and the second article covers some
-basic of `pgx`, PostgreSQL aggregates and ending up with writing
-aggregates in Rust with `pgx`.
+basic of `pgrx`, PostgreSQL aggregates and ending up with writing
+aggregates in Rust with `pgrx`.
 
 Hopefully, you learn a thing or two from this post!
 
 [0]: https://pganalyze.com/blog/5mins-postgres-custom-aggregates-rust-sql-pgx
-[1]: https://github.com/tcdi/pgx/tree/master#getting-started
-[2]: https://github.com/tcdi/pgx#most-postgres-data-types-transparently-converted-to-rust
+[1]: https://github.com/pgcentralfoundation/pgrx/tree/master#getting-started
+[2]: https://github.com/pgcentralfoundation/pgrx?tab=readme-ov-file#mapping-of-postgres-types-to-rust
 [3]: https://crates.io/crates/emojis
-[4]: https://github.com/tcdi/pgx/tree/master/pgx-examples
+[4]: https://github.com/pgcentralfoundation/pgrx/tree/master/pgrx-examples
 [5]: https://www.twitch.tv/videos/694514963
 [6]: https://pganalyze.com/blog
-[7]: https://github.com/tcdi/pgx/tree/master/articles
+[7]: https://github.com/pgcentralfoundation/pgrx/tree/master/articles
 [8]: https://blog.thomasheartman.com/posts/feature(slice_patterns)
+[9]: https://github.com/pgcentralfoundation/pgrx/issues/1106
+[10]: https://github.com/pgcentralfoundation/pgrx?tab=readme-ov-file#system-requirements
