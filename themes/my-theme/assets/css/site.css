@@ -50,11 +50,11 @@
 }
 
 .badge-primary {
- @apply bg-indigo-500;
+  background-color: #af9e92;
 }
 
 .badge-primary:hover {
- @apply bg-indigo-700;
+  background-color: #9e8a7b;
 }
 
 .rounded-badge {
@@ -180,13 +180,17 @@ nav#TableOfContents > ul > li {
 }
 
 .callout-info {
-  @apply bg-blue-50;
-  @apply border-blue-500;
+  background-color: #dfe5eb;
+  border-color: #3c80c3;
+  /* @apply bg-blue-50; */
+  /* @apply border-blue-500; */
 }
 
 .callout-warning {
-  @apply bg-yellow-50;
-  @apply border-yellow-500;
+  background-color: #f3f3d8;
+  border-color: #cccc00;
+  /* @apply bg-yellow-50; */
+  /* @apply border-yellow-500; */
 }
 
 .markdown blockquote {
@@ -218,10 +222,6 @@ nav#TableOfContents > ul > li {
 
 .font-serif {
   font-family: 'Lora', sans-serif;
-}
-
-.serif h1, .serif h2, .serif h3, .serif h4, .serif h5, .serif h6  {
-  font-family: 'Source Sans Pro', sans-serif;
 }
 
 .serif p, .serif li, .serif a {

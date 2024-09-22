@@ -348,13 +348,6 @@ textarea {
 2. Set the default placeholder color to the user's configured gray 400 color.
 */
 
-input::-moz-placeholder, textarea::-moz-placeholder {
-  opacity: 1;
-  /* 1 */
-  color: #9ca3af;
-  /* 2 */
-}
-
 input:-ms-input-placeholder, textarea:-ms-input-placeholder {
   opacity: 1;
   /* 1 */
@@ -564,7 +557,7 @@ a:hover {
 }
 
 .prose :where(hr):not(:where([class~="not-prose"] *)) {
-  border-color: var(--tw-prose-hr);
+  border-color: #d8d0ca;
   border-top-width: 1px;
   margin-top: 3em;
   margin-bottom: 3em;
@@ -658,7 +651,7 @@ a:hover {
   font-weight: 600;
   font-size: 0.875em;
   font-size: 0.875rem;
-  background-color: #edf2f7;
+  background-color: #e0dad5;
   padding: 0.25rem;
   border-radius: 0.25rem;
   width: 100%;
@@ -678,7 +671,7 @@ a:hover {
 
 .prose :where(pre):not(:where([class~="not-prose"] *)) {
   color: var(--tw-prose-pre-code);
-  background-color: #edf2f7;
+  background-color: #e0dad5;
   overflow-x: auto;
   font-weight: 400;
   font-size: 0.875em;
@@ -690,7 +683,6 @@ a:hover {
   padding-right: 1.1428571em;
   padding-bottom: 0.8571429em;
   padding-left: 1.1428571em;
-  padding: 0.5rem;
   white-space: pre-wrap;
 }
 
@@ -1175,13 +1167,11 @@ a:hover {
 }
 
 .badge-primary {
-  --tw-bg-opacity: 1;
-  background-color: rgb(99 102 241 / var(--tw-bg-opacity));
+  background-color: #af9e92;
 }
 
 .badge-primary:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(67 56 202 / var(--tw-bg-opacity));
+  background-color: #9e8a7b;
 }
 
 .rounded-badge {
@@ -1323,17 +1313,17 @@ nav#TableOfContents > ul > li {
 }
 
 .callout-info {
-  --tw-bg-opacity: 1;
-  background-color: rgb(239 246 255 / var(--tw-bg-opacity));
-  --tw-border-opacity: 1;
-  border-color: rgb(59 130 246 / var(--tw-border-opacity));
+  background-color: #dfe5eb;
+  border-color: #3c80c3;
+  /* @apply bg-blue-50; */
+  /* @apply border-blue-500; */
 }
 
 .callout-warning {
-  --tw-bg-opacity: 1;
-  background-color: rgb(254 252 232 / var(--tw-bg-opacity));
-  --tw-border-opacity: 1;
-  border-color: rgb(234 179 8 / var(--tw-border-opacity));
+  background-color: #f3f3d8;
+  border-color: #cccc00;
+  /* @apply bg-yellow-50; */
+  /* @apply border-yellow-500; */
 }
 
 .markdown blockquote {
@@ -1373,9 +1363,11 @@ nav#TableOfContents > ul > li {
   font-family: 'Lora', sans-serif;
 }
 
-.serif h1, .serif h2, .serif h3, .serif h4, .serif h5, .serif h6  {
-  font-family: 'Source Sans Pro', sans-serif;
-}
+/* .serif h1, .serif h2, .serif h3, .serif h4, .serif h5, .serif h6  { */
+
+/*   font-family: 'Source Sans Pro', sans-serif; */
+
+/* } */
 
 .serif p, .serif li, .serif a {
   font-family: 'Lora', sans-serif;
@@ -2092,6 +2084,11 @@ nav#TableOfContents > ul > li {
   border-color: rgb(209 213 219 / var(--tw-border-opacity));
 }
 
+.bg-df-bg {
+  --tw-bg-opacity: 1;
+  background-color: rgb(235 229 223 / var(--tw-bg-opacity));
+}
+
 .bg-gray-800 {
   --tw-bg-opacity: 1;
   background-color: rgb(31 41 55 / var(--tw-bg-opacity));
@@ -2168,11 +2165,6 @@ nav#TableOfContents > ul > li {
   line-height: 1.25rem;
 }
 
-.text-3xl {
-  font-size: 1.875rem;
-  line-height: 2.25rem;
-}
-
 .text-xl {
   font-size: 1.25rem;
   line-height: 1.75rem;
@@ -2247,11 +2239,6 @@ nav#TableOfContents > ul > li {
           text-decoration-line: underline;
 }
 
-.placeholder-slate-700::-moz-placeholder {
-  --tw-placeholder-opacity: 1;
-  color: rgb(51 65 85 / var(--tw-placeholder-opacity));
-}
-
 .placeholder-slate-700:-ms-input-placeholder {
   --tw-placeholder-opacity: 1;
   color: rgb(51 65 85 / var(--tw-placeholder-opacity));
@@ -2260,11 +2247,6 @@ nav#TableOfContents > ul > li {
 .placeholder-slate-700::placeholder {
   --tw-placeholder-opacity: 1;
   color: rgb(51 65 85 / var(--tw-placeholder-opacity));
-}
-
-.placeholder-gray-700::-moz-placeholder {
-  --tw-placeholder-opacity: 1;
-  color: rgb(55 65 81 / var(--tw-placeholder-opacity));
 }
 
 .placeholder-gray-700:-ms-input-placeholder {
