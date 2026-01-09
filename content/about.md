@@ -15,8 +15,8 @@ Nowadays, I try to maintain a good work life balance.
 During my time in Recurse Center, I worked on the following projects to learn about system programming:
 
 - Writing a [simple database in Rust][4], inspired by
-[Let's Build a Simple Database](https://cstack.github.io/db_tutorial/), during my time in Recurse Center.
-- Writing [`rok`][5], a minimal reverse proxy inspired by [ngrok](https://ngrok.io), during my time in Recurse Center.
+[Let's Build a Simple Database](https://cstack.github.io/db_tutorial/).
+- Writing [`rok`][5], a minimal reverse proxy inspired by [ngrok](https://ngrok.io).
 
 Here's some other some projects that I worked in the past to learn:
 
