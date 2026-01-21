@@ -1363,14 +1363,40 @@ nav#TableOfContents > ul > li {
   font-family: 'Lora', sans-serif;
 }
 
-/* .serif h1, .serif h2, .serif h3, .serif h4, .serif h5, .serif h6  { */
-
-/*   font-family: 'Source Sans Pro', sans-serif; */
-
-/* } */
-
 .serif p, .serif li, .serif a {
   font-family: 'Lora', sans-serif;
+}
+
+/* Footnotes */
+
+.footnotes {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+}
+
+.footnotes ol {
+  list-style-type: decimal;
+  margin-left: 1.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-family: 'Source Sans Pro', sans-serif;
+}
+
+.footnotes li {
+  margin-bottom: 0.5rem;
+}
+
+.footnotes li p {
+  font-family: 'Source Sans Pro', sans-serif;
+}
+
+.footnote-ref a {
+  vertical-align: super;
+  margin-left: 0.25rem;
+}
+
+.footnote-backref {
+  margin-left: 0.5rem;
 }
 
 /* purgecss end ignore */

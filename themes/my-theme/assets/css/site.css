@@ -225,6 +225,38 @@ nav#TableOfContents > ul > li {
 }
 
 .serif p, .serif li, .serif a {
-  font-family: 'Lora', sans-serif;
+   font-family: 'Lora', sans-serif;
 }
+
+/* Footnotes */
+.footnotes {
+    @apply mt-8;
+    @apply pt-6;
+ }
+
+.footnotes ol {
+   @apply list-decimal;
+   @apply ml-6;
+   @apply text-sm;
+   @apply font-sans-serif;
+}
+
+.footnotes li {
+   @apply mb-2;
+}
+
+.footnotes li p {
+   @apply font-sans-serif;
+}
+
+
+.footnote-ref a {
+   @apply align-super;
+   @apply ml-1;
+}
+
+.footnote-backref {
+   @apply ml-2;
+}
+
 /* purgecss end ignore */
