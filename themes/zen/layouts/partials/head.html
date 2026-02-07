@@ -1,0 +1,68 @@
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} — {{ .Site.Title }}{{ end }}</title>
+
+  {{ with .Description }}<meta name="description" content="{{ . }}">{{ end }}
+  {{ with .Keywords }}<meta name="keywords" content="{{ delimit . ", " }}">{{ end }}
+  {{ with .Site.Params.author }}<meta name="author" content="{{ . }}">{{ end }}
+
+  {{ hugo.Generator }}
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+
+  {{ partial "css.html" . }}
+
+  {{ with resources.Get "css/syntax.css" }}
+    {{ $css := . | minify | fingerprint }}
+    <link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}" crossorigin="anonymous">
+  {{ end }}
+
+  {{ if hugo.IsProduction }}
+    <script defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
+  {{ end }}
+
+  {{/* Theme Toggle Script */}}
+  <script>
+    (function() {
+      // Get saved theme or default
+      const savedTheme = localStorage.getItem('theme') || '{{ .Site.Params.style | default "zen" }}';
+
+      // Apply theme immediately to prevent flash
+      function applyTheme(themeName) {
+        document.querySelectorAll('link[data-theme]').forEach(function(link) {
+          link.disabled = link.getAttribute('data-theme') !== themeName;
+        });
+        document.documentElement.setAttribute('data-active-theme', themeName);
+      }
+
+      // Apply on load
+      applyTheme(savedTheme);
+
+      // Make available globally
+      window.themeSwitcher = {
+        themes: ['zen', 'brutalist'],
+        current: savedTheme,
+        apply: applyTheme,
+        next: function() {
+          const idx = this.themes.indexOf(this.current);
+          const nextIdx = (idx + 1) % this.themes.length;
+          this.current = this.themes[nextIdx];
+          this.apply(this.current);
+          localStorage.setItem('theme', this.current);
+          return this.current;
+        },
+        set: function(themeName) {
+          if (this.themes.includes(themeName)) {
+            this.current = themeName;
+            this.apply(themeName);
+            localStorage.setItem('theme', themeName);
+          }
+        }
+      };
+    })();
+  </script>
+</head>

@@ -1,0 +1,21 @@
+{{ define "main" }}
+  {{ if .Content }}
+  <div class="max-w-2xl prose prose-lg mb-20" style="color: var(--color-text);">
+    {{ .Content }}
+  </div>
+  {{ end }}
+
+  {{ range .Site.RegularPages.GroupByDate "2006" }}
+    {{ $posts := where .Pages "Type" "posts" }}
+    {{ if ge (len $posts) 1 }}
+    <section class="mb-16">
+      <h2 class="text-xs font-bold uppercase tracking-widest mb-6 pb-2 border-b" style="color: var(--color-muted); border-color: var(--color-border);">{{ .Key }}</h2>
+      <ul class="space-y-0">
+        {{ range $posts }}
+          {{ partial "li.html" . }}
+        {{ end }}
+      </ul>
+    </section>
+    {{ end }}
+  {{ end }}
+{{ end }}

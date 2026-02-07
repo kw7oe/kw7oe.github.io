@@ -1,0 +1,30 @@
+{{ define "main" }}
+<header class="mb-16">
+  <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight mb-2" style="color: var(--color-text);">{{ title .Title }}</h1>
+  <p class="text-xs uppercase tracking-widest" style="color: var(--color-muted);">{{ len .Pages }} entries</p>
+</header>
+
+{{ if .Content }}
+<div class="prose max-w-2xl mb-12" style="color: var(--color-text);">
+  {{ .Content }}
+</div>
+<hr class="mb-12" style="border-color: var(--color-border);" />
+{{ end }}
+
+<div class="flex flex-wrap gap-2 mb-16">
+  {{ range .Pages }}
+  <a href="{{ .RelPermalink }}" class="badge">{{ .Title }}</a>
+  {{ end }}
+</div>
+
+{{ range .Pages }}
+<section class="mb-16">
+  <h2 class="text-2xl font-bold mb-6" style="color: var(--color-text);">{{ .Title }}</h2>
+  <ul class="space-y-0">
+    {{ range .Pages }}
+      {{ partial "li.html" . }}
+    {{ end }}
+  </ul>
+</section>
+{{ end }}
+{{ end }}

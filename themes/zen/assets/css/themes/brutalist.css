@@ -1,0 +1,24 @@
+/* Brutalist Theme - High contrast, monospace heavy */
+/* These variables override the :root defaults in base.css */
+
+:root {
+    --font-sans: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+    /* Color Palette - Stark black/white/yellow */
+    --color-bg: #000000;
+    --color-text: #ffffff;
+    --color-muted: #888888;
+    --color-border: #333333;
+    --color-accent: #ffdd00;
+    --color-accent-hover: #ffee55;
+
+    /* Code Blocks */
+    --color-code-bg: #111111;
+    --color-code-text: #ffffff;
+    --color-inline-code-bg: #222222;
+    --color-inline-code-text: #ffdd00;
+
+    /* Callouts */
+    --color-callout-bg: #111111;
+}

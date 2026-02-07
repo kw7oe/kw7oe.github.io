@@ -1,0 +1,14 @@
+{{ if .Get "title" }}
+<div class="callout callout-{{ default "info" (.Get "class") }}">
+  <h5 class="text-sm font-semibold uppercase tracking-wider mb-2">{{ .Get "title" | markdownify }}</h5>
+  <div class="prose prose-sm max-w-none">
+    {{ .Inner }}
+  </div>
+</div>
+{{ else }}
+<div class="callout callout-{{ default "info" (.Get "class") }}">
+  <div class="prose prose-sm max-w-none">
+    {{ .Inner }}
+  </div>
+</div>
+{{ end }}

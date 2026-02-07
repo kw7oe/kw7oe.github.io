@@ -1,0 +1,8 @@
+name = "zen"
+license = "MIT"
+description = "A Hugo theme blending Japanese minimalism, Swiss International typography, and Soft Brutalism"
+min_version = "0.128.0"
+tags = ["Hugo", "Tailwind CSS", "minimalism"]
+
+[author]
+  name = "Kai Wern Choong"

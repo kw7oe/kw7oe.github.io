@@ -1,0 +1,93 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+@source "hugo_stats.json";
+
+@theme {
+    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+    --font-mono:
+        "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+    --color-white: #ffffff;
+    --color-black: #0a0a0a;
+    --color-gray-100: #f5f5f5;
+    --color-gray-200: #e5e5e5;
+    --color-gray-400: #a3a3a3;
+    --color-gray-600: #525252;
+    --color-gray-800: #262626;
+    --color-accent: #dc2626;
+    --color-accent-hover: #b91c1c;
+}
+
+@layer base {
+    html {
+        background-color: var(--color-white);
+        color: var(--color-black);
+    }
+
+    body {
+        font-family: var(--font-sans);
+    }
+
+    a {
+        color: var(--color-black);
+        text-decoration-line: underline;
+        text-underline-offset: 2px;
+        text-decoration-thickness: 1px;
+    }
+
+    a:hover {
+        color: var(--color-accent);
+    }
+
+    pre {
+        background: #24273a;
+        color: #cad3f5;
+        padding: 1.25rem;
+        line-height: 1.7;
+        white-space: pre-wrap;
+        overflow-x: auto;
+    }
+
+    code {
+        font-family: var(--font-mono);
+        font-size: 0.875em;
+        background-color: #edf2f7;
+        color: #1a1a1a;
+        padding: 0.25rem;
+        border-radius: 0.25rem;
+    }
+
+    pre code {
+        background: none;
+        color: #cad3f5;
+        padding: 0;
+        border-radius: 0;
+        font-size: 0.875rem;
+    }
+}
+
+@layer components {
+    .badge {
+        @apply inline-block text-xs font-medium uppercase tracking-wider px-2 py-1 border no-underline;
+        color: var(--color-gray-600);
+        border-color: var(--color-gray-200);
+    }
+
+    .badge:hover {
+        color: var(--color-accent);
+        border-color: var(--color-accent);
+    }
+
+    .callout {
+        @apply border-l-2 p-4 my-6;
+        background: var(--color-gray-100);
+    }
+
+    .callout-info {
+        border-color: var(--color-black);
+    }
+
+    .callout-warning {
+        border-color: var(--color-accent);
+    }
+}

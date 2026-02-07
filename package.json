@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "devDependencies": {
+    "tailwindcss": "^4",
+    "@tailwindcss/cli": "^4",
+    "@tailwindcss/typography": "^0.5"
+  }
+}

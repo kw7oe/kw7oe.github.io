@@ -1,0 +1,24 @@
+/* Zen Theme - Light minimal (default) */
+/* These variables override the :root defaults in base.css */
+
+:root {
+    --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+    /* Color Palette */
+    --color-bg: #ffffff;
+    --color-text: #0a0a0a;
+    --color-muted: #525252;
+    --color-border: #e5e5e5;
+    --color-accent: #dc2626;
+    --color-accent-hover: #b91c1c;
+
+    /* Code Blocks */
+    --color-code-bg: #24273a;
+    --color-code-text: #cad3f5;
+    --color-inline-code-bg: #edf2f7;
+    --color-inline-code-text: #1a1a1a;
+
+    /* Callouts */
+    --color-callout-bg: #f5f5f5;
+}

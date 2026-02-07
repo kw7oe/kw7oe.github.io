@@ -1,12 +1,15 @@
 baseURL = "https://kaiwern.com"
 languageCode = "en-us"
-theme = "my-theme"
+theme = "zen"
 
 pygmentsUseClasses = true
 pygmentsCodeFences = true
 
 enableGitInfo = true
 summaryLength = 50
+
+[params]
+  style = "zen"  # Default theme: zen, dark, brutalist, or warm
 
 [taxonomies]
   category = 'categories'
@@ -18,7 +21,26 @@ posts = "/:sections/:year/:month/:day/:slug/"
 books = "/:sections/:title"
 
 [build]
-  writeStats = true
+  [build.buildStats]
+    enable = true
+  [[build.cachebusters]]
+    source = 'assets/notwatching/hugo_stats\.json'
+    target = 'css'
+  [[build.cachebusters]]
+    source = '(postcss|tailwind)\.config\.js'
+    target = 'css'
+
+[module]
+  [[module.mounts]]
+    source = "assets"
+    target = "assets"
+  [[module.mounts]]
+    source = "themes/zen/assets"
+    target = "assets"
+  [[module.mounts]]
+    disableWatch = true
+    source = "hugo_stats.json"
+    target = "assets/notwatching/hugo_stats.json"
 
 [markup]
   [markup.tableOfContents]
@@ -31,4 +53,4 @@ books = "/:sections/:title"
       footnote = true
 
 [security.exec]
-  osEnv = ['(?i)^(PATH|PATHEXT|APPDATA|TMP|TEMP|TERM)$','(?i)^ASDF', '^HOME$']
+  osEnv = ['(?i)^(PATH|PATHEXT|APPDATA|TMP|TEMP|TERM)$','(?i)^ASDF', '^HOME$', '(?i)^npm']

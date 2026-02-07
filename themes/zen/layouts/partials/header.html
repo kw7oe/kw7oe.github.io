@@ -1,0 +1,144 @@
+<header class="pt-12 pb-8 border-b" style="border-color: var(--color-border);">
+  <nav class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-4">
+    {{ with .Site.GetPage "/" }}
+    <a href="{{ .RelPermalink }}" class="text-xl font-bold tracking-tight no-underline hover:text-accent" style="color: var(--color-text);">
+      {{ .Site.Title }}
+    </a>
+    {{ end }}
+    <div class="flex items-center gap-6">
+      {{ with .Site.GetPage "/" }}
+      <a href="{{ .RelPermalink }}" class="text-xs font-semibold uppercase tracking-widest no-underline hover:text-accent" style="color: var(--color-muted);">Home</a>
+      {{ end }}
+      {{ with .Site.GetPage "/series" }}
+      <a href="{{ .RelPermalink }}" class="text-xs font-semibold uppercase tracking-widest no-underline hover:text-accent" style="color: var(--color-muted);">{{ .Title }}</a>
+      {{ end }}
+      {{ with .Site.GetPage "/fragments" }}
+      <a href="{{ .RelPermalink }}" class="text-xs font-semibold uppercase tracking-widest no-underline hover:text-accent" style="color: var(--color-muted);">{{ .Title }}</a>
+      {{ end }}
+      {{ with .Site.GetPage "/books" }}
+      <a href="{{ .RelPermalink }}" class="text-xs font-semibold uppercase tracking-widest no-underline hover:text-accent" style="color: var(--color-muted);">{{ .Title }}</a>
+      {{ end }}
+      {{ with .Site.GetPage "/about" }}
+      <a href="{{ .RelPermalink }}" class="text-xs font-semibold uppercase tracking-widest no-underline hover:text-accent" style="color: var(--color-muted);">{{ .Title }}</a>
+      {{ end }}
+      {{ with .Site.GetPage "/tags" }}
+      <a href="{{ .RelPermalink }}" class="text-xs font-semibold uppercase tracking-widest no-underline hover:text-accent" style="color: var(--color-muted);">{{ .Title }}</a>
+      {{ end }}
+      {{/* Theme Selector */}}
+      <div class="relative" id="theme-dropdown">
+        <button type="button"
+                id="theme-trigger"
+                class="flex items-center gap-2 px-3 py-1.5 rounded-full transition-all duration-200 hover:scale-105"
+                style="background: var(--color-callout-bg); border: 1px solid var(--color-border);"
+                onclick="toggleThemeDropdown()"
+                aria-haspopup="true"
+                aria-expanded="false">
+          <span id="current-theme-indicator" class="w-2 h-2 rounded-full"></span>
+          <span id="current-theme-label" class="text-xs font-medium tracking-wide" style="color: var(--color-text);">Zen</span>
+          <svg class="w-3 h-3 transition-transform duration-200" id="theme-chevron"
+               style="color: var(--color-muted);"
+               fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+        
+        <div id="theme-menu" 
+             class="absolute right-0 top-full mt-2 py-1 rounded-lg opacity-0 invisible transition-all duration-200 transform scale-95 origin-top-right"
+             style="background-color: var(--color-bg, #ffffff); border: 1px solid var(--color-border, #e5e5e5); box-shadow: 0 4px 20px rgba(0,0,0,0.1); min-width: 140px; z-index: 100;">
+          
+          <button type="button" 
+                  class="w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors"
+                  style="color: var(--color-text, #0a0a0a); background: transparent;"
+                  onmouseover="this.style.backgroundColor='var(--color-callout-bg, #f5f5f5)'"
+                  onmouseout="this.style.backgroundColor='transparent'"
+                  onclick="themeSwitcher.set('zen'); closeThemeDropdown()">
+            <span class="w-2.5 h-2.5 rounded-full" style="background: #dc2626;"></span>
+            <span class="text-sm" style="color: var(--color-text, #0a0a0a);">Zen</span>
+          </button>
+          
+          <div style="height: 1px; background: var(--color-border, #e5e5e5); margin: 0 12px;"></div>
+          
+          <button type="button"
+                  class="w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors"
+                  style="color: var(--color-text, #0a0a0a); background: transparent;"
+                  onmouseover="this.style.backgroundColor='var(--color-callout-bg, #f5f5f5)'"
+                  onmouseout="this.style.backgroundColor='transparent'"
+                  onclick="themeSwitcher.set('brutalist'); closeThemeDropdown()">
+            <span class="w-2.5 h-2.5 rounded-full" style="background: #ffdd00;"></span>
+            <span class="text-sm" style="color: var(--color-text, #0a0a0a);">Brutalist</span>
+          </button>
+        </div>
+      </div>
+      
+      <script>
+        function updateCheckmarks(themeName) {
+          var checkZen = document.getElementById('check-zen');
+          var checkBrutalist = document.getElementById('check-brutalist');
+          if (checkZen) checkZen.style.opacity = themeName === 'zen' ? '1' : '0';
+          if (checkBrutalist) checkBrutalist.style.opacity = themeName === 'brutalist' ? '1' : '0';
+        }
+        
+        (function() {
+          // Set initial indicator color
+          var indicator = document.getElementById('current-theme-indicator');
+          var label = document.getElementById('current-theme-label');
+          if (indicator && window.themeSwitcher) {
+            var theme = window.themeSwitcher.current;
+            indicator.style.background = theme === 'zen' ? '#dc2626' : '#ffdd00';
+            indicator.style.border = theme === 'zen' ? '2px solid #e5e5e5' : '2px solid #333';
+            if (label) label.textContent = theme.charAt(0).toUpperCase() + theme.slice(1);
+            updateCheckmarks(theme);
+          }
+          
+          // Hook into theme switcher
+          var originalSet = window.themeSwitcher && window.themeSwitcher.set;
+          if (originalSet) {
+            window.themeSwitcher.set = function(themeName) {
+              originalSet.call(window.themeSwitcher, themeName);
+              if (indicator) {
+                indicator.style.background = themeName === 'zen' ? '#dc2626' : '#ffdd00';
+                indicator.style.border = themeName === 'zen' ? '2px solid #e5e5e5' : '2px solid #333';
+              }
+              if (label) label.textContent = themeName.charAt(0).toUpperCase() + themeName.slice(1);
+              updateCheckmarks(themeName);
+            };
+          }
+        })();
+        
+        function toggleThemeDropdown() {
+          var menu = document.getElementById('theme-menu');
+          var chevron = document.getElementById('theme-chevron');
+          var trigger = document.getElementById('theme-trigger');
+          var isOpen = menu.classList.contains('opacity-100');
+          
+          if (isOpen) {
+            closeThemeDropdown();
+          } else {
+            menu.classList.remove('opacity-0', 'invisible', 'scale-95');
+            menu.classList.add('opacity-100', 'visible', 'scale-100');
+            chevron.style.transform = 'rotate(180deg)';
+            trigger.setAttribute('aria-expanded', 'true');
+          }
+        }
+        
+        function closeThemeDropdown() {
+          var menu = document.getElementById('theme-menu');
+          var chevron = document.getElementById('theme-chevron');
+          var trigger = document.getElementById('theme-trigger');
+          menu.classList.add('opacity-0', 'invisible', 'scale-95');
+          menu.classList.remove('opacity-100', 'visible', 'scale-100');
+          chevron.style.transform = 'rotate(0deg)';
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+        
+        // Close on outside click
+        document.addEventListener('click', function(e) {
+          var dropdown = document.getElementById('theme-dropdown');
+          if (dropdown && !dropdown.contains(e.target)) {
+            closeThemeDropdown();
+          }
+        });
+      </script>
+    </div>
+  </nav>
+</header>

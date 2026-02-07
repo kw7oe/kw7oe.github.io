@@ -1,0 +1,29 @@
+{{ define "main" }}
+<article>
+  <header class="mb-16">
+    <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight leading-none max-w-3xl" style="color: var(--color-text);">{{ .Title }}</h1>
+    <p class="text-xs uppercase tracking-wide mt-6" style="color: var(--color-muted);">{{ .ReadingTime }} min read · {{ .WordCount }} words</p>
+  </header>
+
+  {{ if and (gt .WordCount 400) (.Params.toc) }}
+  <nav class="border p-6 mb-16 max-w-2xl" style="border-color: var(--color-border);">
+    <h2 class="text-xs font-bold uppercase tracking-widest mb-4" style="color: var(--color-muted);">Contents</h2>
+    <div class="prose prose-sm" style="color: var(--color-text);">
+      {{ .TableOfContents }}
+    </div>
+  </nav>
+  {{ end }}
+
+  <div class="prose prose-lg max-w-none mb-20" style="color: var(--color-text);">
+    {{ .Content }}
+  </div>
+
+  {{ with .NextInSection }}
+  <footer class="flex justify-end border-t pt-8" style="border-color: var(--color-border);">
+    <a href="{{ .RelPermalink }}" class="font-medium hover:text-accent" style="color: var(--color-text);">
+      {{ .Params.section }}: {{ .Title }} →
+    </a>
+  </footer>
+  {{ end }}
+</article>
+{{ end }}

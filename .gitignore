@@ -17,3 +17,6 @@ hugo.darwin
 # direnv
 .direnv/
 
+# Node
+node_modules/
+
