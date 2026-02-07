@@ -1,0 +1,27 @@
+{{ define "main" }}
+<header class="mb-12">
+  <h1 class="text-4xl sm:text-5xl font-bold tracking-tight mb-2" style="color: var(--color-text);">{{ title .Title }}</h1>
+  <p class="text-xs uppercase tracking-widest" style="color: var(--color-muted); font-family: var(--font-mono);">{{ len .Pages }} series</p>
+</header>
+
+{{ if .Content }}
+<div class="prose max-w-2xl mb-12" style="color: var(--color-text);">
+  {{ .Content }}
+</div>
+<hr class="mb-12" style="border-color: var(--color-border);" />
+{{ end }}
+
+{{ range .Pages }}
+<section class="mb-16">
+  <h2 class="text-2xl font-bold mb-4" style="color: var(--color-text);">{{ .Title }}</h2>
+  <ul class="swiss-list">
+    {{ range $index, $element := .Pages.ByDate }}
+    <li class="swiss-list-item">
+      <a class="font-medium no-underline hover:text-accent flex-1" href="{{ .RelPermalink }}" style="color: var(--color-text);">Part {{ add $index 1 }}: {{ .Title }}</a>
+      <span class="text-xs shrink-0 tabular-nums uppercase tracking-wide" style="color: var(--color-muted);">{{ .Date.Format "Jan 02" }}</span>
+    </li>
+    {{ end }}
+  </ul>
+</section>
+{{ end }}
+{{ end }}

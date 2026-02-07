@@ -1,0 +1,160 @@
+<header class="swiss-header">
+  {{ with .Site.GetPage "/" }}
+  <a href="{{ .RelPermalink }}" class="text-lg font-bold tracking-tight no-underline" style="color: var(--color-text);">
+    {{ .Site.Title }}
+  </a>
+  {{ end }}
+  <div class="swiss-nav">
+    {{ with .Site.GetPage "/" }}
+    <a href="{{ .RelPermalink }}" class="text-xs font-semibold uppercase tracking-widest no-underline hover:text-accent" style="color: var(--color-muted);">Home</a>
+    {{ end }}
+    {{ with .Site.GetPage "/series" }}
+    <a href="{{ .RelPermalink }}" class="text-xs font-semibold uppercase tracking-widest no-underline hover:text-accent" style="color: var(--color-muted);">{{ .Title }}</a>
+    {{ end }}
+    {{ with .Site.GetPage "/fragments" }}
+    <a href="{{ .RelPermalink }}" class="text-xs font-semibold uppercase tracking-widest no-underline hover:text-accent" style="color: var(--color-muted);">{{ .Title }}</a>
+    {{ end }}
+    {{ with .Site.GetPage "/books" }}
+    <a href="{{ .RelPermalink }}" class="text-xs font-semibold uppercase tracking-widest no-underline hover:text-accent" style="color: var(--color-muted);">{{ .Title }}</a>
+    {{ end }}
+    {{ with .Site.GetPage "/about" }}
+    <a href="{{ .RelPermalink }}" class="text-xs font-semibold uppercase tracking-widest no-underline hover:text-accent" style="color: var(--color-muted);">{{ .Title }}</a>
+    {{ end }}
+    {{ with .Site.GetPage "/tags" }}
+    <a href="{{ .RelPermalink }}" class="text-xs font-semibold uppercase tracking-widest no-underline hover:text-accent" style="color: var(--color-muted);">{{ .Title }}</a>
+    {{ end }}
+
+    {{/* Theme Selector */}}
+    <div class="relative" id="theme-dropdown">
+      <button type="button"
+              id="theme-trigger"
+              class="flex items-center gap-2 px-3 py-1.5 rounded-full transition-all duration-200 hover:scale-105"
+              style="background: var(--color-callout-bg); border: 1px solid var(--color-border);"
+              onclick="toggleThemeDropdown()"
+              aria-haspopup="true"
+              aria-expanded="false">
+        <span id="current-theme-indicator" class="w-2 h-2 rounded-full"></span>
+        <span id="current-theme-label" class="text-xs font-medium tracking-wide" style="color: var(--color-text);">Swiss</span>
+        <svg class="w-3 h-3 transition-transform duration-200" id="theme-chevron"
+             style="color: var(--color-muted);"
+             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+      
+      <div id="theme-menu" 
+           class="absolute right-0 top-full mt-2 py-1 rounded-lg opacity-0 invisible transition-all duration-200 transform scale-95 origin-top-right"
+           style="background-color: var(--color-bg, #ffffff); border: 1px solid var(--color-border, #e5e5e5); box-shadow: 0 4px 20px rgba(0,0,0,0.1); min-width: 160px; z-index: 100; max-height: 400px; overflow-y: auto;">
+      </div>
+    </div>
+    
+    <script>
+      var themeData = {
+        'zen':         { color: '#dc2626', label: 'Zen' },
+        'brutalist':   { color: '#ffdd00', label: 'Brutalist' },
+        'swiss':       { color: '#0055ff', label: 'Swiss Grid' },
+        'editorial':   { color: '#c4440a', label: 'Editorial' },
+        'dusk':        { color: '#e09f3e', label: 'Dusk' },
+        'soft-brutal': { color: '#ff5c5c', label: 'Soft Brutal' },
+        'concrete':    { color: '#c05c3c', label: 'Concrete' },
+        'void':        { color: '#4338ca', label: 'Void' },
+        'analog':      { color: '#b22234', label: 'Analog' },
+        'midnight':    { color: '#2dd4bf', label: 'Midnight Ink' },
+        'atelier':     { color: '#e8635a', label: 'Atelier' }
+      };
+      
+      function buildThemeMenu() {
+        var menu = document.getElementById('theme-menu');
+        if (!menu) return;
+        menu.innerHTML = '';
+        var keys = Object.keys(themeData);
+        for (var i = 0; i < keys.length; i++) {
+          var key = keys[i];
+          var data = themeData[key];
+          if (i > 0) {
+            var sep = document.createElement('div');
+            sep.style.cssText = 'height: 1px; background: var(--color-border, #e5e5e5); margin: 0 12px;';
+            menu.appendChild(sep);
+          }
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors';
+          btn.style.cssText = 'color: var(--color-text, #0a0a0a); background: transparent;';
+          btn.setAttribute('data-theme-key', key);
+          btn.onmouseover = function() { this.style.backgroundColor = 'var(--color-callout-bg, #f5f5f5)'; };
+          btn.onmouseout = function() { this.style.backgroundColor = 'transparent'; };
+          (function(k) {
+            btn.onclick = function() { themeSwitcher.set(k); closeThemeDropdown(); };
+          })(key);
+          var dot = document.createElement('span');
+          dot.className = 'w-2.5 h-2.5 rounded-full shrink-0';
+          dot.style.background = data.color;
+          var lbl = document.createElement('span');
+          lbl.className = 'text-sm';
+          lbl.style.color = 'var(--color-text, #0a0a0a)';
+          lbl.textContent = data.label;
+          btn.appendChild(dot);
+          btn.appendChild(lbl);
+          menu.appendChild(btn);
+        }
+      }
+      
+      function updateIndicator(themeName) {
+        var indicator = document.getElementById('current-theme-indicator');
+        var label = document.getElementById('current-theme-label');
+        var data = themeData[themeName];
+        if (!data) return;
+        if (indicator) {
+          indicator.style.background = data.color;
+          indicator.style.border = '2px solid var(--color-border)';
+        }
+        if (label) label.textContent = data.label;
+      }
+      
+      (function() {
+        buildThemeMenu();
+        if (window.themeSwitcher) {
+          updateIndicator(window.themeSwitcher.current);
+          var originalSet = window.themeSwitcher.set;
+          window.themeSwitcher.set = function(themeName) {
+            originalSet.call(window.themeSwitcher, themeName);
+            updateIndicator(themeName);
+          };
+        }
+      })();
+      
+      function toggleThemeDropdown() {
+        var menu = document.getElementById('theme-menu');
+        var chevron = document.getElementById('theme-chevron');
+        var trigger = document.getElementById('theme-trigger');
+        var isOpen = menu.classList.contains('opacity-100');
+        
+        if (isOpen) {
+          closeThemeDropdown();
+        } else {
+          menu.classList.remove('opacity-0', 'invisible', 'scale-95');
+          menu.classList.add('opacity-100', 'visible', 'scale-100');
+          chevron.style.transform = 'rotate(180deg)';
+          trigger.setAttribute('aria-expanded', 'true');
+        }
+      }
+      
+      function closeThemeDropdown() {
+        var menu = document.getElementById('theme-menu');
+        var chevron = document.getElementById('theme-chevron');
+        var trigger = document.getElementById('theme-trigger');
+        menu.classList.add('opacity-0', 'invisible', 'scale-95');
+        menu.classList.remove('opacity-100', 'visible', 'scale-100');
+        chevron.style.transform = 'rotate(0deg)';
+        trigger.setAttribute('aria-expanded', 'false');
+      }
+      
+      document.addEventListener('click', function(e) {
+        var dropdown = document.getElementById('theme-dropdown');
+        if (dropdown && !dropdown.contains(e.target)) {
+          closeThemeDropdown();
+        }
+      });
+    </script>
+  </div>
+</header>

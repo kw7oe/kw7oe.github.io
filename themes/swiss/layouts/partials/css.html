@@ -1,0 +1,43 @@
+{{/* Generate base CSS (structural styles) */}}
+{{ $isServer := hugo.IsServer }}
+{{ with resources.Get "css/base.css" }}
+  {{ $css := . }}
+  {{ if not $isServer }}
+    {{ $css = . | minify }}
+    {{ $css = $css | fingerprint }}
+  {{ end }}
+  <link rel="stylesheet" href="{{ $css.RelPermalink }}"
+    {{ if not $isServer }}integrity="{{ $css.Data.Integrity }}" crossorigin="anonymous"{{ end }}>
+{{ end }}
+
+{{/* Generate all theme CSS files */}}
+{{ $themes := slice "zen" "brutalist" "swiss" "editorial" "dusk" "soft-brutal" "concrete" "void" "analog" "midnight" "atelier" }}
+{{ $defaultTheme := site.Params.style | default "swiss" }}
+{{ range $themes }}
+  {{ $themeName := . }}
+  {{ $themePath := printf "css/themes/%s.css" $themeName }}
+  {{ with resources.Get $themePath }}
+    {{ $css := . }}
+    {{ if not $isServer }}
+      {{ $css = . | minify }}
+      {{ $css = $css | fingerprint }}
+    {{ end }}
+    {{ $isDefault := eq $themeName $defaultTheme }}
+    <link rel="stylesheet"
+          href="{{ $css.RelPermalink }}"
+          {{ if not $isServer }}integrity="{{ $css.Data.Integrity }}" crossorigin="anonymous"{{ end }}
+          data-theme="{{ $themeName }}"
+          {{ if not $isDefault }}disabled{{ end }}>
+  {{ end }}
+{{ end }}
+
+{{/* Swiss layout overrides */}}
+{{ with resources.Get "css/swiss-layout.css" }}
+  {{ $css := . }}
+  {{ if not $isServer }}
+    {{ $css = . | minify }}
+    {{ $css = $css | fingerprint }}
+  {{ end }}
+  <link rel="stylesheet" href="{{ $css.RelPermalink }}"
+    {{ if not $isServer }}integrity="{{ $css.Data.Integrity }}" crossorigin="anonymous"{{ end }}>
+{{ end }}

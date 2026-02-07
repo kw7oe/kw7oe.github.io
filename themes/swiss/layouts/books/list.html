@@ -1,0 +1,28 @@
+{{ define "main" }}
+<header class="mb-12">
+  <h1 class="text-4xl sm:text-5xl font-bold tracking-tight" style="color: var(--color-text);">{{ title .Title }}</h1>
+</header>
+
+{{ if .Content }}
+<div class="prose max-w-2xl mb-12" style="color: var(--color-text);">
+  {{ .Content }}
+</div>
+{{ end }}
+
+{{ range .Pages.GroupByParam "section" }}
+<section class="mb-16">
+  <h2 class="text-sm font-bold uppercase tracking-widest mb-4" style="color: var(--color-muted); font-family: var(--font-mono);">{{ .Key }}</h2>
+  <ul class="swiss-list">
+    {{ range (.Pages.ByParam "chapter") }}
+    <li class="swiss-list-item">
+      {{ if isset .Params "coming_soon" }}
+      <span style="color: var(--color-muted);">{{ .Title }}</span>
+      {{ else }}
+      <a class="font-medium no-underline hover:text-accent flex-1" href="{{ .RelPermalink }}" style="color: var(--color-text);">{{ .Title }}</a>
+      {{ end }}
+    </li>
+    {{ end }}
+  </ul>
+</section>
+{{ end }}
+{{ end }}

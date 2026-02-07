@@ -1,0 +1,25 @@
+{{ define "main" }}
+<header class="mb-12">
+  <h1 class="text-4xl sm:text-5xl font-bold tracking-tight mb-2" style="color: var(--color-text);">{{ title .Title }}</h1>
+  <p class="text-xs uppercase tracking-widest" style="color: var(--color-muted); font-family: var(--font-mono);">{{ len .Pages }} entries</p>
+</header>
+
+{{ if .Content }}
+<div class="prose max-w-2xl mb-12" style="color: var(--color-text);">
+  {{ .Content }}
+</div>
+<hr class="mb-12" style="border-color: var(--color-border);" />
+{{ end }}
+
+{{ range .Data.Pages.GroupByDate "2006" }}
+<section class="mb-16">
+  <div class="swiss-section-year">{{ .Key }}</div>
+  <ul class="swiss-list">
+    {{ range .Pages }}
+      {{ partial "li.html" . }}
+    {{ end }}
+  </ul>
+  <div class="swiss-section-count">{{ len .Pages }} {{ if eq (len .Pages) 1 }}entry{{ else }}entries{{ end }} in {{ .Key }}</div>
+</section>
+{{ end }}
+{{ end }}

@@ -1,0 +1,8 @@
+name = "swiss"
+license = "MIT"
+description = "Swiss International Typographic Style - grid discipline, numbered cataloguing, asymmetric layouts"
+min_version = "0.128.0"
+tags = ["Hugo", "Swiss Design", "International Style", "minimalism"]
+
+[author]
+  name = "Kai Wern Choong"

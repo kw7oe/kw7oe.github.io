@@ -1,0 +1,38 @@
+{{ define "main" }}
+<article>
+  <header class="mb-12">
+    <h1 class="text-4xl sm:text-5xl font-bold tracking-tight leading-none max-w-3xl" style="color: var(--color-text);">{{ .Title }}</h1>
+    <div class="swiss-meta mt-6">
+      <div class="swiss-meta-item">
+        <span class="swiss-meta-label">Read</span>
+        <span class="swiss-meta-value">{{ .ReadingTime }} min</span>
+      </div>
+      <div class="swiss-meta-item">
+        <span class="swiss-meta-label">Words</span>
+        <span class="swiss-meta-value">{{ .WordCount }}</span>
+      </div>
+    </div>
+  </header>
+
+  {{ if and (gt .WordCount 400) (.Params.toc) }}
+  <nav class="swiss-toc">
+    <h2 class="text-xs font-bold uppercase tracking-widest mb-4" style="color: var(--color-muted); font-family: var(--font-mono);">Contents</h2>
+    <div class="prose prose-sm" style="color: var(--color-text);">
+      {{ .TableOfContents }}
+    </div>
+  </nav>
+  {{ end }}
+
+  <div class="prose prose-lg max-w-none mb-20" style="color: var(--color-text);">
+    {{ .Content }}
+  </div>
+
+  {{ with .NextInSection }}
+  <footer class="flex justify-end pt-8" style="border-top: 1px solid var(--color-border);">
+    <a href="{{ .RelPermalink }}" class="font-medium hover:text-accent" style="color: var(--color-text);">
+      {{ .Params.section }}: {{ .Title }} →
+    </a>
+  </footer>
+  {{ end }}
+</article>
+{{ end }}

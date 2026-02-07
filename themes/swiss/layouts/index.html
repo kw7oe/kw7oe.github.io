@@ -1,0 +1,22 @@
+{{ define "main" }}
+  {{ if .Content }}
+  <div class="max-w-2xl prose prose-lg mb-20" style="color: var(--color-text);">
+    {{ .Content }}
+  </div>
+  {{ end }}
+
+  {{ range .Site.RegularPages.GroupByDate "2006" }}
+    {{ $posts := where .Pages "Type" "posts" }}
+    {{ if ge (len $posts) 1 }}
+    <section class="mb-16">
+      <div class="swiss-section-year">{{ .Key }}</div>
+      <ul class="swiss-list">
+        {{ range $posts }}
+          {{ partial "li.html" . }}
+        {{ end }}
+      </ul>
+      <div class="swiss-section-count">{{ len $posts }} {{ if eq (len $posts) 1 }}entry{{ else }}entries{{ end }}</div>
+    </section>
+    {{ end }}
+  {{ end }}
+{{ end }}

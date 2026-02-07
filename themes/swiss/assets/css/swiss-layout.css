@@ -1,0 +1,150 @@
+/* Swiss Grid Layout - Structural overrides */
+/* Loaded alongside base.css and theme CSS files */
+
+/* Numbered list counter */
+.swiss-list {
+    counter-reset: item;
+}
+
+.swiss-list-item {
+    counter-increment: item;
+    display: flex;
+    align-items: baseline;
+    gap: 1.5rem;
+    padding: 0.625rem 0;
+    border-top: 1px solid var(--color-border);
+}
+
+.swiss-list-item::before {
+    content: counter(item, decimal-leading-zero);
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    color: var(--color-muted);
+    flex-shrink: 0;
+    width: 1.5rem;
+}
+
+/* Section year marker */
+.swiss-section-year {
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.025em;
+    color: var(--color-border);
+    margin-bottom: 1rem;
+}
+
+/* Structured metadata grid */
+.swiss-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding: 1rem 0;
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: 2.5rem;
+}
+
+.swiss-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+.swiss-meta-label {
+    font-size: 0.625rem;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-muted);
+}
+
+.swiss-meta-value {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--color-text);
+}
+
+/* Swiss tags as pipe-separated list */
+.swiss-tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.swiss-tags a {
+    color: var(--color-muted);
+    text-decoration: none;
+    padding: 0 0.5rem;
+}
+
+.swiss-tags a:first-child {
+    padding-left: 0;
+}
+
+.swiss-tags a:hover {
+    color: var(--color-accent);
+}
+
+.swiss-tags a + a {
+    border-left: 1px solid var(--color-border);
+}
+
+/* Swiss header - masthead style */
+.swiss-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 1.5rem 0;
+    border-bottom: 2px solid var(--color-text);
+}
+
+.swiss-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+/* Swiss footer - colophon */
+.swiss-footer {
+    padding: 1.5rem 0;
+    border-top: 2px solid var(--color-text);
+    margin-top: 6rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* Swiss 404 - asymmetric */
+.swiss-404 {
+    display: flex;
+    align-items: baseline;
+    gap: 2rem;
+    padding: 8rem 0;
+}
+
+/* Swiss TOC */
+.swiss-toc {
+    padding: 1rem 0;
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: 3rem;
+}
+
+/* Section entry count */
+.swiss-section-count {
+    font-size: 0.625rem;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-muted);
+    margin-top: 0.75rem;
+}
