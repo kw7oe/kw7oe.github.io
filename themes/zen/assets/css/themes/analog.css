@@ -1,0 +1,24 @@
+/* Analog Theme - Typewriter meets interface */
+/* 1960s bureaucratic paperwork, physical documents */
+
+:root {
+    --font-sans: "Courier Prime", "Courier New", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --font-mono: "Courier Prime", "Courier New", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+    /* Color Palette */
+    --color-bg: #f5f0e1;
+    --color-text: #1a1711;
+    --color-muted: #6e675a;
+    --color-border: #c8c0aa;
+    --color-accent: #b22234;
+    --color-accent-hover: #8e1a2a;
+
+    /* Code Blocks */
+    --color-code-bg: #2a2a20;
+    --color-code-text: #c8c4b0;
+    --color-inline-code-bg: #e8e0cc;
+    --color-inline-code-text: #1a1711;
+
+    /* Callouts */
+    --color-callout-bg: #ece6d2;
+}

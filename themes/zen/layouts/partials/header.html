@@ -44,63 +44,80 @@
         
         <div id="theme-menu" 
              class="absolute right-0 top-full mt-2 py-1 rounded-lg opacity-0 invisible transition-all duration-200 transform scale-95 origin-top-right"
-             style="background-color: var(--color-bg, #ffffff); border: 1px solid var(--color-border, #e5e5e5); box-shadow: 0 4px 20px rgba(0,0,0,0.1); min-width: 140px; z-index: 100;">
-          
-          <button type="button" 
-                  class="w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors"
-                  style="color: var(--color-text, #0a0a0a); background: transparent;"
-                  onmouseover="this.style.backgroundColor='var(--color-callout-bg, #f5f5f5)'"
-                  onmouseout="this.style.backgroundColor='transparent'"
-                  onclick="themeSwitcher.set('zen'); closeThemeDropdown()">
-            <span class="w-2.5 h-2.5 rounded-full" style="background: #dc2626;"></span>
-            <span class="text-sm" style="color: var(--color-text, #0a0a0a);">Zen</span>
-          </button>
-          
-          <div style="height: 1px; background: var(--color-border, #e5e5e5); margin: 0 12px;"></div>
-          
-          <button type="button"
-                  class="w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors"
-                  style="color: var(--color-text, #0a0a0a); background: transparent;"
-                  onmouseover="this.style.backgroundColor='var(--color-callout-bg, #f5f5f5)'"
-                  onmouseout="this.style.backgroundColor='transparent'"
-                  onclick="themeSwitcher.set('brutalist'); closeThemeDropdown()">
-            <span class="w-2.5 h-2.5 rounded-full" style="background: #ffdd00;"></span>
-            <span class="text-sm" style="color: var(--color-text, #0a0a0a);">Brutalist</span>
-          </button>
+             style="background-color: var(--color-bg, #ffffff); border: 1px solid var(--color-border, #e5e5e5); box-shadow: 0 4px 20px rgba(0,0,0,0.1); min-width: 160px; z-index: 100; max-height: 400px; overflow-y: auto;">
         </div>
       </div>
       
       <script>
-        function updateCheckmarks(themeName) {
-          var checkZen = document.getElementById('check-zen');
-          var checkBrutalist = document.getElementById('check-brutalist');
-          if (checkZen) checkZen.style.opacity = themeName === 'zen' ? '1' : '0';
-          if (checkBrutalist) checkBrutalist.style.opacity = themeName === 'brutalist' ? '1' : '0';
+        var themeData = {
+          'zen':         { color: '#dc2626', label: 'Zen' },
+          'brutalist':   { color: '#ffdd00', label: 'Brutalist' },
+          'swiss':       { color: '#0055ff', label: 'Swiss Grid' },
+          'editorial':   { color: '#c4440a', label: 'Editorial' },
+          'dusk':        { color: '#e09f3e', label: 'Dusk' },
+          'soft-brutal': { color: '#ff5c5c', label: 'Soft Brutal' },
+          'concrete':    { color: '#c05c3c', label: 'Concrete' },
+          'void':        { color: '#4338ca', label: 'Void' },
+          'analog':      { color: '#b22234', label: 'Analog' },
+          'midnight':    { color: '#2dd4bf', label: 'Midnight Ink' }
+        };
+        
+        function buildThemeMenu() {
+          var menu = document.getElementById('theme-menu');
+          if (!menu) return;
+          menu.innerHTML = '';
+          var keys = Object.keys(themeData);
+          for (var i = 0; i < keys.length; i++) {
+            var key = keys[i];
+            var data = themeData[key];
+            if (i > 0) {
+              var sep = document.createElement('div');
+              sep.style.cssText = 'height: 1px; background: var(--color-border, #e5e5e5); margin: 0 12px;';
+              menu.appendChild(sep);
+            }
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors';
+            btn.style.cssText = 'color: var(--color-text, #0a0a0a); background: transparent;';
+            btn.setAttribute('data-theme-key', key);
+            btn.onmouseover = function() { this.style.backgroundColor = 'var(--color-callout-bg, #f5f5f5)'; };
+            btn.onmouseout = function() { this.style.backgroundColor = 'transparent'; };
+            (function(k) {
+              btn.onclick = function() { themeSwitcher.set(k); closeThemeDropdown(); };
+            })(key);
+            var dot = document.createElement('span');
+            dot.className = 'w-2.5 h-2.5 rounded-full shrink-0';
+            dot.style.background = data.color;
+            var lbl = document.createElement('span');
+            lbl.className = 'text-sm';
+            lbl.style.color = 'var(--color-text, #0a0a0a)';
+            lbl.textContent = data.label;
+            btn.appendChild(dot);
+            btn.appendChild(lbl);
+            menu.appendChild(btn);
+          }
+        }
+        
+        function updateIndicator(themeName) {
+          var indicator = document.getElementById('current-theme-indicator');
+          var label = document.getElementById('current-theme-label');
+          var data = themeData[themeName];
+          if (!data) return;
+          if (indicator) {
+            indicator.style.background = data.color;
+            indicator.style.border = '2px solid var(--color-border)';
+          }
+          if (label) label.textContent = data.label;
         }
         
         (function() {
-          // Set initial indicator color
-          var indicator = document.getElementById('current-theme-indicator');
-          var label = document.getElementById('current-theme-label');
-          if (indicator && window.themeSwitcher) {
-            var theme = window.themeSwitcher.current;
-            indicator.style.background = theme === 'zen' ? '#dc2626' : '#ffdd00';
-            indicator.style.border = theme === 'zen' ? '2px solid #e5e5e5' : '2px solid #333';
-            if (label) label.textContent = theme.charAt(0).toUpperCase() + theme.slice(1);
-            updateCheckmarks(theme);
-          }
-          
-          // Hook into theme switcher
-          var originalSet = window.themeSwitcher && window.themeSwitcher.set;
-          if (originalSet) {
+          buildThemeMenu();
+          if (window.themeSwitcher) {
+            updateIndicator(window.themeSwitcher.current);
+            var originalSet = window.themeSwitcher.set;
             window.themeSwitcher.set = function(themeName) {
               originalSet.call(window.themeSwitcher, themeName);
-              if (indicator) {
-                indicator.style.background = themeName === 'zen' ? '#dc2626' : '#ffdd00';
-                indicator.style.border = themeName === 'zen' ? '2px solid #e5e5e5' : '2px solid #333';
-              }
-              if (label) label.textContent = themeName.charAt(0).toUpperCase() + themeName.slice(1);
-              updateCheckmarks(themeName);
+              updateIndicator(themeName);
             };
           }
         })();
@@ -131,7 +148,6 @@
           trigger.setAttribute('aria-expanded', 'false');
         }
         
-        // Close on outside click
         document.addEventListener('click', function(e) {
           var dropdown = document.getElementById('theme-dropdown');
           if (dropdown && !dropdown.contains(e.target)) {

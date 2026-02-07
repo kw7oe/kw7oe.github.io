@@ -1,0 +1,24 @@
+/* Void Theme - Negative space as subject */
+/* Ma (間) philosophy, extreme minimalism */
+
+:root {
+    --font-sans: "Space Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --font-mono: "Space Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+    /* Color Palette */
+    --color-bg: #ffffff;
+    --color-text: #3a3a3a;
+    --color-muted: #aaaaaa;
+    --color-border: #eeeeee;
+    --color-accent: #4338ca;
+    --color-accent-hover: #3730a3;
+
+    /* Code Blocks */
+    --color-code-bg: #18181b;
+    --color-code-text: #a1a1aa;
+    --color-inline-code-bg: #f4f4f5;
+    --color-inline-code-text: #4338ca;
+
+    /* Callouts */
+    --color-callout-bg: #fafafa;
+}

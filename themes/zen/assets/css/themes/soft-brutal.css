@@ -1,0 +1,24 @@
+/* Soft Brutal Theme - Brutalism with rounded edges */
+/* Monospace rigidity meets warm neutrals */
+
+:root {
+    --font-sans: "Space Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --font-mono: "Space Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+    /* Color Palette */
+    --color-bg: #f0ece4;
+    --color-text: #111111;
+    --color-muted: #6b6560;
+    --color-border: #c8c0b4;
+    --color-accent: #ff5c5c;
+    --color-accent-hover: #e04444;
+
+    /* Code Blocks */
+    --color-code-bg: #1c1a17;
+    --color-code-text: #d8d4cc;
+    --color-inline-code-bg: #ddd8ce;
+    --color-inline-code-text: #111111;
+
+    /* Callouts */
+    --color-callout-bg: #e4dfD6;
+}

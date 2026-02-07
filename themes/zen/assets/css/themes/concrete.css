@@ -1,0 +1,24 @@
+/* Concrete & Paper Theme - Materiality meets structure */
+/* Raw material, architectural borders, terracotta warmth */
+
+:root {
+    --font-sans: "Space Grotesk", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+    /* Color Palette */
+    --color-bg: #e8e6e1;
+    --color-text: #1c1c1c;
+    --color-muted: #666360;
+    --color-border: #c4c0ba;
+    --color-accent: #c05c3c;
+    --color-accent-hover: #a04828;
+
+    /* Code Blocks */
+    --color-code-bg: #141414;
+    --color-code-text: #ccc8c0;
+    --color-inline-code-bg: #d8d4cc;
+    --color-inline-code-text: #1c1c1c;
+
+    /* Callouts */
+    --color-callout-bg: #dddad4;
+}

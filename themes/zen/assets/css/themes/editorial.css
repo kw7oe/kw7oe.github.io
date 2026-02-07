@@ -1,0 +1,24 @@
+/* Editorial Theme - Serif-forward literary magazine */
+/* The New Yorker meets Monocle, unhurried reading */
+
+:root {
+    --font-sans: "Lora", "Georgia", "Times New Roman", ui-serif, serif;
+    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+    /* Color Palette */
+    --color-bg: #f7f3eb;
+    --color-text: #2c2416;
+    --color-muted: #7a6e5d;
+    --color-border: #d9d0c1;
+    --color-accent: #c4440a;
+    --color-accent-hover: #a33808;
+
+    /* Code Blocks */
+    --color-code-bg: #1e1a14;
+    --color-code-text: #d4cfc6;
+    --color-inline-code-bg: #ece6da;
+    --color-inline-code-text: #2c2416;
+
+    /* Callouts */
+    --color-callout-bg: #eee8dc;
+}

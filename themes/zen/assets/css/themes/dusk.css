@@ -1,0 +1,24 @@
+/* Dusk Theme - Warm dark with restrained glow */
+/* Late-night reading, amber lamplight */
+
+:root {
+    --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+    /* Color Palette */
+    --color-bg: #1a1a1e;
+    --color-text: #c8c4be;
+    --color-muted: #807c76;
+    --color-border: #2e2e32;
+    --color-accent: #e09f3e;
+    --color-accent-hover: #c88a2e;
+
+    /* Code Blocks */
+    --color-code-bg: #141416;
+    --color-code-text: #b8b4ae;
+    --color-inline-code-bg: #262628;
+    --color-inline-code-text: #d4c8a8;
+
+    /* Callouts */
+    --color-callout-bg: #222226;
+}

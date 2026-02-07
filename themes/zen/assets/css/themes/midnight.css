@@ -1,0 +1,24 @@
+/* Midnight Ink Theme - Deep editorial dark mode */
+/* Beautifully typeset book under lamplight */
+
+:root {
+    --font-sans: "Libre Baskerville", "Georgia", "Times New Roman", ui-serif, serif;
+    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+    /* Color Palette */
+    --color-bg: #0d1117;
+    --color-text: #d1d5db;
+    --color-muted: #7c8390;
+    --color-border: #21262d;
+    --color-accent: #2dd4bf;
+    --color-accent-hover: #14b8a6;
+
+    /* Code Blocks */
+    --color-code-bg: #161b22;
+    --color-code-text: #c9d1d9;
+    --color-inline-code-bg: #1c2128;
+    --color-inline-code-text: #2dd4bf;
+
+    /* Callouts */
+    --color-callout-bg: #161b22;
+}
