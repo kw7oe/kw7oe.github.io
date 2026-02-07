@@ -1,6 +1,6 @@
 baseURL = "https://kaiwern.com"
 languageCode = "en-us"
-theme = "zen"
+theme = "swiss"
 
 pygmentsUseClasses = true
 pygmentsCodeFences = true
@@ -9,7 +9,7 @@ enableGitInfo = true
 summaryLength = 50
 
 [params]
-  style = "zen"  # Default theme: zen, dark, brutalist, or warm
+  style = "swiss"
 
 [taxonomies]
   category = 'categories'
@@ -36,6 +36,9 @@ books = "/:sections/:title"
     target = "assets"
   [[module.mounts]]
     source = "themes/zen/assets"
+    target = "assets"
+  [[module.mounts]]
+    source = "themes/swiss/assets"
     target = "assets"
   [[module.mounts]]
     disableWatch = true
