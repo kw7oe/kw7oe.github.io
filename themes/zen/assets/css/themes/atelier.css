@@ -26,4 +26,5 @@
 h1, h2, h3, h4, h5, h6,
 .prose h1, .prose h2, .prose h3, .prose h4 {
     font-family: "Instrument Serif", "Georgia", "Times New Roman", ui-serif, serif;
+    font-weight: 400;
 }
