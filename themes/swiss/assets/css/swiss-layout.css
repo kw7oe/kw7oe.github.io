@@ -96,19 +96,50 @@
     border-left: 1px solid var(--color-border);
 }
 
-/* Swiss header - masthead style */
+/* Swiss header - numbered navigation */
 .swiss-header {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
     padding: 1.5rem 0;
     border-bottom: 2px solid var(--color-text);
 }
 
 .swiss-nav {
     display: flex;
-    align-items: center;
-    gap: 1.5rem;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.swiss-nav-items {
+    display: flex;
+    align-items: baseline;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.swiss-nav-link {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.375rem;
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-text);
+    transition: color 150ms;
+}
+
+.swiss-nav-link:hover {
+    color: var(--color-accent);
+}
+
+.swiss-nav-index {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 400;
+    color: var(--color-muted);
+    letter-spacing: 0.05em;
 }
 
 /* Swiss footer - colophon */

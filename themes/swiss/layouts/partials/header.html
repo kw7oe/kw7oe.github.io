@@ -1,45 +1,49 @@
 <header class="swiss-header">
-  {{ with .Site.GetPage "/" }}
-  <a href="{{ .RelPermalink }}" class="text-lg font-bold tracking-tight no-underline" style="color: var(--color-text);">
-    {{ .Site.Title }}
-  </a>
-  {{ end }}
-  <div class="swiss-nav">
-    {{ with .Site.GetPage "/" }}
-    <a href="{{ .RelPermalink }}" class="text-xs font-semibold uppercase tracking-widest no-underline hover:text-accent" style="color: var(--color-muted);">Home</a>
-    {{ end }}
-    {{ with .Site.GetPage "/series" }}
-    <a href="{{ .RelPermalink }}" class="text-xs font-semibold uppercase tracking-widest no-underline hover:text-accent" style="color: var(--color-muted);">{{ .Title }}</a>
-    {{ end }}
-    {{ with .Site.GetPage "/fragments" }}
-    <a href="{{ .RelPermalink }}" class="text-xs font-semibold uppercase tracking-widest no-underline hover:text-accent" style="color: var(--color-muted);">{{ .Title }}</a>
-    {{ end }}
-    {{ with .Site.GetPage "/books" }}
-    <a href="{{ .RelPermalink }}" class="text-xs font-semibold uppercase tracking-widest no-underline hover:text-accent" style="color: var(--color-muted);">{{ .Title }}</a>
-    {{ end }}
-    {{ with .Site.GetPage "/about" }}
-    <a href="{{ .RelPermalink }}" class="text-xs font-semibold uppercase tracking-widest no-underline hover:text-accent" style="color: var(--color-muted);">{{ .Title }}</a>
-    {{ end }}
-    {{ with .Site.GetPage "/tags" }}
-    <a href="{{ .RelPermalink }}" class="text-xs font-semibold uppercase tracking-widest no-underline hover:text-accent" style="color: var(--color-muted);">{{ .Title }}</a>
-    {{ end }}
+  <nav class="swiss-nav">
+    <div class="swiss-nav-items">
+      {{ with .Site.GetPage "/" }}
+      <a href="{{ .RelPermalink }}" class="swiss-nav-link">
+        <span class="swiss-nav-index">01</span>Home
+      </a>
+      {{ end }}
+      {{ with .Site.GetPage "/series" }}
+      <a href="{{ .RelPermalink }}" class="swiss-nav-link">
+        <span class="swiss-nav-index">02</span>{{ .Title }}
+      </a>
+      {{ end }}
+      {{ with .Site.GetPage "/fragments" }}
+      <a href="{{ .RelPermalink }}" class="swiss-nav-link">
+        <span class="swiss-nav-index">03</span>{{ .Title }}
+      </a>
+      {{ end }}
+      {{ with .Site.GetPage "/books" }}
+      <a href="{{ .RelPermalink }}" class="swiss-nav-link">
+        <span class="swiss-nav-index">04</span>{{ .Title }}
+      </a>
+      {{ end }}
+      {{ with .Site.GetPage "/about" }}
+      <a href="{{ .RelPermalink }}" class="swiss-nav-link">
+        <span class="swiss-nav-index">05</span>{{ .Title }}
+      </a>
+      {{ end }}
+      {{ with .Site.GetPage "/tags" }}
+      <a href="{{ .RelPermalink }}" class="swiss-nav-link">
+        <span class="swiss-nav-index">06</span>{{ .Title }}
+      </a>
+      {{ end }}
+    </div>
 
     {{/* Theme Selector */}}
     <div class="relative" id="theme-dropdown">
       <button type="button"
               id="theme-trigger"
-              class="flex items-center gap-2 px-3 py-1.5 rounded-full transition-all duration-200 hover:scale-105"
-              style="background: var(--color-callout-bg); border: 1px solid var(--color-border);"
+              class="swiss-nav-link"
+              style="background: none; border: none; cursor: pointer; padding: 0;"
               onclick="toggleThemeDropdown()"
               aria-haspopup="true"
               aria-expanded="false">
-        <span id="current-theme-indicator" class="w-2 h-2 rounded-full"></span>
-        <span id="current-theme-label" class="text-xs font-medium tracking-wide" style="color: var(--color-text);">Swiss</span>
-        <svg class="w-3 h-3 transition-transform duration-200" id="theme-chevron"
-             style="color: var(--color-muted);"
-             fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-        </svg>
+        <span id="current-theme-indicator" class="w-2 h-2 rounded-full" style="display: inline-block;"></span>
+        <span id="current-theme-label">Swiss Grid</span>
       </button>
       
       <div id="theme-menu" 
@@ -125,7 +129,6 @@
       
       function toggleThemeDropdown() {
         var menu = document.getElementById('theme-menu');
-        var chevron = document.getElementById('theme-chevron');
         var trigger = document.getElementById('theme-trigger');
         var isOpen = menu.classList.contains('opacity-100');
         
@@ -134,18 +137,15 @@
         } else {
           menu.classList.remove('opacity-0', 'invisible', 'scale-95');
           menu.classList.add('opacity-100', 'visible', 'scale-100');
-          chevron.style.transform = 'rotate(180deg)';
           trigger.setAttribute('aria-expanded', 'true');
         }
       }
       
       function closeThemeDropdown() {
         var menu = document.getElementById('theme-menu');
-        var chevron = document.getElementById('theme-chevron');
         var trigger = document.getElementById('theme-trigger');
         menu.classList.add('opacity-0', 'invisible', 'scale-95');
         menu.classList.remove('opacity-100', 'visible', 'scale-100');
-        chevron.style.transform = 'rotate(0deg)';
         trigger.setAttribute('aria-expanded', 'false');
       }
       
@@ -156,5 +156,5 @@
         }
       });
     </script>
-  </div>
+  </nav>
 </header>
