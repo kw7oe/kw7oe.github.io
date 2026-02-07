@@ -1,0 +1,24 @@
+/* Atelier Theme - The designer's studio */
+/* Instrument Serif + DM Sans, warm coral accent */
+
+:root {
+    --font-sans: "DM Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "DM Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+    /* Color Palette */
+    --color-bg: #f8f7f4;
+    --color-text: #141414;
+    --color-muted: #6b6b6b;
+    --color-border: #e0ddd8;
+    --color-accent: #e8635a;
+    --color-accent-hover: #d14e45;
+
+    /* Code Blocks */
+    --color-code-bg: #1e1e22;
+    --color-code-text: #c8c4be;
+    --color-inline-code-bg: #eae7e2;
+    --color-inline-code-text: #141414;
+
+    /* Callouts */
+    --color-callout-bg: #f0edea;
+}

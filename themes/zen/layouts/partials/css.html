@@ -11,7 +11,7 @@
 {{ end }}
 
 {{/* Generate all theme CSS files */}}
-{{ $themes := slice "zen" "brutalist" "swiss" "editorial" "dusk" "soft-brutal" "concrete" "void" "analog" "midnight" }}
+{{ $themes := slice "zen" "brutalist" "swiss" "editorial" "dusk" "soft-brutal" "concrete" "void" "analog" "midnight" "atelier" }}
 {{ $defaultTheme := site.Params.style | default "zen" }}
 {{ range $themes }}
   {{ $themeName := . }}
