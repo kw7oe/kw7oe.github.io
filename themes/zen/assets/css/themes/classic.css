@@ -1,0 +1,24 @@
+/* Classic Theme - Ported from my-theme */
+/* Warm beige, Source Sans Pro + Lora serif, sky blue links */
+
+:root {
+    --font-sans: "Source Sans 3", "Source Sans Pro", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+    /* Color Palette */
+    --color-bg: #ebe5df;
+    --color-text: #111827;
+    --color-muted: #6b7280;
+    --color-border: #d8d0ca;
+    --color-accent: #0369a1;
+    --color-accent-hover: #0c4a6e;
+
+    /* Code Blocks */
+    --color-code-bg: #e0dad5;
+    --color-code-text: #333333;
+    --color-inline-code-bg: #e0dad5;
+    --color-inline-code-text: #333333;
+
+    /* Callouts */
+    --color-callout-bg: #dfe5eb;
+}
