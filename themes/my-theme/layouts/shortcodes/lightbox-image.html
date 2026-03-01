@@ -1,0 +1,8 @@
+{{ $resource := .Page.Resources.GetMatch .Name }}
+{{ with $resource }}
+  <a href="{{ .RelPermalink }}" data-pswp-gallery="default" data-pswp-width="{{ .Width }}" data-pswp-height="{{ .Height }}" data-pswp-caption="{{ .Title | default $.Page.Title }}"{{ with .Title }} title="{{ . }}"{{ end }}>
+    <img src="{{ .RelPermalink }}" alt="{{ .Title | default $.Page.Title }}">
+  </a>
+{{ else }}
+  {{ .Render | safeHTML }}
+{{ end }}

@@ -26,3 +26,16 @@
   }
 }
 
+/* purgecss start ignore */
+
+/* PhotoSwipe image styles */
+.prose a[data-pswp-width][data-pswp-height] img {
+  cursor: pointer;
+  @apply transition-opacity duration-200;
+}
+
+.prose a[data-pswp-width][data-pswp-height]:hover img {
+  @apply opacity-80;
+}
+
+/* purgecss end ignore */

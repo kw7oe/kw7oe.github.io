@@ -14,8 +14,8 @@ summaryLength = 50
   series = 'series'
 
 [permalinks]
-posts = "/:sections/:year/:month/:day/:slug/"
-books = "/:sections/:title"
+  posts = "/:sections/:year/:month/:day/:slug/"
+  books = "/:sections/:title"
 
 [build]
   writeStats = true

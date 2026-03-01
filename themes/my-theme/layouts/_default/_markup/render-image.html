@@ -1,0 +1,29 @@
+{{- $src := .Destination -}}
+{{- $alt := .Text -}}
+{{- $title := .Title -}}
+{{- $page := .Page -}}
+
+{{- $resource := "" -}}
+{{- $isLocal := false -}}
+
+{{- if or (hasPrefix $src "http://") (hasPrefix $src "https://") -}}
+  {{- $isLocal = false -}}
+{{- else -}}
+  {{- $isLocal = true -}}
+  {{- $srcPath := strings.TrimPrefix "/" $src -}}
+  {{- $resource = $page.Resources.GetMatch $srcPath -}}
+  {{- if not $resource -}}
+    {{- $resource = $page.Resources.GetMatch (path.Base $srcPath) -}}
+  {{- end -}}
+  {{- if not $resource -}}
+    {{- $resource = resources.Get $srcPath -}}
+  {{- end -}}
+{{- end -}}
+
+{{- if and $isLocal $resource -}}
+  <a href="{{ $resource.RelPermalink }}" data-pswp-gallery="default" data-pswp-width="{{ $resource.Width }}" data-pswp-height="{{ $resource.Height }}" data-pswp-caption="{{ $title | default $alt | default $page.Title }}"{{ with $title }} title="{{ . }}"{{ end }}>
+    <img src="{{ $resource.RelPermalink }}" alt="{{ $alt }}">
+  </a>
+{{- else -}}
+  <img src="{{ $src }}" alt="{{ $alt }}"{{ with $title }} title="{{ . }}"{{ end }}>
+{{- end -}}

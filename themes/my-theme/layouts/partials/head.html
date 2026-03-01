@@ -14,7 +14,6 @@
 {{ end }}
 {{ hugo.Generator }}
 
-<!-- {{ $styles := resources.Get "css/styles.css" | postCSS (dict "config" "./assets/css/postcss.config.js") }} -->
 {{ $styles := resources.Get "css/styles.css" }}
 
 {{ if .Site.IsServer }}
@@ -28,5 +27,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lora&family=Source+Sans+Pro:wght@400;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="{{ "lib/photoswipe/photoswipe.css" | absURL }}">
+
+{{ $photoswipeInit := resources.Get "js/photoswipe-init.js" }}
+{{ if .Site.IsServer }}
+  <script type="module" src="{{ $photoswipeInit.RelPermalink }}"></script>
+{{ else }}
+  {{ $photoswipeInit := $photoswipeInit | minify | fingerprint }}
+  <script type="module" src="{{ $photoswipeInit.Permalink }}" integrity="{{ $photoswipeInit.Data.Integrity }}"></script>
+{{ end }}
+
 <!-- {{ if ne .Page.Type "posts"  }} -->
 <!-- {{ end }} -->
