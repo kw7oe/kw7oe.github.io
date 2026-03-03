@@ -20,13 +20,13 @@ which only requires 17GB, but it's a bit tight on memory.
 
 On top of that, the 27B model is dense, so inference is slower than the 35B MoE (Mixture of Experts) model.
 
-For context, I'm running these on my Mac mini with M4 Pro chip, 14-core CPU, 20-core GPU and 64GB RAM.
+For context, I'm running these on my Mac mini with an M4 Pro chip, a 14-core CPU, a 20-core GPU, and 64GB RAM.
 
 {{% /callout %}}
 
 {{% callout title="Updates (3/3/2026)" class="warning" %}}
-Qwen3.5 just publisshed 0.8B, 2B, 4B and 9B models! So you can now run Qwen3.5 in any M-series Mac.
-For example, 4B require ~3.4GB RAM and 9B requires ~6.6GB RAM.
+Qwen3.5 just published 0.8B, 2B, 4B, and 9B models! So you can now run Qwen3.5 on any M-series Mac.
+For example, 4B requires ~3.4GB RAM and 9B requires ~6.6GB RAM.
 {{% /callout %}}
 
 
@@ -43,8 +43,8 @@ You can learn more about how MoE works from [this Reddit post](https://www.reddi
 ### Parameters and Quantization
 In general, larger parameter counts have better capabilities, at the cost of higher memory usage and latency. Quantization is another factor that influences both size and speed. Lower-bit quantization reduces memory usage and improves latency.
 
-For example: [`qwen3.5:35b`](https://ollama.com/library/qwen3.5:35b) is the model tag, while its parameter count is approximately 36 billion. It also comes with different
-quantization levels, for example, 4-bit quantization means it has 4 bits per weight.
+For example, [`qwen3.5:35b`](https://ollama.com/library/qwen3.5:35b) is a model tag, while its parameter count is approximately 36 billion. It also comes with different
+quantization levels. For example, 4-bit quantization means it has 4 bits per weight.
 
 With this information, you can estimate the required memory usage using the following formula (from [BentoML](https://bentoml.com/llm/getting-started/calculating-gpu-memory-for-llms)):
 
@@ -87,7 +87,7 @@ ollama run qwen3.5:35b
 By default, it's running with 4-bit quantization. You can see the details here:
 [`qwen3.5:27b`](https://ollama.com/library/qwen3.5:27b) and [`qwen3.5:35b`](https://ollama.com/library/qwen3.5:35b).
 
-To connect it with your `opencode`, run the following command:
+To connect it to your `opencode`, run the following command:
 
 ```bash
 # Replace 'opencode' with 'claude' or 'codex' as you see fit
@@ -128,7 +128,7 @@ brew install pipx
 pipx install "mlx-vlm[torch]"
 ```
 
-With `mlx-vlm` installed, you can now pull the model weights and test it out with. For other MLX Qwen3.5 models, you can find it [here](https://huggingface.co/mlx-community/models?search=qwen3.5).
+With `mlx-vlm` installed, you can now pull the model weights and test them out. For other MLX Qwen3.5 models, you can find them [here](https://huggingface.co/mlx-community/models?search=qwen3.5).
 
 ```bash
 # 27B with 4-bit quantization
@@ -176,7 +176,7 @@ To use it with `opencode`, first start the `mlx-vlm` server with:
 mlx_vlm.server --port 8088 --host 0.0.0.0
 ```
 
-Then add this to your `opencode` configuration (for me, it's in `~/.config/opencode/opencode.json`):
+Then add this to your `opencode` configuration (for me it's in `~/.config/opencode/opencode.json`):
 
 ```json
 {
@@ -199,7 +199,7 @@ Then add this to your `opencode` configuration (for me, it's in `~/.config/openc
 }
 ```
 
-The key for `provider.mlx-vlm.models` should match the huggingface repo name. So change it to
+The key for `provider.mlx-vlm.models` should match the Hugging Face repo name. So change it to
 `mlx-community/Qwen3.5-27B-4bit` if you are using the 27B one.
 
 Now run `opencode` and select `Switch model`. You should see the `qwen3.5` options available:
@@ -218,8 +218,8 @@ The user is asking how I am, which is a casual greeting - I should respond brief
 I'm doing well, thanks for asking! How can I help you today?
 ```
 
-It's not showing the thinking UI correctly because the `mlx-vlm` server doesn't currently parse these texts.
-When using `ollama`, it would generate:
+It's not showing the thinking UI correctly because the `mlx-vlm` server doesn't currently parse this text.
+When using `ollama`, it generates:
 
 ```
 Thinking: User asked 'How are you?' which is a casual greeting - respond briefly and offer help since this is a conversational exchange.
