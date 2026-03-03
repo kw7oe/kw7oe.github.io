@@ -9,14 +9,26 @@ in coding benchmarks. This means I can host it locally on my M-series Mac and us
 
 I didn't find many resources online about setting it up, so here's a short guide.
 
+
 {{% callout title="Prerequisite" class="info" %}}
+
+<strong>Updates:</strong> <em>This is outdated, refer to the callout below.</em>
+
+
 You'll need an M-series Mac with at least 32GB RAM to run Qwen3.5 comfortably. In theory, you could run it on 24GB RAM with 27B parameters,
 which only requires 17GB, but it's a bit tight on memory.
 
 On top of that, the 27B model is dense, so inference is slower than the 35B MoE (Mixture of Experts) model.
 
 For context, I'm running these on my Mac mini with M4 Pro chip, 14-core CPU, 20-core GPU and 64GB RAM.
+
 {{% /callout %}}
+
+{{% callout title="Updates (3/3/2026)" class="warning" %}}
+Qwen3.5 just publisshed 0.8B, 2B, 4B and 9B models! So you can now run Qwen3.5 in any M-series Mac.
+For example, 4B require ~3.4GB RAM and 9B requires ~6.6GB RAM.
+{{% /callout %}}
+
 
 ## Qwen3.5
 
