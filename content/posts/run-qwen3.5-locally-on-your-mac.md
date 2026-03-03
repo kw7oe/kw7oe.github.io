@@ -128,7 +128,7 @@ brew install pipx
 pipx install "mlx-vlm[torch]"
 ```
 
-With `mlx-vlm` installed, you can now pull the model weights and test it out with:
+With `mlx-vlm` installed, you can now pull the model weights and test it out with. For other MLX Qwen3.5 models, you can find it [here](https://huggingface.co/mlx-community/models?search=qwen3.5).
 
 ```bash
 # 27B with 4-bit quantization
