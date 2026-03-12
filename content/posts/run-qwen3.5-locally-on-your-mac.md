@@ -12,7 +12,8 @@ I didn't find many resources online about setting it up, so here's a short guide
 
 {{% callout title="Prerequisite" class="info" %}}
 
-<strong>Updates:</strong> <em>This is outdated, refer to the callout below.</em>
+<strong>Updates:</strong> <em>This is outdated, Qwen3.5 just published 0.8B, 2B, 4B, and 9B models! So you can now run Qwen3.5 on any M-series Mac.
+</em>For example, 4B requires ~3.4GB RAM and 9B requires ~6.6GB RAM.
 
 
 You'll need an M-series Mac with at least 32GB RAM to run Qwen3.5 comfortably. In theory, you could run it on 24GB RAM with 27B parameters,
@@ -24,15 +25,11 @@ For context, I'm running these on my Mac mini with an M4 Pro chip, a 14-core CPU
 
 {{% /callout %}}
 
-{{% callout title="Updates (3/3/2026)" class="warning" %}}
-Qwen3.5 just published 0.8B, 2B, 4B, and 9B models! So you can now run Qwen3.5 on any M-series Mac.
-For example, 4B requires ~3.4GB RAM and 9B requires ~6.6GB RAM.
-{{% /callout %}}
-
 
 ## Qwen3.5
 
 Qwen3.5 comes in different architectures, parameter sizes, and quantization levels.
+
 
 ### Architecture
 
@@ -63,12 +60,86 @@ There are multiple ways to run LLMs locally on macOS:
 
 - [`ollama`][0]
     - The easiest one to get started with, and it works out of the box with `opencode`.
+- [LM Studio][2]
+    - This is a macOS app to run AI models locally.
+    - It's also easy to get started with, but it requires some manual setup to work with `opencode`.
+    - It supports using `MLX` with tool calling, so it's slightly faster than `ollama`.
 - [`mlx`][1]
   - Performs best, but at the time of writing `mlx-vlm` doesn't support tool calling.
   - Without tool calling, you can't really use it to vibe code, since it can't read/edit files.
   - There's a [PR](https://github.com/Blaizzy/mlx-vlm/pull/773) in progress to support that.
 
-I suggest starting with `ollama` first, then exploring `mlx` later when tool calling is supported.
+I suggest starting with LM Studio or `ollama`, then exploring `mlx` later as needed.
+
+### LM Studio
+
+First, download the app by following the instructions [here][2]. After opening LM Studio, you can use
+`Cmd + Shift + M` to open the models page. Then, in the search bar, search for Qwen3.5 and make sure you also
+filter by `MLX`. Pick the model you prefer and press the Download button.
+
+![LM Studio Model Search](/images/lmstudio-model-search.png)
+
+Once the model is downloaded, you can go to the Chat (`Cmd + 1`), and start a new chat by clicking the `New Chat` button.
+Then, load the downloaded model (`Cmd + L`).
+
+![LM Studio Load Model](/images/lmstudio-load-model.png)
+
+It will take a while for the model to load.
+
+![LM Studio Loading Model](/images/lmstudio-loading-model.png)
+
+Once it's loaded, you can send a prompt to it!
+
+![LM Studio Response](/images/lmstudio-response.png)
+
+Based on the LM Studio metrics, we are generating 81.79 tokens/sec and it thinks for 3.81 seconds.
+
+#### Working with opencode
+
+To make it work with `opencode` or any local agent, you'll need to run LM Studio in server mode. This can be done in
+the Developer screen (`Cmd + 2`).
+
+![LM Studio Developer](/images/lmstudio-developer.png)
+
+Then, just toggle the server to `Running`.
+
+![LM Studio Server Running](/images/lmstudio-developer-running.png)
+
+You'll also need to update your `opencode` configuration:
+
+```
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "lmstudio": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "LM Studio (local)",
+      "options": {
+        "baseURL": "http://127.0.0.1:1234/v1"
+      },
+      "models": {
+        "mlx-community/Qwen3.5-35B-A3B-4bit": {
+          "name": "qwen3.5"
+        }
+      }
+    }
+  }
+}
+```
+
+The key for `provider.lmstudio.models` should match the Hugging Face repo name. So change it to
+`mlx-community/Qwen3.5-27B-4bit` if you are using the 27B one.
+
+With that, you should be able to select LM Studio Qwen3.5 as your model:
+
+![opencode with LM Studio Qwen3.5 selection](/images/opencode-lmstudio.png)
+
+Now you can test it out by sending a prompt.
+
+![opencode with LM Studio Qwen3.5 response](/images/opencode-lmstudio-response.png)
+
+It takes ~32 seconds, including model load time.
+
 
 ### ollama
 
@@ -169,6 +240,12 @@ Peak memory: 20.464
 
 If you want to run with other parameters, you can find it [here](https://huggingface.co/mlx-community/models?search=qwen3.5).
 
+
+{{% callout title="Updates (13/3/2026)" class="warning" %}}
+For some reason, using opencode with `mlx-vlm 0.4.0` running Qwen3.5 doesn't work out of the box anymore.
+`opencode` gets stuck waiting for responses, while the server logs indicate that the response was sent.
+{{% /callout %}}
+
 To use it with `opencode`, first start the `mlx-vlm` server with:
 
 ```bash
@@ -230,7 +307,7 @@ MLX is fast, but currently doesn't support tool calling. It's still impressive t
 
 ## Wrap up
 
-At the time of writing, `ollama` works best out of the box, so I use it for lightweight tasks. Once `mlx` supports tool calling, I plan to switch and use it more extensively. For now, I use `mlx` only in scenarios where tool calling isn’t needed.
+At the time of writing, LM Studio gives me the best overall local setup, so I use it for lightweight tasks.
 
 The pace of LLM advancement is both scary and exciting. If you had told me a few months ago that I’d be able to vibe-code with an LLM hosted locally on my Mac mini, I wouldn’t have believed it. And it’s only the beginning of 2026.
 
@@ -242,3 +319,4 @@ This trend also raises an interesting question: if anyone can run strong models 
 
 [0]: https://ollama.com/
 [1]: https://github.com/ml-explore/mlx
+[2]: https://lmstudio.ai/
