@@ -1,0 +1,17 @@
+{{- $lang := default "bash" (.Get "lang") -}}
+{{- $label := default "Command" (.Get "label") -}}
+{{- $copyLabel := default "Copy command" (.Get "copyLabel") -}}
+{{- $content := trim .Inner "\n" -}}
+{{- $highlighted := transform.Highlight $content $lang "lineNos=false,noClasses=false" -}}
+
+<section class="terminal-session__panel is-active" data-terminal-panel="command" role="tabpanel">
+  <div class="terminal-session__panel-header">
+    <p class="terminal-session__panel-label">{{ $label }}</p>
+    <button type="button" class="terminal-session__copy" data-terminal-copy-button>
+      {{ $copyLabel }}
+    </button>
+  </div>
+  <div class="terminal-session__code" data-terminal-copy-source>
+    {{ $highlighted }}
+  </div>
+</section>

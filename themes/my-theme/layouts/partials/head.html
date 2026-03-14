@@ -38,5 +38,13 @@
   <script type="module" src="{{ $photoswipeInit.Permalink }}" integrity="{{ $photoswipeInit.Data.Integrity }}"></script>
 {{ end }}
 
+{{ $terminalSession := resources.Get "js/terminal-session.js" }}
+{{ if .Site.IsServer }}
+  <script type="module" src="{{ $terminalSession.RelPermalink }}"></script>
+{{ else }}
+  {{ $terminalSession := $terminalSession | minify | fingerprint }}
+  <script type="module" src="{{ $terminalSession.Permalink }}" integrity="{{ $terminalSession.Data.Integrity }}"></script>
+{{ end }}
+
 <!-- {{ if ne .Page.Type "posts"  }} -->
 <!-- {{ end }} -->

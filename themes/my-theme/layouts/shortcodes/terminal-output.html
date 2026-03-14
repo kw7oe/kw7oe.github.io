@@ -1,0 +1,17 @@
+{{- $lang := default "text" (.Get "lang") -}}
+{{- $label := default "Output" (.Get "label") -}}
+{{- $copyLabel := default "Copy output" (.Get "copyLabel") -}}
+{{- $content := trim .Inner "\n" -}}
+{{- $highlighted := transform.Highlight $content $lang "lineNos=false,noClasses=false" -}}
+
+<section class="terminal-session__panel is-hidden" data-terminal-panel="output" role="tabpanel" hidden>
+  <div class="terminal-session__panel-header">
+    <p class="terminal-session__panel-label">{{ $label }}</p>
+    <button type="button" class="terminal-session__copy" data-terminal-copy-button>
+      {{ $copyLabel }}
+    </button>
+  </div>
+  <div class="terminal-session__code" data-terminal-copy-source>
+    {{ $highlighted }}
+  </div>
+</section>
