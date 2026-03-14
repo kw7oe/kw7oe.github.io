@@ -1,18 +1,25 @@
 {{- $id := printf "terminal-session-%d" .Ordinal -}}
 {{- $title := default "Terminal Session" (.Get "title") -}}
 
-<section class="terminal-session" data-terminal-session id="{{ $id }}">
+<section class="terminal-session is-wrap-enabled" data-terminal-session id="{{ $id }}">
   <header class="terminal-session__header">
     <p class="terminal-session__title">{{ $title }}</p>
-    <div class="terminal-session__tabs" role="tablist" aria-label="{{ $title }}">
-      <button type="button" class="terminal-session__tab is-active" data-terminal-tab="command" role="tab" aria-selected="true">
-        Command
+    <div class="terminal-session__actions">
+      <div class="terminal-session__tabs" role="tablist" aria-label="{{ $title }}">
+        <button type="button" class="terminal-session__tab is-active" data-terminal-tab="command" role="tab" aria-selected="true">
+          Command
+        </button>
+        <button type="button" class="terminal-session__tab" data-terminal-tab="output" role="tab" aria-selected="false" tabindex="-1">
+          Output
+        </button>
+      </div>
+
+      <button type="button" class="terminal-session__action" data-terminal-copy-button>
+        Copy
       </button>
-      <button type="button" class="terminal-session__tab" data-terminal-tab="output" role="tab" aria-selected="false" tabindex="-1">
-        Output
-      </button>
-      <button type="button" class="terminal-session__wrap-toggle" data-terminal-wrap-toggle>
-        Wrap: Off
+
+      <button type="button" class="terminal-session__action terminal-session__action--wrap" data-terminal-wrap-toggle hidden>
+        Wrap: On
       </button>
     </div>
   </header>
