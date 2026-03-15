@@ -1,21 +1,32 @@
 {{- $id := printf "terminal-session-%d" .Ordinal -}}
 {{- $title := default "Terminal Session" (.Get "title") -}}
+{{- $content := .Inner -}}
+{{- $hasCommand := in $content "data-terminal-panel=\"command\"" -}}
+{{- $hasOutput := in $content "data-terminal-panel=\"output\"" -}}
+{{- $defaultTab := cond $hasCommand "command" "output" -}}
 
-<section class="terminal-session is-wrap-enabled" data-terminal-session id="{{ $id }}">
+<section class="terminal-session is-wrap-enabled" data-terminal-session id="{{ $id }}" data-default-tab="{{ $defaultTab }}">
   <header class="terminal-session__header">
     <p class="terminal-session__title">{{ $title }}</p>
     <div class="terminal-session__actions">
       <div class="terminal-session__tabs" role="tablist" aria-label="{{ $title }}">
-        <button type="button" class="terminal-session__tab is-active" data-terminal-tab="command" role="tab" aria-selected="true">
+        {{- if $hasCommand -}}
+        <button type="button" class="terminal-session__tab{{ if eq $defaultTab "command" }} is-active{{ end }}" data-terminal-tab="command" role="tab" aria-selected="{{ if eq $defaultTab "command" }}true{{ else }}false{{ end }}"{{ if ne $defaultTab "command" }} tabindex="-1"{{ end }}>
           Command
         </button>
-        <button type="button" class="terminal-session__tab" data-terminal-tab="output" role="tab" aria-selected="false" tabindex="-1">
+        {{- end -}}
+        {{- if $hasOutput -}}
+        <button type="button" class="terminal-session__tab{{ if eq $defaultTab "output" }} is-active{{ end }}" data-terminal-tab="output" role="tab" aria-selected="{{ if eq $defaultTab "output" }}true{{ else }}false{{ end }}"{{ if ne $defaultTab "output" }} tabindex="-1"{{ end }}>
           Output
         </button>
+        {{- end -}}
       </div>
 
-      <button type="button" class="terminal-session__action" data-terminal-copy-button>
-        Copy
+      <button type="button" class="terminal-session__action" data-terminal-copy-button aria-label="Copy to clipboard">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
       </button>
 
       <button type="button" class="terminal-session__action terminal-session__action--wrap" data-terminal-wrap-toggle hidden>
@@ -25,6 +36,6 @@
   </header>
 
   <div class="terminal-session__content">
-    {{ .Inner }}
+    {{ $content }}
   </div>
 </section>

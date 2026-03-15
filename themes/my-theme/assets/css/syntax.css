@@ -1,25 +1,25 @@
-.markdown pre code {
-  padding: 0;
-}
-
-.markdown code {
-  font-size: 0.875rem;
-  background-color: #edf2f7;
-  padding: 0.25rem;
-  border-radius: 0.25rem;
-  width: 100%;
-}
-
-.markdown pre {
-  background-color: #edf2f7;
-  margin-top: 0.75rem;
-  margin-bottom: 1.25rem;
-  padding: 0.5rem;
-  border-radius: 0.25rem;
-  line-height: 1.5;
-  white-space: pre-wrap;
-  overflow-x: auto;
-}
+/* .markdown pre code { */
+/*   padding: 0; */
+/* } */
+/*  */
+/* .markdown code { */
+/*   font-size: 0.875rem; */
+/*   background-color: #f2eee9; */
+/*   padding: 0.25rem; */
+/*   border-radius: 0.25rem; */
+/*   width: 100%; */
+/* } */
+/*  */
+/* .markdown pre { */
+/*   background-color: #f2eee9; */
+/*   margin-top: 0.75rem; */
+/*   margin-bottom: 1.25rem; */
+/*   padding: 0.5rem; */
+/*   border-radius: 0.25rem; */
+/*   line-height: 1.5; */
+/*   white-space: pre-wrap; */
+/*   overflow-x: auto; */
+/* } */
 
 /* Other */ .chroma .x {  }
 /* Error */ .chroma .err { color: #a61717; background-color: #e3d2d2 }

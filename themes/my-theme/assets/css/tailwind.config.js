@@ -31,12 +31,13 @@ module.exports = {
 	      "borderColor": "#d8d0ca"
 	    },
 	    "pre": {
-	      "backgroundColor": "#e0dad5",
+	      "backgroundColor": "#f2eee9",
 	      "marginTop": "0.75rem",
 	      "marginBottom": "1.25rem",
-	      "borderRadius": "0.25rem",
+	      "borderRadius": "0.5rem",
 	      "lineHeight": "1.5",
 	      "whiteSpace": "pre-wrap",
+	      "border": "1px solid #d8d0ca",
 	      "overflowX": "auto",
 	    },
 	    "pre code": {
@@ -44,7 +45,7 @@ module.exports = {
 	    },
 	    "code": {
 	      "font-size": "0.875rem",
-	      "background-color": "#e0dad5",
+	      "background-color": "#f2eee9",
 	      "padding": "0.25rem",
 	      "border-radius": "0.25rem",
 	      "width": "100%"
