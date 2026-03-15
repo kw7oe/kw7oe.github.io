@@ -4,7 +4,7 @@
 {{- $content := trim .Inner "\n" -}}
 {{- $highlighted := transform.Highlight $content $lang "lineNos=false,noClasses=false" -}}
 
-<section class="terminal-session__panel is-hidden" data-terminal-panel="output" data-terminal-copy-label="{{ $copyLabel }}" role="tabpanel" aria-label="{{ $label }}" hidden>
+<section class="terminal-session__panel" data-terminal-panel="output" data-terminal-copy-label="{{ $copyLabel }}" role="tabpanel" aria-label="{{ $label }}" hidden>
   <div class="terminal-session__code" data-terminal-copy-source>
     {{ $highlighted }}
   </div>

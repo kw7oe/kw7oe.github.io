@@ -9,29 +9,37 @@
   <header class="terminal-session__header">
     <p class="terminal-session__title">{{ $title }}</p>
     <div class="terminal-session__actions">
-      <div class="terminal-session__tabs" role="tablist" aria-label="{{ $title }}">
-        {{- if $hasCommand -}}
-        <button type="button" class="terminal-session__tab{{ if eq $defaultTab "command" }} is-active{{ end }}" data-terminal-tab="command" role="tab" aria-selected="{{ if eq $defaultTab "command" }}true{{ else }}false{{ end }}"{{ if ne $defaultTab "command" }} tabindex="-1"{{ end }}>
-          Command
-        </button>
-        {{- end -}}
-        {{- if $hasOutput -}}
-        <button type="button" class="terminal-session__tab{{ if eq $defaultTab "output" }} is-active{{ end }}" data-terminal-tab="output" role="tab" aria-selected="{{ if eq $defaultTab "output" }}true{{ else }}false{{ end }}"{{ if ne $defaultTab "output" }} tabindex="-1"{{ end }}>
-          Output
-        </button>
-        {{- end -}}
+      <div class="terminal-session__control-row">
+        <div class="terminal-session__tabs" role="tablist" aria-label="{{ $title }}">
+          {{- if $hasCommand -}}
+          <button type="button" id="{{ $id }}-tab-command" class="terminal-session__tab{{ if eq $defaultTab "command" }} is-active{{ end }}" data-terminal-tab="command" role="tab" aria-controls="{{ $id }}-panel-command" aria-selected="{{ if eq $defaultTab "command" }}true{{ else }}false{{ end }}"{{ if ne $defaultTab "command" }} tabindex="-1"{{ end }}>
+            Command
+          </button>
+          {{- end -}}
+          {{- if $hasOutput -}}
+          <button type="button" id="{{ $id }}-tab-output" class="terminal-session__tab{{ if eq $defaultTab "output" }} is-active{{ end }}" data-terminal-tab="output" role="tab" aria-controls="{{ $id }}-panel-output" aria-selected="{{ if eq $defaultTab "output" }}true{{ else }}false{{ end }}"{{ if ne $defaultTab "output" }} tabindex="-1"{{ end }}>
+            Output
+          </button>
+          {{- end -}}
+        </div>
+
+        <div class="terminal-session__utilities">
+          <button type="button" class="terminal-session__action terminal-session__action--copy" data-terminal-copy-button aria-label="Copy active panel to clipboard">
+            <span class="terminal-session__action-icon" data-terminal-copy-icon aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </span>
+            <span class="terminal-session__action-text" data-terminal-copy-text>Copy</span>
+          </button>
+
+          <button type="button" class="terminal-session__action terminal-session__action--wrap" data-terminal-wrap-toggle aria-pressed="true">
+            Wrap: On
+          </button>
+        </div>
       </div>
-
-      <button type="button" class="terminal-session__action" data-terminal-copy-button aria-label="Copy to clipboard">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-        </svg>
-      </button>
-
-      <button type="button" class="terminal-session__action terminal-session__action--wrap" data-terminal-wrap-toggle>
-        Wrap: On
-      </button>
+      <span class="terminal-session__status" data-terminal-status role="status" aria-live="polite" aria-atomic="true"></span>
     </div>
   </header>
 

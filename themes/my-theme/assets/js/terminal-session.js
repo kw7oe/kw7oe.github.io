@@ -1,26 +1,127 @@
 const SESSION_SELECTOR = '[data-terminal-session]';
-const DEFAULT_COPY_LABEL = 'Copy';
+const WRAP_PREFERENCE_KEY = 'terminalSessionWrapEnabled';
+const DEFAULT_COPY_TEXT = 'Copy';
+const LONG_LINE_THRESHOLD = 95;
+const COPY_FEEDBACK_TIMEOUT_MS = 1100;
+
+const ICONS = {
+  copy: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>',
+  success: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+  error: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',
+};
+
+function tabButtons(session) {
+  return Array.from(session.querySelectorAll('[data-terminal-tab]'));
+}
+
+function tabPanels(session) {
+  return Array.from(session.querySelectorAll('[data-terminal-panel]'));
+}
+
+function activePanelName(session) {
+  return session.dataset.activePanel || session.dataset.defaultTab;
+}
+
+function getPanelName(panel) {
+  return panel?.dataset.terminalPanel || '';
+}
+
+function updateStatusMessage(session, message) {
+  const statusRegion = session.querySelector('[data-terminal-status]');
+
+  if (statusRegion) {
+    statusRegion.textContent = message;
+  }
+}
+
+function applyCopyButtonState(button, state) {
+  const icon = button.querySelector('[data-terminal-copy-icon]');
+  const text = button.querySelector('[data-terminal-copy-text]');
+
+  button.dataset.terminalCopyFeedback = state.feedback;
+
+  if (icon) {
+    icon.innerHTML = ICONS[state.icon] || ICONS.copy;
+  }
+
+  if (text) {
+    text.textContent = state.text;
+  }
+}
+
+function setCopyFeedback(session, button, state) {
+  applyCopyButtonState(button, state);
+
+  if (button.copyFeedbackTimeout) {
+    window.clearTimeout(button.copyFeedbackTimeout);
+  }
+
+  button.copyFeedbackTimeout = window.setTimeout(() => {
+    applyCopyButtonState(button, {
+      feedback: '',
+      icon: 'copy',
+      text: DEFAULT_COPY_TEXT,
+    });
+    updateStatusMessage(session, '');
+  }, COPY_FEEDBACK_TIMEOUT_MS);
+}
+
+function wireTabPanelRelationships(session) {
+  const sessionId = session.id;
+
+  if (!sessionId) {
+    return;
+  }
+
+  tabButtons(session).forEach((tab) => {
+    const panelName = tab.dataset.terminalTab;
+
+    if (!panelName) {
+      return;
+    }
+
+    const panelId = `${sessionId}-panel-${panelName}`;
+    const tabId = `${sessionId}-tab-${panelName}`;
+
+    tab.id = tab.id || tabId;
+    tab.setAttribute('aria-controls', panelId);
+
+    const panel = session.querySelector(`[data-terminal-panel="${panelName}"]`);
+
+    if (panel) {
+      panel.id = panelId;
+      panel.setAttribute('aria-labelledby', tab.id);
+    }
+  });
+}
 
 function setActiveTab(session, panelName) {
-  const tabs = session.querySelectorAll('[data-terminal-tab]');
-  const panels = session.querySelectorAll('[data-terminal-panel]');
+  const tabs = tabButtons(session);
+  const panels = tabPanels(session);
+  const fallback = tabs[0]?.dataset.terminalTab;
+  const targetPanel = tabs.some((tab) => tab.dataset.terminalTab === panelName) ? panelName : fallback;
+
+  if (!targetPanel) {
+    return;
+  }
+
+  session.dataset.activePanel = targetPanel;
 
   tabs.forEach((tab) => {
-    const isActive = tab.dataset.terminalTab === panelName;
+    const isActive = tab.dataset.terminalTab === targetPanel;
     tab.classList.toggle('is-active', isActive);
     tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
     tab.tabIndex = isActive ? 0 : -1;
   });
 
   panels.forEach((panel) => {
-    const isActive = panel.dataset.terminalPanel === panelName;
-    panel.classList.toggle('is-hidden', !isActive);
+    const isActive = panel.dataset.terminalPanel === targetPanel;
     panel.hidden = !isActive;
   });
 }
 
 function currentPanelForCopy(session) {
-  return session.querySelector('[data-terminal-panel]:not(.is-hidden)') || session.querySelector('[data-terminal-panel]');
+  return session.querySelector('[data-terminal-panel]:not([hidden])') || session.querySelector('[data-terminal-panel]');
 }
 
 function hasLongLines(session) {
@@ -28,40 +129,84 @@ function hasLongLines(session) {
 
   return Array.from(panels).some((panelSource) => {
     const lines = panelSource.innerText.split('\n');
-    return lines.some((line) => line.trim().length > 95);
+    return lines.some((line) => line.trim().length > LONG_LINE_THRESHOLD);
   });
 }
 
-async function copyToClipboard(text) {
-    if (navigator.clipboard && window.isSecureContext) {
-        // For modern browsers
-        try {
-            await navigator.clipboard.writeText(text);
-            return true;
-        } catch (err) {
-            console.error('Failed to copy text:', err);
-        }
+function readWrapPreference() {
+  try {
+    const stored = window.localStorage.getItem(WRAP_PREFERENCE_KEY);
+
+    if (stored === null) {
+      return null;
     }
 
-    // Fallback for older browsers
-    const textarea = document.createElement('textarea');
-    textarea.value = text;
-    textarea.style.position = 'fixed';
-    textarea.style.opacity = '0';
-    document.body.appendChild(textarea);
-    textarea.select();
-
-    try {
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-        return true;
-    } catch (err) {
-        console.error('Failed to copy text:', err);
-        document.body.removeChild(textarea);
-        return false;
-    }
+    return stored === 'true';
+  } catch (_error) {
+    return null;
+  }
 }
 
+function writeWrapPreference(isEnabled) {
+  try {
+    window.localStorage.setItem(WRAP_PREFERENCE_KEY, isEnabled ? 'true' : 'false');
+  } catch (_error) {
+    // Ignore localStorage failures in restricted browsing contexts.
+  }
+}
+
+function setWrapState(session, isEnabled) {
+  const wrapToggle = session.querySelector('[data-terminal-wrap-toggle]');
+
+  session.classList.toggle('is-wrap-enabled', isEnabled);
+
+  if (wrapToggle) {
+    wrapToggle.textContent = isEnabled ? 'Wrap: On' : 'Wrap: Off';
+    wrapToggle.setAttribute('aria-pressed', isEnabled ? 'true' : 'false');
+  }
+}
+
+function updateWrapToggleVisibility(session) {
+  const wrapToggle = session.querySelector('[data-terminal-wrap-toggle]');
+
+  if (!wrapToggle) {
+    return;
+  }
+
+  const shouldShowToggle = hasLongLines(session);
+  wrapToggle.hidden = !shouldShowToggle;
+
+  if (!shouldShowToggle) {
+    setWrapState(session, true);
+  }
+}
+
+async function copyToClipboard(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (_error) {
+      // Fall through to the execCommand fallback.
+    }
+  }
+
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+
+  try {
+    const copied = document.execCommand('copy');
+    document.body.removeChild(textarea);
+    return copied;
+  } catch (_error) {
+    document.body.removeChild(textarea);
+    return false;
+  }
+}
 
 async function copyPanelContent(session, button) {
   const panel = currentPanelForCopy(session);
@@ -72,27 +217,83 @@ async function copyPanelContent(session, button) {
     return;
   }
 
-  const originalLabel = panel?.dataset.terminalCopyLabel || DEFAULT_COPY_LABEL;
+  const panelName = getPanelName(panel) || activePanelName(session) || 'panel';
+  const copied = await copyToClipboard(text);
 
-  try {
-    await copyToClipboard(text);
-    button.dataset.terminalCopyFeedback = 'true';
-    button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-  } catch (_error) {
-    button.dataset.terminalCopyFeedback = 'true';
-    button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>';
+  if (copied) {
+    const successText = `Copied ${panelName}`;
+    updateStatusMessage(session, successText);
+    setCopyFeedback(session, button, {
+      feedback: 'success',
+      icon: 'success',
+      text: successText,
+    });
+    return;
   }
 
-  window.setTimeout(() => {
-    button.dataset.terminalCopyFeedback = '';
-    button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
-  }, 1100);
+  updateStatusMessage(session, 'Copy failed');
+  setCopyFeedback(session, button, {
+    feedback: 'error',
+    icon: 'error',
+    text: 'Copy failed',
+  });
+}
+
+function handleTabKeydown(event, session) {
+  const isTab = event.target.matches('[data-terminal-tab]');
+
+  if (!isTab) {
+    return;
+  }
+
+  const tabs = tabButtons(session);
+
+  if (tabs.length < 2) {
+    return;
+  }
+
+  const currentIndex = tabs.indexOf(event.target);
+  let nextIndex = null;
+
+  if (event.key === 'ArrowRight') {
+    nextIndex = (currentIndex + 1) % tabs.length;
+  }
+
+  if (event.key === 'ArrowLeft') {
+    nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+  }
+
+  if (event.key === 'Home') {
+    nextIndex = 0;
+  }
+
+  if (event.key === 'End') {
+    nextIndex = tabs.length - 1;
+  }
+
+  if (nextIndex !== null) {
+    event.preventDefault();
+    const nextTab = tabs[nextIndex];
+    setActiveTab(session, nextTab.dataset.terminalTab);
+    nextTab.focus();
+    return;
+  }
+
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    setActiveTab(session, event.target.dataset.terminalTab);
+  }
 }
 
 function initSession(session) {
-  // Get the default tab from data attribute, default to 'command' if not set
+  wireTabPanelRelationships(session);
+
   const defaultTab = session.dataset.defaultTab;
   setActiveTab(session, defaultTab);
+
+  const wrapPreference = readWrapPreference();
+  setWrapState(session, wrapPreference === null ? true : wrapPreference);
+  updateWrapToggleVisibility(session);
 
   session.addEventListener('click', (event) => {
     const tabButton = event.target.closest('[data-terminal-tab]');
@@ -111,10 +312,15 @@ function initSession(session) {
 
     const wrapToggle = event.target.closest('[data-terminal-wrap-toggle]');
 
-    if (wrapToggle) {
-      const isEnabled = session.classList.toggle('is-wrap-enabled');
-      wrapToggle.textContent = isEnabled ? 'Wrap: On' : 'Wrap: Off';
+    if (wrapToggle && !wrapToggle.hidden) {
+      const isEnabled = !session.classList.contains('is-wrap-enabled');
+      setWrapState(session, isEnabled);
+      writeWrapPreference(isEnabled);
     }
+  });
+
+  session.addEventListener('keydown', (event) => {
+    handleTabKeydown(event, session);
   });
 }
 
