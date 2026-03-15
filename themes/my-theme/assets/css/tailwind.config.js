@@ -47,7 +47,8 @@ module.exports = {
 	      "font-size": "0.875rem",
 	      "background-color": "#f2eee9",
 	      "padding": "0.25rem",
-	      "border-radius": "0.25rem",
+	      "border-radius": "0.5rem",
+	      "border": "1px solid #d8d0ca",
 	      "width": "100%"
 	    }
 	  }
