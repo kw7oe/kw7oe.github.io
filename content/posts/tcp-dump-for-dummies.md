@@ -45,11 +45,9 @@ Most of the time, you'll want to capture and write this to a file. This can be a
 {{< terminal-command lang="bash" >}}
 sudo tcpdump -i any port 8080 -w output.pcap
 {{< /terminal-command >}}
-{{< terminal-output lang="text" >}}
-No console output is shown while capture is running.
-Press Ctrl+C to stop and save `output.pcap`.
-{{< /terminal-output >}}
 {{< /terminal-session >}}
+
+No console output is shown while capture is running. You'll need to press Ctrl+C to stop.
 
 The output is in the [PCAP (Packet Capture) file format](https://ietf-opsawg-wg.github.io/draft-ietf-opsawg-pcap/draft-ietf-opsawg-pcap.html). You'll need to use some tools to parse/read its content.
 Here comes `tshark`.
