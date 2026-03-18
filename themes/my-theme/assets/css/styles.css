@@ -1732,7 +1732,6 @@ nav#TableOfContents > ul > li {
 
 .terminal-session__code {
   margin: 0;
-  color: var(--terminal-muted);
   background: transparent;
 }
 
@@ -1750,7 +1749,6 @@ nav#TableOfContents > ul > li {
 
 .terminal-session__code code {
   background: transparent;
-  color: currentColor;
   padding: 0;
   border-radius: 0;
   white-space: pre-wrap;
@@ -1773,14 +1771,6 @@ nav#TableOfContents > ul > li {
 
 .terminal-session__panel[data-terminal-panel="output"] .terminal-session__code code {
   font-size: 0.75rem;
-}
-
-.terminal-session__code .chroma {
-  color: inherit;
-}
-
-.terminal-session__code .chroma span {
-  color: inherit;
 }
 
 .terminal-session:not(.is-wrap-enabled) .terminal-session__code code {
