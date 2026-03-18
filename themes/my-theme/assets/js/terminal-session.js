@@ -1,6 +1,5 @@
 const SESSION_SELECTOR = '[data-terminal-session]';
-const WRAP_PREFERENCE_KEY = 'terminalSessionWrapEnabled';
-const DEFAULT_COPY_TEXT = 'Copy';
+const WRAP_PREFERENCE_KEY = 'terminalSessionWrapEnabledV2';
 const LONG_LINE_THRESHOLD = 95;
 const COPY_FEEDBACK_TIMEOUT_MS = 1100;
 
@@ -8,6 +7,11 @@ const ICONS = {
   copy: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>',
   success: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',
   error: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',
+};
+
+const WRAP_ICONS = {
+  on: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"></path><path d="M4 12h10a4 4 0 0 1 0 8H8"></path><path d="M10 18l-2 2 2 2"></path></svg>',
+  off: '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"></path><path d="M4 12h16"></path><path d="M4 17h11"></path><path d="M18 17l2 2-2 2"></path></svg>',
 };
 
 function tabButtons(session) {
@@ -34,18 +38,46 @@ function updateStatusMessage(session, message) {
   }
 }
 
+function swapIcon(iconElement, { next, iconName, datasetKey, swapClass = 'is-swapping', swapDelay = 70 }) {
+  if (!iconElement) {
+    return;
+  }
+
+  const owner = iconElement.closest('button');
+
+  if (!owner) {
+    iconElement.innerHTML = next;
+    return;
+  }
+
+  const currentName = owner.dataset[datasetKey] || '';
+
+  if (currentName !== iconName) {
+    iconElement.classList.add(swapClass);
+    window.setTimeout(() => {
+      iconElement.innerHTML = next;
+      iconElement.classList.remove(swapClass);
+    }, swapDelay);
+  } else {
+    iconElement.innerHTML = next;
+    iconElement.classList.remove(swapClass);
+  }
+
+  owner.dataset[datasetKey] = iconName;
+}
+
 function applyCopyButtonState(button, state) {
   const icon = button.querySelector('[data-terminal-copy-icon]');
-  const text = button.querySelector('[data-terminal-copy-text]');
 
   button.dataset.terminalCopyFeedback = state.feedback;
 
   if (icon) {
-    icon.innerHTML = ICONS[state.icon] || ICONS.copy;
-  }
-
-  if (text) {
-    text.textContent = state.text;
+    const nextIcon = ICONS[state.icon] || ICONS.copy;
+    swapIcon(icon, {
+      next: nextIcon,
+      iconName: state.icon,
+      datasetKey: 'terminalCopyIcon',
+    });
   }
 }
 
@@ -60,7 +92,6 @@ function setCopyFeedback(session, button, state) {
     applyCopyButtonState(button, {
       feedback: '',
       icon: 'copy',
-      text: DEFAULT_COPY_TEXT,
     });
     updateStatusMessage(session, '');
   }, COPY_FEEDBACK_TIMEOUT_MS);
@@ -161,8 +192,19 @@ function setWrapState(session, isEnabled) {
   session.classList.toggle('is-wrap-enabled', isEnabled);
 
   if (wrapToggle) {
-    wrapToggle.textContent = isEnabled ? 'Wrap: On' : 'Wrap: Off';
+    const icon = wrapToggle.querySelector('[data-terminal-wrap-icon]');
+    const iconName = isEnabled ? 'on' : 'off';
+
+    wrapToggle.setAttribute('aria-label', isEnabled ? 'Wrap: On' : 'Wrap: Off');
     wrapToggle.setAttribute('aria-pressed', isEnabled ? 'true' : 'false');
+
+    if (icon) {
+      swapIcon(icon, {
+        next: WRAP_ICONS[iconName],
+        iconName,
+        datasetKey: 'terminalWrapIcon',
+      });
+    }
   }
 }
 
@@ -221,12 +263,10 @@ async function copyPanelContent(session, button) {
   const copied = await copyToClipboard(text);
 
   if (copied) {
-    const successText = `Copied ${panelName}`;
-    updateStatusMessage(session, successText);
+    updateStatusMessage(session, `Copied ${panelName}`);
     setCopyFeedback(session, button, {
       feedback: 'success',
       icon: 'success',
-      text: successText,
     });
     return;
   }
@@ -235,7 +275,6 @@ async function copyPanelContent(session, button) {
   setCopyFeedback(session, button, {
     feedback: 'error',
     icon: 'error',
-    text: 'Copy failed',
   });
 }
 

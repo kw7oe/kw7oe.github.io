@@ -1,5 +1,6 @@
 {{- $id := printf "terminal-session-%d" .Ordinal -}}
 {{- $title := default "Terminal Session" (.Get "title") -}}
+{{- $subtitle := .Get "subtitle" -}}
 {{- $content := .Inner -}}
 {{- $hasCommand := in $content "data-terminal-panel=\"command\"" -}}
 {{- $hasOutput := in $content "data-terminal-panel=\"output\"" -}}
@@ -7,7 +8,12 @@
 
 <section class="terminal-session is-wrap-enabled" data-terminal-session id="{{ $id }}" data-default-tab="{{ $defaultTab }}">
   <header class="terminal-session__header">
-    <p class="terminal-session__title">{{ $title }}</p>
+    <div class="terminal-session__heading">
+      <p class="terminal-session__title">{{ $title }}</p>
+      {{- with $subtitle -}}
+      <p class="terminal-session__subtitle">{{ . }}</p>
+      {{- end -}}
+    </div>
     <div class="terminal-session__actions">
       <div class="terminal-session__control-row">
         <div class="terminal-session__tabs" role="tablist" aria-label="{{ $title }}">
@@ -31,11 +37,16 @@
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>
             </span>
-            <span class="terminal-session__action-text" data-terminal-copy-text>Copy</span>
           </button>
 
           <button type="button" class="terminal-session__action terminal-session__action--wrap" data-terminal-wrap-toggle aria-pressed="true">
-            Wrap: On
+            <span class="terminal-session__action-icon" data-terminal-wrap-icon aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 7h16"></path>
+                <path d="M4 12h10a4 4 0 0 1 0 8H8"></path>
+                <path d="M10 18l-2 2 2 2"></path>
+              </svg>
+            </span>
           </button>
         </div>
       </div>
