@@ -1541,7 +1541,103 @@ nav#TableOfContents > ul > li {
   overflow-x: auto;
 }
 
+/* Tables */
+
+.prose table {
+  --df-table-border: rgba(17, 17, 16, 0.16);
+  --df-table-border-subtle: rgba(17, 17, 16, 0.1);
+  --df-table-surface: #ffffff;
+  --df-table-header: rgba(17, 17, 16, 0.03);
+  --df-table-text: #111110;
+  --df-table-muted: #6b6a67;
+  width: 100%;
+  max-width: 100%;
+  margin-top: 2em;
+  margin-bottom: 2em;
+  border-radius: 0.75rem;
+  border: 1px solid var(--df-table-border);
+  background: var(--df-table-surface);
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: 'Noto Sans', system-ui, sans-serif;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--df-table-text);
+}
+
+.prose table th:first-child,
+.prose table td:first-child {
+  width: min(18rem, 40%);
+  min-width: 12rem;
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: auto;
+}
+
+.prose table th:nth-child(2),
+.prose table td:nth-child(2) {
+  width: auto;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.prose table thead th {
+  background: var(--df-table-header);
+  font-weight: 700;
+  color: var(--df-table-text);
+  text-align: start;
+  padding: 0.65rem 0.85rem;
+  border-bottom: 1px solid var(--df-table-border-subtle);
+}
+
+.prose table tbody td {
+  padding: 0.6rem 0.85rem;
+  border-bottom: 1px solid var(--df-table-border-subtle);
+  vertical-align: top;
+  color: var(--df-table-muted);
+}
+
+.prose table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.prose table code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 0.85em;
+  color: var(--df-table-text);
+  background: rgba(17, 17, 16, 0.04);
+  border: 1px solid rgba(17, 17, 16, 0.12);
+  border-radius: 0.5rem;
+  padding: 0.08rem 0.35rem;
+  max-width: 100%;
+  white-space: pre-wrap;
+}
+
+.prose table th:nth-child(2) code,
+.prose table td:nth-child(2) code {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 @media (max-width: 640px) {
+  .prose table {
+    font-size: 0.8125rem;
+  }
+
+  .prose table th:first-child,
+  .prose table td:first-child {
+    min-width: 9rem;
+  }
+
+  .prose table thead th {
+    padding: 0.55rem 0.7rem;
+  }
+
+  .prose table tbody td {
+    padding: 0.5rem 0.7rem;
+  }
+
   .terminal-session__header {
     align-items: flex-start;
     flex-direction: column;
