@@ -23,6 +23,8 @@ module.exports = {
       typography: {
 	DEFAULT: {
 	  css: {
+	    "--tw-prose-bullets": "#8f847a",
+	    "--tw-prose-quote-borders": "#b8aaa0",
 	    h4: {
 	      marginTop: "2.5rem",
 	      marginBottom: "1.5rem"
