@@ -128,20 +128,20 @@ nav#TableOfContents > ul > li {
 .terminal-session {
   --terminal-text: #111110;
   --terminal-muted: #6b6a67;
-  --terminal-border: rgba(17, 17, 16, 0.16);
-  --terminal-border-subtle: rgba(17, 17, 16, 0.1);
+  --terminal-border: #d8d0ca;
+  --terminal-border-subtle: #d8d0ca;
   --terminal-accent: #2f6fa8;
   margin-top: 1.25rem;
   margin-bottom: 1.75rem;
   border-radius: 0.75rem;
   overflow: hidden;
   border: 1px solid var(--terminal-border);
-  background: #fff;
+  background: #f2eee9;
 }
 
 .terminal-session__header {
   padding: 0.75rem 0.875rem;
-  background: #fff;
+  background: #f2eee9;
   border-bottom: 1px solid var(--terminal-border-subtle);
   display: flex;
   justify-content: space-between;
@@ -200,7 +200,7 @@ nav#TableOfContents > ul > li {
   border-radius: 999px;
   overflow: hidden;
   padding: 0;
-  background: #fff;
+  background: #f2eee9;
 }
 
 .terminal-session__tab {
@@ -243,7 +243,7 @@ nav#TableOfContents > ul > li {
   color: var(--terminal-text);
   border: 1px solid var(--terminal-border);
   border-radius: 0.625rem;
-  background: #fff;
+  background: #f2eee9;
   cursor: pointer;
   transition: color 120ms ease, border-color 120ms ease, background-color 120ms ease;
 }
@@ -338,7 +338,7 @@ nav#TableOfContents > ul > li {
 
 .terminal-session__content {
   color: var(--terminal-muted);
-  background: #fff;
+  background: #f2eee9;
   padding: 0.875rem;
 }
 
@@ -416,10 +416,10 @@ nav#TableOfContents > ul > li {
 /* Tables */
 
 .prose table {
-  --df-table-border: rgba(17, 17, 16, 0.16);
-  --df-table-border-subtle: rgba(17, 17, 16, 0.1);
-  --df-table-surface: #ffffff;
-  --df-table-header: rgba(17, 17, 16, 0.03);
+  --df-table-border: #d8d0ca;
+  --df-table-border-subtle: rgba(216, 208, 202, 0.85);
+  --df-table-surface: #f2eee9;
+  --df-table-header: rgba(17, 17, 16, 0.025);
   --df-table-text: #111110;
   --df-table-muted: #6b6a67;
   width: 100%;
