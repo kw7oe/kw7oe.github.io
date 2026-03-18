@@ -41,41 +41,71 @@ psql -U postgres
 ### Show Database Timezone
 To show the current timezone of our PostgreSQL, it is as simple as:
 
-```postgres
+{{< terminal-session title="Show current timezone" >}}
+{{< terminal-command lang="postgres" >}}
 SHOW timezone;
-```
-
-**Output:**
-```
+{{< /terminal-command >}}
+{{< terminal-output lang="text" >}}
  TimeZone
 -----------
  Etc/GMT+8
 (1 row)
-```
+{{< /terminal-output >}}
+{{< /terminal-session >}}
 
 ### Set Database Timezone
 
 To change our timezone, we can use the `SET timezone` command:
 
-```postgres
+{{< terminal-session title="Set timezone" subtitle="Multiple commands in sequence" >}}
+{{< terminal-command lang="postgres" >}}
 SET timezone="UTC";
 SET TIME ZONE 'Asia/Kuala_Lumpur';
 SHOW timezone;
-```
-
-**Output:**
-```
+{{< /terminal-command >}}
+{{< terminal-output lang="text" >}}
      TimeZone
 -------------------
  Asia/Kuala_Lumpur
- (1 row)
- ```
+  (1 row)
+{{< /terminal-output >}}
+{{< /terminal-session >}}
 
 You can check all of the supported timezone names by using the following query:
 
-```sql
+{{< terminal-session title="List all supported timezones" >}}
+{{< terminal-command lang="sql" >}}
 select * from pg_timezone_names;
-```
+{{< /terminal-command >}}
+{{< terminal-output lang="text" >}}
+name               | abbrev | utc_offset | is_dst
+----------------------------------+--------+------------+--------
+ Indian/Mauritius                 | +04    | 04:00:00   | f
+ Indian/Chagos                    | +06    | 06:00:00   | f
+ Indian/Mayotte                   | EAT    | 03:00:00   | f
+ Indian/Christmas                 | +07    | 07:00:00   | f
+ Indian/Cocos                     | +0630  | 06:30:00   | f
+ Indian/Maldives                  | +05    | 05:00:00   | f
+ Indian/Comoro                    | EAT    | 03:00:00   | f
+ Indian/Reunion                   | +04    | 04:00:00   | f
+ Indian/Mahe                      | +04    | 04:00:00   | f
+ Indian/Kerguelen                 | +05    | 05:00:00   | f
+ Indian/Antananarivo              | EAT    | 03:00:00   | f
+ Atlantic/Faroe                   | WET    | 00:00:00   | f
+ Atlantic/Canary                  | WET    | 00:00:00   | f
+ Atlantic/Stanley                 | -03    | -03:00:00  | f
+ Atlantic/Bermuda                 | ADT    | -03:00:00  | t
+ Atlantic/South_Georgia           | -02    | -02:00:00  | f
+ Atlantic/St_Helena               | GMT    | 00:00:00   | f
+ Atlantic/Jan_Mayen               | CET    | 01:00:00   | f
+ Atlantic/Faeroe                  | WET    | 00:00:00   | f
+ Atlantic/Reykjavik               | GMT    | 00:00:00   | f
+ Atlantic/Cape_Verde              | -01    | -01:00:00  | f
+ Atlantic/Azores                  | -01    | -01:00:00  | f
+ Atlantic/Madeira                 | WET    | 00:00:00   | f
+ ... (and many more)
+{{< /terminal-output >}}
+{{< /terminal-session >}}
 
 ---
 
@@ -398,27 +428,20 @@ take a look at a few simple examples.
 ### Using with `timestamptz`
 
 Let's start with converting the timezone using `AT TIME ZONE` for `timestamptz`
-input.
+input. Before looking at the return value below, let's try to answer yourself.
 
-```sql
+{{< terminal-session title="AT TIME ZONE with timestamptz" >}}
+{{< terminal-command lang="sql" >}}
 SET TIME ZONE 'UTC';
 SELECT '2020-01-01 00:00:00+00'::timestamptz AT TIME ZONE 'Asia/Kuala_Lumpur';
-```
-
-Before looking at the return value below, let's try to answer yourself.
-
-...
-
-...
-
-**Output:**
-
-```
+{{< /terminal-command >}}
+{{< terminal-output lang="text" >}}
       timezone
 ---------------------
  2020-01-01 08:00:00
 (1 row)
-```
+{{< /terminal-output >}}
+{{< /terminal-session >}}
 
 So it's your answer correct?
 
@@ -437,27 +460,20 @@ expected. Let's take a look at another example.
 ### Using with `timestamp`
 
 Using `AT TIME ZONE` with input of `timestamp` will behave differently.
-However, it's not clear for us in the first sight.
+However, it's not clear for us in the first sight. Again, try to answer this yourself first, before looking at the output.
 
-```sql
+{{< terminal-session title="AT TIME ZONE with timestamp" >}}
+{{< terminal-command lang="sql" >}}
 SET TIME ZONE 'UTC';
 SELECT '2020-01-01 00:00:00'::timestamp AT TIME ZONE 'Asia/Kuala_Lumpur';
-```
-
-Again, try to answer this yourself first, before looking at the output.
-
-...
-
-...
-
-**Output:**
-
-```
+{{< /terminal-command >}}
+{{< terminal-output lang="text" >}}
         timezone
 ------------------------
  2019-12-31 16:00:00+00
 (1 row)
-```
+{{< /terminal-output >}}
+{{< /terminal-session >}}
 
 Did you get the answer right? If yes, that's great.
 
