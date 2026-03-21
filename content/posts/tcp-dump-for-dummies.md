@@ -4,25 +4,25 @@ date: 2026-02-26T22:18:27+08:00
 draft: true
 ---
 
-There's time where you want to debug an issue in your HTTP service, and you realized that
-your logs doesn't have sufficient information. Well, one of the way is to capture the network traffic
-and peak into the requests and response data.
+There are times when you need to debug an issue in your HTTP service and realize that
+your logs don't have enough information. One way to troubleshoot is to capture network traffic
+and peek into request and response data.
 
-Sounds hard? It isn't. You can just do that with `tcpdump` and then analysing it with Wireshark or it's CLI tool
-`tshark`, or ask your favourite LLM to look at the captured traffic and analyse it.
+Sounds hard? It isn't. You can do that with `tcpdump`, then analyze it with Wireshark or its CLI tool,
+`tshark`, or ask your favorite LLM to inspect the captured traffic.
 
-Here's a quick write up on how to capture your HTTP traffic with `tcpdump` and filter it with `tshark`
+Here's a quick write-up on how to capture your HTTP traffic with `tcpdump` and filter it with `tshark`.
 
 ## Prerequisites
 
-If you want to practice along, here's the tools we need:
+If you want to follow along, here are the tools we need:
 
 - `tcpdump`
 - `tshark`
 - `jq`
-- `python3` or any thing that can spin up a webserver.
+- `python3` or anything that can spin up a web server.
 
-Here's a minimal Python server implementation with a JSON endpoints, which we will use later in our example on extracting JSON response:
+Here's a minimal Python server implementation with a JSON endpoint, which we will use later when extracting JSON responses:
 
 ```python
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -53,12 +53,12 @@ if __name__ == "__main__":
     HTTPServer(("localhost", 8080), Handler).serve_forever()
 ```
 
-Save this as `server.py`, you can now run it with `python3 server.py`
-`curl localhost:8080/books` to simulate traffic with JSON response.
+Save this as `server.py`, then run it with `python3 server.py`.
+Use `curl localhost:8080/books` to simulate traffic with a JSON response.
 
 ## Capturing traffic
 
-Capturing traffic with `tcpdump` is really straightforward :
+Capturing traffic with `tcpdump` is straightforward:
 
 {{< terminal-session title="Capture traffic with tcpdump" >}}
 {{< terminal-command lang="bash" >}}
@@ -86,7 +86,7 @@ sudo tcpdump -i any port 8080 -w output.pcap
 {{< /terminal-session >}}
 
 Now run `curl localhost:8080/books` or `curl localhost:8080` again. You'll notice that no console output is shown while capture is running.
-Use Ctrl + C to stop capturing traffic
+Use Ctrl+C to stop capturing traffic.
 
 ```
 tcpdump: data link type PKTAP
@@ -96,11 +96,11 @@ tcpdump: listening on any, link-type PKTAP (Apple DLT_PKTAP), snapshot length 52
 0 packets dropped by kernel
 ```
 
-You'll see a summary of how many packets are captures and received when it exit.
+You'll see a summary of how many packets were captured and received when it exits.
 
 The output is in [PCAP (Packet Capture) file format](https://ietf-opsawg-wg.github.io/draft-ietf-opsawg-pcap/draft-ietf-opsawg-pcap.html). We'll need to use some tools to parse/read its content. Here comes `tshark`.
 
-### Analyzing traffic
+## Analyzing traffic
 
 First of all, install `tshark` following the instructions [here](https://tshark.dev/setup/install/). Then, we can use `tshark` to show
 the captured traffic:
@@ -112,7 +112,7 @@ tshark -r output.pcap
 {{< /terminal-command >}}
 {{< terminal-output lang="text" >}}
     1   0.000000          ::1 → ::1          TCP 88 61870 → 8080 [SYN] Seq=0 Win=65535 Len=0 MSS=16324 WS=64 TSval=1626974093 TSecr=0 SACK_PERM
-   // other logs...
+   ... other logs ...
    18   0.000914    127.0.0.1 → 127.0.0.1    HTTP 56 HTTP/1.0 404 Not Found
    28   0.001073    127.0.0.1 → 127.0.0.1    TCP 56 [TCP Dup ACK 27#1] 8080 → 61871 [ACK] Seq=101 Ack=79 Win=408256 Len=0 TSval=2010179211 TSecr=2798382382
    31   0.700058          ::1 → ::1          TCP 64 8080 → 61872 [RST, ACK] Seq=1 Ack=1 Win=0 Len=0
@@ -122,7 +122,7 @@ tshark -r output.pcap
 {{< /terminal-output >}}
 {{< /terminal-session >}}
 
-You could filter it by the protocol using `-Y`. For example, to only show HTTP traffic capture:
+You can filter by protocol using `-Y`. For example, to show only captured HTTP traffic:
 
 {{< terminal-session title="Filter only HTTP packets" >}}
 {{< terminal-command lang="bash" >}}
@@ -151,14 +151,14 @@ tshark -r output.pcap -Y 'http'
 {{< /terminal-output >}}
 {{< /terminal-session >}}
 
-Not very readable right? We could configure the output format using `-T`:
+Not very readable, right? We can configure the output format using `-T`:
 
 {{< terminal-session title="Inspect tshark output formats" >}}
 {{< terminal-command lang="bash" >}}
 tshark --help
 {{< /terminal-command >}}
 {{< terminal-output lang="text" >}}
-// Here's what we are mainly interested in:
+... here are the options we care about:
 -T pdml|ps|psml|json|jsonraw|ek|tabs|text|fields|?
 -j <protocolfilter>      protocols layers filter if -T ek|pdml|json selected
 -J <protocolfilter>      top level protocol filter if -T ek|pdml|json selected
@@ -168,7 +168,7 @@ tshark --help
 {{< /terminal-output >}}
 {{< /terminal-session >}}
 
-We can use `-T fields` in combination of `-e` to  further configure which field to be output
+We can use `-T fields` in combination with `-e` to control which fields are printed.
 
 {{< terminal-session title="Show selected HTTP fields" >}}
 {{< terminal-command lang="bash" >}}
@@ -198,7 +198,7 @@ tshark -r output.pcap -Y 'http' -T fields -e tcp.stream -e frame.time -e http.re
 {{< /terminal-output >}}
 {{< /terminal-session >}}
 
-You can use `tshark -G fields` to see all the available fields. It prints out every fields available, so you'll want
+You can use `tshark -G fields` to see all available fields. It prints every available field, so you'll want
 to filter it further using `rg` or `grep`:
 
 {{< terminal-session title="Discover available tshark fields" >}}
@@ -206,7 +206,7 @@ to filter it further using `rg` or `grep`:
 tshark -G fields | rg "http\."
 {{< /terminal-command >}}
 {{< terminal-output lang="text" >}}
-// Here are some of the fields shown by the command:
+... here are some of the fields shown by the command:
 F       Response        http.response   FT_BOOLEAN      http    0       0x0  true if HTTP response
 F       Request http.request    FT_BOOLEAN      http    0       0x0     true if HTTP request
 F       Response line   http.response.line      FT_STRING       http         0x0
@@ -241,8 +241,8 @@ F       Location        http.location   FT_STRING       http            0x0  HTT
 {{< /terminal-output >}}
 {{< /terminal-session >}}
 
-The `-Y` argument can also be used to fitler the output futher. For example, we can use the following query
-to show all the traffic that have 200 status code:
+The `-Y` argument can also be used to filter output further. For example, we can use the following query
+to show all traffic that has a 200 status code:
 
 {{< terminal-session title="Filter by HTTP status code" >}}
 {{< terminal-command lang="bash" >}}
@@ -268,6 +268,10 @@ tshark -r output.pcap -Y 'tcp.stream == 9 and http'
 {{< /terminal-output >}}
 {{< /terminal-session >}}
 
+## Dealing with JSON request/response
+
+If the response body is JSON, `tshark` can output packet data as JSON (`-T json`), and `jq` can extract the fields you care about:
+
 {{< terminal-session title="Extract JSON payload values with jq" >}}
 {{< terminal-command lang="bash" >}}
 tshark -r output.pcap -Y 'http.response.code == 200' -T json 2>/dev/null | jq -r '.[]._source.layers.json."json.object"'
@@ -282,5 +286,4 @@ tshark -r output.pcap -Y 'http.response.code == 200' -T json 2>/dev/null | jq -r
 
 ### Conclusion
 
-You can also use `tshark` to capture the traffic but considering that you might want to do this in a production
-environment or remote machine, where installing it is not very viable.
+You can also capture traffic with `tshark`, but `tcpdump` is often the better choice on production or remote machines where installing a full Wireshark toolchain is less practical.
