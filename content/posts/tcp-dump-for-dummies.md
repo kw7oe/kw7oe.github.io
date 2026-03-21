@@ -13,7 +13,7 @@ Sounds hard? It isn't. You can just do that with `tcpdump` and then analysing it
 
 Here's a quick write up on how to capture your HTTP traffic with `tcpdump` and filter it with `tshark`
 
-### Prerequisites
+## Prerequisites
 
 If you want to practice along, here's the tools we need:
 
@@ -22,8 +22,7 @@ If you want to practice along, here's the tools we need:
 - `jq`
 - `python3` or any thing that can spin up a webserver.
 
-Here's a minimal Python server implementation with a JSON endpoints,
-which we will use later in our example on extracting JSON response:
+Here's a minimal Python server implementation with a JSON endpoints, which we will use later in our example on extracting JSON response:
 
 ```python
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -57,7 +56,7 @@ if __name__ == "__main__":
 Save this as `server.py`, you can now run it with `python3 server.py`
 `curl localhost:8080/books` to simulate traffic with JSON response.
 
-### Capturing traffic
+## Capturing traffic
 
 Capturing traffic with `tcpdump` is really straightforward :
 
@@ -76,6 +75,8 @@ sudo tcpdump -i any port 8080
 {{< /terminal-output >}}
 {{< /terminal-session >}}
 
+If you have a server running at port 8080 already, just run `curl localhost:8080` to see some output.
+
 Most of the time, you'll want to capture and write this to a file. This can be achieved by appending `-w <filename>.pcap` to the previous command:
 
 {{< terminal-session title="Write capture to a PCAP file" >}}
@@ -84,10 +85,20 @@ sudo tcpdump -i any port 8080 -w output.pcap
 {{< /terminal-command >}}
 {{< /terminal-session >}}
 
-No console output is shown while capture is running. You'll need to press Ctrl+C to stop.
+Now run `curl localhost:8080/books` or `curl localhost:8080` again. You'll notice that no console output is shown while capture is running.
+Use Ctrl + C to stop capturing traffic
 
-The output is in the [PCAP (Packet Capture) file format](https://ietf-opsawg-wg.github.io/draft-ietf-opsawg-pcap/draft-ietf-opsawg-pcap.html). You'll need to use some tools to parse/read its content.
-Here comes `tshark`.
+```
+tcpdump: data link type PKTAP
+tcpdump: listening on any, link-type PKTAP (Apple DLT_PKTAP), snapshot length 524288 bytes
+^C252 packets captured
+8469 packets received by filter
+0 packets dropped by kernel
+```
+
+You'll see a summary of how many packets are captures and received when it exit.
+
+The output is in [PCAP (Packet Capture) file format](https://ietf-opsawg-wg.github.io/draft-ietf-opsawg-pcap/draft-ietf-opsawg-pcap.html). We'll need to use some tools to parse/read its content. Here comes `tshark`.
 
 ### Analyzing traffic
 
@@ -100,16 +111,14 @@ the captured traffic:
 tshark -r output.pcap
 {{< /terminal-command >}}
 {{< terminal-output lang="text" >}}
-1   0.000000          ::1 → ::1          TCP 88 63852 → 8080 [SYN] Seq=0 Win=65535 Len=0 MSS=16324 WS=64 TSval=3730493114 TSecr=0 SACK_PERM
-... other logs
-9   0.000277          ::1 → ::1          HTTP 153 GET / HTTP/1.1
-37   0.659747          ::1 → ::1          TCP 232 HTTP/1.0 200 OK
-38   0.659767          ::1 → ::1          TCP 232 [TCP Retransmission] 8080 → 63853 [PSH, ACK] Seq=1 Ack=78 Win=407744 Len=156 TSval=2221337942 TSecr=1134574678
-39   0.659779          ::1 → ::1          HTTP 1278 HTTP/1.0 200 OK  (text/html)
-40   0.659791          ::1 → ::1          TCP 76 63853 → 8080 [ACK] Seq=78 Ack=157 Win=407680 Len=0 TSval=1134574679 TSecr=2221337942
-63   1.265045          ::1 → ::1          HTTP 1278 HTTP/1.0 200 OK  (text/html)
-... other logs
-72   1.265234          ::1 → ::1          TCP 76 [TCP Dup ACK 71#1] 8080 → 63854 [ACK] Seq=1360 Ack=79 Win=407744 Len=0 TSval=3320954713 TSecr=3304093684
+    1   0.000000          ::1 → ::1          TCP 88 61870 → 8080 [SYN] Seq=0 Win=65535 Len=0 MSS=16324 WS=64 TSval=1626974093 TSecr=0 SACK_PERM
+   // other logs...
+   18   0.000914    127.0.0.1 → 127.0.0.1    HTTP 56 HTTP/1.0 404 Not Found
+   28   0.001073    127.0.0.1 → 127.0.0.1    TCP 56 [TCP Dup ACK 27#1] 8080 → 61871 [ACK] Seq=101 Ack=79 Win=408256 Len=0 TSval=2010179211 TSecr=2798382382
+   31   0.700058          ::1 → ::1          TCP 64 8080 → 61872 [RST, ACK] Seq=1 Ack=1 Win=0 Len=0
+   96   1.879874    127.0.0.1 → 127.0.0.1    HTTP 133 GET / HTTP/1.1
+  185  91.584502    127.0.0.1 → 127.0.0.1    TCP 201 HTTP/1.0 200 OK
+  252  93.730777    127.0.0.1 → 127.0.0.1    TCP 56 [TCP Dup ACK 251#1] 8080 → 61895 [ACK] Seq=101 Ack=79 Win=408256 Len=0 TSval=566993429 TSecr=4042384569
 {{< /terminal-output >}}
 {{< /terminal-session >}}
 
@@ -121,12 +130,24 @@ You could filter it by the protocol using `-Y`. For example, to only show HTTP t
 tshark -r output.pcap -Y 'http'
 {{< /terminal-command >}}
 {{< terminal-output lang="text" >}}
-9    0.000277 ::1 → ::1 HTTP 153 GET / HTTP/1.1
-15   0.001157 ::1 → ::1 HTTP 1278 HTTP/1.0 200 OK (text/html)
-33   0.659044 ::1 → ::1 HTTP 153 GET / HTTP/1.1
-39   0.659779 ::1 → ::1 HTTP 1278 HTTP/1.0 200 OK (text/html)
-57   1.264089 ::1 → ::1 HTTP 153 GET / HTTP/1.1
-63   1.265045 ::1 → ::1 HTTP 1278 HTTP/1.0 200 OK (text/html)
+12   0.000553    127.0.0.1 → 127.0.0.1    HTTP 133 GET / HTTP/1.1
+18   0.000914    127.0.0.1 → 127.0.0.1    HTTP 56 HTTP/1.0 404 Not Found
+40   0.700393    127.0.0.1 → 127.0.0.1    HTTP 133 GET / HTTP/1.1
+47   0.700689    127.0.0.1 → 127.0.0.1    HTTP 56 HTTP/1.0 404 Not Found
+67   1.287958    127.0.0.1 → 127.0.0.1    HTTP 133 GET / HTTP/1.1
+74   1.288231    127.0.0.1 → 127.0.0.1    HTTP 56 HTTP/1.0 404 Not Found
+96   1.879874    127.0.0.1 → 127.0.0.1    HTTP 133 GET / HTTP/1.1
+102   1.880078    127.0.0.1 → 127.0.0.1    HTTP 56 HTTP/1.0 404 Not Found
+125  90.198950    127.0.0.1 → 127.0.0.1    HTTP 138 GET /books HTTP/1.1
+131  90.199257    127.0.0.1 → 127.0.0.1    HTTP/JSON 175 HTTP/1.0 200 OK , JSON (application/json)
+151  91.029506    127.0.0.1 → 127.0.0.1    HTTP 138 GET /books HTTP/1.1
+159  91.029810    127.0.0.1 → 127.0.0.1    HTTP/JSON 175 HTTP/1.0 200 OK , JSON (application/json)
+179  91.584132    127.0.0.1 → 127.0.0.1    HTTP 138 GET /books HTTP/1.1
+187  91.584540    127.0.0.1 → 127.0.0.1    HTTP/JSON 175 HTTP/1.0 200 OK , JSON (application/json)
+209  92.069515    127.0.0.1 → 127.0.0.1    HTTP 138 GET /books HTTP/1.1
+215  92.069889    127.0.0.1 → 127.0.0.1    HTTP/JSON 175 HTTP/1.0 200 OK , JSON (application/json)
+237  93.730389    127.0.0.1 → 127.0.0.1    HTTP 133 GET / HTTP/1.1
+243  93.730663    127.0.0.1 → 127.0.0.1    HTTP 56 HTTP/1.0 404 Not Found
 {{< /terminal-output >}}
 {{< /terminal-session >}}
 
@@ -137,6 +158,7 @@ Not very readable right? We could configure the output format using `-T`:
 tshark --help
 {{< /terminal-command >}}
 {{< terminal-output lang="text" >}}
+// Here's what we are mainly interested in:
 -T pdml|ps|psml|json|jsonraw|ek|tabs|text|fields|?
 -j <protocolfilter>      protocols layers filter if -T ek|pdml|json selected
 -J <protocolfilter>      top level protocol filter if -T ek|pdml|json selected
@@ -155,12 +177,24 @@ We can use `-T fields` in combination of `-e` to  further configure which field 
 tshark -r output.pcap -Y 'http' -T fields -e tcp.stream -e frame.time -e http.request.method -e http.request.uri -e http.response.code
 {{< /terminal-command >}}
 {{< terminal-output lang="text" >}}
-0       2026-03-15T00:31:15.719233000+0800      GET     /
-0       2026-03-15T00:31:15.720113000+0800              /       200
-1       2026-03-15T00:31:16.378000000+0800      GET     /
-1       2026-03-15T00:31:16.378735000+0800              /       200
-2       2026-03-15T00:31:16.983045000+0800      GET     /
-2       2026-03-15T00:31:16.984001000+0800              /       200
+1       2026-03-21T23:53:42.961078000+0800      GET     /
+1       2026-03-21T23:53:42.961439000+0800              /       404
+3       2026-03-21T23:53:43.660918000+0800      GET     /
+3       2026-03-21T23:53:43.661214000+0800              /       404
+5       2026-03-21T23:53:44.248483000+0800      GET     /
+5       2026-03-21T23:53:44.248756000+0800              /       404
+7       2026-03-21T23:53:44.840399000+0800      GET     /
+7       2026-03-21T23:53:44.840603000+0800              /       404
+9       2026-03-21T23:55:13.159475000+0800      GET     /books
+9       2026-03-21T23:55:13.159782000+0800              /books  200
+11      2026-03-21T23:55:13.990031000+0800      GET     /books
+11      2026-03-21T23:55:13.990335000+0800              /books  200
+13      2026-03-21T23:55:14.544657000+0800      GET     /books
+13      2026-03-21T23:55:14.545065000+0800              /books  200
+15      2026-03-21T23:55:15.030040000+0800      GET     /books
+15      2026-03-21T23:55:15.030414000+0800              /books  200
+17      2026-03-21T23:55:16.690914000+0800      GET     /
+17      2026-03-21T23:55:16.691188000+0800              /       404
 {{< /terminal-output >}}
 {{< /terminal-session >}}
 
@@ -172,8 +206,38 @@ to filter it further using `rg` or `grep`:
 tshark -G fields | rg "http\."
 {{< /terminal-command >}}
 {{< terminal-output lang="text" >}}
-The command prints many matching field definitions.
-Use it to discover valid values for `-e` and `-Y` filters.
+// Here are some of the fields shown by the command:
+F       Response        http.response   FT_BOOLEAN      http    0       0x0  true if HTTP response
+F       Request http.request    FT_BOOLEAN      http    0       0x0     true if HTTP request
+F       Response line   http.response.line      FT_STRING       http         0x0
+F       Request line    http.request.line       FT_STRING       http         0x0
+F       Request Method  http.request.method     FT_STRING       http         0x0      HTTP Request Method
+F       Request URI     http.request.uri        FT_STRING       http         0x0      HTTP Request-URI
+F       Request URI Path        http.request.uri.path   FT_STRING       http 0x0      HTTP Request-URI Path
+F       Request URI Path Segment        http.request.uri.path.segment   FT_STRING     http            0x0
+F       Request URI Query       http.request.uri.query  FT_STRING       http 0x0      HTTP Request-URI Query
+F       Request URI Query Parameter     http.request.uri.query.parameter     FT_STRING        http            0x0     HTTP Request-URI Query Parameter
+F       Request Version http.request.version    FT_STRING       http         0x0      HTTP Request HTTP-Version
+F       Response Version        http.response.version   FT_STRING       http 0x0      HTTP Response HTTP-Version
+F       Full request URI        http.request.full_uri   FT_STRING       http 0x0      The full requested URI (including host name)
+F       Status Code     http.response.code      FT_UINT24       http    BASE_DEC      0x0     HTTP Response Status Code
+F       Status Code Description http.response.code.desc FT_STRING       http 0x0      HTTP Response Status Code Description
+F       Response Phrase http.response.phrase    FT_STRING       http         0x0      HTTP Response Reason Phrase
+F       Authorization   http.authorization      FT_STRING       http         0x0      HTTP Authorization header
+F       Content-Type    http.content_type       FT_STRING       http         0x0      HTTP Content-Type header
+F       Content-Length  http.content_length_header      FT_STRING       http 0x0      HTTP Content-Length header
+F       Content length  http.content_length     FT_UINT64       http    BASE_DEC      0x0
+F       Content-Encoding        http.content_encoding   FT_STRING       http 0x0      HTTP Content-Encoding header
+F       Transfer-Encoding       http.transfer_encoding  FT_STRING       http 0x0      HTTP Transfer-Encoding header
+F       User-Agent      http.user_agent FT_STRING       http            0x0  HTTP User-Agent header
+F       Host    http.host       FT_STRING       http            0x0     HTTP Host
+F       Accept  http.accept     FT_STRING       http            0x0     HTTP Accept
+F       Referer http.referer    FT_STRING       http            0x0     HTTP Referer
+F       Accept-Language http.accept_language    FT_STRING       http         0x0      HTTP Accept Language
+F       Accept Encoding http.accept_encoding    FT_STRING       http         0x0      HTTP Accept Encoding
+F       Date    http.date       FT_STRING       http            0x0     HTTP Date
+F       Server  http.server     FT_STRING       http            0x0     HTTP Server
+F       Location        http.location   FT_STRING       http            0x0  HTTP Location
 {{< /terminal-output >}}
 {{< /terminal-session >}}
 
@@ -185,9 +249,10 @@ to show all the traffic that have 200 status code:
 tshark -r output.pcap -Y 'http.response.code == 200' -T fields -e tcp.stream -e frame.time -e http.request.method -e http.request.uri -e http.response.code
 {{< /terminal-command >}}
 {{< terminal-output lang="text" >}}
-0       2026-03-15T00:31:15.720113000+0800              /       200
-1       2026-03-15T00:31:16.378735000+0800              /       200
-2       2026-03-15T00:31:16.984001000+0800              /       200
+9       2026-03-21T23:55:13.159782000+0800              /books  200
+11      2026-03-21T23:55:13.990335000+0800              /books  200
+13      2026-03-21T23:55:14.545065000+0800              /books  200
+15      2026-03-21T23:55:15.030414000+0800              /books  200
 {{< /terminal-output >}}
 {{< /terminal-session >}}
 
@@ -195,11 +260,11 @@ Or filter by a specific `tcp.stream`:
 
 {{< terminal-session title="Filter by TCP stream" >}}
 {{< terminal-command lang="bash" >}}
-tshark -r output.pcap -Y 'tcp.stream == 0 and http'
+tshark -r output.pcap -Y 'tcp.stream == 9 and http'
 {{< /terminal-command >}}
 {{< terminal-output lang="text" >}}
-9   0.000277          ::1 → ::1          HTTP 153 GET / HTTP/1.1
-15   0.001157          ::1 → ::1          HTTP 1278 HTTP/1.0 200 OK  (text/html)
+125  90.198950    127.0.0.1 → 127.0.0.1    HTTP 138 GET /books HTTP/1.1
+131  90.199257    127.0.0.1 → 127.0.0.1    HTTP/JSON 175 HTTP/1.0 200 OK , JSON (application/json)
 {{< /terminal-output >}}
 {{< /terminal-session >}}
 
@@ -207,8 +272,11 @@ tshark -r output.pcap -Y 'tcp.stream == 0 and http'
 {{< terminal-command lang="bash" >}}
 tshark -r output.pcap -Y 'http.response.code == 200' -T json 2>/dev/null | jq -r '.[]._source.layers.json."json.object"'
 {{< /terminal-command >}}
-{{< terminal-output lang="text" >}}
-Outputs one parsed JSON object per matching response.
+{{< terminal-output lang="json" >}}
+{"books": [{"name": "The Great Gatsby", "author": "F. Scott Fitzgerald"}, {"name": "1984", "author": "George Orwell"}]}
+{"books": [{"name": "The Great Gatsby", "author": "F. Scott Fitzgerald"}, {"name": "1984", "author": "George Orwell"}]}
+{"books": [{"name": "The Great Gatsby", "author": "F. Scott Fitzgerald"}, {"name": "1984", "author": "George Orwell"}]}
+{"books": [{"name": "The Great Gatsby", "author": "F. Scott Fitzgerald"}, {"name": "1984", "author": "George Orwell"}]}
 {{< /terminal-output >}}
 {{< /terminal-session >}}
 
