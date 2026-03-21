@@ -13,12 +13,49 @@ Sounds hard? It isn't. You can just do that with `tcpdump` and then analysing it
 
 Here's a quick write up on how to capture your HTTP traffic with `tcpdump` and filter it with `tshark`
 
-{{% callout title="Run a simple server to learn along!" class="info" %}}
+### Prerequisites
 
-You can run a minmal web server with python using the following command:
-<code>python3 -m http.server 8080</code>, and simulate some traffic with
-<code> curl localhost:8080</code>.
-{{% /callout %}}
+If you want to practice along, here's the tools we need:
+
+- `tcpdump`
+- `tshark`
+- `jq`
+- `python3` or any thing that can spin up a webserver.
+
+Here's a minimal Python server implementation with a JSON endpoints,
+which we will use later in our example on extracting JSON response:
+
+```python
+from http.server import HTTPServer, BaseHTTPRequestHandler
+import json
+
+BOOKS = {
+    "books": [
+        {"name": "The Great Gatsby", "author": "F. Scott Fitzgerald"},
+        {"name": "1984", "author": "George Orwell"},
+    ]
+}
+
+class Handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == "/books":
+            body = json.dumps(BOOKS).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        else:
+            self.send_response(404)
+            self.end_headers()
+
+if __name__ == "__main__":
+    print("Server running at http://localhost:8080/books")
+    HTTPServer(("localhost", 8080), Handler).serve_forever()
+```
+
+Save this as `server.py`, you can now run it with `python3 server.py`
+`curl localhost:8080/books` to simulate traffic with JSON response.
 
 ### Capturing traffic
 
