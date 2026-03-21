@@ -1,5 +1,5 @@
 ---
-title: "`tcpdump` for Dummies"
+title: "`tcpdump` + `tshark` for HTTP Debugging (Beginner-Friendly)"
 date: 2026-02-26T22:18:27+08:00
 draft: true
 ---
@@ -9,9 +9,26 @@ your logs don't have enough information. One way to troubleshoot is to capture n
 and peek into request and response data.
 
 Sounds hard? It isn't. You can do that with `tcpdump`, then analyze it with Wireshark or its CLI tool,
-`tshark`, or ask your favorite LLM to inspect the captured traffic.
+`tshark`.
+
+If you plan to share captures with an LLM, treat PCAP files as sensitive data. They can include tokens,
+cookies, credentials, and personal information. Redact those first.
 
 Here's a quick write-up on how to capture your HTTP traffic with `tcpdump` and filter it with `tshark`.
+
+## When to use this
+
+Use this approach when:
+
+- Your application logs are not enough to explain behavior.
+- You can reproduce the request/response flow.
+- You are working with plaintext HTTP traffic (or have TLS decryption material).
+
+## Safety first
+
+- Capture only what you need (narrow interface, host, and port filters).
+- Keep capture duration short.
+- Treat `.pcap` files as sensitive and remove secrets before sharing.
 
 ## Prerequisites
 
@@ -21,6 +38,8 @@ If you want to follow along, here are the tools we need:
 - `tshark`
 - `jq`
 - `python3` or anything that can spin up a web server.
+
+> This tutorial focuses on localhost HTTP traffic. If your service uses HTTPS, packet payloads are encrypted by default and won't be readable without TLS key material.
 
 Here's a minimal Python server implementation with a JSON endpoint, which we will use later when extracting JSON responses:
 
@@ -85,7 +104,7 @@ sudo tcpdump -i any port 8080 -w output.pcap
 {{< /terminal-command >}}
 {{< /terminal-session >}}
 
-Now run `curl localhost:8080/books` or `curl localhost:8080` again. You can also generate some request with JSON payload:
+Now run `curl localhost:8080/books` (or `curl localhost:8080`) to generate test traffic. You can also send a request with a JSON payload:
 
 {{< terminal-session title="POST request with JSON payload" >}}
 {{< terminal-command lang="bash" >}}
@@ -116,7 +135,7 @@ The output is in [PCAP (Packet Capture) file format](https://ietf-opsawg-wg.gith
 
 ## Analyzing traffic
 
-First of all, install `tshark` following the instructions [here](https://tshark.dev/setup/install/). Then, we can use `tshark` to show
+First, install `tshark` following the instructions [here](https://tshark.dev/setup/install/). Then, we can use `tshark` to show
 the captured traffic:
 
 {{< terminal-session title="Read captured traffic with tshark" >}}
@@ -299,7 +318,7 @@ tshark -r output.pcap -Y 'http.response.code == 200' -T json 2>/dev/null | jq -r
 
 We can also use a similar way to extract the request payload in JSON, it's just a bit more complicated:
 
-{{< terminal-session title="Extract JSON payload valeus with jq" >}}
+{{< terminal-session title="Extract JSON payload values with jq" >}}
 {{< terminal-command lang="bash" >}}
 tshark -r output.pcap -Y 'http.request' -T json 2>/dev/null \
 | jq '.[] | ._source.layers
@@ -321,21 +340,15 @@ tshark -r output.pcap -Y 'http.request' -T json 2>/dev/null \
 {{< /terminal-output >}}
 {{< /terminal-session >}}
 
-Here, we are filtering value inside `._source.layers.http` that contains the `http.request.method` key using `select(has("http.request.method"))`
-and extracting out with `.["http.request.method"]`.
+Here, we are filtering values inside `._source.layers.http` that contain the `http.request.method` key using `select(has("http.request.method"))`
+and extracting with `.["http.request.method"]`.
 
-Here's the raw JSON output from `tshark`:
+Here's a simplified fragment of the raw JSON output from `tshark`:
 
 ```json
 {
-"_index": "packets-2026-03-22",
-"_score": null,
 "_source": {
   "layers": {
-    "frame": { ... },
-    "null": { ... },
-    "ip": { ... },
-    "tcp": { ... },
     "http": {
       "POST /books HTTP/1.1\\r\\n": {
         "http.request.method": "POST",
@@ -358,11 +371,19 @@ Here's the raw JSON output from `tshark`:
       "\\r\\n": "",
       "http.request": "1",
       "http.request.full_uri": "http://localhost:8080/books",
+    },
+    "json": {
+      "json.object": "{\"title\":\"Sample Book\",\"author\":\"John Doe\"}"
+    }
   }
 }
 ```
 
+
 ## Cheat Sheet
+
+That's it. That's all I have to share, and here's a cheat sheet for it:
+
 
 | Goal | Command |
 | --- | --- |
@@ -376,6 +397,8 @@ Here's the raw JSON output from `tshark`:
 | Filter HTTP 200 responses | `tshark -r output.pcap -Y 'http.response.code == 200' -T fields -e tcp.stream -e frame.time -e http.request.method -e http.request.uri -e http.response.code` |
 | Filter one TCP stream | `tshark -r output.pcap -Y 'tcp.stream == 9 and http'` |
 | Extract JSON response body | `tshark -r output.pcap -Y 'http.response.code == 200' -T json 2>/dev/null \| jq -r '.[]._source.layers.json."json.object"'` |
+| Extract JSON request body | `tshark -r output.pcap -Y 'http.request' -T json 2>/dev/null \| jq '.[] \| ._source.layers \| { method: (.http \| .. \| objects \| select(has("http.request.method")) \| .["http.request.method"]), path:   (.http \| .. \| objects \| select(has("http.request.uri")) \| .["http.request.uri"]), json:   (.json."json.object" \| fromjson) }'` |
+
 
 ## Conclusion
 
