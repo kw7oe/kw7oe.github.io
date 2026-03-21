@@ -163,7 +163,7 @@ nav#TableOfContents > ul > li {
   line-height: 1rem;
   font-weight: 700;
   letter-spacing: 0.01em;
-  font-family: 'Noto Sans', system-ui, sans-serif;
+  font-family: 'Noto Sans', system-ui, sans-serif !important;
 }
 
 .terminal-session__subtitle {
@@ -172,7 +172,7 @@ nav#TableOfContents > ul > li {
   font-size: 0.75rem;
   line-height: 1rem;
   letter-spacing: 0.01em;
-  font-family: 'Noto Sans', system-ui, sans-serif;
+  font-family: 'Noto Sans', system-ui, sans-serif !important;
 }
 
 .terminal-session__actions {
