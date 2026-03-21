@@ -85,7 +85,21 @@ sudo tcpdump -i any port 8080 -w output.pcap
 {{< /terminal-command >}}
 {{< /terminal-session >}}
 
-Now run `curl localhost:8080/books` or `curl localhost:8080` again. You'll notice that no console output is shown while capture is running.
+Now run `curl localhost:8080/books` or `curl localhost:8080` again. You can also generate some request with JSON payload:
+
+{{< terminal-session title="POST request with JSON payload" >}}
+{{< terminal-command lang="bash" >}}
+curl -X POST http://localhost:8080/books \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Sample Book",
+    "author": "John Doe"
+  }'
+{{< /terminal-command >}}
+{{< /terminal-session >}}
+
+
+You'll notice that no console output is shown while capture is running.
 Use Ctrl+C to stop capturing traffic.
 
 ```
@@ -268,7 +282,6 @@ tshark -r output.pcap -Y 'tcp.stream == 9 and http'
 {{< /terminal-output >}}
 {{< /terminal-session >}}
 
-## Dealing with JSON request/response
 
 If the response body is JSON, `tshark` can output packet data as JSON (`-T json`), and `jq` can extract the fields you care about:
 
@@ -284,6 +297,86 @@ tshark -r output.pcap -Y 'http.response.code == 200' -T json 2>/dev/null | jq -r
 {{< /terminal-output >}}
 {{< /terminal-session >}}
 
-### Conclusion
+We can also use a similar way to extract the request payload in JSON, it's just a bit more complicated:
+
+{{< terminal-session title="Extract JSON payload valeus with jq" >}}
+{{< terminal-command lang="bash" >}}
+tshark -r output.pcap -Y 'http.request' -T json 2>/dev/null \
+| jq '.[] | ._source.layers
+  | {
+      method: (.http | .. | objects | select(has("http.request.method")) | .["http.request.method"]),
+      path:   (.http | .. | objects | select(has("http.request.uri"))    | .["http.request.uri"]),
+      json:   (.json."json.object" | fromjson)
+    }'
+{{< /terminal-command >}}
+{{< terminal-output lang="json" >}}
+{
+  "method": "POST",
+  "path": "/books",
+  "json": {
+    "title": "Sample Book",
+    "author": "John Doe"
+  }
+}
+{{< /terminal-output >}}
+{{< /terminal-session >}}
+
+Here, we are filtering value inside `._source.layers.http` that contains the `http.request.method` key using `select(has("http.request.method"))`
+and extracting out with `.["http.request.method"]`.
+
+Here's the raw JSON output from `tshark`:
+
+```json
+{
+"_index": "packets-2026-03-22",
+"_score": null,
+"_source": {
+  "layers": {
+    "frame": { ... },
+    "null": { ... },
+    "ip": { ... },
+    "tcp": { ... },
+    "http": {
+      "POST /books HTTP/1.1\\r\\n": {
+        "http.request.method": "POST",
+        "http.request.uri": "/books",
+        "http.request.version": "HTTP/1.1"
+      },
+      "http.host": "localhost:8080",
+      "http.request.line": "Host: localhost:8080\r\n",
+      "http.user_agent": "curl/8.7.1",
+      "http.request.line": "User-Agent: curl/8.7.1\r\n",
+      "http.accept": "*/*",
+      "http.request.line": "Accept: */*\r\n",
+      "http.content_type": "application/json",
+      "http.request.line": "Content-Type: application/json\r\n",
+      "http.content_length_header": "58",
+      "http.content_length_header_tree": {
+        "http.content_length": "58"
+      },
+      "http.request.line": "Content-Length: 58\r\n",
+      "\\r\\n": "",
+      "http.request": "1",
+      "http.request.full_uri": "http://localhost:8080/books",
+  }
+}
+```
+
+## Cheat Sheet
+
+| Goal | Command |
+| --- | --- |
+| Capture traffic on port 8080 | `sudo tcpdump -i any port 8080` |
+| Capture traffic and save to file | `sudo tcpdump -i any port 8080 -w output.pcap` |
+| Generate test traffic | `curl localhost:8080/books` |
+| Read captured packets | `tshark -r output.pcap` |
+| Show only HTTP packets | `tshark -r output.pcap -Y 'http'` |
+| Show selected HTTP fields | `tshark -r output.pcap -Y 'http' -T fields -e tcp.stream -e frame.time -e http.request.method -e http.request.uri -e http.response.code` |
+| Find available HTTP fields | `tshark -G fields \| rg "http\."` |
+| Filter HTTP 200 responses | `tshark -r output.pcap -Y 'http.response.code == 200' -T fields -e tcp.stream -e frame.time -e http.request.method -e http.request.uri -e http.response.code` |
+| Filter one TCP stream | `tshark -r output.pcap -Y 'tcp.stream == 9 and http'` |
+| Extract JSON response body | `tshark -r output.pcap -Y 'http.response.code == 200' -T json 2>/dev/null \| jq -r '.[]._source.layers.json."json.object"'` |
+
+## Conclusion
 
 You can also capture traffic with `tshark`, but `tcpdump` is often the better choice on production or remote machines where installing a full Wireshark toolchain is less practical.
