@@ -1,7 +1,7 @@
 ---
 title: "Run Qwen3.5 locally on your Mac"
 date: 2026-03-01T13:16:53+08:00
-draft: false
+tags: ["qwen3.5"]
 ---
 
 Recently, Qwen3.5 has been one of the hottest models in the community. It's a vision language model that's relatively small and performs well

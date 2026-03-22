@@ -1,7 +1,7 @@
 ---
 title: "Debugging HTTP traffic with tcpdump and tshark"
 date: 2026-03-22T16:30:27+08:00
-draft: true
+tags: ["tcpdump", "tshark", "debugging"]
 ---
 
 There are times when you need to debug an issue in your HTTP service and realize that
