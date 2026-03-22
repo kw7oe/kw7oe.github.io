@@ -12,9 +12,9 @@ Sounds hard? It isn't. You can do that with `tcpdump`, then analyze it with Wire
 `tshark`.
 
 Here's a quick write-up on how to capture your HTTP traffic with `tcpdump` and filter it with `tshark`.
-Jump to the [cheat sheet here](#cheat-sheet) if you are lazy to read or follow along.
+Jump to the [cheat sheet here](#cheat-sheet) if you're too lazy to read the whole thing or follow along.
 
-> In this tutorial, we are focusing on capturing and anlysing HTTP traffic, if your services use HTTPS,
+> In this tutorial, we're focusing on capturing and analyzing HTTP traffic. If your services use HTTPS,
 > the packets are encrypted and won't be readable without credentials.
 >
 > Dealing with HTTPS is an article for another day.
@@ -95,7 +95,7 @@ sudo tcpdump -i any port 8080
 
 If you have a server running at port 8080 already, just run `curl localhost:8080` to see some output.
 
-Most of the time, you'll want to capture and write this to a file. This can be achieved by appending `-w <filename>.pcap` to the previous command:
+Most of the time, you'll want to capture traffic and write it to a file. You can do that by appending `-w <filename>.pcap` to the previous command:
 
 {{< terminal-session title="Write capture to a PCAP file" >}}
 {{< terminal-command lang="bash" >}}
@@ -103,7 +103,7 @@ sudo tcpdump -i any port 8080 -w output.pcap
 {{< /terminal-command >}}
 {{< /terminal-session >}}
 
-Now run, if you are following along, you can run the following `curl` commands to generate some `GET` and `POST` request with JSON payload.
+If you are following along, run the following `curl` commands to generate some `GET` and `POST` requests with JSON payloads.
 
 {{< terminal-session title="Generate some HTTP traffic with curl" >}}
 {{< terminal-command lang="bash" >}}
@@ -120,7 +120,7 @@ curl -X POST http://localhost:8080/books \
 {{< /terminal-session >}}
 
 
-You'll notice that no console output is shown while we are capturing. Use Ctrl+C to stop capturing traffic.
+You'll notice that no console output is shown while capturing. Use Ctrl+C to stop.
 
 ```
 tcpdump: data link type PKTAP
@@ -130,13 +130,13 @@ tcpdump: listening on any, link-type PKTAP (Apple DLT_PKTAP), snapshot length 52
 0 packets dropped by kernel
 ```
 
-You'll see a summary of how many packets were captured and received when it exits.
+You'll see a summary of how many packets were captured and received when it stops.
 
-The output is in [PCAP (Packet Capture) file format](https://ietf-opsawg-wg.github.io/draft-ietf-opsawg-pcap/draft-ietf-opsawg-pcap.html). We'll need to use some tools to parse/read its content. Here comes `tshark`.
+The output is in [PCAP (Packet Capture) file format](https://ietf-opsawg-wg.github.io/draft-ietf-opsawg-pcap/draft-ietf-opsawg-pcap.html). We'll need some tools to parse and read its contents. That's where `tshark` comes in.
 
 ## Filtering and formatting the captured traffic
 
-First, install `tshark` following the instructions [here](https://tshark.dev/setup/install/). Then, we can use `tshark` to show
+First, install `tshark` following the instructions [here](https://tshark.dev/setup/install/). Then we can use `tshark` to inspect
 the captured traffic:
 
 {{< terminal-session title="Read captured traffic with tshark" >}}
@@ -185,8 +185,8 @@ tshark -r output.pcap -Y 'http'
 {{< /terminal-output >}}
 {{< /terminal-session >}}
 
-Not very readable, right? No worries, `tshark` support different output format such as `json` and `fields`. This can be
-configured through `-T`:
+Not very readable, right? No worries, `tshark` supports different output formats such as `json` and `fields`. You can
+configure that through `-T`:
 
 {{< terminal-session title="Use --help to show supported output format" >}}
 {{< terminal-command lang="bash" >}}
@@ -274,7 +274,7 @@ F       Location        http.location   FT_STRING       http            0x0  HTT
 {{< /terminal-output >}}
 {{< /terminal-session >}}
 
-The `-Y` argument can also be used to filter output further. For example, we can use the following query
+The `-Y` argument can also be used to filter output further. For example, we can use the following filter
 to show all traffic that has a 200 status code:
 
 {{< terminal-session title="Filter by HTTP status code" >}}
@@ -301,8 +301,8 @@ tshark -r output.pcap -Y 'tcp.stream == 9 and http'
 {{< /terminal-output >}}
 {{< /terminal-session >}}
 
-When dealing with JSON request and response, we can configure `tshark` to output packet data as JSON (`-T json`),
-and use `jq` can extract the fields you care about.
+When dealing with JSON requests and responses, we can configure `tshark` to output packet data as JSON (`-T json`),
+and use `jq` to extract the fields you care about.
 
 
 For example, to extract the JSON response of every successful HTTP response:
@@ -319,7 +319,7 @@ tshark -r output.pcap -Y 'http.response.code == 200' -T json 2>/dev/null | jq -r
 {{< /terminal-output >}}
 {{< /terminal-session >}}
 
-We can also use a similar way to extract the request payload in JSON, it's just a bit more complicated:
+We can also use a similar approach to extract the request payload in JSON; it's just a bit more complicated:
 
 {{< terminal-session title="Extract JSON payload values with jq" >}}
 {{< terminal-command lang="bash" >}}
@@ -346,7 +346,7 @@ tshark -r output.pcap -Y 'http.request' -T json 2>/dev/null \
 Here, we are filtering values inside `._source.layers.http` that contain the `http.request.method` key using `select(has("http.request.method"))`
 and extracting with `.["http.request.method"]`.
 
-Here's an example of a HTTP request packet outputted in JSON (some fields are omitted for simplicity):
+Here's an example of an HTTP request packet output in JSON format (some fields are omitted for simplicity):
 
 ```json
 {
@@ -383,14 +383,14 @@ Here's an example of a HTTP request packet outputted in JSON (some fields are om
 }
 ```
 
-There's obviously more you could do, but this should give you a good overview on how you could debug your HTTP
-traffic with `tshark` after capturing it with `tcpdump`. LLM are also pretty good at doing this if you need to
-more complex query and analysis.
+There's obviously more you could do, but this should give you a good overview of how to debug your HTTP
+traffic with `tshark` after capturing it with `tcpdump`. LLMs are also pretty good at this if you need
+more complex queries and analysis.
 
 ## Cheat Sheet
 
-Finally, here's a cheat sheet of what I have covered in this article, just in case you want to refer to it
-and dump it to your LLM as a reference:
+Finally, here's a cheat sheet of what I've covered in this article, just in case you want to refer to it
+and dump it into your LLM as a reference:
 
 
 | Goal | Command |
@@ -410,9 +410,9 @@ and dump it to your LLM as a reference:
 
 ## Conclusion
 
-That’s it. I used to think using `tcpdump` and analyzing HTTP traffic with tools like Wireshark or `tshark` was hard. But after needing them to investigate a production incident (with customer approval in their test environment), I realized they’re very approachable after you know the basics, which I hope this article provides.
+That’s it. I used to think using `tcpdump` and analyzing HTTP traffic with tools like Wireshark or `tshark` was hard. But after needing them to investigate a production incident (with customer approval in their test environment), I realized they’re very approachable once you know the basics, which I hope this article provides.
 
-Not to mentioned, those basics are now easier to pick up then ever. It's literally a few questions away when asking your LLMs.
+Not to mention, those basics are now easier to pick up than ever. It's literally just a few questions away with your LLM.
 
 That said, LLMs can still be wrong, so always verify results manually.
 
