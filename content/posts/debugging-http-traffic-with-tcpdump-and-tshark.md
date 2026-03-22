@@ -1,6 +1,6 @@
 ---
-title: "`tcpdump` + `tshark` for HTTP Debugging (Beginner-Friendly)"
-date: 2026-02-26T22:18:27+08:00
+title: "Debugging HTTP traffic with tcpdump and tshark"
+date: 2026-03-22T16:30:27+08:00
 draft: true
 ---
 
@@ -11,24 +11,15 @@ and peek into request and response data.
 Sounds hard? It isn't. You can do that with `tcpdump`, then analyze it with Wireshark or its CLI tool,
 `tshark`.
 
-If you plan to share captures with an LLM, treat PCAP files as sensitive data. They can include tokens,
-cookies, credentials, and personal information. Redact those first.
-
 Here's a quick write-up on how to capture your HTTP traffic with `tcpdump` and filter it with `tshark`.
+Jump to the [cheat sheet here](#cheat-sheet) if you are lazy to read or follow along.
 
-## When to use this
+> In this tutorial, we are focusing on capturing and anlysing HTTP traffic, if your services use HTTPS,
+> the packets are encrypted and won't be readable without credentials.
+>
+> Dealing with HTTPS is an article for another day.
 
-Use this approach when:
 
-- Your application logs are not enough to explain behavior.
-- You can reproduce the request/response flow.
-- You are working with plaintext HTTP traffic (or have TLS decryption material).
-
-## Safety first
-
-- Capture only what you need (narrow interface, host, and port filters).
-- Keep capture duration short.
-- Treat `.pcap` files as sensitive and remove secrets before sharing.
 
 ## Prerequisites
 
@@ -39,7 +30,6 @@ If you want to follow along, here are the tools we need:
 - `jq`
 - `python3` or anything that can spin up a web server.
 
-> This tutorial focuses on localhost HTTP traffic. If your service uses HTTPS, packet payloads are encrypted by default and won't be readable without TLS key material.
 
 Here's a minimal Python server implementation with a JSON endpoint, which we will use later when extracting JSON responses:
 
@@ -77,7 +67,16 @@ Use `curl localhost:8080/books` to simulate traffic with a JSON response.
 
 ## Capturing traffic
 
-Capturing traffic with `tcpdump` is straightforward:
+{{% callout title="Disclaimer" class="warning" %}}
+
+The captured traffic may contain sensitive data such as credentials, cookies, and personal information.
+If you are doing this in a production environment, please make sure you have gotten approval from whoever
+is in charge.
+
+{{% /callout %}}
+
+
+Capturing traffic with `tcpdump`[^1] is straightforward:
 
 {{< terminal-session title="Capture traffic with tcpdump" >}}
 {{< terminal-command lang="bash" >}}
@@ -104,10 +103,13 @@ sudo tcpdump -i any port 8080 -w output.pcap
 {{< /terminal-command >}}
 {{< /terminal-session >}}
 
-Now run `curl localhost:8080/books` (or `curl localhost:8080`) to generate test traffic. You can also send a request with a JSON payload:
+Now run, if you are following along, you can run the following `curl` commands to generate some `GET` and `POST` request with JSON payload.
 
-{{< terminal-session title="POST request with JSON payload" >}}
+{{< terminal-session title="Generate some HTTP traffic with curl" >}}
 {{< terminal-command lang="bash" >}}
+curl localhost:8080
+curl localhost:8080/books
+curl localhost:8080/books
 curl -X POST http://localhost:8080/books \
   -H "Content-Type: application/json" \
   -d '{
@@ -118,8 +120,7 @@ curl -X POST http://localhost:8080/books \
 {{< /terminal-session >}}
 
 
-You'll notice that no console output is shown while capture is running.
-Use Ctrl+C to stop capturing traffic.
+You'll notice that no console output is shown while we are capturing. Use Ctrl+C to stop capturing traffic.
 
 ```
 tcpdump: data link type PKTAP
@@ -133,7 +134,7 @@ You'll see a summary of how many packets were captured and received when it exit
 
 The output is in [PCAP (Packet Capture) file format](https://ietf-opsawg-wg.github.io/draft-ietf-opsawg-pcap/draft-ietf-opsawg-pcap.html). We'll need to use some tools to parse/read its content. Here comes `tshark`.
 
-## Analyzing traffic
+## Filtering and formatting the captured traffic
 
 First, install `tshark` following the instructions [here](https://tshark.dev/setup/install/). Then, we can use `tshark` to show
 the captured traffic:
@@ -184,22 +185,21 @@ tshark -r output.pcap -Y 'http'
 {{< /terminal-output >}}
 {{< /terminal-session >}}
 
-Not very readable, right? We can configure the output format using `-T`:
+Not very readable, right? No worries, `tshark` support different output format such as `json` and `fields`. This can be
+configured through `-T`:
 
-{{< terminal-session title="Inspect tshark output formats" >}}
+{{< terminal-session title="Use --help to show supported output format" >}}
 {{< terminal-command lang="bash" >}}
 tshark --help
-{{< /terminal-command >}}
-{{< terminal-output lang="text" >}}
-... here are the options we care about:
 -T pdml|ps|psml|json|jsonraw|ek|tabs|text|fields|?
 -j <protocolfilter>      protocols layers filter if -T ek|pdml|json selected
 -J <protocolfilter>      top level protocol filter if -T ek|pdml|json selected
 -e <field>               field to print if -Tfields selected (e.g. tcp.port,
 -E<fieldsoption>=<value> set options for output when -Tfields selected:
 --no-duplicate-keys      If -T json is specified, merge duplicate keys in an object
-{{< /terminal-output >}}
+{{< /terminal-command >}}
 {{< /terminal-session >}}
+
 
 We can use `-T fields` in combination with `-e` to control which fields are printed.
 
@@ -301,8 +301,11 @@ tshark -r output.pcap -Y 'tcp.stream == 9 and http'
 {{< /terminal-output >}}
 {{< /terminal-session >}}
 
+When dealing with JSON request and response, we can configure `tshark` to output packet data as JSON (`-T json`),
+and use `jq` can extract the fields you care about.
 
-If the response body is JSON, `tshark` can output packet data as JSON (`-T json`), and `jq` can extract the fields you care about:
+
+For example, to extract the JSON response of every successful HTTP response:
 
 {{< terminal-session title="Extract JSON payload values with jq" >}}
 {{< terminal-command lang="bash" >}}
@@ -343,46 +346,51 @@ tshark -r output.pcap -Y 'http.request' -T json 2>/dev/null \
 Here, we are filtering values inside `._source.layers.http` that contain the `http.request.method` key using `select(has("http.request.method"))`
 and extracting with `.["http.request.method"]`.
 
-Here's a simplified fragment of the raw JSON output from `tshark`:
+Here's an example of a HTTP request packet outputted in JSON (some fields are omitted for simplicity):
 
 ```json
 {
-"_source": {
-  "layers": {
-    "http": {
-      "POST /books HTTP/1.1\\r\\n": {
-        "http.request.method": "POST",
-        "http.request.uri": "/books",
-        "http.request.version": "HTTP/1.1"
+  "_source": {
+    "layers": {
+      "http": {
+        "POST /books HTTP/1.1\\r\\n": {
+          "http.request.method": "POST",
+          "http.request.uri": "/books",
+          "http.request.version": "HTTP/1.1"
+        },
+        "http.host": "localhost:8080",
+        "http.request.line": "Host: localhost:8080\r\n",
+        "http.user_agent": "curl/8.7.1",
+        "http.request.line": "User-Agent: curl/8.7.1\r\n",
+        "http.accept": "*/*",
+        "http.request.line": "Accept: */*\r\n",
+        "http.content_type": "application/json",
+        "http.request.line": "Content-Type: application/json\r\n",
+        "http.content_length_header": "58",
+        "http.content_length_header_tree": {
+          "http.content_length": "58"
+        },
+        "http.request.line": "Content-Length: 58\r\n",
+        "\\r\\n": "",
+        "http.request": "1",
+        "http.request.full_uri": "http://localhost:8080/books",
       },
-      "http.host": "localhost:8080",
-      "http.request.line": "Host: localhost:8080\r\n",
-      "http.user_agent": "curl/8.7.1",
-      "http.request.line": "User-Agent: curl/8.7.1\r\n",
-      "http.accept": "*/*",
-      "http.request.line": "Accept: */*\r\n",
-      "http.content_type": "application/json",
-      "http.request.line": "Content-Type: application/json\r\n",
-      "http.content_length_header": "58",
-      "http.content_length_header_tree": {
-        "http.content_length": "58"
-      },
-      "http.request.line": "Content-Length: 58\r\n",
-      "\\r\\n": "",
-      "http.request": "1",
-      "http.request.full_uri": "http://localhost:8080/books",
-    },
-    "json": {
-      "json.object": "{\"title\":\"Sample Book\",\"author\":\"John Doe\"}"
+      "json": {
+        "json.object": "{\"title\":\"Sample Book\",\"author\":\"John Doe\"}"
+      }
     }
   }
 }
 ```
 
+There's obviously more you could do, but this should give you a good overview on how you could debug your HTTP
+traffic with `tshark` after capturing it with `tcpdump`. LLM are also pretty good at doing this if you need to
+more complex query and analysis.
 
 ## Cheat Sheet
 
-That's it. That's all I have to share, and here's a cheat sheet for it:
+Finally, here's a cheat sheet of what I have covered in this article, just in case you want to refer to it
+and dump it to your LLM as a reference:
 
 
 | Goal | Command |
@@ -402,4 +410,10 @@ That's it. That's all I have to share, and here's a cheat sheet for it:
 
 ## Conclusion
 
-You can also capture traffic with `tshark`, but `tcpdump` is often the better choice on production or remote machines where installing a full Wireshark toolchain is less practical.
+That’s it. I used to think using `tcpdump` and analyzing HTTP traffic with tools like Wireshark or `tshark` was hard. But after needing them to investigate a production incident (with customer approval in their test environment), I realized they’re very approachable after you know the basics, which I hope this article provides.
+
+Not to mentioned, those basics are now easier to pick up then ever. It's literally a few questions away when asking your LLMs.
+
+That said, LLMs can still be wrong, so always verify results manually.
+
+[^1]: You can also capture traffic with `tshark`, but `tcpdump` is often the better choice on production or remote machines where installing a full Wireshark toolchain is less practical.
