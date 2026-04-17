@@ -60,10 +60,11 @@ There are multiple ways to run LLMs locally on macOS:
 
 - [`ollama`][0]
     - The easiest one to get started with, and it works out of the box with `opencode`.
+    - Now support MLX on Apple Silicon[^5].
 - [LM Studio][2]
     - This is a macOS app to run AI models locally.
     - It's also easy to get started with, but it requires some manual setup to work with `opencode`.
-    - It supports using `MLX` with tool calling, so it's slightly faster than `ollama`.
+    - It supports using `MLX` with tool calling. ~~so it's slightly faster than `ollama`.~~
 - [`mlx`][1]
   - Performs best, but at the time of writing `mlx-vlm` doesn't support tool calling.
   - Without tool calling, you can't really use it to vibe code, since it can't read/edit files.
@@ -145,6 +146,7 @@ It takes ~32 seconds, including model load time.
 
 First, install `ollama` following the instructions [here](https://ollama.com/). Then run the following:
 
+
 ```bash
 # Require 17GB
 # arch qwen35 · parameters 27.8B · quantization Q4_K_M
@@ -153,7 +155,33 @@ ollama run qwen3.5:27b
 # Require 24GB
 # arch qwen35moe · parameters 36B · quantization Q4_K_M
 ollama run qwen3.5:35b
+
+# To run on MLX:
+ollama run qwen3.5:35b-a3b-coding-nvfp4
+
 ```
+
+---
+
+**Updates (18th April 2026)**:
+
+Qwen 3.6 is now available in `ollama`. Based on the [models page](https://ollama.com/library/qwen3.6),
+the model powered by MLX only support Text input.
+
+Here' the command to run it with `ollama` powered by MLX [^6]:
+
+```bash
+# Require 22GB
+ollama run qwen3.6:35b-a3b-nvfp4
+ollama launch opencode --model qwen3.6:35b-a3b-nvfp4
+
+# Require 38GB
+ollama run qwen3.6:35b-a3b-mxfp8
+ollama launch opencode --model qwen3.6:35b-a3b-mxfp8
+
+```
+
+---
 
 By default, it's running with 4-bit quantization. You can see the details here:
 [`qwen3.5:27b`](https://ollama.com/library/qwen3.5:27b) and [`qwen3.5:35b`](https://ollama.com/library/qwen3.5:35b).
@@ -164,6 +192,7 @@ To connect it to your `opencode`, run the following command:
 # Replace 'opencode' with 'claude' or 'codex' as you see fit
 ollama launch opencode --model qwen3.5:27b
 ollama launch opencode --model qwen3.5:35b
+ollama launch opencode --model qwen3.5:35b-a3b-coding-nvfp4
 ```
 
 This will modify your configuration, and then launch `opencode` with Qwen3.5 selected as the model.
@@ -316,6 +345,8 @@ This trend also raises an interesting question: if anyone can run strong models 
 [^1]: Faster inference speed means more tokens per second.
 [^2]: For comparison, running the `qwen3.5:27b` dense model takes about 3 minutes to reply to this prompt on a cold start.
 [^3]: Installing `mlx-vlm` without `torch` on my Mac resulted in `TypeError: argument of type 'NoneType' is not a container or iterable` from `transformers/models/auto/video_processing_auto.py`.
+[^5]: `ollama` now support MLX from version 0.19 onwards. See their blog announcment here: https://ollama.com/blog/mlx
+[^6]: Based on this X post: https://x.com/pdev110/status/2044936351481823673?s=20
 
 [0]: https://ollama.com/
 [1]: https://github.com/ml-explore/mlx
