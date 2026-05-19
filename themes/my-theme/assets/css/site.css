@@ -444,14 +444,16 @@ nav#TableOfContents > ul > li {
   --df-table-header: rgba(17, 17, 16, 0.025);
   --df-table-text: #111110;
   --df-table-muted: #6b6a67;
+  display: block;
   width: 100%;
   max-width: 100%;
+  overflow-x: auto;
   margin-top: 2em;
   margin-bottom: 2em;
   border-radius: 0.75rem;
   border: 1px solid var(--df-table-border);
   background: var(--df-table-surface);
-  table-layout: fixed;
+  table-layout: auto;
   border-collapse: separate;
   border-spacing: 0;
   font-family: 'Noto Sans', system-ui, sans-serif;
@@ -460,20 +462,12 @@ nav#TableOfContents > ul > li {
   color: var(--df-table-text);
 }
 
-.prose table th:first-child,
-.prose table td:first-child {
-  width: min(18rem, 40%);
-  min-width: 12rem;
-  overflow-wrap: break-word;
-  word-break: normal;
-  hyphens: auto;
-}
-
-.prose table th:nth-child(2),
-.prose table td:nth-child(2) {
-  width: auto;
+.prose table th,
+.prose table td {
+  min-width: 6rem;
+  white-space: normal;
   overflow-wrap: anywhere;
-  word-break: break-word;
+  word-break: normal;
 }
 
 .prose table thead th {
@@ -496,24 +490,18 @@ nav#TableOfContents > ul > li {
   border-bottom: 0;
 }
 
-.prose table th:nth-child(2) code,
-.prose table td:nth-child(2) code {
-  max-width: 100%;
+.prose table code {
+  width: auto;
   display: inline-block;
   vertical-align: top;
-  white-space: pre-wrap;
+  white-space: normal;
   overflow-wrap: anywhere;
-  word-break: break-word;
+  word-break: normal;
 }
 
 @media (max-width: 640px) {
   .prose table {
     font-size: 0.8125rem;
-  }
-
-  .prose table th:first-child,
-  .prose table td:first-child {
-    min-width: 9rem;
   }
 
   .prose table thead th {
