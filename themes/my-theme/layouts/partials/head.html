@@ -21,7 +21,8 @@
 {{ else }}
   {{ $styles := $styles| minify | fingerprint | resources.PostProcess }}
   <link rel="stylesheet" href="{{ $styles.Permalink }}" integrity="{{ $styles.Data.Integrity }}">
-  <script async defer data-domain="kaiwern.com" src="https://plausible.io/js/plausible.js"></script>
+  <script defer data-domain="kaiwern.com" src="https://analytics.kaiwern.com/js/script.file-downloads.hash.outbound-links.tagged-events.js"></script>
+  <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
 {{ end }}
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
