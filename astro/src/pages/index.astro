@@ -1,0 +1,272 @@
+---
+const sections = [
+  {
+    title: 'Posts',
+    description: 'Longer write-ups about software, systems, and things I have learned.',
+    href: 'https://kaiwern.com/posts/',
+  },
+  {
+    title: 'Fragments',
+    description: 'Shorter notes, useful commands, and ideas worth remembering.',
+    href: 'https://kaiwern.com/fragments/',
+  },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Kai Wern writes about software, systems, and what he is learning."
+    />
+    <meta name="theme-color" content="#ebe5df" />
+    <title>Kai Wern — Notes on software and learning</title>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <a class="wordmark" href="/" aria-label="Kai Wern home">KW<span>.</span></a>
+        <nav aria-label="Primary navigation">
+          <a href="https://kaiwern.com/posts/">Posts</a>
+          <a href="https://kaiwern.com/fragments/">Fragments</a>
+          <a href="https://kaiwern.com/about/">About</a>
+        </nav>
+      </header>
+
+      <main id="main-content">
+        <section class="intro" aria-labelledby="intro-title">
+          <p class="eyebrow">A personal collection of notes</p>
+          <h1 id="intro-title">Hello, I’m <span>Kai.</span></h1>
+          <p class="intro-copy">
+            Welcome to my blog. I write about software, systems, and things I
+            learn along the way.
+          </p>
+          <a class="primary-link" href="https://kaiwern.com/posts/">
+            Read the posts <span aria-hidden="true">↗</span>
+          </a>
+        </section>
+
+        <section class="writing" aria-label="Writing">
+          {sections.map((section) => (
+            <a class="writing-card" href={section.href}>
+              <span class="card-title">{section.title}</span>
+              <span class="card-description">{section.description}</span>
+              <span class="card-arrow" aria-hidden="true">↗</span>
+            </a>
+          ))}
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <span>Made with care.</span>
+        <a href="https://kaiwern.com/about/">More about Kai <span aria-hidden="true">↗</span></a>
+      </footer>
+    </div>
+  </body>
+</html>
+
+<style>
+  :global(*) {
+    box-sizing: border-box;
+  }
+
+  :global(body) {
+    margin: 0;
+    background: #ebe5df;
+    color: #292735;
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  a:focus-visible {
+    outline: 2px solid #625c87;
+    outline-offset: 4px;
+  }
+
+  .page-shell {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+    margin-inline: auto;
+    max-width: 72rem;
+    padding: 0 clamp(1.25rem, 5vw, 4.5rem);
+  }
+
+  .site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding-block: 2rem;
+    border-bottom: 1px solid #d8d0ca;
+  }
+
+  .wordmark {
+    font-size: 1.1rem;
+    font-weight: 750;
+    letter-spacing: -0.06em;
+  }
+
+  .wordmark span,
+  h1 span {
+    color: #625c87;
+  }
+
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(1rem, 3vw, 2rem);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  nav a:hover,
+  .site-footer a:hover {
+    color: #625c87;
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+  }
+
+  main {
+    flex: 1;
+  }
+
+  .intro {
+    max-width: 45rem;
+    padding-block: clamp(5rem, 15vh, 10rem) clamp(4rem, 10vh, 7rem);
+  }
+
+  .eyebrow {
+    margin: 0 0 1.25rem;
+    color: #625c87;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    margin: 0;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(3.5rem, 9vw, 6.5rem);
+    font-weight: 400;
+    letter-spacing: -0.075em;
+    line-height: 0.98;
+  }
+
+  .intro-copy {
+    max-width: 34rem;
+    margin: 1.75rem 0 2rem;
+    color: #575563;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.15rem, 2vw, 1.4rem);
+    line-height: 1.65;
+  }
+
+  .primary-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 0.85rem 1.1rem;
+    border-radius: 0.3rem;
+    background: #625c87;
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 650;
+  }
+
+  .primary-link:hover {
+    background: #4c4769;
+  }
+
+  .writing {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-top: 1px solid #d8d0ca;
+  }
+
+  .writing-card {
+    position: relative;
+    display: flex;
+    min-height: 10rem;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 1.75rem 3rem 1.75rem 0;
+  }
+
+  .writing-card + .writing-card {
+    padding-left: clamp(1.5rem, 4vw, 3.5rem);
+    border-left: 1px solid #d8d0ca;
+  }
+
+  .card-title {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.5rem;
+  }
+
+  .card-description {
+    max-width: 24rem;
+    color: #686572;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .card-arrow {
+    position: absolute;
+    top: 1.75rem;
+    right: 1.5rem;
+    color: #625c87;
+  }
+
+  .writing-card:hover .card-title {
+    color: #625c87;
+  }
+
+  .site-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-block: 1.5rem;
+    border-top: 1px solid #d8d0ca;
+    color: #777481;
+    font-size: 0.8rem;
+  }
+
+  @media (max-width: 36rem) {
+    .site-header {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .intro {
+      padding-block: 4.5rem 3.5rem;
+    }
+
+    .writing {
+      grid-template-columns: 1fr;
+    }
+
+    .writing-card {
+      min-height: 8rem;
+      padding-right: 2.5rem;
+    }
+
+    .writing-card + .writing-card {
+      padding-left: 0;
+      border-top: 1px solid #d8d0ca;
+      border-left: 0;
+    }
+  }
+</style>

@@ -17,3 +17,7 @@ hugo.darwin
 # direnv
 .direnv/
 
+# Astro prototype
+/astro/node_modules/
+/astro/dist/
+/astro/.astro/
