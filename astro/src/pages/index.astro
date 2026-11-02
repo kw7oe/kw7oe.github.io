@@ -1,16 +1,5 @@
 ---
-const sections = [
-  {
-    title: 'Posts',
-    description: 'Longer write-ups about software, systems, and things I have learned.',
-    href: 'https://kaiwern.com/posts/',
-  },
-  {
-    title: 'Fragments',
-    description: 'Shorter notes, useful commands, and ideas worth remembering.',
-    href: 'https://kaiwern.com/fragments/',
-  },
-];
+import PrototypePageNav from "../components/PrototypePageNav.astro";
 ---
 
 <!doctype html>
@@ -18,62 +7,333 @@ const sections = [
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta
-      name="description"
-      content="Kai Wern writes about software, systems, and what he is learning."
-    />
     <meta name="theme-color" content="#ebe5df" />
-    <title>Kai Wern — Notes on software and learning</title>
+    <link rel="preload" href="/fonts/instrument-serif.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/instrument-sans.woff2" as="font" type="font/woff2" crossorigin />
+    <title>Kai Wern</title>
   </head>
   <body>
-    <div class="page-shell">
-      <header class="site-header">
-        <a class="wordmark" href="/" aria-label="Kai Wern home">KW<span>.</span></a>
-        <nav aria-label="Primary navigation">
-          <a href="https://kaiwern.com/posts/">Posts</a>
-          <a href="https://kaiwern.com/fragments/">Fragments</a>
-          <a href="https://kaiwern.com/about/">About</a>
-        </nav>
-      </header>
-
-      <main id="main-content">
-        <section class="intro" aria-labelledby="intro-title">
-          <p class="eyebrow">A personal collection of notes</p>
-          <h1 id="intro-title">Hello, I’m <span>Kai.</span></h1>
-          <p class="intro-copy">
-            Welcome to my blog. I write about software, systems, and things I
-            learn along the way.
-          </p>
-          <a class="primary-link" href="https://kaiwern.com/posts/">
-            Read the posts <span aria-hidden="true">↗</span>
-          </a>
-        </section>
-
-        <section class="writing" aria-label="Writing">
-          {sections.map((section) => (
-            <a class="writing-card" href={section.href}>
-              <span class="card-title">{section.title}</span>
-              <span class="card-description">{section.description}</span>
-              <span class="card-arrow" aria-hidden="true">↗</span>
-            </a>
-          ))}
-        </section>
-      </main>
-
-      <footer class="site-footer">
-        <span>Made with care.</span>
-        <a href="https://kaiwern.com/about/">More about Kai <span aria-hidden="true">↗</span></a>
-      </footer>
-    </div>
+    <main>
+      <h1 id="title">Kai Wern</h1>
+      <p id="description">Just a software engineer</p>
+    </main>
+    <PrototypePageNav current="home" />
   </body>
 </html>
 
+<script>
+  import { createDialKit, createDialRoot } from "dialkit/vanilla";
+  import "dialkit/vanilla/styles.css";
+  import { enableDialKitFontGroups, fontFamilies, fontFamilyOptions } from "../lib/font-families.js";
+
+  if (import.meta.env.DEV) {
+    const isCompact = window.matchMedia("(max-width: 850px)").matches;
+    createDialRoot({ position: "top-left", theme: "light", defaultOpen: !isCompact });
+
+    const titleSize = Math.round(Math.min(104, Math.max(56, window.innerWidth * 0.09)));
+    const marginLeftLimit = Math.round(window.innerWidth / 2);
+    const marginTopLimit = Math.round(window.innerHeight / 2);
+    const typography = createDialKit("Typography", {
+      title: {
+        _collapsed: isCompact,
+        text: { type: "text", default: "Kai Wern", placeholder: "Title" },
+        family: {
+          type: "select",
+          options: fontFamilyOptions,
+          default: "Instrument Serif",
+        },
+        size: [titleSize, 24, 144, 1],
+        margin: {
+          _collapsed: true,
+          top: [0, -marginTopLimit, marginTopLimit, 1],
+          left: [0, -marginLeftLimit, marginLeftLimit, 1],
+        },
+      },
+      description: {
+        _collapsed: isCompact,
+        text: { type: "text", default: "Just a software engineer", placeholder: "Description" },
+        family: {
+          type: "select",
+          options: fontFamilyOptions,
+          default: "Instrument Sans",
+        },
+        size: [16, 10, 40, 1],
+        margin: {
+          _collapsed: true,
+          top: [0, -marginTopLimit, marginTopLimit, 1],
+          left: [0, -marginLeftLimit, marginLeftLimit, 1],
+        },
+      },
+      layout: {
+        _collapsed: isCompact,
+        gap: [12, 0, 64, 1],
+        alignment: {
+          type: "select",
+          options: [
+            { value: "left", label: "Left" },
+            { value: "center", label: "Center" },
+            { value: "right", label: "Right" },
+          ],
+          default: "center",
+        },
+      },
+    });
+
+    typography.subscribe(({ title, description, layout }) => {
+      const root = document.documentElement.style;
+      document.getElementById("title").textContent = title.text;
+      document.getElementById("description").textContent = description.text;
+      document.title = title.text;
+      root.setProperty("--title-font", fontFamilies[title.family].stack);
+      root.setProperty("--title-size", `${title.size}px`);
+      root.setProperty("--title-margin-top", `${title.margin.top}px`);
+      root.setProperty("--title-margin-left", `${title.margin.left}px`);
+      root.setProperty("--description-font", fontFamilies[description.family].stack);
+      root.setProperty("--description-size", `${description.size}px`);
+      root.setProperty("--description-margin-top", `${description.margin.top}px`);
+      root.setProperty("--description-margin-left", `${description.margin.left}px`);
+      root.setProperty("--text-gap", `${layout.gap}px`);
+      root.setProperty("--text-alignment", layout.alignment);
+    });
+
+    enableDialKitFontGroups();
+  }
+</script>
+
 <style>
+  @font-face {
+    font-family: "Departure Mono";
+    src: url("/fonts/departure-mono.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Paper Mono";
+    src: url("/fonts/paper-mono.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 100 800;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "IBM Plex Mono";
+    src: url("/fonts/ibm-plex-mono-latin-ext.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  }
+
+  @font-face {
+    font-family: "IBM Plex Mono";
+    src: url("/fonts/ibm-plex-mono-latin.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+
+  @font-face {
+    font-family: "Instrument Serif";
+    src: url("/fonts/instrument-serif.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "IBM Plex Serif";
+    src: url("/fonts/ibm-plex-serif-latin-ext.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  }
+
+  @font-face {
+    font-family: "IBM Plex Serif";
+    src: url("/fonts/ibm-plex-serif-latin.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+
+  @font-face {
+    font-family: "Instrument Sans";
+    src: url("/fonts/instrument-sans.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Newsreader";
+    src: url("/fonts/newsreader.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Bricolage Grotesque";
+    src: url("/fonts/bricolage-grotesque.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "DM Serif Display";
+    src: url("/fonts/dm-serif-display-latin-ext.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  }
+
+  @font-face {
+    font-family: "DM Serif Display";
+    src: url("/fonts/dm-serif-display-latin.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+
+  @font-face {
+    font-family: "Literata";
+    src: url("/fonts/literata-latin-ext.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  }
+
+  @font-face {
+    font-family: "Literata";
+    src: url("/fonts/literata-latin.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+
+  @font-face {
+    font-family: "IBM Plex Sans";
+    src: url("/fonts/ibm-plex-sans-latin-ext.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 400;
+    font-stretch: 100%;
+    font-display: swap;
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  }
+
+  @font-face {
+    font-family: "IBM Plex Sans";
+    src: url("/fonts/ibm-plex-sans-latin.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 400;
+    font-stretch: 100%;
+    font-display: swap;
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+
+  @font-face {
+    font-family: "Source Sans 3";
+    src: url("/fonts/source-sans-3-latin-ext.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  }
+
+  @font-face {
+    font-family: "Source Sans 3";
+    src: url("/fonts/source-sans-3-latin.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+
+  @font-face {
+    font-family: "Sora";
+    src: url("/fonts/sora-latin-ext.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  }
+
+  @font-face {
+    font-family: "Sora";
+    src: url("/fonts/sora-latin.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+
+  @font-face {
+    font-family: "DM Sans";
+    src: url("/fonts/dm-sans-latin-ext.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  }
+
+  @font-face {
+    font-family: "DM Sans";
+    src: url("/fonts/dm-sans-latin.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+
+  @font-face {
+    font-family: "Manrope";
+    src: url("/fonts/manrope-latin-ext.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  }
+
+  @font-face {
+    font-family: "Manrope";
+    src: url("/fonts/manrope-latin.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+
   :global(*) {
     box-sizing: border-box;
   }
 
+  :global(:root) {
+    --title-font: "Instrument Serif", Georgia, "Times New Roman", serif;
+    --title-size: clamp(3.5rem, 9vw, 6.5rem);
+    --title-margin-top: 0px;
+    --title-margin-left: 0px;
+    --description-font: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+    --description-size: 1rem;
+    --description-margin-top: 0px;
+    --description-margin-left: 0px;
+    --text-gap: 0.75rem;
+    --text-alignment: center;
+  }
+
   :global(body) {
+    display: grid;
+    min-height: 100vh;
+    place-items: center;
     margin: 0;
     background: #ebe5df;
     color: #292735;
@@ -81,192 +341,57 @@ const sections = [
     -webkit-font-smoothing: antialiased;
   }
 
-  a {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  a:focus-visible {
-    outline: 2px solid #625c87;
-    outline-offset: 4px;
-  }
-
-  .page-shell {
-    display: flex;
-    min-height: 100vh;
-    flex-direction: column;
-    margin-inline: auto;
-    max-width: 72rem;
-    padding: 0 clamp(1.25rem, 5vw, 4.5rem);
-  }
-
-  .site-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1.5rem;
-    padding-block: 2rem;
-    border-bottom: 1px solid #d8d0ca;
-  }
-
-  .wordmark {
-    font-size: 1.1rem;
-    font-weight: 750;
-    letter-spacing: -0.06em;
-  }
-
-  .wordmark span,
-  h1 span {
-    color: #625c87;
-  }
-
-  nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: clamp(1rem, 3vw, 2rem);
-    font-size: 0.875rem;
-    font-weight: 600;
-  }
-
-  nav a:hover,
-  .site-footer a:hover {
-    color: #625c87;
-    text-decoration: underline;
-    text-underline-offset: 0.25em;
+  h1 {
+    margin: 0;
+    margin-top: var(--title-margin-top);
+    margin-left: var(--title-margin-left);
+    font-family: var(--title-font);
+    font-size: var(--title-size);
+    font-weight: 400;
+    font-synthesis: none;
+    letter-spacing: -0.075em;
+    line-height: 0.98;
+    text-wrap: balance;
   }
 
   main {
-    flex: 1;
-  }
-
-  .intro {
-    max-width: 45rem;
-    padding-block: clamp(5rem, 15vh, 10rem) clamp(4rem, 10vh, 7rem);
-  }
-
-  .eyebrow {
-    margin: 0 0 1.25rem;
-    color: #625c87;
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
-  }
-
-  h1 {
-    margin: 0;
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: clamp(3.5rem, 9vw, 6.5rem);
-    font-weight: 400;
-    letter-spacing: -0.075em;
-    line-height: 0.98;
-  }
-
-  .intro-copy {
-    max-width: 34rem;
-    margin: 1.75rem 0 2rem;
-    color: #575563;
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: clamp(1.15rem, 2vw, 1.4rem);
-    line-height: 1.65;
-  }
-
-  .primary-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 1.5rem;
-    padding: 0.85rem 1.1rem;
-    border-radius: 0.3rem;
-    background: #625c87;
-    color: #fff;
-    font-size: 0.875rem;
-    font-weight: 650;
-  }
-
-  .primary-link:hover {
-    background: #4c4769;
-  }
-
-  .writing {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    border-top: 1px solid #d8d0ca;
+    gap: var(--text-gap);
+    width: 100%;
+    padding-inline: 1rem;
+    overflow-wrap: break-word;
+    text-align: var(--text-alignment);
   }
 
-  .writing-card {
-    position: relative;
-    display: flex;
-    min-height: 10rem;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 0.6rem;
-    padding: 1.75rem 3rem 1.75rem 0;
+  p {
+    margin: 0;
+    margin-top: var(--description-margin-top);
+    margin-left: var(--description-margin-left);
+    color: #625d67;
+    font-family: var(--description-font);
+    font-size: var(--description-size);
+    line-height: 1.4;
+    text-wrap: pretty;
   }
 
-  .writing-card + .writing-card {
-    padding-left: clamp(1.5rem, 4vw, 3.5rem);
-    border-left: 1px solid #d8d0ca;
-  }
-
-  .card-title {
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: 1.5rem;
-  }
-
-  .card-description {
-    max-width: 24rem;
-    color: #686572;
-    font-size: 0.9rem;
-    line-height: 1.6;
-  }
-
-  .card-arrow {
-    position: absolute;
-    top: 1.75rem;
-    right: 1.5rem;
-    color: #625c87;
-  }
-
-  .writing-card:hover .card-title {
-    color: #625c87;
-  }
-
-  .site-footer {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-top: 2rem;
-    padding-block: 1.5rem;
-    border-top: 1px solid #d8d0ca;
-    color: #777481;
-    font-size: 0.8rem;
-  }
-
-  @media (max-width: 36rem) {
-    .site-header {
-      align-items: flex-start;
-      flex-direction: column;
-      gap: 1rem;
+  @media (max-width: 540px) {
+    :global(.dialkit-panel .dialkit-text-input),
+    :global(.dialkit-panel .dialkit-slider-input) {
+      font-size: 16px;
     }
+  }
 
-    .intro {
-      padding-block: 4.5rem 3.5rem;
-    }
+  :global(.dialkit-select-dropdown .font-family-option-heading) {
+    padding: 8px 10px 4px;
+    color: var(--dial-text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+  }
 
-    .writing {
-      grid-template-columns: 1fr;
-    }
-
-    .writing-card {
-      min-height: 8rem;
-      padding-right: 2.5rem;
-    }
-
-    .writing-card + .writing-card {
-      padding-left: 0;
-      border-top: 1px solid #d8d0ca;
-      border-left: 0;
-    }
+  :global(.dialkit-select-dropdown .font-family-option-group + .font-family-option-group) {
+    margin-top: 4px;
+    padding-top: 4px;
+    border-top: 1px solid var(--dial-border);
   }
 </style>
