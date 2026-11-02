@@ -1,0 +1,1022 @@
+---
+import { codeToHast, hastToHtml } from "shiki";
+import PrototypePageNav from "../components/PrototypePageNav.astro";
+import "../styles/fonts.css";
+import lmStudioSearch from "../../../assets/images/lmstudio-model-search.png";
+
+const ollamaCode = `# Replace “opencode” with “claude” or “codex” as needed
+ollama launch opencode --model qwen3.5:27b
+ollama launch opencode --model qwen3.5:35b`;
+
+const articleCodeTheme = {
+  name: "article",
+  type: "dark",
+  colors: {
+    "editor.background": "#292735",
+    "editor.foreground": "#f2eee9",
+  },
+  tokenColors: [
+    { scope: ["comment"], settings: { foreground: "#b5a9c0", fontStyle: "italic" } },
+    { scope: ["keyword", "storage"], settings: { foreground: "#dca18d" } },
+    { scope: ["string"], settings: { foreground: "#d8c28f" } },
+    { scope: ["entity.name.function", "support.function"], settings: { foreground: "#a7c7b7" } },
+    { scope: ["entity.name.type", "support.type", "entity.name.class"], settings: { foreground: "#c5a4d8" } },
+    { scope: ["constant.numeric", "constant.language"], settings: { foreground: "#edb67f" } },
+  ],
+};
+
+const codeThemePresets = [
+  {
+    value: "article",
+    label: "Article",
+    shikiKey: "dark",
+    shikiTheme: articleCodeTheme,
+    background: "#292735",
+    foreground: "#f2eee9",
+    border: "rgb(255 255 255 / 8%)",
+  },
+  {
+    value: "github-dark",
+    label: "GitHub Dark",
+    shikiKey: "github-dark",
+    shikiTheme: "github-dark",
+    background: "#0d1117",
+    foreground: "#e6edf3",
+    border: "rgb(255 255 255 / 10%)",
+  },
+  {
+    value: "github-light",
+    label: "GitHub Light",
+    shikiKey: "github-light",
+    shikiTheme: "github-light",
+    background: "#ffffff",
+    foreground: "#1f2328",
+    border: "rgb(31 35 40 / 14%)",
+  },
+  {
+    value: "nord",
+    label: "Nord",
+    shikiKey: "nord",
+    shikiTheme: "nord",
+    background: "#2e3440",
+    foreground: "#d8dee9",
+    border: "rgb(216 222 233 / 12%)",
+  },
+  {
+    value: "dracula",
+    label: "Dracula",
+    shikiKey: "dracula",
+    shikiTheme: "dracula",
+    background: "#282a36",
+    foreground: "#f8f8f2",
+    border: "rgb(255 255 255 / 8%)",
+  },
+  {
+    value: "catppuccin-mocha",
+    label: "Catppuccin Mocha",
+    shikiKey: "catppuccin-mocha",
+    shikiTheme: "catppuccin-mocha",
+    background: "#1e1e2e",
+    foreground: "#cdd6f4",
+    border: "rgb(205 214 244 / 12%)",
+  },
+];
+
+const shikiThemes = Object.fromEntries(codeThemePresets.map(({ shikiKey, shikiTheme }) => [shikiKey, shikiTheme]));
+const codeThemeData = codeThemePresets.map(({ value, label, background, foreground, border }) => ({
+  value,
+  label,
+  background,
+  foreground,
+  border,
+}));
+
+const highlightCode = async (code, lang) => {
+  const tree = await codeToHast(code, { lang, themes: shikiThemes, defaultColor: "dark" });
+  const codeNode = tree.children[0].children[0];
+  return hastToHtml({ type: "root", children: codeNode.children });
+};
+
+const rustCode = `use pgrx::prelude::*;
+
+pgrx::pg_module_magic!();
+
+#[pg_extern]
+fn hello_hello_world() -> &'static str {
+    "Hello, hello_world"
+}
+
+#[pg_extern]
+fn to_title(string: &str) -> String {
+    string
+        .split(' ')
+        .map(|word| {
+            word.chars()
+                .enumerate()
+                .map(|(i, c)| {
+                    if i == 0 {
+                        c.to_uppercase().to_string()
+                    } else {
+                        c.to_lowercase().to_string()
+                    }
+                })
+                .collect()
+        })
+        .collect::<Vec<String>>()
+        .join(" ")
+}
+
+#[cfg(any(test, feature = "pg_test"))]
+#[pg_schema]
+mod tests {
+    use pgrx::prelude::*;
+
+    #[pg_test]
+    fn test_hello_hello_world() {
+        assert_eq!("Hello, hello_world", crate::hello_hello_world());
+    }
+
+    #[pg_test]
+    fn test_to_title() {
+        assert_eq!("My Cool Extension", crate::to_title("my cool extension"));
+    }
+}
+
+#[cfg(test)]
+pub mod pg_test {
+    pub fn setup(_options: Vec<&str>) {}
+
+    pub fn postgresql_conf_options() -> Vec<&'static str> {
+        vec![]
+    }
+}`;
+
+const elixirCode = `defmodule MiniRedis.Server do
+  require Logger
+
+  def accept(port) do
+    # The options below mean:
+    #
+    # 1. :binary receives data as binaries instead of lists.
+    # 2. packet: :line receives data one line at a time.
+    # 3. active: false blocks on :gen_tcp.recv/2 until data arrives.
+    # 4. reuseaddr: true lets the listener reuse its address after a restart.
+    {:ok, socket} =
+      :gen_tcp.listen(port, [:binary, packet: :line, active: false, reuseaddr: true])
+
+    Logger.info("Accepting connections on port #{port}")
+    loop_acceptor(socket)
+  end
+
+  defp loop_acceptor(socket) do
+    {:ok, client} = :gen_tcp.accept(socket)
+    serve(client)
+    loop_acceptor(socket)
+  end
+
+  defp serve(socket) do
+    socket
+    |> read_line()
+    |> write_line(socket)
+
+    serve(socket)
+  end
+
+  defp read_line(socket) do
+    {:ok, data} = :gen_tcp.recv(socket, 0)
+    data
+  end
+
+  defp write_line(line, socket) do
+    :gen_tcp.send(socket, line)
+  end
+end`;
+
+const pythonServerCode = `from http.server import HTTPServer, BaseHTTPRequestHandler
+import json
+
+BOOKS = {
+    "books": [
+        {"name": "The Great Gatsby", "author": "F. Scott Fitzgerald"},
+        {"name": "1984", "author": "George Orwell"},
+    ]
+}
+
+class Handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == "/books":
+            body = json.dumps(BOOKS).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        else:
+            self.send_response(404)
+            self.end_headers()
+
+if __name__ == "__main__":
+    print("Server running at http://localhost:8080/books")
+    HTTPServer(("localhost", 8080), Handler).serve_forever()`;
+
+const tcpdumpCode = `sudo tcpdump -i any port 8080
+sudo tcpdump -i any port 8080 -w output.pcap`;
+
+const tsharkCode = `# Read a capture
+tshark -r output.pcap
+
+# Show only HTTP packets
+tshark -r output.pcap -Y 'http'
+
+# Select request and response fields
+tshark -r output.pcap -Y 'http' -T fields -e tcp.stream -e frame.time -e http.request.method -e http.request.uri -e http.response.code`;
+
+const [ollamaCodeHtml, rustCodeHtml, elixirCodeHtml, pythonServerCodeHtml, tcpdumpCodeHtml, tsharkCodeHtml] = await Promise.all([
+  highlightCode(ollamaCode, "bash"),
+  highlightCode(rustCode, "rust"),
+  highlightCode(elixirCode, "elixir"),
+  highlightCode(pythonServerCode, "python"),
+  highlightCode(tcpdumpCode, "bash"),
+  highlightCode(tsharkCode, "bash"),
+]);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#ebe5df" />
+    <meta name="description" content="A typography prototype for a local Qwen3.5 guide." />
+    <link rel="preload" href="/fonts/instrument-serif.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/instrument-sans.woff2" as="font" type="font/woff2" crossorigin />
+    <title>Run Qwen3.5 locally on your Mac · Kai Wern</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#article">Skip to article</a>
+    <main class="page-shell">
+      <article class="article" id="article" data-code-themes={JSON.stringify(codeThemeData)}>
+        <header class="article-header">
+          <p class="eyebrow">Field notes <span aria-hidden="true">/</span> Local AI</p>
+          <h1>Run Qwen3.5 locally on your Mac</h1>
+          <p class="dek">A short guide to choosing a model and running it on Apple Silicon.</p>
+          <div class="metadata">
+            <time datetime="2026-03-01">March 1, 2026</time>
+            <span>Updated April 18, 2026</span>
+            <span class="tag">Qwen3.5</span>
+          </div>
+        </header>
+
+        <div class="article-body">
+          <p>Recently, Qwen3.5 has been one of the hottest models in the community. It’s a vision-language model that’s relatively small and performs well in coding benchmarks. That means I can host it locally on my M-series Mac and use it with <code>opencode</code>.</p>
+          <p>I didn’t find many resources online about setting it up, so here’s a short guide.</p>
+
+          <aside class="callout" aria-labelledby="prerequisite-title">
+            <p class="callout-label" id="prerequisite-title">Prerequisite</p>
+            <p>Qwen3.5 now includes 0.8B, 2B, 4B, and 9B models, so you can run it on any M-series Mac. The 4B model needs about 3.4 GB of RAM; 9B needs about 6.6 GB. For the larger models, 27B needs 17 GB, which is tight on a 24 GB machine.</p>
+          </aside>
+
+          <h2>Choosing a model</h2>
+          <p>Qwen3.5 comes in different architectures, parameter sizes, and quantization levels. The 27B model is dense; the 35B model is a mixture-of-experts model. The latter runs faster, while parameter count and quantization affect memory use.</p>
+
+          <blockquote class="pull-quote">
+            <p>“I suggest starting with LM Studio or <code>ollama</code>, then exploring <code>mlx</code> later as needed.”</p>
+          </blockquote>
+
+          <figure class="article-figure">
+            <img
+              src={lmStudioSearch.src}
+              width={lmStudioSearch.width}
+              height={lmStudioSearch.height}
+              alt="LM Studio’s model search results filtered to Qwen3.5 models for MLX."
+              loading="lazy"
+            />
+            <figcaption>Search for Qwen3.5 and filter the model catalog to MLX.</figcaption>
+          </figure>
+
+          <h3>Architecture at a glance</h3>
+          <div class="table-scroll" role="region" aria-label="Qwen3.5 model comparison" tabindex="0">
+            <table>
+              <caption class="visually-hidden">A comparison of two Qwen3.5 model tags and their architectures.</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Model tag</th>
+                  <th scope="col">Architecture</th>
+                  <th scope="col">Parameters</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row"><code>qwen3.5:27b</code></th>
+                  <td>Dense</td>
+                  <td>27B</td>
+                </tr>
+                <tr>
+                  <th scope="row"><code>qwen3.5:35b</code></th>
+                  <td>MoE</td>
+                  <td>≈ 36B</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="table-note">The summary table restates the model details from the guide.</p>
+
+          <h2>Run it with Ollama</h2>
+          <p>To connect a model to <code>opencode</code>, run the matching launch command:</p>
+          <pre class="code-block" tabindex="0" aria-label="Ollama commands for launching Qwen3.5 with opencode"><code class="language-bash" set:html={ollamaCodeHtml}></code></pre>
+
+          <h2>Code samples</h2>
+          <p>These excerpts from existing Rust and Elixir posts make it easier to compare longer code blocks.</p>
+
+          <h3>Rust · PostgreSQL extension</h3>
+          <pre class="code-block" tabindex="0" aria-label="Rust PostgreSQL extension example"><code class="language-rust" set:html={rustCodeHtml}></code></pre>
+
+          <h3>Elixir · Mini Redis TCP server</h3>
+          <pre class="code-block" tabindex="0" aria-label="Elixir TCP server example"><code class="language-elixir" set:html={elixirCodeHtml}></code></pre>
+        </div>
+      </article>
+    </main>
+
+    <template id="long-form-content">
+      <header class="article-header">
+        <p class="eyebrow">Field guide <span aria-hidden="true">/</span> Debugging</p>
+        <h1>Debugging HTTP traffic with tcpdump and tshark</h1>
+        <p class="dek">Capture HTTP traffic, inspect packet data, and find the useful details in a PCAP file.</p>
+        <div class="metadata">
+          <time datetime="2026-03-22">March 22, 2026</time>
+          <span class="tag">tcpdump</span>
+          <span class="tag">tshark</span>
+        </div>
+      </header>
+      <div class="article-body">
+        <p>There are times when you need to debug an issue in your HTTP service and realize that your logs don't have enough information. One way to troubleshoot is to capture network traffic and peek into request and response data.</p>
+        <p>Sounds hard? It isn't. You can do that with <code>tcpdump</code>, then analyze it with Wireshark or its command-line tool, <code>tshark</code>.</p>
+        <p>Here's a quick write-up on capturing HTTP traffic with <code>tcpdump</code> and filtering it with <code>tshark</code>. You can jump to the <a href="#cheat-sheet">cheat sheet</a> for a summary.</p>
+
+        <blockquote class="pull-quote">
+          <p>“If your services use HTTPS, the packets are encrypted and won't be readable without credentials.”</p>
+        </blockquote>
+
+        <h2>Prerequisites</h2>
+        <p>If you want to follow along, here are the tools we need:</p>
+        <ul>
+          <li><code>tcpdump</code></li>
+          <li><code>tshark</code></li>
+          <li><code>jq</code></li>
+          <li><code>python3</code> or anything that can spin up a web server</li>
+        </ul>
+        <p>Here's a minimal Python server with a JSON endpoint, which we can use to generate a response:</p>
+        <pre class="code-block" tabindex="0" aria-label="Python HTTP server example"><code class="language-python" set:html={pythonServerCodeHtml}></code></pre>
+        <p>Save this as <code>server.py</code>, then run it with <code>python3 server.py</code>. Use <code>curl localhost:8080/books</code> to generate a JSON response.</p>
+
+        <h2>Capturing traffic</h2>
+        <aside class="callout" aria-labelledby="capture-warning">
+          <p class="callout-label" id="capture-warning">Disclaimer</p>
+          <p>Captured traffic can contain credentials, cookies, and personal information. Get approval before capturing traffic in a production environment.</p>
+        </aside>
+        <p>Capturing traffic with <code>tcpdump</code> is straightforward. Add <code>-w</code> to save it to a file for later analysis:</p>
+        <pre class="code-block" tabindex="0" aria-label="Commands for capturing HTTP traffic"><code class="language-bash" set:html={tcpdumpCodeHtml}></code></pre>
+        <p>Use <code>curl localhost:8080/books</code> to generate a request. Press <kbd>Ctrl</kbd>+<kbd>C</kbd> to stop the capture and see its summary.</p>
+
+        <h2>Filtering and formatting</h2>
+        <p>After installing <code>tshark</code>, use it to inspect a capture, filter for HTTP packets, or print selected fields:</p>
+        <pre class="code-block" tabindex="0" aria-label="Commands for inspecting a PCAP file"><code class="language-bash" set:html={tsharkCodeHtml}></code></pre>
+
+        <h2 id="cheat-sheet">Cheat sheet</h2>
+        <p>Here are a few of the commands covered in the article:</p>
+        <div class="table-scroll" role="region" aria-label="HTTP traffic debugging commands" tabindex="0">
+          <table>
+            <caption class="visually-hidden">Common commands for capturing and reading HTTP traffic.</caption>
+            <thead>
+              <tr>
+                <th scope="col">Goal</th>
+                <th scope="col">Command</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Capture traffic</th>
+                <td><code>sudo tcpdump -i any port 8080</code></td>
+              </tr>
+              <tr>
+                <th scope="row">Save a capture</th>
+                <td><code>sudo tcpdump -i any port 8080 -w output.pcap</code></td>
+              </tr>
+              <tr>
+                <th scope="row">Generate a request</th>
+                <td><code>curl localhost:8080/books</code></td>
+              </tr>
+              <tr>
+                <th scope="row">Read a capture</th>
+                <td><code>tshark -r output.pcap</code></td>
+              </tr>
+              <tr>
+                <th scope="row">Show HTTP packets</th>
+                <td><code>tshark -r output.pcap -Y 'http'</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="table-note">Adapted from “Debugging HTTP traffic with tcpdump and tshark.”</p>
+        <p>These tools can feel intimidating at first, but the basics are approachable once you know where to start.</p>
+      </div>
+    </template>
+
+    <template id="about-content">
+      <header class="article-header">
+        <h1>About me</h1>
+        <p class="dek">Just a software engineer.</p>
+      </header>
+      <div class="article-body">
+        <p>Hi, I am Kai, a Senior Software Engineer at Ditto.</p>
+      </div>
+    </template>
+
+    <PrototypePageNav current="article" />
+
+    <script>
+      import { createDialKit, createDialRoot } from "dialkit/vanilla";
+      import "dialkit/vanilla/styles.css";
+      import { enableDialKitFontGroups, fontFamilies, fontFamilyOptions } from "../lib/font-families.js";
+
+      if (import.meta.env.DEV) {
+        const isCompact = window.matchMedia("(max-width: 1249px)").matches;
+        createDialRoot({ position: isCompact ? "top-left" : "bottom-right", theme: "light", defaultOpen: !isCompact });
+
+        const article = document.getElementById("article");
+        const codeThemePresets = JSON.parse(article.dataset.codeThemes);
+        const basicTemplate = document.createElement("template");
+        basicTemplate.content.append(...Array.from(article.childNodes, (node) => node.cloneNode(true)));
+        const contentTemplates = new Map([
+          ["basic", basicTemplate],
+          ["http-debugging", document.querySelector("#long-form-content")],
+          ["about", document.querySelector("#about-content")],
+        ]);
+        let currentContent = "basic";
+
+        const renderContent = (preset) => {
+          const template = contentTemplates.get(preset);
+          if (!template || currentContent === preset) return;
+
+          article.replaceChildren(template.content.cloneNode(true));
+          currentContent = preset;
+          const title = article.querySelector("h1").textContent.trim();
+          const description = article.querySelector(".dek")?.textContent.trim() ?? title;
+          document.title = `${title} · Kai Wern`;
+          document.querySelector('meta[name="description"]').setAttribute("content", description);
+          window.scrollTo(0, 0);
+        };
+
+        const family = (defaultFamily) => ({
+          type: "select",
+          options: fontFamilyOptions,
+          default: defaultFamily,
+        });
+        const articleStyle = createDialKit("Article style", {
+          content: {
+            preset: {
+              type: "select",
+              options: [
+                { value: "basic", label: "Basic · Qwen3.5" },
+                { value: "http-debugging", label: "Long-form · HTTP traffic" },
+                { value: "about", label: "About me" },
+              ],
+              default: "http-debugging",
+            },
+          },
+          title: {
+            family: family("Instrument Serif"),
+            size: [48, 40, 96, 1],
+          },
+          body: {
+            _collapsed: false,
+            family: family("Instrument Sans"),
+            size: [16, 15, 24, 1],
+            lineHeight: [1.4, 1.4, 2, 0.05],
+            paragraphGap: [8, 8, 48, 1],
+          },
+          headings: {
+            _collapsed: true,
+            family: family("Instrument Serif"),
+            h2Size: [36, 24, 56, 1],
+            h3Size: [22, 16, 34, 1],
+            sectionGap: [35, 20, 72, 1],
+            bodyGap: [12, 0, 32, 1],
+          },
+          callout: {
+            _collapsed: true,
+            family: family("Instrument Sans"),
+            size: [16, 14, 24, 1],
+            lineHeight: [1.4, 1.35, 1.9, 0.05],
+            paddingX: [22, 12, 40, 1],
+            paddingY: [20, 12, 36, 1],
+            labelGap: [12, 0, 20, 1],
+          },
+          spacing: {
+            _collapsed: true,
+            componentGap: [24, 8, 64, 1],
+          },
+          code: {
+            _collapsed: true,
+            theme: {
+              type: "select",
+              options: codeThemePresets.map(({ value, label }) => ({ value, label })),
+              default: "catppuccin-mocha",
+            },
+            family: family("IBM Plex Mono"),
+            size: [14, 12, 20, 1],
+            lineHeight: [1.5, 1.2, 2, 0.05],
+            padding: [12, 12, 32, 1],
+          },
+          inlineCode: {
+            _collapsed: true,
+            family: family("IBM Plex Mono"),
+            scale: [95, 60, 110, 1],
+            paddingX: [4, 0, 10, 1],
+            paddingY: [2, 0, 6, 1],
+            radius: [4, 0, 10, 1],
+            background: { type: "color", default: "#ddd7d0" },
+            color: { type: "color", default: "#403c45" },
+          },
+          table: {
+            _collapsed: true,
+            family: family("Instrument Sans"),
+            size: [15, 12, 20, 1],
+            cellPadding: [12, 6, 24, 1],
+          },
+          quote: {
+            _collapsed: true,
+            family: family("Instrument Sans"),
+            size: [20, 18, 40, 1],
+            inset: [25, 0, 48, 1],
+          },
+          caption: {
+            _collapsed: true,
+            family: family("Instrument Sans"),
+            size: [13, 12, 18, 1],
+            gap: [12, 4, 24, 1],
+          },
+        });
+
+        articleStyle.subscribe(({ content, title, body, headings, callout, spacing, code, inlineCode, table, quote, caption }) => {
+          renderContent(content.preset);
+          const selectedCodeTheme = codeThemePresets.find(({ value }) => value === code.theme);
+          const root = document.documentElement.style;
+          root.setProperty("--title-font", fontFamilies[title.family].stack);
+          root.setProperty("--title-size", `${title.size}px`);
+          root.setProperty("--body-font", fontFamilies[body.family].stack);
+          root.setProperty("--body-size", `${body.size}px`);
+          root.setProperty("--body-line-height", body.lineHeight);
+          root.setProperty("--paragraph-gap", `${body.paragraphGap}px`);
+          root.setProperty("--heading-font", fontFamilies[headings.family].stack);
+          root.setProperty("--h2-size", `${headings.h2Size}px`);
+          root.setProperty("--h3-size", `${headings.h3Size}px`);
+          root.setProperty("--section-gap", `${headings.sectionGap}px`);
+          root.setProperty("--heading-body-gap", `${headings.bodyGap}px`);
+          root.setProperty("--callout-font", fontFamilies[callout.family].stack);
+          root.setProperty("--callout-size", `${callout.size}px`);
+          root.setProperty("--callout-line-height", callout.lineHeight);
+          root.setProperty("--callout-padding-x", `${callout.paddingX}px`);
+          root.setProperty("--callout-padding-y", `${callout.paddingY}px`);
+          root.setProperty("--callout-label-gap", `${callout.labelGap}px`);
+          root.setProperty("--component-gap", `${spacing.componentGap}px`);
+          root.setProperty("--code-font", fontFamilies[code.family].stack);
+          root.setProperty("--code-size", `${code.size}px`);
+          root.setProperty("--code-line-height", code.lineHeight);
+          root.setProperty("--code-padding", `${code.padding}px`);
+          root.setProperty("--code-background", selectedCodeTheme.background);
+          root.setProperty("--code-foreground", selectedCodeTheme.foreground);
+          root.setProperty("--code-border", selectedCodeTheme.border);
+          document.documentElement.dataset.codeTheme = code.theme;
+          root.setProperty("--inline-code-font", fontFamilies[inlineCode.family].stack);
+          root.setProperty("--inline-code-scale", `${inlineCode.scale}%`);
+          root.setProperty("--inline-code-padding-x", `${inlineCode.paddingX}px`);
+          root.setProperty("--inline-code-padding-y", `${inlineCode.paddingY}px`);
+          root.setProperty("--inline-code-radius", `${inlineCode.radius}px`);
+          root.setProperty("--inline-code-background", inlineCode.background);
+          root.setProperty("--inline-code-color", inlineCode.color);
+          root.setProperty("--table-font", fontFamilies[table.family].stack);
+          root.setProperty("--table-size", `${table.size}px`);
+          root.setProperty("--table-cell-padding", `${table.cellPadding}px`);
+          root.setProperty("--quote-font", fontFamilies[quote.family].stack);
+          root.setProperty("--quote-size", `${quote.size}px`);
+          root.setProperty("--quote-inset", `${quote.inset}px`);
+          root.setProperty("--caption-font", fontFamilies[caption.family].stack);
+          root.setProperty("--caption-size", `${caption.size}px`);
+          root.setProperty("--caption-gap", `${caption.gap}px`);
+        });
+
+        enableDialKitFontGroups();
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  :global(*) {
+    box-sizing: border-box;
+  }
+
+  :global(:root) {
+    --title-font: "Instrument Serif", Georgia, "Times New Roman", serif;
+    --title-size: 48px;
+    --body-font: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+    --body-size: 16px;
+    --body-line-height: 1.4;
+    --paragraph-gap: 8px;
+    --heading-font: "Instrument Serif", Georgia, "Times New Roman", serif;
+    --h2-size: 36px;
+    --h3-size: 22px;
+    --section-gap: 35px;
+    --heading-body-gap: 12px;
+    --callout-font: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+    --callout-size: 16px;
+    --callout-line-height: 1.4;
+    --callout-padding-x: 22px;
+    --callout-padding-y: 20px;
+    --callout-label-gap: 12px;
+    --component-gap: 24px;
+    --code-font: "IBM Plex Mono", ui-monospace, monospace;
+    --code-size: 14px;
+    --code-line-height: 1.5;
+    --code-padding: 12px;
+    --code-background: #1e1e2e;
+    --code-foreground: #cdd6f4;
+    --code-border: rgb(205 214 244 / 12%);
+    --inline-code-font: "IBM Plex Mono", ui-monospace, monospace;
+    --inline-code-scale: 95%;
+    --inline-code-padding-x: 4px;
+    --inline-code-padding-y: 2px;
+    --inline-code-radius: 4px;
+    --inline-code-background: #ddd7d0;
+    --inline-code-color: #403c45;
+    --table-font: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+    --table-size: 15px;
+    --table-cell-padding: 12px;
+    --quote-font: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+    --quote-size: 20px;
+    --quote-inset: 25px;
+    --caption-font: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+    --caption-size: 13px;
+    --caption-gap: 12px;
+  }
+
+  :global(body) {
+    min-width: 320px;
+    min-height: 100vh;
+    margin: 0;
+    background: #ebe5df;
+    color: #292735;
+    font-family: var(--body-font);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .skip-link {
+    position: absolute;
+    z-index: 1;
+    inset-block-start: 12px;
+    inset-inline-start: 70px;
+    padding: 10px 14px;
+    transform: translateY(-160%);
+    border-radius: 6px;
+    background: #292735;
+    color: white;
+    font: 14px/1.2 "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .skip-link:focus {
+    z-index: calc(var(--z-floating-nav) + 1);
+    transform: translateY(0);
+    outline: 2px solid #292735;
+    outline-offset: 3px;
+  }
+
+  .page-shell {
+    width: min(100% - 40px, 1040px);
+    margin-inline: auto;
+    padding-block: calc(clamp(80px, 9vw, 112px) + env(safe-area-inset-top)) 144px;
+  }
+
+  .article {
+    width: min(100%, 600px);
+    margin-inline: auto;
+  }
+
+  .article-header {
+    margin-block-end: 44px;
+  }
+
+  .eyebrow,
+  .metadata,
+  .callout-label {
+    font-family: var(--body-font);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  .eyebrow {
+    display: flex;
+    gap: 10px;
+    margin: 0 0 16px;
+    color: #625d67;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-synthesis: none;
+    font-optical-sizing: auto;
+    text-wrap: balance;
+  }
+
+  h1 {
+    margin: 0;
+    font-family: var(--title-font);
+    font-size: var(--title-size);
+    font-weight: 400;
+    letter-spacing: -0.055em;
+    line-height: 1.02;
+  }
+
+  .dek {
+    max-width: 56ch;
+    margin: 20px 0 0;
+    color: #625d67;
+    font-family: var(--body-font);
+    font-size: 17px;
+    line-height: 1.55;
+    text-wrap: pretty;
+  }
+
+  .metadata {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 14px;
+    margin: 24px 0 0;
+    color: #625d67;
+    font-size: 12px;
+    letter-spacing: 0.015em;
+    text-transform: none;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tag {
+    padding: 5px 8px;
+    border: 1px solid rgb(41 39 53 / 12%);
+    border-radius: 999px;
+    color: #625d67;
+  }
+
+  .article-body {
+    color: #403c45;
+    font-family: var(--body-font);
+    font-size: var(--body-size);
+    line-height: var(--body-line-height);
+    overflow-wrap: break-word;
+  }
+
+  .article-body p {
+    margin: 0;
+  }
+
+  .article-body > p + p {
+    margin-block-start: var(--paragraph-gap);
+  }
+
+  .article-body ul {
+    margin-block: var(--component-gap);
+    padding-inline-start: 1.35em;
+  }
+
+  .article-body li + li {
+    margin-block-start: 0.35em;
+  }
+
+  .article-body h2,
+  .article-body h3 {
+    margin-block: var(--section-gap) 0;
+    color: #292735;
+    font-family: var(--heading-font);
+    font-weight: 400;
+  }
+
+  .article-body h2 {
+    font-size: var(--h2-size);
+    letter-spacing: -0.035em;
+    line-height: 1.1;
+  }
+
+  .article-body h3 {
+    margin-block-start: calc(var(--section-gap) * 0.75);
+    font-size: var(--h3-size);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  .article-body h2 + p,
+  .article-body h3 + p {
+    margin-block-start: var(--heading-body-gap);
+  }
+
+  .article-body a {
+    color: inherit;
+    text-decoration-thickness: from-font;
+    text-underline-offset: 0.18em;
+  }
+
+  .article-body :not(pre) > code {
+    padding-block: var(--inline-code-padding-y);
+    padding-inline: var(--inline-code-padding-x);
+    border-radius: var(--inline-code-radius);
+    background: var(--inline-code-background);
+    color: var(--inline-code-color);
+    font-family: var(--inline-code-font);
+    font-size: var(--inline-code-scale);
+    font-synthesis: none;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+
+  .callout {
+    margin-block: var(--component-gap);
+    padding: var(--callout-padding-y) var(--callout-padding-x);
+    border-inline-start: 3px solid #8d776f;
+    background: rgb(255 255 255 / 42%);
+    font-family: var(--callout-font);
+    font-size: var(--callout-size);
+    line-height: var(--callout-line-height);
+  }
+
+  .article-body .callout-label {
+    margin-block: 0 var(--callout-label-gap);
+    color: #625d67;
+  }
+
+  .pull-quote {
+    margin-block: var(--component-gap);
+    padding-inline-start: var(--quote-inset);
+    border-inline-start: 1px solid rgb(41 39 53 / 28%);
+    color: #292735;
+    font-family: var(--quote-font);
+    font-size: var(--quote-size);
+    line-height: 1.28;
+  }
+
+  .pull-quote p {
+    text-wrap: pretty;
+  }
+
+  .article-figure {
+    margin-block: var(--component-gap);
+  }
+
+  .article-figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid rgb(41 39 53 / 10%);
+    border-radius: 8px;
+    background: #e1ddd8;
+  }
+
+  .article-figure figcaption {
+    margin-block-start: var(--caption-gap);
+    color: #625d67;
+    font-family: var(--caption-font);
+    font-size: var(--caption-size);
+    line-height: 1.45;
+    text-wrap: pretty;
+  }
+
+  .table-scroll {
+    margin-block-start: var(--component-gap);
+    overflow-x: auto;
+    border: 1px solid rgb(41 39 53 / 12%);
+    border-radius: 8px;
+    background: rgb(255 255 255 / 35%);
+    scrollbar-width: thin;
+  }
+
+  .table-scroll:focus-visible,
+  .code-block:focus-visible {
+    outline: 2px solid #292735;
+    outline-offset: 3px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--table-font);
+    font-size: var(--table-size);
+    line-height: 1.45;
+    font-variant-numeric: tabular-nums;
+    text-align: start;
+  }
+
+  th,
+  td {
+    padding: var(--table-cell-padding);
+    border-block-end: 1px solid rgb(41 39 53 / 10%);
+    white-space: nowrap;
+  }
+
+  thead th {
+    color: #625d67;
+    font-size: 0.82em;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  tbody th {
+    font-weight: 500;
+    text-align: start;
+  }
+
+  tbody tr:last-child th,
+  tbody tr:last-child td {
+    border-block-end: 0;
+  }
+
+  .article-body > p.table-note {
+    margin-block-start: calc(var(--component-gap) * 0.5);
+    color: #625d67;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .code-block {
+    margin-block: var(--component-gap);
+    padding: var(--code-padding);
+    overflow-x: auto;
+    border: 1px solid var(--code-border);
+    border-radius: 8px;
+    background: var(--code-background);
+    color: var(--code-foreground);
+    font-family: var(--code-font);
+    font-size: var(--code-size);
+    line-height: var(--code-line-height);
+    tab-size: 2;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  :global(html[data-code-theme="github-dark"] .code-block span) {
+    color: var(--shiki-github-dark, inherit) !important;
+  }
+
+  :global(html[data-code-theme="github-light"] .code-block span) {
+    color: var(--shiki-github-light, inherit) !important;
+  }
+
+  :global(html[data-code-theme="nord"] .code-block span) {
+    color: var(--shiki-nord, inherit) !important;
+  }
+
+  :global(html[data-code-theme="dracula"] .code-block span) {
+    color: var(--shiki-dracula, inherit) !important;
+  }
+
+  :global(html[data-code-theme="catppuccin-mocha"] .code-block span) {
+    color: var(--shiki-catppuccin-mocha, inherit) !important;
+  }
+
+  .code-block code {
+    font: inherit;
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  @media (max-width: 700px) {
+    .page-shell {
+      width: min(100% - 32px, 600px);
+    }
+
+    .article-header {
+      margin-block-end: 36px;
+    }
+
+    .article-body {
+      font-size: max(16px, var(--body-size));
+    }
+  }
+
+  @media (max-width: 540px) {
+    :global(.dialkit-panel .dialkit-text-input),
+    :global(.dialkit-panel .dialkit-slider-input) {
+      font-size: 16px;
+    }
+  }
+</style>
