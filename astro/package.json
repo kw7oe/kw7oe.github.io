@@ -8,6 +8,8 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "astro": "^7.3.8"
+    "astro": "^7.3.8",
+    "dialkit": "^2.0.2",
+    "shiki": "^4.5.0"
   }
 }
