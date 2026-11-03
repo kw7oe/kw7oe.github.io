@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 type InlinePart =
   | { kind: "text"; text: string }
   | { kind: "code"; text: string };
@@ -5,7 +7,7 @@ type InlinePart =
 type ArticleCalloutProps = {
   labelId: string;
   label: string;
-  body: string;
+  children: ReactNode;
 };
 
 type ArticleFigureProps = {
@@ -14,6 +16,7 @@ type ArticleFigureProps = {
   height: number;
   alt: string;
   caption: string;
+  presentation?: "framed" | "integrated";
 };
 
 type ArticleTableProps = {
@@ -25,7 +28,7 @@ type ArticleTableProps = {
 
 type ArticleCodeBlockProps = {
   ariaLabel: string;
-  language: "bash" | "rust" | "elixir" | "python";
+  language: "bash" | "rust" | "elixir" | "python" | "text";
   highlightedHtml: string;
 };
 
@@ -49,7 +52,7 @@ function renderInlinePart(part: InlinePart, key: number) {
   }
 }
 
-export function ArticleCallout({ labelId, label, body }: ArticleCalloutProps) {
+export function ArticleCallout({ labelId, label, children }: ArticleCalloutProps) {
   return (
     <aside
       aria-labelledby={labelId}
@@ -63,7 +66,7 @@ export function ArticleCallout({ labelId, label, body }: ArticleCalloutProps) {
       >
         {label}
       </p>
-      <p className="m-0">{body}</p>
+      <p className="m-0">{children}</p>
     </aside>
   );
 }
@@ -78,7 +81,12 @@ export function ArticleQuote({ parts }: { parts: InlinePart[] }) {
   );
 }
 
-export function ArticleFigure({ src, width, height, alt, caption }: ArticleFigureProps) {
+export function ArticleFigure({ src, width, height, alt, caption, presentation = "framed" }: ArticleFigureProps) {
+  const imageClassName =
+    presentation === "integrated"
+      ? "block h-auto w-full"
+      : "block h-auto w-full rounded-lg border border-solid border-[rgb(41_39_53_/_10%)] [background-color:#e1ddd8]";
+
   return (
     <figure className="[margin-block:var(--component-gap)]">
       <img
@@ -87,7 +95,7 @@ export function ArticleFigure({ src, width, height, alt, caption }: ArticleFigur
         height={height}
         alt={alt}
         loading="lazy"
-        className="block h-auto w-full rounded-lg border border-solid border-[rgb(41_39_53_/_10%)] [background-color:#e1ddd8]"
+        className={imageClassName}
       />
       <figcaption className="mt-[var(--caption-gap)] text-[#625d67] [font-family:var(--caption-font)] [font-size:var(--caption-size)] [line-height:1.45] [text-wrap:pretty]">
         {caption}

@@ -11,6 +11,7 @@ import PrototypePageNav from "../components/PrototypePageNav.astro";
 import "../styles/fonts.css";
 import "../styles/tailwind.css";
 import lmStudioSearch from "../../../assets/images/lmstudio-model-search.png";
+import quickActionImage from "../../../assets/images/quick-action.png";
 
 const ollamaCode = `# Replace “opencode” with “claude” or “codex” as needed
 ollama launch opencode --model qwen3.5:27b
@@ -239,6 +240,260 @@ tshark -r output.pcap -Y 'http'
 # Select request and response fields
 tshark -r output.pcap -Y 'http' -T fields -e tcp.stream -e frame.time -e http.request.method -e http.request.uri -e http.response.code`;
 
+const fujifilmSipsCommand = `sips -s format jpeg DSCF8848.RAF -o test.jpg`;
+const fujifilmSipsInfo = `sips - scriptable image processing system.
+This tool is used to query or modify raster image files and ColorSync ICC profiles.
+Its functionality can also be used through the "Image Events" AppleScript suite.`;
+const fujifilmSipsTiming = `❯ time sips -s format jpeg DSCF8848.RAF -o test.jpg
+/Users/kai/Desktop/2026_RAW/20260110_Random House Pic/DSCF8848.RAF
+  /Users/kai/Desktop/2026_RAW/20260110_Random House Pic/test.jpg
+sips -s format jpeg DSCF8848.RAF -o test.jpg  0.29s user 0.21s system 88% cpu 0.563 total`;
+const fujifilmRafLayout = `┌───────────────────┬──────────┬──────────┬───────────────────┐
+│ Magic Identifier  │ 0201     │ FF389501 │ Camera String     │
+│ (16 bytes)        │ (4 bytes)│ (8 bytes)│ (32 bytes)        │
+│ "FUJIFILMCCD-RAW" │          │          │ null-terminated   │
+└───────────────────┴──────────┴──────────┴───────────────────┘
+┌─────────────┬──────────────────┬─────────────┬──────────────┐
+│ Directory   │ Unknown Data     │ JPEG Offset │ JPEG Length  │
+│ Version     │ (20 bytes)       │ (4 bytes)   │ (4 bytes)    │
+│ (4 bytes)   │                  │             │              │
+└─────────────┴──────────────────┴─────────────┴──────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│ Additional Metadata (N bytes)                               │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│ JPEG Image                                                  │
+│ (from JPEG Offset, length: JPEG Length)                     │
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│ Other Data (Remaining bytes)                                │
+└─────────────────────────────────────────────────────────────┘`;
+const fujifilmOffsetMath = `16 + 4 + 8 + 32 + 4 + 20 = 84`;
+const fujifilmPseudocode = `let raw_bytes = file.read(raw_file_path);
+let offset = raw_bytes[84..87] as u32;
+let length = raw_bytes[88..91] as u32;
+let jpeg_bytes = raw_bytes[offset..offset + length];`;
+const fujifilmHexylOutput = `❯ hexyl -n 127 DSCF8848.RAF --no-characters
+┌────────┬─────────────────────────┬─────────────────────────┐
+│00000000│ 46 55 4a 49 46 49 4c 4d ┊ 43 43 44 2d 52 41 57 20 │
+│00000010│ 30 32 30 31 46 46 31 35 ┊ 39 35 30 31 58 2d 54 33 │
+│00000020│ 00 00 00 00 00 00 00 00 ┊ 00 00 00 00 00 00 00 00 │
+│00000030│ 00 00 00 00 00 00 00 00 ┊ 00 00 00 00 30 35 31 31 │
+│00000040│ 00 00 00 00 00 00 00 00 ┊ 00 00 00 00 00 00 00 00 │
+│00000050│ 00 00 00 00 00 00 00 94 ┊ 00 4a 52 31 00 4a 53 a8 │
+│00000060│ 00 00 56 58 00 4a aa 00 ┊ 03 2e c9 40 00 00 00 00 │
+│00000070│ 03 2e c9 40 00 00 00 00 ┊ 00 00 00 00 00 00 00    │
+└────────┴─────────────────────────┴─────────────────────────┘`;
+const fujifilmHexdumpOutput = `❯ hexdump -C -s 84 -n 8 DSCF8848.RAF
+00000054  00 00 00 94 00 4a 52 31
+          |.....JR1|`;
+const fujifilmByteValues = `❯ printf '%d' 0x00000094; echo
+148
+
+❯ printf '%d' 0x004a5231; echo
+4870705`;
+const fujifilmDdCommand = `# bs: refers to read/write in n bytes.
+# skip: skip n * bs bytes, before copying
+# count: copy n * bs bytes
+❯ dd if=DSCF8848.RAF bs=1 skip=148 count=4870705 of=test.jpeg`;
+const fujifilmDdOutput = `4870705+0 records in
+4870705+0 records out
+4870705 bytes transferred in 11.812244 secs (412344 bytes/sec)`;
+const fujifilmTailCommand = `tail -c +149 DSCF8848.RAF | head -c 4870705 > test.jpeg`;
+const fujifilmTailTiming = `tail -c +149 DSCF8848.RAF  0.15s user 0.00s system 98% cpu 0.154 total
+head -c 4870705 > test.jpeg  0.00s user 0.01s system 5% cpu 0.153 total`;
+const fujifilmSmallPython = `with open('DSCF8848.RAF', 'rb') as f:
+    f.seek(148)
+    with open('test.jpeg', 'wb') as out:
+        out.write(f.read(4870705))`;
+const fujifilmPythonTiming = `❯ time python3 -c "
+with open('DSCF8848.RAF', 'rb') as f:
+    f.seek(148)
+    with open('test.jpeg', 'wb') as out:
+        out.write(f.read(4870705))
+"
+python3 -c   0.02s user 0.01s system 85% cpu 0.030 total`;
+const fujifilmExtractScript = `#!/usr/bin/env python3
+import struct
+import sys
+
+def extract_jpeg(raf_file, output_file='output.jpeg'):
+    with open(raf_file, 'rb') as f:
+        # Read JPEG offset (bytes 84-87, big-endian)
+        f.seek(84)
+        jpeg_offset = struct.unpack('>I', f.read(4))[0]
+
+        # Read JPEG length (bytes 88-91, big-endian)
+        f.seek(88)
+        jpeg_length = struct.unpack('>I', f.read(4))[0]
+
+        print(f"JPEG Offset: {jpeg_offset} (0x{jpeg_offset:x})")
+        print(f"JPEG Length: {jpeg_length} (0x{jpeg_length:x})")
+
+        # Extract JPEG data
+        f.seek(jpeg_offset)
+        jpeg_data = f.read(jpeg_length)
+
+        # Write to file
+        with open(output_file, 'wb') as out:
+            out.write(jpeg_data)
+
+        print(f"Extracted {len(jpeg_data)} bytes to {output_file}")
+
+if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print("Usage: ./extract_jpeg.sh <raf_file> [output_file]", file=sys.stderr)
+        print("Example: ./extract_jpeg.sh DSCF8848.RAF test.jpeg", file=sys.stderr)
+        sys.exit(1)
+
+    raf = sys.argv[1]
+    out = sys.argv[2] if len(sys.argv) > 2 else 'output.jpeg'
+    extract_jpeg(raf, out)`;
+const fujifilmMakeExecutable = `chmod +x extract_jpeg.sh`;
+const fujifilmSingleFileOutput = `❯ ./extract_jpeg.sh DSCF8848.RAF output.jpeg
+JPEG Offset: 148 (0x94)
+JPEG Length: 4870705 (0x4a5231)
+Extracted 4870705 bytes to output.jpeg`;
+const fujifilmSingleFileTiming = `./extract_jpeg.sh DSCF8848.RAF output.jpeg  0.02s user 0.01s system 86% cpu 0.033 total`;
+const fujifilmFolderScript = `#!/usr/bin/env python3
+import struct
+import sys
+import os
+from pathlib import Path
+
+def extract_jpeg(raf_file, output_file):
+    try:
+        with open(raf_file, 'rb') as f:
+            f.seek(84)
+            jpeg_offset = struct.unpack('>I', f.read(4))[0]
+            jpeg_length = struct.unpack('>I', f.read(4))[0]
+
+            f.seek(jpeg_offset)
+            jpeg_data = f.read(jpeg_length)
+
+            with open(output_file, 'wb') as out:
+                out.write(jpeg_data)
+
+            print(f"✓ {os.path.basename(raf_file)} → {os.path.basename(output_file)}")
+    except Exception as e:
+        print(f"✗ {raf_file}: {e}", file=sys.stderr)
+
+def process_folder(folder_path, suffix='_JPEG'):
+    folder = Path(folder_path)
+
+    if not folder.exists() or not folder.is_dir():
+        print(f"Error: '{folder_path}' not found or not a directory", file=sys.stderr)
+        sys.exit(1)
+
+    raf_files = list(folder.glob('*.RAF')) + list(folder.glob('*.raf'))
+
+    if not raf_files:
+        print(f"No RAF files found in {folder_path}", file=sys.stderr)
+        sys.exit(1)
+
+    output_folder = folder.parent / f"{folder.name}{suffix}"
+    output_folder.mkdir(exist_ok=True)
+
+    print(f"Processing {len(raf_files)} files...")
+
+    for raf_file in raf_files:
+        output_file = output_folder / f"{raf_file.stem}.jpeg"
+        extract_jpeg(str(raf_file), str(output_file))
+
+    print(f"Done! Output: {output_folder}")
+
+if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print("Usage: ./extract_jpeg.sh <folder> [suffix]", file=sys.stderr)
+        print("Example: ./extract_jpeg.sh ./RAW_IMAGES _JPEG", file=sys.stderr)
+        sys.exit(1)
+
+    folder = sys.argv[1]
+    suffix = sys.argv[2] if len(sys.argv) > 2 else '_JPEG'
+    process_folder(folder, suffix)`;
+const fujifilmFolder17Output = `❯ time ./extract_jpeg.sh "20260110_Random House Pic"
+Processing 17 files...
+✓ DSCF8849.RAF → DSCF8849.jpeg
+✓ DSCF8861.RAF → DSCF8861.jpeg
+✓ DSCF8860.RAF → DSCF8860.jpeg
+✓ DSCF8848.RAF → DSCF8848.jpeg
+✓ DSCF8862.RAF → DSCF8862.jpeg
+✓ DSCF8863.RAF → DSCF8863.jpeg
+✓ DSCF8864.RAF → DSCF8864.jpeg
+✓ DSCF8858.RAF → DSCF8858.jpeg
+✓ DSCF8859.RAF → DSCF8859.jpeg
+✓ DSCF8854.RAF → DSCF8854.jpeg
+✓ DSCF8855.RAF → DSCF8855.jpeg
+✓ DSCF8857.RAF → DSCF8857.jpeg
+✓ DSCF8856.RAF → DSCF8856.jpeg
+✓ DSCF8852.RAF → DSCF8852.jpeg
+✓ DSCF8853.RAF → DSCF8853.jpeg
+✓ DSCF8851.RAF → DSCF8851.jpeg
+✓ DSCF8850.RAF → DSCF8850.jpeg
+Done! Output: 20260110_Random House Pic_JPEG
+./extract_jpeg.sh "20260110_Random House Pic"  0.02s user 0.02s system 89% cpu 0.050 total`;
+const fujifilmPythonStartup = `❯ time python3 -c ""
+python3 -c ""  0.02s user 0.01s system 86% cpu 0.027 total`;
+const fujifilmFolder630Output = `❯ time ./extract_jpeg.sh "2025_RAW/20250620to0625_Kuching Trip"
+Processing 630 files...
+✓ DSCF7171.RAF → DSCF7171.jpeg
+✓ DSCF7617.RAF → DSCF7617.jpeg
+✓ DSCF7603.RAF → DSCF7603.jpeg
+✓ DSCF7165.RAF → DSCF7165.jpeg
+✓ DSCF7159.RAF → DSCF7159.jpeg
+# ...
+./extract_jpeg.sh "2025_RAW/20250620to0625_Kuching Trip"  0.04s user 0.56s system 24% cpu 2.472 total`;
+
+const [
+  fujifilmSipsCommandHtml,
+  fujifilmSipsInfoHtml,
+  fujifilmSipsTimingHtml,
+  fujifilmRafLayoutHtml,
+  fujifilmOffsetMathHtml,
+  fujifilmPseudocodeHtml,
+  fujifilmHexylOutputHtml,
+  fujifilmHexdumpOutputHtml,
+  fujifilmByteValuesHtml,
+  fujifilmDdCommandHtml,
+  fujifilmDdOutputHtml,
+  fujifilmTailCommandHtml,
+  fujifilmTailTimingHtml,
+  fujifilmSmallPythonHtml,
+  fujifilmPythonTimingHtml,
+  fujifilmExtractScriptHtml,
+  fujifilmMakeExecutableHtml,
+  fujifilmSingleFileOutputHtml,
+  fujifilmSingleFileTimingHtml,
+  fujifilmFolderScriptHtml,
+  fujifilmFolder17OutputHtml,
+  fujifilmPythonStartupHtml,
+  fujifilmFolder630OutputHtml,
+] = await Promise.all([
+  highlightCode(fujifilmSipsCommand, "bash"),
+  highlightCode(fujifilmSipsInfo, "text"),
+  highlightCode(fujifilmSipsTiming, "text"),
+  highlightCode(fujifilmRafLayout, "text"),
+  highlightCode(fujifilmOffsetMath, "text"),
+  highlightCode(fujifilmPseudocode, "text"),
+  highlightCode(fujifilmHexylOutput, "text"),
+  highlightCode(fujifilmHexdumpOutput, "text"),
+  highlightCode(fujifilmByteValues, "text"),
+  highlightCode(fujifilmDdCommand, "bash"),
+  highlightCode(fujifilmDdOutput, "text"),
+  highlightCode(fujifilmTailCommand, "bash"),
+  highlightCode(fujifilmTailTiming, "text"),
+  highlightCode(fujifilmSmallPython, "python"),
+  highlightCode(fujifilmPythonTiming, "text"),
+  highlightCode(fujifilmExtractScript, "python"),
+  highlightCode(fujifilmMakeExecutable, "bash"),
+  highlightCode(fujifilmSingleFileOutput, "text"),
+  highlightCode(fujifilmSingleFileTiming, "text"),
+  highlightCode(fujifilmFolderScript, "python"),
+  highlightCode(fujifilmFolder17Output, "text"),
+  highlightCode(fujifilmPythonStartup, "text"),
+  highlightCode(fujifilmFolder630Output, "text"),
+]);
+
 const [ollamaCodeHtml, rustCodeHtml, elixirCodeHtml, pythonServerCodeHtml, tcpdumpCodeHtml, tsharkCodeHtml] = await Promise.all([
   highlightCode(ollamaCode, "bash"),
   highlightCode(rustCode, "rust"),
@@ -282,8 +537,9 @@ const [ollamaCodeHtml, rustCodeHtml, elixirCodeHtml, pythonServerCodeHtml, tcpdu
           <ArticleCallout
             labelId="prerequisite-title"
             label="Prerequisite"
-            body="Qwen3.5 now includes 0.8B, 2B, 4B, and 9B models, so you can run it on any M-series Mac. The 4B model needs about 3.4 GB of RAM; 9B needs about 6.6 GB. For the larger models, 27B needs 17 GB, which is tight on a 24 GB machine."
-          />
+          >
+            Qwen3.5 now includes 0.8B, 2B, 4B, and 9B models, so you can run it on any M-series Mac. The 4B model needs about 3.4 GB of RAM; 9B needs about 6.6 GB. For the larger models, 27B needs 17 GB, which is tight on a 24 GB machine.
+          </ArticleCallout>
 
           <h2>Choosing a model</h2>
           <p>Qwen3.5 comes in different architectures, parameter sizes, and quantization levels. The 27B model is dense; the 35B model is a mixture-of-experts model. The latter runs faster, while parameter count and quantization affect memory use.</p>
@@ -403,8 +659,9 @@ const [ollamaCodeHtml, rustCodeHtml, elixirCodeHtml, pythonServerCodeHtml, tcpdu
         <ArticleCallout
           labelId="capture-warning"
           label="Disclaimer"
-          body="Captured traffic can contain credentials, cookies, and personal information. Get approval before capturing traffic in a production environment."
-        />
+        >
+          Captured traffic can contain credentials, cookies, and personal information. Get approval before capturing traffic in a production environment.
+        </ArticleCallout>
         <p>Capturing traffic with <code>tcpdump</code> is straightforward. Add <code>-w</code> to save it to a file for later analysis:</p>
         <ArticleCodeBlock
           ariaLabel="Commands for capturing HTTP traffic"
@@ -455,6 +712,118 @@ const [ollamaCodeHtml, rustCodeHtml, elixirCodeHtml, pythonServerCodeHtml, tcpdu
       </div>
     </template>
 
+    <template id="fujifilm-content">
+      <header class="article-header">
+        <p class="eyebrow">Field notes <span aria-hidden="true">/</span> Photography</p>
+        <h1>Converting Fujifilm RAW files to JPEG with CLI</h1>
+        <p class="dek">Extract the JPEG already embedded in Fujifilm RAW files, then batch-convert a folder with a small Python script.</p>
+        <div class="metadata">
+          <time datetime="2026-01-22">January 22, 2026</time>
+          <span class="tag">Fujifilm</span>
+          <span class="tag">CLI</span>
+        </div>
+      </header>
+      <div class="article-body">
+        <p>I have been shooting with a Fujifilm camera for a while. There are times when I need to quickly convert my RAW files to JPEG.</p>
+        <p>In macOS, you can quickly convert a RAW file to JPEG through <code>Right Click → Quick Actions → Convert Image</code>.</p>
+        <ArticleFigure
+          src={quickActionImage.src}
+          width={quickActionImage.width}
+          height={quickActionImage.height}
+          alt="The macOS Quick Actions menu with Convert Image selected."
+          caption="Convert a RAW image from Finder’s Quick Actions menu."
+          presentation="integrated"
+        />
+        <p>You can also select all the RAW files and convert them to JPEG in bulk. It takes about 10 seconds to convert 17 files and place them in the same folder. Not too bad.</p>
+        <p>While this approach works, it isn't efficient for a large number of RAW files. I also want the JPEG files placed in a separate folder, so I decided to write a small CLI to do this more efficiently.</p>
+
+        <ArticleCallout labelId="fujifilm-skip-label" label="Lazy to read?">
+          Skip to <a href="#converting-all-raw-files-in-a-folder">the folder conversion script</a> to convert every Fujifilm RAW file to JPEG and place the files in a separate folder.
+        </ArticleCallout>
+
+        <h2>Converting Fujifilm RAW files to JPEG programmatically</h2>
+        <p>The first step is to figure out how to convert Fujifilm RAW files to JPEG programmatically.</p>
+        <p>It turns out that in macOS, we can use <code>sips</code> to convert a RAW file to JPEG:</p>
+        <ArticleCodeBlock ariaLabel="Convert a Fujifilm RAW image with sips" language="bash" highlightedHtml={fujifilmSipsCommandHtml} />
+        <p><code>sips</code> stands for scriptable image processing system. It comes with macOS by default.</p>
+        <ArticleCodeBlock ariaLabel="The sips command description" language="text" highlightedHtml={fujifilmSipsInfoHtml} />
+        <p>I was introduced to <code>sips</code> while vibe coding a CLI to convert RAW files in bulk. It has been available in macOS for a long time.<sup><a href="#fujifilm-note-1" aria-label="Footnote 1">1</a></sup></p>
+        <p>Good enough? Not quite. It takes roughly 500 ms to convert one RAW file to JPEG with <code>sips</code>:</p>
+        <ArticleCodeBlock ariaLabel="sips conversion timing" language="text" highlightedHtml={fujifilmSipsTimingHtml} />
+        <p>I often have hundreds of RAW files to convert. Even using all 14 cores in parallel, it would still take about 18 seconds.<sup><a href="#fujifilm-note-2" aria-label="Footnote 2">2</a></sup></p>
+
+        <h2>A faster way</h2>
+        <p>It turns out that Fujifilm RAW files already contain JPEG data.<sup><a href="#fujifilm-note-3" aria-label="Footnote 3">3</a></sup></p>
+        <ArticleCodeBlock ariaLabel="Fujifilm RAW file structure diagram" language="text" highlightedHtml={fujifilmRafLayoutHtml} />
+        <p>By summing the header bytes, we can determine that the JPEG offset starts at byte 84:</p>
+        <ArticleCodeBlock ariaLabel="Calculation of the JPEG offset" language="text" highlightedHtml={fujifilmOffsetMathHtml} />
+        <p>Bytes 84–87 store the JPEG offset, while bytes 88–91 store the JPEG length. Armed with those two values, we can extract the JPEG data:</p>
+        <ArticleCodeBlock ariaLabel="Pseudocode for extracting the embedded JPEG" language="text" highlightedHtml={fujifilmPseudocodeHtml} />
+        <p>The next block shows the first 127 bytes of a Fujifilm RAW file:</p>
+        <ArticleCodeBlock ariaLabel="Hex dump of the Fujifilm RAW header" language="text" highlightedHtml={fujifilmHexylOutputHtml} />
+        <p>We can use <code>hexdump</code> to inspect the eight bytes that contain the offset and length:</p>
+        <ArticleCodeBlock ariaLabel="Hex dump of the JPEG offset and length" language="text" highlightedHtml={fujifilmHexdumpOutputHtml} />
+        <p>Those values are hexadecimal. The offset bytes, <code>00 00 00 94</code>, equal 148; the length bytes, <code>00 4a 52 31</code>, equal 4,870,705:</p>
+        <ArticleCodeBlock ariaLabel="Decimal values of the JPEG offset and length" language="text" highlightedHtml={fujifilmByteValuesHtml} />
+        <p>Because the length is the number of JPEG bytes, it also tells us that the image is about 4.9 MB.<sup><a href="#fujifilm-note-4" aria-label="Footnote 4">4</a></sup></p>
+
+        <h2>Extracting JPEG bytes with CLI</h2>
+        <p>From here, there are multiple ways to extract the bytes.</p>
+
+        <h3>Using <code>dd</code></h3>
+        <p>One option is to use <code>dd</code>:</p>
+        <ArticleCodeBlock ariaLabel="Extract JPEG bytes with dd" language="bash" highlightedHtml={fujifilmDdCommandHtml} />
+        <p>This takes 11 seconds, much slower than <code>sips</code>, because it reads and writes one byte at a time:</p>
+        <ArticleCodeBlock ariaLabel="dd extraction timing" language="text" highlightedHtml={fujifilmDdOutputHtml} />
+
+        <h3>Using <code>tail</code> and <code>head</code></h3>
+        <p>Another alternative is to use <code>tail</code> and <code>head</code> together:</p>
+        <ArticleCodeBlock ariaLabel="Extract JPEG bytes with tail and head" language="bash" highlightedHtml={fujifilmTailCommandHtml} />
+        <p>It takes roughly 300 ms, slightly faster than <code>sips</code>:</p>
+        <ArticleCodeBlock ariaLabel="tail and head extraction timing" language="text" highlightedHtml={fujifilmTailTimingHtml} />
+
+        <h3>Using your own code</h3>
+        <p>We can also write a small program to extract the JPEG. Here is a short Python script:</p>
+        <ArticleCodeBlock ariaLabel="Python code to extract one JPEG from a RAF file" language="python" highlightedHtml={fujifilmSmallPythonHtml} />
+        <p>This takes about 30 ms, ten times faster than the <code>tail</code> and <code>head</code> approach.</p>
+        <ArticleCodeBlock ariaLabel="Python extraction timing" language="text" highlightedHtml={fujifilmPythonTimingHtml} />
+
+        <h2>Combining everything into a single script</h2>
+        <p>You could write a Bash script to glue everything above together, or use Python to do it all.<sup><a href="#fujifilm-note-5" aria-label="Footnote 5">5</a></sup></p>
+        <ArticleCodeBlock ariaLabel="Python script to extract a JPEG from one RAF file" language="python" highlightedHtml={fujifilmExtractScriptHtml} />
+        <p>Save the code as <code>extract_jpeg.sh</code>, then make it executable:</p>
+        <ArticleCodeBlock ariaLabel="Make the extraction script executable" language="bash" highlightedHtml={fujifilmMakeExecutableHtml} />
+        <p>Then run it with a RAW file:</p>
+        <ArticleCodeBlock ariaLabel="Run the single-file extraction script" language="text" highlightedHtml={fujifilmSingleFileOutputHtml} />
+        <p>The script takes about 33 ms to complete:</p>
+        <ArticleCodeBlock ariaLabel="Single-file script timing" language="text" highlightedHtml={fujifilmSingleFileTimingHtml} />
+
+        <h2 id="converting-all-raw-files-in-a-folder">Converting all RAW files in a folder</h2>
+        <p>With that building block, we can extend the script to accept a folder path and convert every RAW file into a JPEG in a separate output folder. Here is the Python script:</p>
+        <ArticleCodeBlock ariaLabel="Python script to convert a folder of Fujifilm RAW files" language="python" highlightedHtml={fujifilmFolderScriptHtml} />
+        <p>It takes about 50 ms to convert 17 RAW files to JPEG:</p>
+        <ArticleCodeBlock ariaLabel="Batch conversion output for 17 RAW files" language="text" highlightedHtml={fujifilmFolder17OutputHtml} />
+        <p>Most of the overhead comes from starting Python:</p>
+        <ArticleCodeBlock ariaLabel="Python startup timing" language="text" highlightedHtml={fujifilmPythonStartupHtml} />
+
+        <h2>Conclusion</h2>
+        <p>I also tried it with a folder containing 630 RAW files. It now takes about 2.4 seconds:</p>
+        <ArticleCodeBlock ariaLabel="Batch conversion output for 630 RAW files" language="text" highlightedHtml={fujifilmFolder630OutputHtml} />
+        <p>Could it be faster? Definitely. But this should be sufficient for now.</p>
+        <p>That's it. Hope you learned something from this post.</p>
+
+        <section class="article-references" aria-label="Footnotes">
+          <ol>
+            <li id="fujifilm-note-1"><span class="article-footnote-number" aria-hidden="true">1</span><span>Based on <a href="https://til.simonwillison.net/macos/sips">this article</a>, which refers to older documentation.</span></li>
+            <li id="fujifilm-note-2"><span class="article-footnote-number" aria-hidden="true">2</span><span>500 ÷ 14 ≈ 36 batches × 500 ms ≈ 18 seconds.</span></li>
+            <li id="fujifilm-note-3"><span class="article-footnote-number" aria-hidden="true">3</span><span>The <a href="https://libopenraw.freedesktop.org/formats/raf/">RAF file format documentation</a>.</span></li>
+            <li id="fujifilm-note-4"><span class="article-footnote-number" aria-hidden="true">4</span><span>4,870,805 bytes is about 4.9 MB.</span></li>
+            <li id="fujifilm-note-5"><span class="article-footnote-number" aria-hidden="true">5</span><span>The Python script was written by AI (Claude Haiku 3.5).</span></li>
+          </ol>
+        </section>
+      </div>
+    </template>
+
     <template id="about-content">
       <header class="article-header">
         <h1>About me</h1>
@@ -483,6 +852,7 @@ const [ollamaCodeHtml, rustCodeHtml, elixirCodeHtml, pythonServerCodeHtml, tcpdu
         const contentTemplates = new Map([
           ["basic", basicTemplate],
           ["http-debugging", document.querySelector("#long-form-content")],
+          ["fujifilm", document.querySelector("#fujifilm-content")],
           ["about", document.querySelector("#about-content")],
         ]);
         let currentContent = "basic";
@@ -512,6 +882,7 @@ const [ollamaCodeHtml, rustCodeHtml, elixirCodeHtml, pythonServerCodeHtml, tcpdu
               options: [
                 { value: "basic", label: "Basic · Qwen3.5" },
                 { value: "http-debugging", label: "Long-form · HTTP traffic" },
+                { value: "fujifilm", label: "Long-form · Fujifilm RAW" },
                 { value: "about", label: "About me" },
               ],
               default: "http-debugging",
@@ -609,9 +980,28 @@ const [ollamaCodeHtml, rustCodeHtml, elixirCodeHtml, pythonServerCodeHtml, tcpdu
             size: [13, 12, 18, 1],
             gap: [12, 4, 24, 1],
           },
+          footnotes: {
+            _collapsed: false,
+            style: {
+              type: "select",
+              options: [
+                { value: "classic", label: "Classic list" },
+                { value: "gutter", label: "Gutter numbers" },
+                { value: "ruled", label: "Ruled index" },
+              ],
+              default: "classic",
+            },
+            family: family("Instrument Sans"),
+            size: [13, 12, 20, 1],
+            lineHeight: [1.45, 1.25, 2, 0.05],
+            sectionGap: [35, 0, 72, 1],
+            dividerGap: [12, 0, 32, 1],
+            itemGap: [5, 0, 32, 1],
+            numberGap: [12, 4, 32, 1],
+          },
         });
 
-        articleStyle.subscribe(({ content, title, body, headings, callout, spacing, code, inlineCode, table, quote, caption }) => {
+        articleStyle.subscribe(({ content, title, body, headings, callout, spacing, code, inlineCode, table, quote, caption, footnotes }) => {
           renderContent(content.preset);
           const selectedCodeTheme = codeThemePresets.find(({ value }) => value === code.theme);
           const root = document.documentElement.style;
@@ -659,6 +1049,14 @@ const [ollamaCodeHtml, rustCodeHtml, elixirCodeHtml, pythonServerCodeHtml, tcpdu
           root.setProperty("--caption-font", fontFamilies[caption.family].stack);
           root.setProperty("--caption-size", `${caption.size}px`);
           root.setProperty("--caption-gap", `${caption.gap}px`);
+          root.setProperty("--footnote-font", fontFamilies[footnotes.family].stack);
+          root.setProperty("--footnote-size", `${footnotes.size}px`);
+          root.setProperty("--footnote-line-height", footnotes.lineHeight);
+          root.setProperty("--footnote-section-gap", `${footnotes.sectionGap}px`);
+          root.setProperty("--footnote-divider-gap", `${footnotes.dividerGap}px`);
+          root.setProperty("--footnote-item-gap", `${footnotes.itemGap}px`);
+          root.setProperty("--footnote-number-gap", `${footnotes.numberGap}px`);
+          document.documentElement.dataset.footnoteStyle = footnotes.style;
         });
 
         enableDialKitFontGroups();
@@ -714,6 +1112,13 @@ const [ollamaCodeHtml, rustCodeHtml, elixirCodeHtml, pythonServerCodeHtml, tcpdu
     --caption-font: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
     --caption-size: 13px;
     --caption-gap: 12px;
+    --footnote-font: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+    --footnote-size: 13px;
+    --footnote-line-height: 1.45;
+    --footnote-section-gap: 35px;
+    --footnote-divider-gap: 12px;
+    --footnote-item-gap: 5px;
+    --footnote-number-gap: 12px;
   }
 
   :global(body) {
@@ -848,6 +1253,88 @@ const [ollamaCodeHtml, rustCodeHtml, elixirCodeHtml, pythonServerCodeHtml, tcpdu
 
   .article-body li + li {
     margin-block-start: 0.35em;
+  }
+
+  .article-body sup {
+    font-size: 0.72em;
+    line-height: 0;
+    vertical-align: super;
+  }
+
+  .article-references {
+    margin-block: var(--footnote-section-gap);
+    padding-block-start: var(--footnote-divider-gap);
+    border-block-start: 1px solid rgb(41 39 53 / 12%);
+    color: #625d67;
+    font-family: var(--footnote-font);
+    font-size: var(--footnote-size);
+    line-height: var(--footnote-line-height);
+  }
+
+  .article-references ol {
+    margin: 0;
+    padding-inline-start: 1.35em;
+  }
+
+  .article-references li + li {
+    margin-block-start: var(--footnote-item-gap);
+  }
+
+  .article-footnote-number {
+    display: none;
+    font-variant-numeric: tabular-nums;
+  }
+
+  :global(html[data-footnote-style="gutter"]) .article-references ol {
+    display: grid;
+    gap: var(--footnote-item-gap);
+    list-style: none;
+    padding-inline-start: 0;
+  }
+
+  :global(html[data-footnote-style="gutter"]) .article-references li {
+    display: grid;
+    grid-template-columns: 2.5em minmax(0, 1fr);
+    column-gap: var(--footnote-number-gap);
+  }
+
+  :global(html[data-footnote-style="gutter"]) .article-references li + li {
+    margin-block-start: 0;
+  }
+
+  :global(html[data-footnote-style="gutter"]) .article-footnote-number {
+    display: block;
+    color: #8b756a;
+    text-align: end;
+  }
+
+  :global(html[data-footnote-style="ruled"]) .article-references ol {
+    list-style: none;
+    padding-inline-start: 0;
+  }
+
+  :global(html[data-footnote-style="ruled"]) .article-references li {
+    display: grid;
+    grid-template-columns: minmax(2ch, auto) minmax(0, 1fr);
+    column-gap: var(--footnote-number-gap);
+    padding-block-start: var(--footnote-item-gap);
+  }
+
+  :global(html[data-footnote-style="ruled"]) .article-references li:first-child {
+    padding-block-start: 0;
+  }
+
+  :global(html[data-footnote-style="ruled"]) .article-references li + li {
+    margin-block-start: 0;
+    border-block-start: 1px solid rgb(41 39 53 / 12%);
+  }
+
+  :global(html[data-footnote-style="ruled"]) .article-footnote-number {
+    display: block;
+    color: #8b756a;
+    font-size: 0.82em;
+    letter-spacing: 0.03em;
+    text-align: end;
   }
 
   .article-body h2,
