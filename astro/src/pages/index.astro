@@ -1,5 +1,7 @@
 ---
+import { HomeIdentity } from "../components/home/HomeIdentity";
 import PrototypePageNav from "../components/PrototypePageNav.astro";
+import "../styles/tailwind.css";
 ---
 
 <!doctype html>
@@ -13,9 +15,8 @@ import PrototypePageNav from "../components/PrototypePageNav.astro";
     <title>Kai Wern</title>
   </head>
   <body>
-    <main>
-      <h1 id="title">Kai Wern</h1>
-      <p id="description">Just a software engineer</p>
+    <main class="grid w-full gap-[var(--text-gap)] px-4 [overflow-wrap:break-word] [text-align:var(--text-alignment)]">
+      <HomeIdentity title="Kai Wern" description="Just a software engineer" />
     </main>
     <PrototypePageNav current="home" />
   </body>
@@ -339,39 +340,6 @@ import PrototypePageNav from "../components/PrototypePageNav.astro";
     color: #292735;
     font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     -webkit-font-smoothing: antialiased;
-  }
-
-  h1 {
-    margin: 0;
-    margin-top: var(--title-margin-top);
-    margin-left: var(--title-margin-left);
-    font-family: var(--title-font);
-    font-size: var(--title-size);
-    font-weight: 400;
-    font-synthesis: none;
-    letter-spacing: -0.075em;
-    line-height: 0.98;
-    text-wrap: balance;
-  }
-
-  main {
-    display: grid;
-    gap: var(--text-gap);
-    width: 100%;
-    padding-inline: 1rem;
-    overflow-wrap: break-word;
-    text-align: var(--text-alignment);
-  }
-
-  p {
-    margin: 0;
-    margin-top: var(--description-margin-top);
-    margin-left: var(--description-margin-left);
-    color: #625d67;
-    font-family: var(--description-font);
-    font-size: var(--description-size);
-    line-height: 1.4;
-    text-wrap: pretty;
   }
 
   @media (max-width: 540px) {

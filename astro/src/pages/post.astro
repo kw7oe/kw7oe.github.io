@@ -1,7 +1,15 @@
 ---
 import { codeToHast, hastToHtml } from "shiki";
+import {
+  ArticleCallout,
+  ArticleCodeBlock,
+  ArticleFigure,
+  ArticleQuote,
+  ArticleTable,
+} from "../components/article/ArticleBlocks";
 import PrototypePageNav from "../components/PrototypePageNav.astro";
 import "../styles/fonts.css";
+import "../styles/tailwind.css";
 import lmStudioSearch from "../../../assets/images/lmstudio-model-search.png";
 
 const ollamaCode = `# Replace “opencode” with “claude” or “codex” as needed
@@ -271,68 +279,81 @@ const [ollamaCodeHtml, rustCodeHtml, elixirCodeHtml, pythonServerCodeHtml, tcpdu
           <p>Recently, Qwen3.5 has been one of the hottest models in the community. It’s a vision-language model that’s relatively small and performs well in coding benchmarks. That means I can host it locally on my M-series Mac and use it with <code>opencode</code>.</p>
           <p>I didn’t find many resources online about setting it up, so here’s a short guide.</p>
 
-          <aside class="callout" aria-labelledby="prerequisite-title">
-            <p class="callout-label" id="prerequisite-title">Prerequisite</p>
-            <p>Qwen3.5 now includes 0.8B, 2B, 4B, and 9B models, so you can run it on any M-series Mac. The 4B model needs about 3.4 GB of RAM; 9B needs about 6.6 GB. For the larger models, 27B needs 17 GB, which is tight on a 24 GB machine.</p>
-          </aside>
+          <ArticleCallout
+            labelId="prerequisite-title"
+            label="Prerequisite"
+            body="Qwen3.5 now includes 0.8B, 2B, 4B, and 9B models, so you can run it on any M-series Mac. The 4B model needs about 3.4 GB of RAM; 9B needs about 6.6 GB. For the larger models, 27B needs 17 GB, which is tight on a 24 GB machine."
+          />
 
           <h2>Choosing a model</h2>
           <p>Qwen3.5 comes in different architectures, parameter sizes, and quantization levels. The 27B model is dense; the 35B model is a mixture-of-experts model. The latter runs faster, while parameter count and quantization affect memory use.</p>
 
-          <blockquote class="pull-quote">
-            <p>“I suggest starting with LM Studio or <code>ollama</code>, then exploring <code>mlx</code> later as needed.”</p>
-          </blockquote>
+          <ArticleQuote
+            parts={[
+              { kind: "text", text: "I suggest starting with LM Studio or " },
+              { kind: "code", text: "ollama" },
+              { kind: "text", text: ", then exploring " },
+              { kind: "code", text: "mlx" },
+              { kind: "text", text: " later as needed." },
+            ]}
+          />
 
-          <figure class="article-figure">
-            <img
-              src={lmStudioSearch.src}
-              width={lmStudioSearch.width}
-              height={lmStudioSearch.height}
-              alt="LM Studio’s model search results filtered to Qwen3.5 models for MLX."
-              loading="lazy"
-            />
-            <figcaption>Search for Qwen3.5 and filter the model catalog to MLX.</figcaption>
-          </figure>
+          <ArticleFigure
+            src={lmStudioSearch.src}
+            width={lmStudioSearch.width}
+            height={lmStudioSearch.height}
+            alt="LM Studio’s model search results filtered to Qwen3.5 models for MLX."
+            caption="Search for Qwen3.5 and filter the model catalog to MLX."
+          />
 
           <h3>Architecture at a glance</h3>
-          <div class="table-scroll" role="region" aria-label="Qwen3.5 model comparison" tabindex="0">
-            <table>
-              <caption class="visually-hidden">A comparison of two Qwen3.5 model tags and their architectures.</caption>
-              <thead>
-                <tr>
-                  <th scope="col">Model tag</th>
-                  <th scope="col">Architecture</th>
-                  <th scope="col">Parameters</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th scope="row"><code>qwen3.5:27b</code></th>
-                  <td>Dense</td>
-                  <td>27B</td>
-                </tr>
-                <tr>
-                  <th scope="row"><code>qwen3.5:35b</code></th>
-                  <td>MoE</td>
-                  <td>≈ 36B</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <ArticleTable
+            ariaLabel="Qwen3.5 model comparison"
+            caption="A comparison of two Qwen3.5 model tags and their architectures."
+            columns={["Model tag", "Architecture", "Parameters"]}
+            rows={[
+              {
+                heading: { kind: "code", text: "qwen3.5:27b" },
+                cells: [
+                  { kind: "text", text: "Dense" },
+                  { kind: "text", text: "27B" },
+                ],
+              },
+              {
+                heading: { kind: "code", text: "qwen3.5:35b" },
+                cells: [
+                  { kind: "text", text: "MoE" },
+                  { kind: "text", text: "≈ 36B" },
+                ],
+              },
+            ]}
+          />
           <p class="table-note">The summary table restates the model details from the guide.</p>
 
           <h2>Run it with Ollama</h2>
           <p>To connect a model to <code>opencode</code>, run the matching launch command:</p>
-          <pre class="code-block" tabindex="0" aria-label="Ollama commands for launching Qwen3.5 with opencode"><code class="language-bash" set:html={ollamaCodeHtml}></code></pre>
+          <ArticleCodeBlock
+            ariaLabel="Ollama commands for launching Qwen3.5 with opencode"
+            language="bash"
+            highlightedHtml={ollamaCodeHtml}
+          />
 
           <h2>Code samples</h2>
           <p>These excerpts from existing Rust and Elixir posts make it easier to compare longer code blocks.</p>
 
           <h3>Rust · PostgreSQL extension</h3>
-          <pre class="code-block" tabindex="0" aria-label="Rust PostgreSQL extension example"><code class="language-rust" set:html={rustCodeHtml}></code></pre>
+          <ArticleCodeBlock
+            ariaLabel="Rust PostgreSQL extension example"
+            language="rust"
+            highlightedHtml={rustCodeHtml}
+          />
 
           <h3>Elixir · Mini Redis TCP server</h3>
-          <pre class="code-block" tabindex="0" aria-label="Elixir TCP server example"><code class="language-elixir" set:html={elixirCodeHtml}></code></pre>
+          <ArticleCodeBlock
+            ariaLabel="Elixir TCP server example"
+            language="elixir"
+            highlightedHtml={elixirCodeHtml}
+          />
         </div>
       </article>
     </main>
@@ -353,9 +374,14 @@ const [ollamaCodeHtml, rustCodeHtml, elixirCodeHtml, pythonServerCodeHtml, tcpdu
         <p>Sounds hard? It isn't. You can do that with <code>tcpdump</code>, then analyze it with Wireshark or its command-line tool, <code>tshark</code>.</p>
         <p>Here's a quick write-up on capturing HTTP traffic with <code>tcpdump</code> and filtering it with <code>tshark</code>. You can jump to the <a href="#cheat-sheet">cheat sheet</a> for a summary.</p>
 
-        <blockquote class="pull-quote">
-          <p>“If your services use HTTPS, the packets are encrypted and won't be readable without credentials.”</p>
-        </blockquote>
+        <ArticleQuote
+          parts={[
+            {
+              kind: "text",
+              text: "If your services use HTTPS, the packets are encrypted and won't be readable without credentials.",
+            },
+          ]}
+        />
 
         <h2>Prerequisites</h2>
         <p>If you want to follow along, here are the tools we need:</p>
@@ -366,57 +392,64 @@ const [ollamaCodeHtml, rustCodeHtml, elixirCodeHtml, pythonServerCodeHtml, tcpdu
           <li><code>python3</code> or anything that can spin up a web server</li>
         </ul>
         <p>Here's a minimal Python server with a JSON endpoint, which we can use to generate a response:</p>
-        <pre class="code-block" tabindex="0" aria-label="Python HTTP server example"><code class="language-python" set:html={pythonServerCodeHtml}></code></pre>
+        <ArticleCodeBlock
+          ariaLabel="Python HTTP server example"
+          language="python"
+          highlightedHtml={pythonServerCodeHtml}
+        />
         <p>Save this as <code>server.py</code>, then run it with <code>python3 server.py</code>. Use <code>curl localhost:8080/books</code> to generate a JSON response.</p>
 
         <h2>Capturing traffic</h2>
-        <aside class="callout" aria-labelledby="capture-warning">
-          <p class="callout-label" id="capture-warning">Disclaimer</p>
-          <p>Captured traffic can contain credentials, cookies, and personal information. Get approval before capturing traffic in a production environment.</p>
-        </aside>
+        <ArticleCallout
+          labelId="capture-warning"
+          label="Disclaimer"
+          body="Captured traffic can contain credentials, cookies, and personal information. Get approval before capturing traffic in a production environment."
+        />
         <p>Capturing traffic with <code>tcpdump</code> is straightforward. Add <code>-w</code> to save it to a file for later analysis:</p>
-        <pre class="code-block" tabindex="0" aria-label="Commands for capturing HTTP traffic"><code class="language-bash" set:html={tcpdumpCodeHtml}></code></pre>
+        <ArticleCodeBlock
+          ariaLabel="Commands for capturing HTTP traffic"
+          language="bash"
+          highlightedHtml={tcpdumpCodeHtml}
+        />
         <p>Use <code>curl localhost:8080/books</code> to generate a request. Press <kbd>Ctrl</kbd>+<kbd>C</kbd> to stop the capture and see its summary.</p>
 
         <h2>Filtering and formatting</h2>
         <p>After installing <code>tshark</code>, use it to inspect a capture, filter for HTTP packets, or print selected fields:</p>
-        <pre class="code-block" tabindex="0" aria-label="Commands for inspecting a PCAP file"><code class="language-bash" set:html={tsharkCodeHtml}></code></pre>
+        <ArticleCodeBlock
+          ariaLabel="Commands for inspecting a PCAP file"
+          language="bash"
+          highlightedHtml={tsharkCodeHtml}
+        />
 
         <h2 id="cheat-sheet">Cheat sheet</h2>
         <p>Here are a few of the commands covered in the article:</p>
-        <div class="table-scroll" role="region" aria-label="HTTP traffic debugging commands" tabindex="0">
-          <table>
-            <caption class="visually-hidden">Common commands for capturing and reading HTTP traffic.</caption>
-            <thead>
-              <tr>
-                <th scope="col">Goal</th>
-                <th scope="col">Command</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="row">Capture traffic</th>
-                <td><code>sudo tcpdump -i any port 8080</code></td>
-              </tr>
-              <tr>
-                <th scope="row">Save a capture</th>
-                <td><code>sudo tcpdump -i any port 8080 -w output.pcap</code></td>
-              </tr>
-              <tr>
-                <th scope="row">Generate a request</th>
-                <td><code>curl localhost:8080/books</code></td>
-              </tr>
-              <tr>
-                <th scope="row">Read a capture</th>
-                <td><code>tshark -r output.pcap</code></td>
-              </tr>
-              <tr>
-                <th scope="row">Show HTTP packets</th>
-                <td><code>tshark -r output.pcap -Y 'http'</code></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <ArticleTable
+          ariaLabel="HTTP traffic debugging commands"
+          caption="Common commands for capturing and reading HTTP traffic."
+          columns={["Goal", "Command"]}
+          rows={[
+            {
+              heading: { kind: "text", text: "Capture traffic" },
+              cells: [{ kind: "code", text: "sudo tcpdump -i any port 8080" }],
+            },
+            {
+              heading: { kind: "text", text: "Save a capture" },
+              cells: [{ kind: "code", text: "sudo tcpdump -i any port 8080 -w output.pcap" }],
+            },
+            {
+              heading: { kind: "text", text: "Generate a request" },
+              cells: [{ kind: "code", text: "curl localhost:8080/books" }],
+            },
+            {
+              heading: { kind: "text", text: "Read a capture" },
+              cells: [{ kind: "code", text: "tshark -r output.pcap" }],
+            },
+            {
+              heading: { kind: "text", text: "Show HTTP packets" },
+              cells: [{ kind: "code", text: "tshark -r output.pcap -Y 'http'" }],
+            },
+          ]}
+        />
         <p class="table-note">Adapted from “Debugging HTTP traffic with tcpdump and tshark.”</p>
         <p>These tools can feel intimidating at first, but the basics are approachable once you know where to start.</p>
       </div>
@@ -505,6 +538,16 @@ const [ollamaCodeHtml, rustCodeHtml, elixirCodeHtml, pythonServerCodeHtml, tcpdu
           },
           callout: {
             _collapsed: true,
+            style: {
+              type: "select",
+              options: [
+                { value: "rail", label: "Classic rail" },
+                { value: "panel", label: "Signal card" },
+                { value: "outlined", label: "Open frame" },
+                { value: "split", label: "Margin note" },
+              ],
+              default: "rail",
+            },
             family: family("Instrument Sans"),
             size: [16, 14, 24, 1],
             lineHeight: [1.4, 1.35, 1.9, 0.05],
@@ -546,6 +589,16 @@ const [ollamaCodeHtml, rustCodeHtml, elixirCodeHtml, pythonServerCodeHtml, tcpdu
           },
           quote: {
             _collapsed: true,
+            style: {
+              type: "select",
+              options: [
+                { value: "rail", label: "Classic rail" },
+                { value: "panel", label: "Soft panel" },
+                { value: "centered", label: "Centered display" },
+                { value: "framed", label: "Framed quote" },
+              ],
+              default: "rail",
+            },
             family: family("Instrument Sans"),
             size: [20, 18, 40, 1],
             inset: [25, 0, 48, 1],
@@ -579,6 +632,7 @@ const [ollamaCodeHtml, rustCodeHtml, elixirCodeHtml, pythonServerCodeHtml, tcpdu
           root.setProperty("--callout-padding-x", `${callout.paddingX}px`);
           root.setProperty("--callout-padding-y", `${callout.paddingY}px`);
           root.setProperty("--callout-label-gap", `${callout.labelGap}px`);
+          document.documentElement.dataset.calloutStyle = callout.style;
           root.setProperty("--component-gap", `${spacing.componentGap}px`);
           root.setProperty("--code-font", fontFamilies[code.family].stack);
           root.setProperty("--code-size", `${code.size}px`);
@@ -601,6 +655,7 @@ const [ollamaCodeHtml, rustCodeHtml, elixirCodeHtml, pythonServerCodeHtml, tcpdu
           root.setProperty("--quote-font", fontFamilies[quote.family].stack);
           root.setProperty("--quote-size", `${quote.size}px`);
           root.setProperty("--quote-inset", `${quote.inset}px`);
+          document.documentElement.dataset.quoteStyle = quote.style;
           root.setProperty("--caption-font", fontFamilies[caption.family].stack);
           root.setProperty("--caption-size", `${caption.size}px`);
           root.setProperty("--caption-gap", `${caption.gap}px`);
@@ -707,8 +762,7 @@ const [ollamaCodeHtml, rustCodeHtml, elixirCodeHtml, pythonServerCodeHtml, tcpdu
   }
 
   .eyebrow,
-  .metadata,
-  .callout-label {
+  .metadata {
     font-family: var(--body-font);
     font-size: 12px;
     font-weight: 500;
@@ -841,127 +895,11 @@ const [ollamaCodeHtml, rustCodeHtml, elixirCodeHtml, pythonServerCodeHtml, tcpdu
     -webkit-box-decoration-break: clone;
   }
 
-  .callout {
-    margin-block: var(--component-gap);
-    padding: var(--callout-padding-y) var(--callout-padding-x);
-    border-inline-start: 3px solid #8d776f;
-    background: rgb(255 255 255 / 42%);
-    font-family: var(--callout-font);
-    font-size: var(--callout-size);
-    line-height: var(--callout-line-height);
-  }
-
-  .article-body .callout-label {
-    margin-block: 0 var(--callout-label-gap);
-    color: #625d67;
-  }
-
-  .pull-quote {
-    margin-block: var(--component-gap);
-    padding-inline-start: var(--quote-inset);
-    border-inline-start: 1px solid rgb(41 39 53 / 28%);
-    color: #292735;
-    font-family: var(--quote-font);
-    font-size: var(--quote-size);
-    line-height: 1.28;
-  }
-
-  .pull-quote p {
-    text-wrap: pretty;
-  }
-
-  .article-figure {
-    margin-block: var(--component-gap);
-  }
-
-  .article-figure img {
-    display: block;
-    width: 100%;
-    height: auto;
-    border: 1px solid rgb(41 39 53 / 10%);
-    border-radius: 8px;
-    background: #e1ddd8;
-  }
-
-  .article-figure figcaption {
-    margin-block-start: var(--caption-gap);
-    color: #625d67;
-    font-family: var(--caption-font);
-    font-size: var(--caption-size);
-    line-height: 1.45;
-    text-wrap: pretty;
-  }
-
-  .table-scroll {
-    margin-block-start: var(--component-gap);
-    overflow-x: auto;
-    border: 1px solid rgb(41 39 53 / 12%);
-    border-radius: 8px;
-    background: rgb(255 255 255 / 35%);
-    scrollbar-width: thin;
-  }
-
-  .table-scroll:focus-visible,
-  .code-block:focus-visible {
-    outline: 2px solid #292735;
-    outline-offset: 3px;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-family: var(--table-font);
-    font-size: var(--table-size);
-    line-height: 1.45;
-    font-variant-numeric: tabular-nums;
-    text-align: start;
-  }
-
-  th,
-  td {
-    padding: var(--table-cell-padding);
-    border-block-end: 1px solid rgb(41 39 53 / 10%);
-    white-space: nowrap;
-  }
-
-  thead th {
-    color: #625d67;
-    font-size: 0.82em;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-
-  tbody th {
-    font-weight: 500;
-    text-align: start;
-  }
-
-  tbody tr:last-child th,
-  tbody tr:last-child td {
-    border-block-end: 0;
-  }
-
   .article-body > p.table-note {
     margin-block-start: calc(var(--component-gap) * 0.5);
     color: #625d67;
     font-size: 13px;
     line-height: 1.45;
-  }
-
-  .code-block {
-    margin-block: var(--component-gap);
-    padding: var(--code-padding);
-    overflow-x: auto;
-    border: 1px solid var(--code-border);
-    border-radius: 8px;
-    background: var(--code-background);
-    color: var(--code-foreground);
-    font-family: var(--code-font);
-    font-size: var(--code-size);
-    line-height: var(--code-line-height);
-    tab-size: 2;
-    -webkit-overflow-scrolling: touch;
   }
 
   :global(html[data-code-theme="github-dark"] .code-block span) {
@@ -984,19 +922,105 @@ const [ollamaCodeHtml, rustCodeHtml, elixirCodeHtml, pythonServerCodeHtml, tcpdu
     color: var(--shiki-catppuccin-mocha, inherit) !important;
   }
 
-  .code-block code {
-    font: inherit;
+  :global(html[data-callout-style="panel"] [data-article-callout]) {
+    border: 0;
+    background-color: rgb(255 255 255 / 54%);
+    padding-block: calc(var(--callout-padding-y) + 4px);
+    padding-inline: calc(var(--callout-padding-x) + 4px);
   }
 
-  .visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
+  :global(html[data-callout-style="panel"] [data-article-callout-label]) {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  :global(html[data-callout-style="panel"] [data-article-callout-label]::before) {
+    content: "";
+    flex: 0 0 8px;
+    inline-size: 8px;
+    block-size: 8px;
+    border-radius: 1px;
+    background: #8d776f;
+    box-shadow: 0 0 0 4px rgb(141 119 111 / 13%);
+    transform: rotate(45deg);
+  }
+
+  :global(html[data-callout-style="outlined"] [data-article-callout]) {
+    position: relative;
     border: 0;
+    border-block: 1px solid rgb(41 39 53 / 20%);
+    border-radius: 0;
+    background-color: transparent;
+    padding-block-start: calc(var(--callout-padding-y) + 8px);
+    padding-block-end: var(--callout-padding-y);
+    padding-inline: var(--callout-padding-x);
+  }
+
+  :global(html[data-callout-style="outlined"] [data-article-callout-label]) {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: var(--callout-padding-x);
+    margin-block-end: 0;
+    padding-inline: 8px;
+    background: #ebe5df;
+    transform: translateY(-50%);
+  }
+
+  :global(html[data-callout-style="split"] [data-article-callout]) {
+    display: grid;
+    grid-template-columns: minmax(7.5rem, 0.38fr) minmax(0, 1fr);
+    align-items: start;
+    column-gap: var(--callout-label-gap);
+    border: 0;
+    border-inline-start: 2px solid #8d776f;
+    border-radius: 0;
+    background-color: transparent;
+    padding-block: 0;
+    padding-inline-start: var(--callout-padding-x);
+    padding-inline-end: 0;
+  }
+
+  :global(html[data-callout-style="split"] [data-article-callout-label]) {
+    margin-block-end: 0;
+  }
+
+  :global(html[data-quote-style="panel"] [data-article-quote]) {
+    border-inline-start: 3px solid #8d776f;
+    border-radius: 8px;
+    background-color: rgb(255 255 255 / 52%);
+    padding-block: calc(var(--quote-inset) * 0.65);
+    padding-inline: var(--quote-inset);
+  }
+
+  :global(html[data-quote-style="centered"] [data-article-quote]) {
+    max-width: 34ch;
+    margin-inline: auto;
+    border: 0;
+    border-block: 1px solid rgb(41 39 53 / 20%);
+    padding-block: calc(var(--quote-inset) * 0.75);
+    padding-inline: calc(var(--quote-inset) * 0.5);
+    font-size: calc(var(--quote-size) * 1.15);
+    text-align: center;
+  }
+
+  :global(html[data-quote-style="centered"] [data-article-quote] p) {
+    text-wrap: balance;
+  }
+
+  :global(html[data-quote-style="framed"] [data-article-quote]) {
+    border: 1px solid rgb(41 39 53 / 16%);
+    border-radius: 6px;
+    background-color: rgb(255 255 255 / 28%);
+    padding-block: calc(var(--quote-inset) * 0.65);
+    padding-inline: var(--quote-inset);
+  }
+
+  @media (max-width: 540px) {
+    :global(html[data-callout-style="split"] [data-article-callout]) {
+      grid-template-columns: 1fr;
+      row-gap: calc(var(--callout-label-gap) * 0.5);
+    }
   }
 
   @media (max-width: 700px) {
