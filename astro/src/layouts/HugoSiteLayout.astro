@@ -45,6 +45,12 @@ const keywordContent = Array.isArray(keywords) ? keywords.join(",") : keywords;
     {import.meta.env.PROD && <script is:inline>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>}
     <script type="module" src="/hugo/js/photoswipe-init.js"></script>
     <script type="module" src="/hugo/js/terminal-session.js"></script>
+    <script>
+      if (import.meta.env.DEV) {
+        const { mountHugoDialKit } = await import("../lib/hugo-dialkit.js");
+        mountHugoDialKit();
+      }
+    </script>
   </head>
   <body class="hugo-site">
     <nav class="hugo-navigation" aria-label="Primary navigation">

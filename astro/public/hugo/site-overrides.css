@@ -627,3 +627,356 @@ body.hugo-site {
     width: 100%;
   }
 }
+
+:root {
+  --hugo-title-font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --hugo-page-title-size: 24px;
+  --hugo-post-title-size: 30px;
+  --hugo-body-font: "Lora", Georgia, serif;
+  --hugo-body-size: 16px;
+  --hugo-body-line-height: 1.75;
+  --hugo-paragraph-gap: 20px;
+  --hugo-list-intro-size: 14px;
+  --hugo-heading-font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --hugo-h1-size: 36px;
+  --hugo-h2-size: 24px;
+  --hugo-h3-size: 20px;
+  --hugo-h4-size: 18px;
+  --hugo-h2-gap-top: 32px;
+  --hugo-h3-gap-top: 26px;
+  --hugo-h4-gap-top: 40px;
+  --hugo-heading-body-gap: 20px;
+  --hugo-component-gap: 24px;
+  --hugo-callout-font: "Lora", Georgia, serif;
+  --hugo-callout-size: 16px;
+  --hugo-callout-line-height: 1.75;
+  --hugo-callout-padding-x: 16px;
+  --hugo-callout-padding-y: 16px;
+  --hugo-callout-label-size: 18px;
+  --hugo-callout-label-gap: 8px;
+  --hugo-quote-font: "Lora", Georgia, serif;
+  --hugo-quote-size: 16px;
+  --hugo-quote-inset: 16px;
+  --hugo-code-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --hugo-code-size: 14px;
+  --hugo-code-line-height: 1.5;
+  --hugo-code-padding-x: 16px;
+  --hugo-code-padding-y: 12px;
+  --hugo-code-background: #f2eee9;
+  --hugo-code-foreground: #333333;
+  --hugo-code-border: #d8d0ca;
+  --hugo-inline-code-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --hugo-inline-code-scale: 87.5%;
+  --hugo-inline-code-padding-x: 4px;
+  --hugo-inline-code-padding-y: 4px;
+  --hugo-inline-code-radius: 8px;
+  --hugo-inline-code-background: #f2eee9;
+  --hugo-inline-code-color: #111827;
+  --hugo-inline-code-border: #d8d0ca;
+  --hugo-table-font: "Noto Sans", system-ui, sans-serif;
+  --hugo-table-size: 14px;
+  --hugo-table-cell-padding: 8px;
+  --hugo-footnote-font: "Source Sans Pro", sans-serif;
+  --hugo-footnote-size: 14px;
+  --hugo-footnote-line-height: 1.428571;
+  --hugo-footnote-section-gap: 32px;
+  --hugo-footnote-divider-gap: 48px;
+  --hugo-footnote-item-gap: 8px;
+  --hugo-footnote-number-gap: 12px;
+}
+
+.hugo-main .hugo-page-title {
+  font-family: var(--hugo-title-font);
+  font-size: var(--hugo-page-title-size);
+  line-height: 1.333;
+}
+
+.hugo-main h1.hugo-post-title {
+  font-family: var(--hugo-title-font);
+  font-size: var(--hugo-post-title-size);
+  line-height: 1.2;
+}
+
+.hugo-main .prose:not(.prose-sm) {
+  font-family: var(--hugo-body-font);
+  font-size: var(--hugo-body-size);
+  line-height: var(--hugo-body-line-height);
+}
+
+.hugo-main .prose.prose-sm {
+  font-family: var(--hugo-body-font);
+  font-size: var(--hugo-list-intro-size);
+}
+
+.hugo-main .prose p,
+.hugo-main .prose li,
+.hugo-main .prose a,
+.hugo-main .hugo-entry,
+.hugo-main .hugo-series-list li {
+  font-family: var(--hugo-body-font);
+}
+
+.hugo-main .prose p {
+  margin-block: var(--hugo-paragraph-gap);
+}
+
+.hugo-main .prose > :first-child {
+  margin-block-start: 0;
+}
+
+.hugo-main .hugo-list-content p {
+  margin-block: 1.25em;
+}
+
+.hugo-main .prose h1,
+.hugo-main .prose h2,
+.hugo-main .prose h3,
+.hugo-main .prose h4,
+.hugo-main .hugo-year-heading,
+.hugo-main .hugo-term-heading,
+.hugo-main .hugo-toc h2 {
+  font-family: var(--hugo-heading-font);
+}
+
+.hugo-main .prose h1 {
+  margin-block: 0 0.8em;
+  font-size: var(--hugo-h1-size);
+}
+
+.hugo-main .prose h2 {
+  margin-block: var(--hugo-h2-gap-top) max(0px, calc(var(--hugo-heading-body-gap) - 4px));
+  font-size: var(--hugo-h2-size);
+}
+
+.hugo-main .prose h3 {
+  margin-block: var(--hugo-h3-gap-top) max(0px, calc(var(--hugo-heading-body-gap) - 10.4px));
+  font-size: var(--hugo-h3-size);
+}
+
+.hugo-main .prose h4 {
+  margin-block: var(--hugo-h4-gap-top) calc(var(--hugo-heading-body-gap) + 4px);
+  font-size: var(--hugo-h4-size);
+}
+
+.hugo-main .prose h2 + p,
+.hugo-main .prose h3 + p,
+.hugo-main .prose h4 + p {
+  margin-block-start: 0;
+}
+
+.hugo-main .prose .callout {
+  margin-block: var(--hugo-component-gap);
+  padding: var(--hugo-callout-padding-y) var(--hugo-callout-padding-x);
+  font-size: var(--hugo-callout-size);
+  line-height: var(--hugo-callout-line-height);
+}
+
+.hugo-main .prose .callout p,
+.hugo-main .prose .callout li,
+.hugo-main .prose .callout a {
+  font-family: var(--hugo-callout-font);
+}
+
+.hugo-main .prose .callout p:first-child {
+  margin-block-start: 0;
+}
+
+.hugo-main .prose .callout p:last-child {
+  margin-block-end: 0;
+}
+
+.hugo-main .prose .callout h5 {
+  margin-block-end: var(--hugo-callout-label-gap);
+  font-family: var(--hugo-heading-font);
+  font-size: var(--hugo-callout-label-size);
+  line-height: 1.35;
+}
+
+.hugo-main .callout-info {
+  --hugo-callout-accent: #3c80c3;
+}
+
+.hugo-main .callout-warning {
+  --hugo-callout-accent: #cccc00;
+}
+
+html[data-hugo-callout-style="panel"] .hugo-main .prose .callout {
+  border: 0;
+  border-top: 2px solid var(--hugo-callout-accent);
+}
+
+html[data-hugo-callout-style="panel"] .hugo-main .prose .callout h5::before {
+  display: inline-block;
+  width: 0.45em;
+  height: 0.45em;
+  margin-inline-end: 0.6em;
+  background: var(--hugo-callout-accent);
+  content: "";
+  transform: rotate(45deg);
+}
+
+html[data-hugo-callout-style="outlined"] .hugo-main .prose .callout {
+  border: 1px solid var(--hugo-callout-accent);
+  background: transparent;
+}
+
+.hugo-main .prose blockquote {
+  margin-block: calc(var(--hugo-component-gap) + 1.6px);
+  padding-inline-start: var(--hugo-quote-inset);
+  font-family: var(--hugo-quote-font);
+  font-size: var(--hugo-quote-size);
+}
+
+.hugo-main .prose blockquote p {
+  font-family: var(--hugo-quote-font);
+}
+
+html[data-hugo-quote-style="panel"] .hugo-main .prose blockquote {
+  padding: 16px;
+  border: 0;
+  background: #f2eee9;
+}
+
+html[data-hugo-quote-style="centered"] .hugo-main .prose blockquote {
+  padding: 16px 0;
+  border: 0;
+  border-block: 1px solid #d8d0ca;
+  font-style: normal;
+  text-align: center;
+}
+
+html[data-hugo-quote-style="framed"] .hugo-main .prose blockquote {
+  padding: 16px;
+  border: 1px solid #d8d0ca;
+}
+
+.hugo-main .prose pre.hugo-code {
+  margin-block: max(0px, calc(var(--hugo-component-gap) - 12px)) max(0px, calc(var(--hugo-component-gap) - 4px));
+  padding: var(--hugo-code-padding-y) var(--hugo-code-padding-x);
+  border-color: var(--hugo-code-border);
+  background: var(--hugo-code-background) !important;
+  color: var(--hugo-code-foreground) !important;
+  font-family: var(--hugo-code-font);
+  font-size: var(--hugo-code-size);
+  line-height: var(--hugo-code-line-height);
+}
+
+.hugo-main .prose pre.hugo-code code {
+  font-family: inherit;
+}
+
+.hugo-main .prose :not(pre) > code {
+  padding: var(--hugo-inline-code-padding-y) var(--hugo-inline-code-padding-x);
+  border-color: var(--hugo-inline-code-border);
+  border-radius: var(--hugo-inline-code-radius);
+  background: var(--hugo-inline-code-background);
+  color: var(--hugo-inline-code-color);
+  font-family: var(--hugo-inline-code-font);
+  font-size: var(--hugo-inline-code-scale);
+}
+
+html[data-hugo-code-theme="article"] .hugo-main .hugo-code span {
+  color: var(--shiki-dark, inherit) !important;
+}
+
+html[data-hugo-code-theme="github-dark"] .hugo-main .hugo-code span {
+  color: var(--shiki-github-dark, inherit) !important;
+}
+
+html[data-hugo-code-theme="github-light"] .hugo-main .hugo-code span {
+  color: var(--shiki-github-light, inherit) !important;
+}
+
+html[data-hugo-code-theme="nord"] .hugo-main .hugo-code span {
+  color: var(--shiki-nord, inherit) !important;
+}
+
+html[data-hugo-code-theme="dracula"] .hugo-main .hugo-code span {
+  color: var(--shiki-dracula, inherit) !important;
+}
+
+html[data-hugo-code-theme="catppuccin-mocha"] .hugo-main .hugo-code span {
+  color: var(--shiki-catppuccin-mocha, inherit) !important;
+}
+
+.hugo-main .prose table {
+  margin-block: var(--hugo-component-gap);
+  font-family: var(--hugo-table-font);
+  font-size: var(--hugo-table-size);
+}
+
+.hugo-main .prose table :is(th, td) {
+  padding: var(--hugo-table-cell-padding);
+  font-size: inherit;
+}
+
+html[data-hugo-table-style="ruled"] .hugo-main .prose table {
+  border-collapse: collapse;
+}
+
+html[data-hugo-table-style="ruled"] .hugo-main .prose table :is(th, td) {
+  border-bottom: 1px solid #d8d0ca;
+}
+
+html[data-hugo-table-style="ruled"] .hugo-main .prose table thead {
+  border-bottom: 2px solid #8f847a;
+}
+
+html[data-hugo-table-style="zebra"] .hugo-main .prose table tbody tr:nth-child(even) {
+  background: rgb(31 41 55 / 5%);
+}
+
+.hugo-main .prose .footnotes {
+  margin-top: var(--hugo-footnote-section-gap);
+  padding-top: var(--hugo-footnote-divider-gap);
+}
+
+.hugo-main .prose .footnotes ol {
+  margin-top: var(--hugo-footnote-divider-gap);
+  color: #1f2937;
+  font-family: var(--hugo-footnote-font);
+  font-size: var(--hugo-footnote-size);
+  line-height: var(--hugo-footnote-line-height);
+}
+
+.hugo-main .prose .footnotes > hr {
+  margin-block-end: 0;
+}
+
+.hugo-main .prose .footnotes li {
+  margin-block: var(--hugo-footnote-item-gap);
+}
+
+.hugo-main .prose .footnotes li p {
+  margin-block: 1.25em;
+  font-family: var(--hugo-footnote-font);
+}
+
+html[data-hugo-footnote-style="ruled"] .hugo-main .prose .footnotes li + li {
+  padding-top: var(--hugo-footnote-item-gap);
+  border-top: 1px solid #d8d0ca;
+}
+
+html[data-hugo-footnote-style="gutter"] .hugo-main .prose .footnotes ol {
+  margin-left: 0;
+  padding-left: 0;
+  counter-reset: hugo-footnote;
+  list-style: none;
+}
+
+html[data-hugo-footnote-style="gutter"] .hugo-main .prose .footnotes li {
+  display: grid;
+  grid-template-columns: 2ch minmax(0, 1fr);
+  column-gap: var(--hugo-footnote-number-gap);
+  counter-increment: hugo-footnote;
+}
+
+html[data-hugo-footnote-style="gutter"] .hugo-main .prose .footnotes li::before {
+  color: #8f847a;
+  content: counter(hugo-footnote);
+  text-align: end;
+}
+
+html[data-hugo-footnote-style="gutter"] .hugo-main .prose .footnotes li > p {
+  grid-column: 2;
+}

@@ -1,6 +1,11 @@
 const familyTypeOrder = ["Serif", "Mono", "Sans-Serif"];
 
 export const fontFamilies = {
+  "System Mono": {
+    type: "Mono",
+    label: "System Mono",
+    stack: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+  },
   "Departure Mono": {
     type: "Mono",
     label: "Departure Mono",
@@ -15,6 +20,11 @@ export const fontFamilies = {
     type: "Mono",
     label: "Paper Mono",
     stack: '"Paper Mono", ui-monospace, monospace',
+  },
+  Lora: {
+    type: "Serif",
+    label: "Lora",
+    stack: '"Lora", Georgia, serif',
   },
   "Instrument Serif": {
     type: "Serif",
@@ -45,6 +55,16 @@ export const fontFamilies = {
     type: "Sans-Serif",
     label: "Instrument Sans",
     stack: '"Instrument Sans", ui-sans-serif, system-ui, sans-serif',
+  },
+  "System UI": {
+    type: "Sans-Serif",
+    label: "System UI",
+    stack: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  },
+  "Source Sans Pro": {
+    type: "Sans-Serif",
+    label: "Source Sans Pro",
+    stack: '"Source Sans Pro", sans-serif',
   },
   "DM Sans": {
     type: "Sans-Serif",
