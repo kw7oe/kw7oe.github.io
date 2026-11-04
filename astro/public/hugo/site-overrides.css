@@ -1,0 +1,629 @@
+:root {
+  color-scheme: light;
+  background: #ebe5df;
+  color: #1f2937;
+  font-family: "Source Sans Pro", sans-serif;
+  font-size: 16px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body.hugo-site {
+  display: flex;
+  width: 66.6667%;
+  max-width: 65ch;
+  min-height: 100vh;
+  flex-direction: column;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  background: #ebe5df;
+  color: #1f2937;
+  font-family: ui-sans-serif, system-ui, -apple-system, "system-ui", "segoe ui", Roboto, "helvetica neue", Arial, "noto sans", sans-serif, "apple color emoji", "segoe ui emoji", "segoe ui symbol", "noto color emoji";
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.hugo-navigation {
+  margin-top: 2rem;
+}
+
+#nav-menu {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#nav-menu li a {
+  display: inline-block;
+  margin-right: 1rem;
+  border-bottom: 2px solid transparent;
+  color: #111827;
+  font-family: "Source Sans Pro", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+#nav-menu li a:hover {
+  border-bottom-color: #111827;
+}
+
+.hugo-main {
+  flex: 1;
+  margin-top: 2.5rem;
+}
+
+.hugo-footer-rule,
+.hugo-site hr {
+  width: 100%;
+  height: 1px;
+  margin: 2rem 0 0;
+  border: 0;
+  border-top: 1px solid #d8d0ca;
+}
+
+.hugo-site > .hugo-footer-rule {
+  margin-top: 0;
+}
+
+.hugo-footer {
+  width: 100%;
+  padding: 1rem;
+  color: #9ca3af;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  text-align: center;
+}
+
+.hugo-footer p {
+  margin: 0;
+}
+
+.hugo-footer a {
+  color: inherit;
+}
+
+.hugo-footer a:hover {
+  color: #60a5fa;
+}
+
+.hugo-footer .underline {
+  text-decoration: underline;
+}
+
+.hugo-site a {
+  color: #0369a1;
+}
+
+.hugo-site a:hover {
+  color: #0c4a6e;
+}
+
+.hugo-site h1,
+.hugo-site h2,
+.hugo-site h3,
+.hugo-site h4,
+.hugo-site h5,
+.hugo-site h6 {
+  color: #111827;
+  font-weight: 600;
+}
+
+.hugo-page-title {
+  margin: 0 0 0.25rem;
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
+.hugo-site h1.hugo-post-title {
+  margin: 0 0 0.5rem;
+  color: #111827;
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 2.25rem;
+}
+
+.hugo-page-header {
+  margin-bottom: 2rem;
+}
+
+.hugo-single-meta {
+  margin-bottom: 2rem;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.hugo-single-meta p,
+.hugo-post-meta p {
+  margin: 0;
+}
+
+.hugo-single-meta p:first-child,
+.hugo-post-meta p:first-child {
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.hugo-single-meta a,
+.hugo-post-meta a {
+  color: #374151;
+  text-decoration: none;
+}
+
+.hugo-lastmod,
+.hugo-entry-count {
+  color: #374151;
+  font-size: 0.75rem;
+  font-style: italic;
+}
+
+.hugo-lastmod {
+  margin: 0;
+}
+
+.hugo-post-meta {
+  margin-bottom: 2rem;
+  color: #000;
+  font-family: "Source Sans Pro", sans-serif;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.hugo-post-reading-time {
+  margin: 0 0 1rem;
+  color: #000;
+  font-size: 0.875rem;
+  font-style: italic;
+  line-height: 1.25rem;
+}
+
+#tags .badge {
+  margin: 0.25rem 0.5rem 0 0;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  background: #af9e92;
+  color: white;
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+#tags .badge:hover {
+  background: #9e8a7b;
+}
+
+#tags a,
+#tags a:hover {
+  color: white;
+  text-decoration: none;
+}
+
+.hugo-page-count {
+  margin: 0;
+  color: #374151;
+  font-size: 0.75rem;
+  font-style: italic;
+}
+
+.hugo-list-content {
+  margin-bottom: 2rem;
+}
+
+.hugo-year-heading {
+  margin: 2rem 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.5rem;
+}
+
+.hugo-year-list {
+  margin-bottom: 2rem;
+}
+
+.hugo-year-list ul,
+.hugo-home-entry-list,
+.hugo-series-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hugo-year-list ul.hugo-home-entry-list {
+  margin-bottom: 3rem;
+}
+
+.hugo-entry,
+.hugo-series-list li {
+  margin: 0;
+  font-family: "Lora", Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.hugo-entry span,
+.hugo-series-list span {
+  margin-left: 0.25rem;
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+.hugo-entry-count {
+  margin: 2rem 0 0;
+}
+
+.hugo-term-badges {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hugo-term-badges li {
+  margin: 0.25rem 0.5rem 0 0;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  background: #af9e92;
+  color: #fff;
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.hugo-term-badges a,
+.hugo-term-badges a:hover {
+  color: #fff;
+  text-decoration: none;
+}
+
+.hugo-term-heading {
+  margin: 2rem 0 0.5rem;
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
+.hugo-single-article,
+.hugo-post-content {
+  margin-bottom: 4rem;
+  color: #1f2937;
+}
+
+.hugo-single-article.prose,
+.hugo-post-content.prose {
+  color: #1f2937;
+}
+
+.hugo-post-content {
+  margin-bottom: 3rem;
+}
+
+.hugo-single-article > div:first-child > :first-child {
+  margin-top: 0;
+}
+
+.hugo-word-count {
+  float: right;
+  margin-bottom: 2rem;
+}
+
+.hugo-word-count p {
+  margin: 0 0 1rem;
+  color: #374151;
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+.hugo-site sup,
+.hugo-site sub {
+  position: relative;
+  font-size: 75%;
+  line-height: 0;
+  vertical-align: baseline;
+}
+
+.hugo-site sup {
+  top: -0.5em;
+}
+
+.hugo-site sub {
+  bottom: -0.25em;
+}
+
+.prose {
+  max-width: 65ch;
+  color: #374151;
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.prose p {
+  margin: 1.25em 0;
+}
+
+.prose > :first-child {
+  margin-top: 0;
+}
+
+.hugo-post-content > .hugo-post-markdown:first-child > :first-child {
+  margin-top: 0;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  color: #111827;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.prose h1 {
+  margin: 0 0 0.8em;
+  font-size: 2.25em;
+}
+
+.prose h2 {
+  margin: 2em 0 1em;
+  font-size: 1.5em;
+}
+
+.prose h3 {
+  margin: 1.6em 0 0.6em;
+  font-size: 1.25em;
+}
+
+.prose h4 {
+  margin: 2.5rem 0 1.5rem;
+  font-size: 1.125em;
+}
+
+.prose ul,
+.prose ol {
+  margin: 1.25em 0;
+  padding-left: 1.625em;
+}
+
+.prose ul {
+  list-style: disc;
+}
+
+.prose ol {
+  list-style: decimal;
+}
+
+.prose li {
+  margin: 0.5em 0;
+}
+
+.prose li::marker {
+  color: #8f847a;
+}
+
+.prose blockquote {
+  margin: 1.6em 0;
+  padding-left: 1em;
+  border-left: 0.25rem solid #b8aaa0;
+  color: #111827;
+  font-style: italic;
+  quotes: "\201C" "\201D" "\2018" "\2019";
+}
+
+.prose hr {
+  margin: 3em 0;
+  border: 0;
+  border-top: 1px solid #d8d0ca;
+}
+
+.prose a {
+  color: #111827;
+  text-decoration: underline;
+}
+
+.prose a:hover {
+  color: #111827;
+}
+
+.serif p,
+.serif li,
+.serif a {
+  font-family: "Lora", Georgia, serif;
+}
+
+.prose code {
+  width: 100%;
+  padding: 0.25rem;
+  border: 1px solid #d8d0ca;
+  border-radius: 0.5rem;
+  background: #f2eee9;
+  color: #111827;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.875em;
+  font-weight: 600;
+}
+
+.prose :where(code):not(:where([class~="not-prose"] *))::before,
+.prose :where(code):not(:where([class~="not-prose"] *))::after {
+  content: "`";
+}
+
+.prose pre {
+  overflow-x: auto;
+  margin: 0.75rem 0 1.25rem;
+  padding: 0.857em 1.142em;
+  border: 1px solid #d8d0ca;
+  border-radius: 0.5rem;
+  background: #f2eee9;
+  color: #333;
+  font-size: 0.875em;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.prose pre code {
+  width: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
+  font-weight: 400;
+}
+
+.prose :where(pre code):not(:where([class~="not-prose"] *))::before,
+.prose :where(pre code):not(:where([class~="not-prose"] *))::after {
+  content: none;
+}
+
+.prose table code {
+  font-size: inherit;
+  font-weight: 600;
+}
+
+.prose img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.prose a[data-pswp-width][data-pswp-height] img {
+  cursor: pointer;
+  transition: opacity 200ms;
+}
+
+.prose a[data-pswp-width][data-pswp-height]:hover img {
+  opacity: 0.8;
+}
+
+.callout {
+  display: block;
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border-left: 4px solid;
+}
+
+.callout h5 {
+  margin: 0 0 0.5rem;
+  color: #374151;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 28px;
+}
+
+.callout p:first-child {
+  margin-top: 0;
+}
+
+.callout p:last-child {
+  margin-bottom: 0;
+}
+
+.callout-info {
+  border-color: #3c80c3;
+  background: #dfe5eb;
+}
+
+.callout-warning {
+  border-color: #cccc00;
+  background: #f3f3d8;
+}
+
+.footnotes {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+}
+
+.footnotes ol {
+  margin: 0 0 0 1.5rem;
+  padding: 0 0 0 1.625em;
+  color: #1f2937;
+  font-family: "Source Sans Pro", sans-serif;
+  font-size: 0.875rem;
+  line-height: 1.428571;
+  list-style: decimal;
+}
+
+.footnotes li {
+  margin: 0.5em 0 0.5rem;
+}
+
+.footnotes li p {
+  margin: 1.25em 0;
+  font-family: "Source Sans Pro", sans-serif;
+}
+
+.footnote-ref a {
+  margin-left: 0.25rem;
+  vertical-align: super;
+}
+
+.footnote-backref {
+  margin-left: 0.5rem;
+}
+
+.hugo-toc {
+  margin-bottom: 2rem;
+  padding: 0 0 1.5rem;
+  border-top: 1px solid #d8d0ca;
+  border-bottom: 1px solid #d8d0ca;
+}
+
+.hugo-toc h2 {
+  margin: 1.25rem 0;
+}
+
+.hugo-toc ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hugo-toc > ul > li {
+  list-style: none;
+}
+
+.terminal-session {
+  font-family: "Source Sans Pro", sans-serif;
+}
+
+.terminal-session .terminal-session__heading p {
+  margin: 0;
+}
+
+.terminal-session .hugo-code {
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.terminal-session .hugo-code code {
+  font-family: inherit;
+  font-weight: 400;
+}
+
+.prose table {
+  font-family: "Noto Sans", system-ui, sans-serif;
+}
+
+@media (min-width: 640px) {
+  .hugo-main {
+    margin-top: 3rem;
+  }
+}
+
+@media (max-width: 767px) {
+  body.hugo-site {
+    width: 100%;
+  }
+}

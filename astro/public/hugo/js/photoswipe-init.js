@@ -1,0 +1,1 @@
+../../../../themes/my-theme/assets/js/photoswipe-init.js
