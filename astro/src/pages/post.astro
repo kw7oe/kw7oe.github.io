@@ -1,5 +1,6 @@
 ---
 import { codeToHast, hastToHtml } from "shiki";
+import { codeThemeData, codeThemePresets, shikiThemes } from "../lib/code-theme-presets.js";
 import {
   ArticleCallout,
   ArticleCodeBlock,
@@ -16,89 +17,6 @@ import quickActionImage from "../../../assets/images/quick-action.png";
 const ollamaCode = `# Replace “opencode” with “claude” or “codex” as needed
 ollama launch opencode --model qwen3.5:27b
 ollama launch opencode --model qwen3.5:35b`;
-
-const articleCodeTheme = {
-  name: "article",
-  type: "dark",
-  colors: {
-    "editor.background": "#292735",
-    "editor.foreground": "#f2eee9",
-  },
-  tokenColors: [
-    { scope: ["comment"], settings: { foreground: "#b5a9c0", fontStyle: "italic" } },
-    { scope: ["keyword", "storage"], settings: { foreground: "#dca18d" } },
-    { scope: ["string"], settings: { foreground: "#d8c28f" } },
-    { scope: ["entity.name.function", "support.function"], settings: { foreground: "#a7c7b7" } },
-    { scope: ["entity.name.type", "support.type", "entity.name.class"], settings: { foreground: "#c5a4d8" } },
-    { scope: ["constant.numeric", "constant.language"], settings: { foreground: "#edb67f" } },
-  ],
-};
-
-const codeThemePresets = [
-  {
-    value: "article",
-    label: "Article",
-    shikiKey: "dark",
-    shikiTheme: articleCodeTheme,
-    background: "#292735",
-    foreground: "#f2eee9",
-    border: "rgb(255 255 255 / 8%)",
-  },
-  {
-    value: "github-dark",
-    label: "GitHub Dark",
-    shikiKey: "github-dark",
-    shikiTheme: "github-dark",
-    background: "#0d1117",
-    foreground: "#e6edf3",
-    border: "rgb(255 255 255 / 10%)",
-  },
-  {
-    value: "github-light",
-    label: "GitHub Light",
-    shikiKey: "github-light",
-    shikiTheme: "github-light",
-    background: "#ffffff",
-    foreground: "#1f2328",
-    border: "rgb(31 35 40 / 14%)",
-  },
-  {
-    value: "nord",
-    label: "Nord",
-    shikiKey: "nord",
-    shikiTheme: "nord",
-    background: "#2e3440",
-    foreground: "#d8dee9",
-    border: "rgb(216 222 233 / 12%)",
-  },
-  {
-    value: "dracula",
-    label: "Dracula",
-    shikiKey: "dracula",
-    shikiTheme: "dracula",
-    background: "#282a36",
-    foreground: "#f8f8f2",
-    border: "rgb(255 255 255 / 8%)",
-  },
-  {
-    value: "catppuccin-mocha",
-    label: "Catppuccin Mocha",
-    shikiKey: "catppuccin-mocha",
-    shikiTheme: "catppuccin-mocha",
-    background: "#1e1e2e",
-    foreground: "#cdd6f4",
-    border: "rgb(205 214 244 / 12%)",
-  },
-];
-
-const shikiThemes = Object.fromEntries(codeThemePresets.map(({ shikiKey, shikiTheme }) => [shikiKey, shikiTheme]));
-const codeThemeData = codeThemePresets.map(({ value, label, background, foreground, border }) => ({
-  value,
-  label,
-  background,
-  foreground,
-  border,
-}));
 
 const highlightCode = async (code, lang) => {
   const tree = await codeToHast(code, { lang, themes: shikiThemes, defaultColor: "dark" });

@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { codeToHast } from 'shiki';
+import { hugoCodeTheme, hugoShellTheme, hugoShellThemes, shikiThemes } from './code-theme-presets.js';
 import { repoRoot } from './hugo-site.mjs';
 import { unified } from 'unified';
 import rehypeRaw from 'rehype-raw';
@@ -24,35 +25,6 @@ const blockMarkdownNodes = new Set([
   'tableCell',
   'tableRow',
 ]);
-
-const hugoCodeTheme = {
-  name: 'hugo-light',
-  type: 'light',
-  colors: {
-    'editor.background': '#f2eee9',
-    'editor.foreground': '#333333',
-  },
-  tokenColors: [
-    { scope: ['comment'], settings: { foreground: '#999988', fontStyle: 'italic' } },
-    { scope: ['keyword', 'keyword.control', 'storage.type.class', 'storage.type.function'], settings: { foreground: '#000000', fontStyle: 'bold' } },
-    { scope: ['keyword.type', 'entity.name.class', 'entity.name.type'], settings: { foreground: '#445588', fontStyle: 'bold' } },
-    { scope: ['entity.name.function', 'support.function'], settings: { foreground: '#990000', fontStyle: 'bold' } },
-    { scope: ['string'], settings: { foreground: '#dd1144' } },
-    { scope: ['constant.numeric'], settings: { foreground: '#009999' } },
-    { scope: ['entity.name.tag'], settings: { foreground: '#000080' } },
-    { scope: ['entity.other.attribute-name'], settings: { foreground: '#008080' } },
-  ],
-};
-
-const hugoShellTheme = {
-  ...hugoCodeTheme,
-  name: 'hugo-light-shell',
-  tokenColors: hugoCodeTheme.tokenColors.filter(({ scope }) => (
-    !scope.includes('entity.name.function')
-      && !scope.includes('support.function')
-      && !scope.includes('string')
-  )),
-};
 
 const languageAliases = new Map([
   ['docker', 'dockerfile'],
@@ -342,8 +314,14 @@ function shikiPlugin(page) {
         if (typeof source === 'string') {
           const originalLanguage = String(code.properties.dataHugoLanguage ?? 'text').toLowerCase();
           const language = languageAliases.get(originalLanguage) ?? originalLanguage;
-          const theme = language === 'bash' ? hugoShellTheme : hugoCodeTheme;
-          const output = await codeToHast(source, { lang: language, theme });
+          const shell = language === 'bash';
+          const output = import.meta.env.DEV
+            ? await codeToHast(source, {
+              lang: language,
+              themes: shell ? hugoShellThemes : shikiThemes,
+              defaultColor: 'light',
+            })
+            : await codeToHast(source, { lang: language, theme: shell ? hugoShellTheme : hugoCodeTheme });
           const highlighted = output.children.find((child) => child.type === 'element' && child.tagName === 'pre');
           if (highlighted) {
             highlighted.properties = {
