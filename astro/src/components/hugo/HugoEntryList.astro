@@ -1,0 +1,61 @@
+---
+interface Entry {
+  title: string;
+  route: string;
+  dateKey: string | null;
+  dateLabel: string;
+}
+
+interface Props {
+  entries: Entry[];
+  layout?: "home" | "years" | "series" | "flat";
+  showYearCounts?: boolean;
+}
+
+const { entries, layout = "years", showYearCounts = false } = Astro.props;
+const groups = new Map<string, Entry[]>();
+for (const entry of entries) {
+  const year = entry.dateKey?.slice(0, 4) ?? "";
+  groups.set(year, [...(groups.get(year) ?? []), entry]);
+}
+const years = [...groups.entries()].sort(([left], [right]) => right.localeCompare(left));
+---
+
+{layout === "series" ? (
+  <ul class="hugo-series-list">
+    {entries.map((entry, index) => (
+      <li class="hugo-entry prose serif">
+        <a class="font-normal" href={entry.route}>Part {index + 1}: {entry.title}</a>
+        {entry.dateLabel && <span class="text-gray-500 text-xs">({entry.dateLabel})</span>}
+      </li>
+    ))}
+  </ul>
+) : layout === "flat" ? (
+  <ul class="hugo-flat-list">
+    {entries.map((entry) => (
+      <li class="hugo-entry prose serif">
+        <a class="font-normal" href={entry.route}>{entry.title}</a>
+        {entry.dateLabel && <span class="text-gray-500 text-xs">({entry.dateLabel})</span>}
+      </li>
+    ))}
+  </ul>
+) : (
+  <>
+    {years.map(([year, group]) => (
+      <section class:list={["hugo-year-group", layout === "home" && "hugo-home-year-group"]}>
+        <h3 class="hugo-year-heading">{year}</h3>
+        <div class="hugo-year-list">
+          <ul class:list={[layout === "home" && "hugo-home-entry-list"]}>
+            {group.map((entry) => (
+              <li class="hugo-entry prose serif">
+                <a href={entry.route}>{entry.title}</a>
+                {entry.dateLabel && <span class="text-gray-500 text-xs">({entry.dateLabel})</span>}
+              </li>
+            ))}
+          </ul>
+          {showYearCounts && <p class="hugo-entry-count">({group.length} entries in {year})</p>}
+        </div>
+      </section>
+    ))}
+  </>
+)}

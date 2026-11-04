@@ -1,0 +1,173 @@
+---
+import HugoEntryList from "../components/hugo/HugoEntryList.astro";
+import HugoSiteLayout from "../layouts/HugoSiteLayout.astro";
+import { createHugoSite } from "../lib/hugo-site.mjs";
+import { renderHugoMarkdown } from "../lib/hugo-markdown.mjs";
+
+export async function getStaticPaths() {
+  const site = createHugoSite();
+  const metadataText = (value) => typeof value === "string" ? value : undefined;
+  const pageSummary = (page) => ({
+    title: page.title,
+    route: page.route,
+    type: page.type,
+    dateKey: page.dateKey,
+    dateLabel: page.dateKey ? site.formatDate(page.dateKey, { fullMonth: true, padDay: true }) : "",
+  });
+  const tableOfContents = (html) => {
+    const headings = [...html.matchAll(/<h1 id="([^"]+)">([\s\S]*?)<\/h1>/g)];
+    const items = headings.map(([, id, title]) => `<li><a href="#${id}">${title.replace(/<[^>]+>/g, "")}</a></li>`).join("");
+    return `<nav id="TableOfContents"><ul>${items}</ul></nav>`;
+  };
+  const renderedPages = new Map();
+  for (const page of site.pages) {
+    const rendered = await renderHugoMarkdown(page, site);
+    const metadata = page.metadata;
+    const tags = page.tags.map((label) => ({
+      label,
+      route: site.routes.find((route) => route.kind === "taxonomy-term" && route.taxonomy === "tags" && route.term.label === label)?.route,
+    }));
+    renderedPages.set(page.sourcePath, {
+      ...pageSummary(page),
+      description: metadataText(metadata.description),
+      keywords: Array.isArray(metadata.keywords)
+        ? metadata.keywords.filter((value) => typeof value === "string")
+        : metadataText(metadata.keywords),
+      author: metadataText(metadata.author),
+      postDateLabel: page.dateKey ? site.formatDate(page.dateKey, { year: true, padDay: true }) : "",
+      lastmodLabel: page.lastmod ? site.formatDate(page.lastmod, { year: true, padDay: true }) : "",
+      tags,
+      toc: Boolean(metadata.toc),
+      html: rendered.html,
+      tocHtml: tableOfContents(rendered.html),
+      wordCount: rendered.wordCount,
+      readingTime: rendered.readingTime,
+    });
+  }
+
+  return site.routes
+    .filter((route) => route.route !== "/")
+    .map((route) => {
+      const mapEntries = (entries) => entries?.map((page) => pageSummary(page)) ?? [];
+      const page = route.page ? renderedPages.get(route.page.sourcePath) : undefined;
+      const terms = route.terms?.map((term) => ({
+        label: term.label,
+        route: `/${route.taxonomy}/${term.slug}/`,
+        pages: route.taxonomy === "series"
+          ? mapEntries([...term.pages].sort((left, right) => (left.date?.getTime() ?? 0) - (right.date?.getTime() ?? 0)))
+          : mapEntries(term.pages),
+      }));
+      const term = route.term ? {
+        label: route.term.label,
+        pages: mapEntries(route.term.pages),
+      } : undefined;
+      const entries = mapEntries(route.entries);
+
+      return {
+        params: { path: route.route.replace(/^\/+|\/+$/g, "") },
+        props: {
+          route: {
+            kind: route.kind,
+            route: route.route,
+            title: route.title,
+            taxonomy: route.taxonomy,
+            page,
+            term,
+            terms,
+            entries,
+          },
+        },
+      };
+    });
+}
+
+const { route } = Astro.props;
+const page = route.page;
+const isPost = route.kind === "single" && page?.type === "posts";
+---
+
+<HugoSiteLayout title={route.title} description={page?.description} keywords={page?.keywords} author={page?.author}>
+  {route.kind === "single" && isPost && (
+    <>
+      <header class="hugo-page-header">
+        <div class="hugo-post-meta">
+          <p><a href={`/${page.type}/`}>{page.type}</a></p>
+          <p>{page.postDateLabel}</p>
+        </div>
+        <h1 class="hugo-post-title">{page.title}</h1>
+        <p class="hugo-post-reading-time">Estimated Reading Time: {page.readingTime} minutes ({page.wordCount} words)</p>
+        <div id="tags">
+          {page.tags.map((tag) => tag.route && (
+            <span class="badge badge-primary rounded-badge"><a href={tag.route}>{tag.label}</a></span>
+          ))}
+        </div>
+      </header>
+      <article class="hugo-post-content prose serif">
+        {page.wordCount > 400 && page.toc && (
+          <div class="hugo-toc">
+            <h2>Table of Content</h2>
+            <div set:html={page.tocHtml}></div>
+          </div>
+        )}
+        <div class="hugo-post-markdown" set:html={page.html}></div>
+      </article>
+    </>
+  )}
+
+  {route.kind === "single" && !isPost && page && (
+    <div>
+      <header class="hugo-page-header">
+        {page.type !== "page" && (
+          <div class="hugo-single-meta">
+            <p><a href={`/${page.type}/`}>{page.type}</a></p>
+            <p>{page.postDateLabel}</p>
+          </div>
+        )}
+        <h1 class="hugo-page-title">{page.title}</h1>
+        {page.lastmodLabel && <p class="hugo-lastmod">Last updated at: {page.lastmodLabel}</p>}
+      </header>
+      <article class="hugo-single-article prose serif">
+        <div set:html={page.html}></div>
+        <div class="hugo-word-count"><p>({page.wordCount} words)</p></div>
+      </article>
+    </div>
+  )}
+
+  {(route.kind === "section" || route.kind === "taxonomy-term") && (
+    <>
+      <header class="hugo-page-header">
+        <h1 class="hugo-page-title">{route.title}</h1>
+        <p class="hugo-page-count">({route.entries.length} entries)</p>
+      </header>
+      <div class="hugo-list-content prose prose-sm serif" set:html={page?.html ?? ""}></div>
+      <hr />
+      <HugoEntryList entries={route.entries} showYearCounts />
+    </>
+  )}
+
+  {route.kind === "taxonomy-index" && (
+    <>
+      <header class="hugo-page-header">
+        <h1 class="hugo-page-title">{route.title}</h1>
+        <p class="hugo-page-count">({route.terms.length} {route.taxonomy === "series" ? "series" : "entries"})</p>
+      </header>
+      {route.taxonomy !== "series" && (
+        <ul class="hugo-term-badges">
+          {route.terms.map((term) => (
+            <li class="badge badge-primary rounded-badge"><a href={term.route}>{term.label}</a></li>
+          ))}
+        </ul>
+      )}
+      <div class="hugo-list-content prose prose-sm serif" set:html={page?.html ?? ""}></div>
+      <hr />
+      {route.terms.map((term) => (
+        <section>
+          <h3 class="hugo-term-heading">{term.label}</h3>
+          <div class="hugo-year-list">
+            <HugoEntryList entries={term.pages} layout={route.taxonomy === "series" ? "series" : "flat"} />
+          </div>
+        </section>
+      ))}
+    </>
+  )}
+</HugoSiteLayout>

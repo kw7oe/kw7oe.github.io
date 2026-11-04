@@ -1,0 +1,65 @@
+---
+import { createHugoSite } from "../lib/hugo-site.mjs";
+
+interface Props {
+  title: string;
+  description?: string;
+  keywords?: string[] | string;
+  author?: string;
+}
+
+const { title, description, keywords, author } = Astro.props;
+const site = createHugoSite();
+const navigation = [
+  { title: site.home.title, href: site.home.route },
+  ...["series", "fragments", "books"].flatMap((section) => {
+    const page = site.sectionIndexes.get(section);
+    return page ? [{ title: page.title, href: page.route }] : [];
+  }),
+  ...[site.pages.find((page) => page.sourcePath === "about.md")]
+    .filter((page) => page)
+    .map((page) => ({ title: page.title, href: page.route })),
+  ...site.routes
+    .filter((route) => route.kind === "taxonomy-index" && route.taxonomy === "tags")
+    .map((route) => ({ title: route.title, href: route.route })),
+];
+const keywordContent = Array.isArray(keywords) ? keywords.join(",") : keywords;
+---
+
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    {keywordContent && <meta name="keywords" content={keywordContent} />}
+    {author && <meta name="author" content={author} />}
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Lora&family=Source+Sans+Pro:wght@400;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/hugo/site.css" />
+    <link rel="stylesheet" href="/hugo/site-overrides.css" />
+    <link rel="stylesheet" href="/lib/photoswipe/photoswipe.css" />
+    {import.meta.env.PROD && <script defer data-domain="kaiwern.com" src="https://analytics.kaiwern.com/js/script.file-downloads.hash.outbound-links.tagged-events.js"></script>}
+    {import.meta.env.PROD && <script is:inline>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>}
+    <script type="module" src="/hugo/js/photoswipe-init.js"></script>
+    <script type="module" src="/hugo/js/terminal-session.js"></script>
+  </head>
+  <body class="hugo-site">
+    <nav class="hugo-navigation" aria-label="Primary navigation">
+      <ul id="nav-menu">
+        {navigation.map((item) => (
+          <li><a href={item.href}>{item.title}</a></li>
+        ))}
+      </ul>
+    </nav>
+    <main class="hugo-main">
+      <slot />
+    </main>
+    <hr class="hugo-footer-rule" />
+    <footer class="hugo-footer">
+      <p>made with <a href="https://gohugo.io" class="underline">Hugo</a> and <a href="https://tailwindcss.com" class="underline">TailwindCSS</a></p>
+    </footer>
+  </body>
+</html>

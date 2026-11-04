@@ -1,14 +1,15 @@
 ---
 interface Props {
-  current: "home" | "article";
+  current: "homepage" | "article";
 }
 
 const { current } = Astro.props;
 ---
 
-<nav class="prototype-page-nav" aria-label="Prototype pages">
-  <a href="/" aria-current={current === "home" ? "page" : undefined}>Home</a>
+<nav class="prototype-page-nav" aria-label="Design pages">
+  <a href="/style/" aria-current={current === "homepage" ? "page" : undefined}>Homepage</a>
   <a href="/post/" aria-current={current === "article" ? "page" : undefined}>Blog post</a>
+  <a href="/">Website</a>
 </nav>
 
 <style>
