@@ -82,14 +82,28 @@ function dateParts(raw, metadata, fileName) {
   return { dateKey, date: date && Number.isFinite(date.getTime()) ? date : null };
 }
 
-function gitLastmod(sourcePath) {
-  if (!existsSync(path.join(repoRoot, '.git'))) return null;
-  const date = execFileSync('git', ['log', '-1', '--format=%cs', '--', path.posix.join('content', sourcePath)], {
+function gitLastmods(sourcePaths) {
+  const lastmods = new Map();
+  if (!sourcePaths.length || !existsSync(path.join(repoRoot, '.git'))) return lastmods;
+
+  const contentPaths = sourcePaths.map((sourcePath) => path.posix.join('content', sourcePath));
+  const requestedPaths = new Set(contentPaths);
+  const output = execFileSync('git', ['log', '--format=%cs', '--name-only', '--', ...contentPaths], {
     cwd: repoRoot,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'ignore'],
-  }).trim();
-  return /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : null;
+  });
+
+  let date = null;
+  for (const line of output.split(/\r?\n/)) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(line)) {
+      date = line;
+    } else if (date && requestedPaths.has(line)) {
+      const sourcePath = line.slice('content/'.length);
+      if (!lastmods.has(sourcePath)) lastmods.set(sourcePath, date);
+    }
+  }
+  return lastmods;
 }
 
 function hugoUrlize(value) {
@@ -154,7 +168,7 @@ function addReferenceKey(index, key, page) {
   index.set(normalized, matches);
 }
 
-function contentPageFor(filePath, { includeGitLastmod = true } = {}) {
+function contentPageFor(filePath) {
   const source = readFileSync(filePath, 'utf8');
   const sourcePath = path.relative(contentRoot, filePath).split(path.sep).join('/');
   const { metadata, body, raw } = frontmatterFor(source, sourcePath);
@@ -168,7 +182,7 @@ function contentPageFor(filePath, { includeGitLastmod = true } = {}) {
   const lastmodRaw = /^lastmod:\s*["']?(\d{4}-\d{1,2}-\d{1,2})/m.exec(raw)?.[1] ?? null;
   const lastmod = lastmodRaw
     ? lastmodRaw.split('-').map((part, index) => index === 0 ? part : part.padStart(2, '0')).join('-')
-    : includeGitLastmod && !isSectionIndex && section !== 'posts' ? gitLastmod(sourcePath) : null;
+    : null;
 
   return {
     sourcePath,
@@ -201,13 +215,18 @@ export function createHugoSite() {
 
 export function listHugoAliases() {
   return walkMarkdown(contentRoot)
-    .map((filePath) => contentPageFor(filePath, { includeGitLastmod: false }))
+    .map((filePath) => contentPageFor(filePath))
     .filter((page) => page.metadata.draft !== true && !page.isSectionIndex)
     .flatMap((page) => page.aliases.map((alias) => ({ alias, route: page.route })));
 }
 
 function buildHugoSite() {
   const pages = walkMarkdown(contentRoot).map((filePath) => contentPageFor(filePath));
+  const pagesNeedingGitLastmod = pages.filter((page) => !page.isSectionIndex && page.section !== 'posts' && page.lastmod === null);
+  const lastmods = gitLastmods(pagesNeedingGitLastmod.map((page) => page.sourcePath));
+  for (const page of pagesNeedingGitLastmod) {
+    page.lastmod = lastmods.get(page.sourcePath) ?? null;
+  }
 
   const publishedPages = pages.filter((page) => page.metadata.draft !== true);
   const drafts = pages.filter((page) => page.metadata.draft === true);
