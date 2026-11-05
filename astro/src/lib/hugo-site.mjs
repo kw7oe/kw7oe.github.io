@@ -16,6 +16,7 @@ function findRepoRoot(startDirectory) {
 export const repoRoot = findRepoRoot(path.dirname(fileURLToPath(import.meta.url)));
 const contentRoot = path.join(repoRoot, 'content');
 const taxonomyNames = ['categories', 'tags', 'series'];
+let productionSite;
 
 /** @typedef {{ sourcePath: string, filePath: string, title: string, type: string, section: string, route: string, slug: string, dateKey: string | null, date: Date | null, lastmod: string | null, content: string, metadata: Record<string, unknown>, aliases: string[], tags: string[], categories: string[], series: string[], isSectionIndex: boolean }} ContentPage */
 /** @typedef {{ kind: 'home' | 'single' | 'section' | 'taxonomy-index' | 'taxonomy-term', route: string, title: string, page?: ContentPage, entries?: ContentPage[], taxonomy?: string, term?: { label: string, slug: string, pages: ContentPage[] }, terms?: { label: string, slug: string, pages: ContentPage[] }[] }} SiteRoute */
@@ -154,6 +155,14 @@ function addReferenceKey(index, key, page) {
 }
 
 export function createHugoSite() {
+  if (import.meta.env?.PROD) {
+    productionSite ??= buildHugoSite();
+    return productionSite;
+  }
+  return buildHugoSite();
+}
+
+function buildHugoSite() {
   const pages = walkMarkdown(contentRoot).map((filePath) => {
     const source = readFileSync(filePath, 'utf8');
     const sourcePath = path.relative(contentRoot, filePath).split(path.sep).join('/');

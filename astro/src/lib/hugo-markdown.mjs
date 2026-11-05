@@ -410,6 +410,7 @@ export async function renderHugoMarkdown(page, site) {
 
   const parsed = processor.parse(markdown);
   const wordCount = countWords(parsed);
-  const html = String(await processor.process(markdown));
+  const rendered = await processor.run(parsed);
+  const html = String(processor.stringify(rendered));
   return { html, wordCount, readingTime: Math.max(1, Math.ceil(wordCount / 212)) };
 }
