@@ -154,6 +154,43 @@ function addReferenceKey(index, key, page) {
   index.set(normalized, matches);
 }
 
+function contentPageFor(filePath, { includeGitLastmod = true } = {}) {
+  const source = readFileSync(filePath, 'utf8');
+  const sourcePath = path.relative(contentRoot, filePath).split(path.sep).join('/');
+  const { metadata, body, raw } = frontmatterFor(source, sourcePath);
+  const segments = sourcePath.split('/');
+  const fileName = segments.at(-1).replace(/\.md$/, '');
+  const isSectionIndex = fileName === '_index';
+  const section = isSectionIndex ? segments.slice(0, -1).join('/') : segments.length > 1 ? segments[0] : '';
+  const slug = isSectionIndex ? '' : slugFor(fileName, section, metadata);
+  const { dateKey, date } = dateParts(raw, metadata, fileName);
+  const route = routeFor({ section, slug, dateKey, metadata, isSectionIndex, sourcePath });
+  const lastmodRaw = /^lastmod:\s*["']?(\d{4}-\d{1,2}-\d{1,2})/m.exec(raw)?.[1] ?? null;
+  const lastmod = lastmodRaw
+    ? lastmodRaw.split('-').map((part, index) => index === 0 ? part : part.padStart(2, '0')).join('-')
+    : includeGitLastmod && !isSectionIndex && section !== 'posts' ? gitLastmod(sourcePath) : null;
+
+  return {
+    sourcePath,
+    filePath,
+    title: stringValue(metadata.title, isSectionIndex ? section : slug),
+    type: stringValue(metadata.type, section || 'page'),
+    section,
+    route,
+    slug,
+    dateKey,
+    date,
+    lastmod,
+    content: body,
+    metadata,
+    aliases: stringList(metadata.aliases).map((alias) => alias.startsWith('/') ? alias : `/${alias}`),
+    tags: stringList(metadata.tags),
+    categories: stringList(metadata.categories),
+    series: stringList(metadata.series),
+    isSectionIndex,
+  };
+}
+
 export function createHugoSite() {
   if (import.meta.env?.PROD) {
     productionSite ??= buildHugoSite();
@@ -162,43 +199,15 @@ export function createHugoSite() {
   return buildHugoSite();
 }
 
-function buildHugoSite() {
-  const pages = walkMarkdown(contentRoot).map((filePath) => {
-    const source = readFileSync(filePath, 'utf8');
-    const sourcePath = path.relative(contentRoot, filePath).split(path.sep).join('/');
-    const { metadata, body, raw } = frontmatterFor(source, sourcePath);
-    const segments = sourcePath.split('/');
-    const fileName = segments.at(-1).replace(/\.md$/, '');
-    const isSectionIndex = fileName === '_index';
-    const section = isSectionIndex ? segments.slice(0, -1).join('/') : segments.length > 1 ? segments[0] : '';
-    const slug = isSectionIndex ? '' : slugFor(fileName, section, metadata);
-    const { dateKey, date } = dateParts(raw, metadata, fileName);
-    const route = routeFor({ section, slug, dateKey, metadata, isSectionIndex, sourcePath });
-    const lastmodRaw = /^lastmod:\s*["']?(\d{4}-\d{1,2}-\d{1,2})/m.exec(raw)?.[1] ?? null;
-    const lastmod = lastmodRaw
-      ? lastmodRaw.split('-').map((part, index) => index === 0 ? part : part.padStart(2, '0')).join('-')
-      : isSectionIndex || section === 'posts' ? null : gitLastmod(sourcePath);
+export function listHugoAliases() {
+  return walkMarkdown(contentRoot)
+    .map((filePath) => contentPageFor(filePath, { includeGitLastmod: false }))
+    .filter((page) => page.metadata.draft !== true && !page.isSectionIndex)
+    .flatMap((page) => page.aliases.map((alias) => ({ alias, route: page.route })));
+}
 
-    return {
-      sourcePath,
-      filePath,
-      title: stringValue(metadata.title, isSectionIndex ? section : slug),
-      type: stringValue(metadata.type, section || 'page'),
-      section,
-      route,
-      slug,
-      dateKey,
-      date,
-      lastmod,
-      content: body,
-      metadata,
-      aliases: stringList(metadata.aliases).map((alias) => alias.startsWith('/') ? alias : `/${alias}`),
-      tags: stringList(metadata.tags),
-      categories: stringList(metadata.categories),
-      series: stringList(metadata.series),
-      isSectionIndex,
-    };
-  });
+function buildHugoSite() {
+  const pages = walkMarkdown(contentRoot).map((filePath) => contentPageFor(filePath));
 
   const publishedPages = pages.filter((page) => page.metadata.draft !== true);
   const drafts = pages.filter((page) => page.metadata.draft === true);
