@@ -20,6 +20,7 @@ const navigation = [
   ...site.routes
     .filter((route) => route.kind === "taxonomy-index" && route.taxonomy === "tags")
     .map((route) => ({ title: route.title, href: route.route })),
+  ...(import.meta.env.DEV ? [{ title: "Dev", href: "/dev/prototypes/" }] : []),
 ];
 const keywordContent = Array.isArray(keywords) ? keywords.join(",") : keywords;
 ---
