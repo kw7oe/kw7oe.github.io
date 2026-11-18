@@ -1,12 +1,12 @@
 ---
-import "../../styles/fonts.css";
-import HugoFieldNotes from "../../prototypes/home/FieldNotes.astro";
-import HugoStudio from "../../prototypes/home/Studio.astro";
-import HugoLedger from "../../prototypes/home/Ledger.astro";
-import HugoPoster from "../../prototypes/home/Poster.astro";
-import HugoCurrentHome from "../../prototypes/home/CurrentHome.astro";
-import { createHugoSite } from "../../lib/hugo-site.mjs";
-import { renderHugoMarkdown } from "../../lib/hugo-markdown.mjs";
+import "../../../styles/fonts.css";
+import HugoFieldNotes from "../../../prototypes/home/FieldNotes.astro";
+import HugoStudio from "../../../prototypes/home/Studio.astro";
+import HugoLedger from "../../../prototypes/home/Ledger.astro";
+import HugoPoster from "../../../prototypes/home/Poster.astro";
+import HugoCurrentHome from "../../../prototypes/home/CurrentHome.astro";
+import { createHugoSite } from "../../../lib/hugo-site.mjs";
+import { renderHugoMarkdown } from "../../../lib/hugo-markdown.mjs";
 
 const site = createHugoSite();
 const route = site.routes.find((item) => item.route === "/");
@@ -60,7 +60,7 @@ const initialVariant = Astro.url.searchParams.get("v") ?? "1";
 
     <script>
       import { createDialKit, createDialRoot } from "dialkit/vanilla";
-      import { fontFamilies } from "../../lib/font-families.js";
+      import { fontFamilies } from "../../../lib/font-families.js";
       import "dialkit/vanilla/styles.css";
 
       const stage = document.getElementById("stage");

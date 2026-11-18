@@ -1,0 +1,62 @@
+---
+import HugoSiteLayout from "../../layouts/HugoSiteLayout.astro";
+
+const groups = [
+  {
+    title: "Homepage studies",
+    description: "Design rounds for the homepage, each with its own variant picker.",
+    items: [
+      { title: "Round one", href: "/dev/prototypes/home/", description: "Field notes, studio, ledger, poster, and the current home." },
+      { title: "Round two", href: "/dev/prototypes/home-round-2/", description: "Flight plan, herbarium, line map, broadsheet, sleeve notes." },
+      { title: "Round three", href: "/dev/prototypes/home-round-3/", description: "Magazine cover, studio folio, type specimen, field guide, gatefold notes." },
+      { title: "Round four", href: "/dev/prototypes/home-round-4/", description: "Quiet, index, spread, stack, rail." },
+    ],
+  },
+  {
+    title: "Typography",
+    description: "Type, spacing, and margin controls driven by DialKit in development.",
+    items: [
+      { title: "Homepage type playground", href: "/dev/prototypes/style/", description: "Font pairing, title size, text gap, and alignment." },
+    ],
+  },
+  {
+    title: "Article",
+    description: "The article layout with the same live design controls.",
+    items: [
+      { title: "Blog post", href: "/post/", description: "An existing post rendered through the design playground." },
+    ],
+  },
+  {
+    title: "ASCII",
+    description: "Character studies and the photo tool behind them.",
+    items: [
+      { title: "Landscapes", href: "/dev/exploration/", description: "Seven still scenes drawn in type." },
+      { title: "Lab", href: "/dev/lab/", description: "Turn a photograph into a colour-cell ASCII study." },
+    ],
+  },
+];
+---
+
+<HugoSiteLayout title="Prototypes" description="Design studies and experiments kept out of the main navigation.">
+  <div>
+    <header class="hugo-page-header">
+      <h1 class="hugo-page-title">Prototypes</h1>
+      <p class="hugo-lastmod">Design studies and experiments</p>
+    </header>
+    <article class="hugo-single-article prose serif">
+      {groups.map((group) => (
+        <section>
+          <h2>{group.title}</h2>
+          <p>{group.description}</p>
+          <ul>
+            {group.items.map((item) => (
+              <li>
+                <a href={item.href}>{item.title}</a> — {item.description}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </article>
+  </div>
+</HugoSiteLayout>

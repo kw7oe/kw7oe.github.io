@@ -1,7 +1,7 @@
 ---
-import { HomeIdentity } from "../../components/home/HomeIdentity";
-import PrototypePageNav from "../../components/PrototypePageNav.astro";
-import "../../styles/tailwind.css";
+import { HomeIdentity } from "../../../components/home/HomeIdentity";
+import PrototypePageNav from "../../../components/PrototypePageNav.astro";
+import "../../../styles/tailwind.css";
 ---
 
 <!doctype html>
@@ -25,7 +25,7 @@ import "../../styles/tailwind.css";
 <script>
   import { createDialKit, createDialRoot } from "dialkit/vanilla";
   import "dialkit/vanilla/styles.css";
-  import { enableDialKitFontGroups, fontFamilies, fontFamilyOptions } from "../../lib/font-families.js";
+  import { enableDialKitFontGroups, fontFamilies, fontFamilyOptions } from "../../../lib/font-families.js";
 
   if (import.meta.env.DEV) {
     const isCompact = window.matchMedia("(max-width: 850px)").matches;

@@ -1,11 +1,11 @@
 ---
-import "../../styles/fonts.css";
-import MagazineCover from "../../prototypes/home-round-three/MagazineCover.astro";
-import StudioFolio from "../../prototypes/home-round-three/StudioFolio.astro";
-import TypeSpecimen from "../../prototypes/home-round-three/TypeSpecimen.astro";
-import FieldGuide from "../../prototypes/home-round-three/FieldGuide.astro";
-import GatefoldNotes from "../../prototypes/home-round-three/GatefoldNotes.astro";
-import { createHugoSite } from "../../lib/hugo-site.mjs";
+import "../../../styles/fonts.css";
+import MagazineCover from "../../../prototypes/home-round-three/MagazineCover.astro";
+import StudioFolio from "../../../prototypes/home-round-three/StudioFolio.astro";
+import TypeSpecimen from "../../../prototypes/home-round-three/TypeSpecimen.astro";
+import FieldGuide from "../../../prototypes/home-round-three/FieldGuide.astro";
+import GatefoldNotes from "../../../prototypes/home-round-three/GatefoldNotes.astro";
+import { createHugoSite } from "../../../lib/hugo-site.mjs";
 
 const site = createHugoSite();
 const navigation = [
@@ -84,7 +84,7 @@ const projects = [
 
     <script>
       import { createDialKit, createDialRoot } from "dialkit/vanilla";
-      import { fontFamilies } from "../../lib/font-families.js";
+      import { fontFamilies } from "../../../lib/font-families.js";
       import "dialkit/vanilla/styles.css";
 
       const stage = document.getElementById("stage");

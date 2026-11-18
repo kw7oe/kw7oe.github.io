@@ -22,8 +22,8 @@ const meta = {
           <a href="https://kaiwern.com/posts/">Posts</a>
           <a href="https://kaiwern.com/fragments/">Fragments</a>
           <a href="https://kaiwern.com/about/">About</a>
-          <a href="/exploration/">Exploration</a>
-          <a href="/lab/" aria-current="page">Lab</a>
+          <a href="/dev/exploration/">Exploration</a>
+          <a href="/dev/lab/" aria-current="page">Lab</a>
         </nav>
       </header>
 
@@ -508,7 +508,7 @@ const meta = {
         event.stopPropagation();
         setStatus('Loading sample…');
         try {
-          const response = await fetch('/lab/lake-sample.jpg');
+          const response = await fetch('/dev/lab/lake-sample.jpg');
           const blob = await response.blob();
           await loadFile(new File([blob], 'lake-sample.jpg', { type: blob.type }));
         } catch {

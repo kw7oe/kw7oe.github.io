@@ -7,7 +7,7 @@ const { navigation, projects } = Astro.props;
     <div class="broadsheet__paper-name"><a href="/">The Kai Wern Choong</a><span>Personal edition · No. 02</span></div>
     <nav aria-label="Primary navigation">
       {navigation.map((item) => <a href={item.href} aria-current={item.href === "/" ? "page" : undefined}>{item.title}</a>)}
-      <a href="/proto/home/">Round one</a>
+      <a href="/dev/prototypes/home/">Round one</a>
     </nav>
   </header>
 
@@ -53,7 +53,7 @@ const { navigation, projects } = Astro.props;
 
   <footer class="broadsheet__footer">
     <p>Layout reference: <a href="https://www.loc.gov/item/sn96061149" target="_blank" rel="noreferrer">The Daily Astorian · Library of Congress</a></p>
-    <span>End of this edition · <a href="/proto/home/">Read round one</a></span>
+    <span>End of this edition · <a href="/dev/prototypes/home/">Read round one</a></span>
   </footer>
 </section>
 

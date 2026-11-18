@@ -7,7 +7,7 @@ const { navigation, projects } = Astro.props;
     <a href="/" class="sleeve-notes__brand">Kai Wern Choong <span>· Long play, side A</span></a>
     <nav aria-label="Primary navigation">
       {navigation.map((item) => <a href={item.href} aria-current={item.href === "/" ? "page" : undefined}>{item.title}</a>)}
-      <a href="/proto/home/">Round one</a>
+      <a href="/dev/prototypes/home/">Round one</a>
     </nav>
   </header>
 
@@ -43,7 +43,7 @@ const { navigation, projects } = Astro.props;
 
   <footer class="sleeve-notes__footer">
     <p>Cover-study reference: <a href="https://www.moma.org/collection/artists/46697" target="_blank" rel="noreferrer">Reid Miles for Blue Note Records · MoMA collection</a></p>
-    <span><a href="/proto/home/">Compare with round one</a></span>
+    <span><a href="/dev/prototypes/home/">Compare with round one</a></span>
   </footer>
 </section>
 

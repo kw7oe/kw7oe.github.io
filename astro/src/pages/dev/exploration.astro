@@ -1,5 +1,5 @@
 ---
-import { SCENES, renderScene, linesToHtml } from '../lib/landscapes.js';
+import { SCENES, renderScene, linesToHtml } from '../../lib/landscapes.js';
 
 const initial = SCENES.map((scene) => ({
   scene,
@@ -27,8 +27,8 @@ const initial = SCENES.map((scene) => ({
           <a href="https://kaiwern.com/posts/">Posts</a>
           <a href="https://kaiwern.com/fragments/">Fragments</a>
           <a href="https://kaiwern.com/about/">About</a>
-          <a href="/exploration/" aria-current="page">Exploration</a>
-          <a href="/lab/">Lab</a>
+          <a href="/dev/exploration/" aria-current="page">Exploration</a>
+          <a href="/dev/lab/">Lab</a>
         </nav>
       </header>
 
@@ -120,7 +120,7 @@ const initial = SCENES.map((scene) => ({
     </div>
 
     <script>
-      import { SCENES, renderScene, linesToHtml } from '../lib/landscapes.js';
+      import { SCENES, renderScene, linesToHtml } from '../../lib/landscapes.js';
 
       const scenes = new Map(SCENES.map((scene) => [scene.id, scene]));
       const plates = document.querySelector('.plates');

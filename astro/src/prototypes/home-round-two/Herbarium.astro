@@ -7,7 +7,7 @@ const { navigation, projects } = Astro.props;
     <a href="/" class="herbarium__mark">Kai Wern Choong <span>· Personal collection</span></a>
     <nav aria-label="Primary navigation">
       {navigation.map((item) => <a href={item.href} aria-current={item.href === "/" ? "page" : undefined}>{item.title}</a>)}
-      <a href="/proto/home/">Round one</a>
+      <a href="/dev/prototypes/home/">Round one</a>
     </nav>
   </header>
 
@@ -57,7 +57,7 @@ const { navigation, projects } = Astro.props;
 
   <footer class="herbarium__footer">
     <p>Label format inspired by <a href="https://www.kew.org/read-and-watch/herbarium-collection" target="_blank" rel="noreferrer">Kew’s herbarium collection</a></p>
-    <a href="/proto/home/">Compare with round one</a>
+    <a href="/dev/prototypes/home/">Compare with round one</a>
   </footer>
 </section>
 
