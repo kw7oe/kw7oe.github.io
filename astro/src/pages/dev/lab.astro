@@ -83,10 +83,11 @@ const meta = {
               Colours are sampled from the photo. The slider sets how many are used;
               edit any swatch, or use From photo to resample. Ink changes the
               character density, not the palette. Tall photos cap at 220 rows.
-              In Method, Measured orders the ramp by each glyph's real ink,
-              Blanks leaves near-paper cells empty, Edges draws strokes along
-              strong lines, and Grid overlays the cells. Turn all of them off to
-              see the plain luminance ramp.
+              In Method, Ink paints the photograph as a wash and inks the glyph
+              over it, Shape picks each glyph by a 2 × 3 read of the cell,
+              Bleed lets the glyph fill the cell, and Gaps puts the grid in the
+              paper. Measured, Blanks and Edges are the earlier switches. Turn
+              all of them off to see the plain luminance tiles.
             </p>
           </aside>
         </div>
@@ -113,7 +114,9 @@ const meta = {
       const CHARS = ['.', ':', ';', 'o', '0', '8', '#', '@'];
       const RAMP_POOL = ['.', ':', ';', '+', '*', 'x', 'o', '0', '8', '#', '%', '@', '&'];
       const STROKES = ['-', '\\', '|', '/'];
-      const SUB = 3;
+      // Shape matching needs glyphs that mark a sub-cell edge, not only tone.
+      const SHAPE_CHARS = [...RAMP_POOL, ...STROKES, '_'];
+      const SUB = 4;
       const ART_FONT = 'ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace';
       const COLOUR_KEYS = Array.from({ length: 8 }, (_, i) => `colour${i + 1}`);
       const PRESETS = {
@@ -122,6 +125,18 @@ const meta = {
         mono: ['#f7f3ec', '#e4e0d7', '#d0cbc2', '#b9b3aa', '#a09a91', '#807b78', '#5b5660', '#26232b'],
       };
       const clampCount = (n) => Math.max(2, Math.min(8, Math.round(n)));
+      const METHOD_DEFAULTS = {
+        ink: true,
+        shape: true,
+        bleed: true,
+        gaps: true,
+        measured: true,
+        blanks: true,
+        edges: true,
+        grid: false,
+        wash: 0.8,
+        blankAt: 0.94,
+      };
 
       const dropzone = document.querySelector('#dropzone');
       const empty = document.querySelector('#empty');
@@ -185,11 +200,16 @@ const meta = {
           ),
           paper: { type: 'color', default: '#f6f1ea' },
           method: {
-            measured: true,
-            blanks: true,
-            edges: true,
-            grid: false,
-            blankAt: [0.94, 0.8, 1, 0.01],
+            ink: METHOD_DEFAULTS.ink,
+            shape: METHOD_DEFAULTS.shape,
+            bleed: METHOD_DEFAULTS.bleed,
+            gaps: METHOD_DEFAULTS.gaps,
+            measured: METHOD_DEFAULTS.measured,
+            blanks: METHOD_DEFAULTS.blanks,
+            edges: METHOD_DEFAULTS.edges,
+            grid: METHOD_DEFAULTS.grid,
+            wash: [METHOD_DEFAULTS.wash, 0.08, 1, 0.02],
+            blankAt: [METHOD_DEFAULTS.blankAt, 0.8, 1, 0.01],
           },
         },
         { id: 'ascii-lab', persist: true },
@@ -374,14 +394,135 @@ const meta = {
         return ramp;
       }
 
+      // Shape matching: render every candidate once into a cell-shaped slot,
+      // sample it at 2 x 3 points, and compare that signature with the same
+      // six points from the photograph. Six numbers are enough to tell a
+      // diagonal edge from a soft blob, so "/" and "|" arrive without a
+      // separate edge rule.
+      const TAP_X = [0.27, 0.73];
+      const TAP_Y = [0.2, 0.5, 0.8];
+      let shapeSignatures = null;
+
+      function measureShapes() {
+        if (shapeSignatures) return shapeSignatures;
+        const w = 40;
+        const h = 72;
+        const canvas = document.createElement('canvas');
+        canvas.width = w * SHAPE_CHARS.length;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(0, 0, canvas.width, h);
+        ctx.fillStyle = '#ffffff';
+        ctx.textBaseline = 'alphabetic';
+        ctx.font = `700 ${((w / 0.6) * 0.95).toFixed(2)}px ${ART_FONT}`;
+        SHAPE_CHARS.forEach((char, g) => {
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(g * w, 0, w, h);
+          ctx.clip();
+          ctx.fillText(char, g * w, h * 0.82);
+          ctx.restore();
+        });
+        const data = ctx.getImageData(0, 0, canvas.width, h).data;
+        const raw = SHAPE_CHARS.map((char, g) => {
+          const sig = [];
+          for (const fy of TAP_Y) {
+            for (const fx of TAP_X) {
+              const px = Math.min(w - 1, Math.max(0, Math.floor(fx * w)));
+              const py = Math.min(h - 1, Math.max(0, Math.floor(fy * h)));
+              sig.push(data[(py * canvas.width + g * w + px) * 4] / 255);
+            }
+          }
+          let cover = 0;
+          for (let yy = 0; yy < h; yy += 1) {
+            for (let xx = 0; xx < w; xx += 1) {
+              cover += data[(yy * canvas.width + g * w + xx) * 4];
+            }
+          }
+          return { char, sig, ink: cover / (w * h * 255) };
+        });
+        for (let e = 0; e < 6; e += 1) {
+          const peak = Math.max(...raw.map((glyph) => glyph.sig[e])) || 1;
+          for (const glyph of raw) glyph.sig[e] /= peak;
+        }
+        const inks = raw.map((glyph) => glyph.ink);
+        shapeSignatures = { glyphs: raw, inkMin: Math.min(...inks), inkMax: Math.max(...inks) };
+        return shapeSignatures;
+      }
+
+      function shapeGlyph(i, t) {
+        if (!sampled.taps) return null;
+        const base = i * 6;
+        let lo = 1;
+        let hi = 0;
+        for (let e = 0; e < 6; e += 1) {
+          const v = sampled.taps[base + e];
+          if (v < lo) lo = v;
+          if (v > hi) hi = v;
+        }
+        // A flat cell has no shape to match; leave it to the tone ramp.
+        if (hi - lo < 0.09) return null;
+        const pattern = [];
+        for (let e = 0; e < 6; e += 1) {
+          pattern.push(1 - (sampled.taps[base + e] - lo) / (hi - lo));
+        }
+        // Shape only chooses between glyphs of a similar weight: tone still
+        // decides how dark the cell is, the signature decides where the ink sits.
+        const { glyphs, inkMin, inkMax } = measureShapes();
+        const target = inkMin + clamp01(t) * (inkMax - inkMin);
+        // Tone picks the weight, but strokes stay in the running at every
+        // tone: a thin "-" in a dark band is still dark ink, and that is what
+        // lets a ridge read as a line instead of a row of heavy glyphs.
+        const nearest = [...glyphs]
+          .sort((a, b) => Math.abs(a.ink - target) - Math.abs(b.ink - target))
+          .slice(0, 6);
+        const strokes = glyphs.filter((glyph) => '-\\|/_'.includes(glyph.char));
+        const candidates = [...new Set([...nearest, ...strokes])];
+        let best = null;
+        let bestDistance = Infinity;
+        for (const glyph of candidates) {
+          let d = 0;
+          for (let e = 0; e < 6; e += 1) {
+            const q = pattern[e] - glyph.sig[e];
+            d += q * q;
+          }
+          if (d < bestDistance) {
+            bestDistance = d;
+            best = glyph;
+          }
+        }
+        return bestDistance <= 0.6 ? best.char : null;
+      }
+
+      // One continuous colour field at cell resolution, pre-blended with the
+      // paper. Cheaper and smoother than a class per cell, and it is what makes
+      // the wash read as paper rather than as coloured rectangles.
+      function washImage(cols, rows, strength, paper) {
+        const canvas = document.createElement('canvas');
+        canvas.width = cols * 3;
+        canvas.height = rows * 3;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = paper;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.globalAlpha = strength;
+        ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+        return canvas.toDataURL('image/png');
+      }
+
       function render() {
         if (!sampled) return;
         const values = kit.values;
-        const method = values.method;
+        const method = { ...METHOD_DEFAULTS, ...values.method };
         const count = clampCount(values.colours);
         const palette = Array.from({ length: count }, (_, i) => {
           const rgb = rgbOf(values.palette[`colour${i + 1}`]);
-          return { rgb, hex: hexOf(rgb), lum: luminance(rgb) };
+          const lum = luminance(rgb);
+          // Ink keeps the band's hue but flips against it: dark ink on light
+          // paper, pale ink on a dark wash.
+          const toward = lum > 0.4 ? [26, 32, 40] : [240, 247, 252];
+          const inkRgb = rgb.map((v, j) => Math.round(v * 0.35 + toward[j] * 0.65));
+          return { rgb, hex: hexOf(rgb), lum, ink: hexOf(inkRgb) };
         });
         const n = palette.length;
         const density = values.ink;
@@ -430,14 +571,16 @@ const meta = {
             let cls = `q${band}`;
             if (method.blanks && normalized >= blankAt) {
               blanks[i] = 1;
-              cls = 'qb';
+              cls = `q${band} qb`;
             } else {
               const ink = (1 - normalized) * density;
               const t = clamp01((ink - 0.02) / 0.98);
+              const shaped = method.shape ? shapeGlyph(i, t) : null;
               glyph =
-                method.edges && edges[i] < STROKES.length
+                shaped ??
+                (method.edges && edges[i] < STROKES.length
                   ? STROKES[edges[i]]
-                  : ramp[Math.min(ramp.length - 1, Math.floor(t * ramp.length))];
+                  : ramp[Math.min(ramp.length - 1, Math.floor(t * ramp.length))]);
             }
             chars[i] = glyph;
 
@@ -455,12 +598,33 @@ const meta = {
         for (let i = 0; i < n; i += 1) {
           art.style.setProperty(`--q${i}-bg`, palette[i].hex);
           art.style.setProperty(`--q${i}-fg`, palette[i].lum > 0.54 ? '#283138' : '#f8f4ed');
+          art.style.setProperty(`--q${i}-ink`, palette[i].ink);
         }
         art.style.setProperty('--paper', paper);
+        art.style.setProperty('--row', method.bleed ? '0.97em' : '1.08em');
+        if (method.ink) {
+          art.style.setProperty('--wash-img', `url("${washImage(cols, rows, method.wash, paper)}")`);
+        } else {
+          art.style.removeProperty('--wash-img');
+        }
         art.style.fontSize = `clamp(2.2px, ${(164 / cols).toFixed(3)}cqi, 14px)`;
         art.innerHTML = currentHtml;
+        art.classList.toggle('ink', Boolean(method.ink));
+        art.classList.toggle('bleed', Boolean(method.bleed));
+        art.classList.toggle('gaps', Boolean(method.gaps));
         art.classList.toggle('grid', Boolean(method.grid));
-        lastRender = { cols, rows, bands, blanks, chars, palette, paper, density };
+        lastRender = {
+          cols,
+          rows,
+          bands,
+          blanks,
+          chars,
+          palette,
+          paper,
+          density,
+          wash: method.wash,
+          method: { ...method },
+        };
         metrics.textContent = `${cols} × ${rows} · ${(cols * rows).toLocaleString()} cells`;
         empty.hidden = true;
         art.hidden = false;
@@ -495,6 +659,7 @@ const meta = {
         const lum = new Float32Array(cols * rows);
         const rgb = new Uint8ClampedArray(cols * rows * 3);
         const edges = new Uint8Array(cols * rows).fill(STROKES.length);
+        const taps = new Float32Array(cols * rows * 6);
         const sub = new Float32Array(sw * sh);
         for (let i = 0, p = 0; i < sub.length; i += 1, p += 4) {
           sub[i] = (0.2126 * data[p] + 0.7152 * data[p + 1] + 0.0722 * data[p + 2]) / 255;
@@ -525,6 +690,15 @@ const meta = {
             rgb[i * 3 + 1] = sg / cells;
             rgb[i * 3 + 2] = sb / cells;
             lum[i] = sl / cells;
+
+            // The same 2 x 3 points the glyph signatures are measured at.
+            for (let ty = 0; ty < TAP_Y.length; ty += 1) {
+              for (let tx = 0; tx < TAP_X.length; tx += 1) {
+                const sx2 = Math.min(SUB - 1, Math.floor(TAP_X[tx] * SUB));
+                const sy2 = Math.min(SUB - 1, Math.floor(TAP_Y[ty] * SUB));
+                taps[i * 6 + ty * 2 + tx] = sub[(y * SUB + sy2) * sw + x * SUB + sx2];
+              }
+            }
 
             const cx = x * SUB + 1;
             const cy = y * SUB + 1;
@@ -559,7 +733,7 @@ const meta = {
         const sorted = Float32Array.from(lum).sort();
         const min = sorted[Math.floor(lum.length * 0.02)];
         const max = sorted[Math.floor(lum.length * 0.98)];
-        sampled = { cols, rows, lum, rgb, edges, min, max };
+        sampled = { cols, rows, lum, rgb, edges, taps, min, max };
         if (pendingPalette) {
           pendingPalette = false;
           applyPhotoPalette();
@@ -696,10 +870,10 @@ const meta = {
 
       function downloadPng() {
         if (!lastRender) return;
-        const { cols, rows, bands, blanks, chars, palette, paper } = lastRender;
+        const { cols, rows, bands, blanks, chars, palette, paper, wash, method } = lastRender;
         const fontSize = Math.max(7, Math.min(12, 1400 / cols / 0.6));
         const cellW = fontSize * 0.6;
-        const cellH = fontSize * 1.08;
+        const cellH = fontSize * (method.bleed ? 0.97 : 1.08);
         let scale = 2;
         if (cols * cellW * scale > 7000) scale = 1;
         const canvas = document.createElement('canvas');
@@ -709,16 +883,33 @@ const meta = {
         ctx.scale(scale, scale);
         ctx.fillStyle = paper;
         ctx.fillRect(0, 0, cols * cellW, rows * cellH);
-        ctx.font = `500 ${fontSize}px ui-monospace, "SF Mono", Menlo, Consolas, monospace`;
+
+        if (method.ink) {
+          ctx.globalAlpha = wash;
+          ctx.drawImage(bitmap, 0, 0, cols * cellW, rows * cellH);
+          ctx.globalAlpha = 1;
+          if (method.gaps) {
+            ctx.fillStyle = paper;
+            for (let x = 0; x <= cols; x += 1) ctx.fillRect(x * cellW, 0, 1 / scale, rows * cellH);
+            for (let y = 0; y <= rows; y += 1) ctx.fillRect(0, y * cellH, cols * cellW, 1 / scale);
+          }
+        }
+
+        ctx.font = `${method.bleed ? 700 : 500} ${fontSize}px ui-monospace, "SF Mono", Menlo, Consolas, monospace`;
         ctx.textBaseline = 'top';
         for (let y = 0; y < rows; y += 1) {
           for (let x = 0; x < cols; x += 1) {
             const i = y * cols + x;
             if (blanks[i]) continue;
             const color = palette[bands[i]];
-            ctx.fillStyle = color.hex;
-            ctx.fillRect(x * cellW, y * cellH, cellW, cellH);
-            ctx.fillStyle = color.lum > 0.54 ? '#283138' : '#f8f4ed';
+            if (method.ink) {
+              ctx.fillStyle = color.ink;
+            } else {
+              ctx.fillStyle = color.hex;
+              const gap = method.gaps ? 1 : 0;
+              ctx.fillRect(x * cellW, y * cellH, Math.max(0, cellW - gap), Math.max(0, cellH - gap));
+              ctx.fillStyle = color.lum > 0.54 ? '#283138' : '#f8f4ed';
+            }
             ctx.fillText(chars[i], x * cellW, y * cellH);
           }
         }
@@ -738,13 +929,33 @@ const meta = {
 
       async function copyHtml() {
         if (!lastRender || !currentHtml) return;
-        const { cols, palette, paper } = lastRender;
+        const { cols, rows, palette, paper, wash, method } = lastRender;
         const rules = palette
-          .map((color, i) => `.ascii-lab .q${i}{background:${color.hex};color:${color.lum > 0.54 ? '#283138' : '#f8f4ed'};}`)
-          .concat('.ascii-lab .qb{background:transparent}')
+          .map((color, i) =>
+            method.ink
+              ? `.ascii-lab .q${i}{color:${color.ink};}`
+              : `.ascii-lab .q${i}{background:${color.hex};color:${color.lum > 0.54 ? '#283138' : '#f8f4ed'};}`,
+          )
+          .concat(
+            method.ink
+              ? '.ascii-lab .qb{color:transparent}'
+              : '.ascii-lab .qb{background:transparent;color:transparent}',
+          )
           .join('\n');
+        const row = method.bleed ? 0.97 : 1.08;
+        const right = `repeating-linear-gradient(to right, ${paper} 0 1px, transparent 1px 1ch)`;
+        const down = `repeating-linear-gradient(to bottom, ${paper} 0 1px, transparent 1px ${row}em)`;
+        let surface = '';
+        if (method.ink) {
+          const washUrl = washImage(cols, rows, wash, paper);
+          surface = method.gaps
+            ? `background-color:${paper};background-image:${right},${down},url(${washUrl});background-size:auto,auto,100% 100%;background-repeat:repeat,repeat,no-repeat;`
+            : `background-color:${paper};background-image:url(${washUrl});background-size:100% 100%;background-repeat:no-repeat;`;
+        } else if (method.gaps) {
+          surface = `background-image:${right.replace(paper, 'rgba(20,30,40,.1)')},${down.replace(paper, 'rgba(20,30,40,.1)')};`;
+        }
         const snippet = `<style>
-.ascii-lab{display:block;width:max-content;margin:0;background:${paper};white-space:pre;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:${Math.max(6, Math.min(10, 1200 / cols / 0.6)).toFixed(2)}px;line-height:1.08}
+.ascii-lab{display:block;width:max-content;margin:0;background:${paper};white-space:pre;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:${Math.max(6, Math.min(10, 1200 / cols / 0.6)).toFixed(2)}px;line-height:${row};font-weight:${method.bleed ? 700 : 500};${surface}}
 ${rules}
 </style>
 <pre class="ascii-lab">${currentHtml}</pre>`;
@@ -1036,7 +1247,44 @@ ${rules}
       .art :global(.q5) { background: var(--q5-bg); color: var(--q5-fg); }
       .art :global(.q6) { background: var(--q6-bg); color: var(--q6-fg); }
       .art :global(.q7) { background: var(--q7-bg); color: var(--q7-fg); }
-      .art :global(.qb) { background: transparent; color: transparent; }
+      .art:not(.ink) :global(.qb) { background: transparent; color: transparent; }
+
+      /* Ink on paper: a continuous wash made from the photograph at cell
+         resolution, with the glyphs inked over it. No cell rectangles. */
+      .art.ink {
+        background-color: var(--paper, #f6f1ea);
+        background-image: var(--wash-img, none);
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+      }
+      .art.ink :global(.q0) { background: none; color: var(--q0-ink); }
+      .art.ink :global(.q1) { background: none; color: var(--q1-ink); }
+      .art.ink :global(.q2) { background: none; color: var(--q2-ink); }
+      .art.ink :global(.q3) { background: none; color: var(--q3-ink); }
+      .art.ink :global(.q4) { background: none; color: var(--q4-ink); }
+      .art.ink :global(.q5) { background: none; color: var(--q5-ink); }
+      .art.ink :global(.q6) { background: none; color: var(--q6-ink); }
+      .art.ink :global(.q7) { background: none; color: var(--q7-ink); }
+      .art.ink :global(.qb) { color: transparent; }
+
+      .art.bleed { line-height: 0.97; font-weight: 700; }
+
+      /* The grid lives in the paper: the wash is translucent, so these lines
+         show through it while glyph strokes cross cell boundaries unbroken. */
+      .art.gaps {
+        background-color: var(--paper, #f6f1ea);
+        background-image:
+          repeating-linear-gradient(to right, rgba(20, 30, 40, 0.1) 0 1px, transparent 1px 1ch),
+          repeating-linear-gradient(to bottom, rgba(20, 30, 40, 0.1) 0 1px, transparent 1px var(--row, 1.08em));
+      }
+      .art.ink.gaps {
+        background-image:
+          repeating-linear-gradient(to right, color-mix(in oklab, var(--paper, #f6f1ea) 40%, transparent) 0 0.5px, transparent 0.5px 1ch),
+          repeating-linear-gradient(to bottom, color-mix(in oklab, var(--paper, #f6f1ea) 40%, transparent) 0 0.5px, transparent 0.5px var(--row, 1.08em)),
+          var(--wash-img, none);
+        background-size: auto, auto, 100% 100%;
+        background-repeat: repeat, repeat, no-repeat;
+      }
 
       .art.grid::after {
         content: '';
