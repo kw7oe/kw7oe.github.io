@@ -1,0 +1,136 @@
+---
+const { navigation, projects } = Astro.props;
+---
+
+<section class="broadsheet" aria-labelledby="broadsheet-title">
+  <header class="broadsheet__masthead">
+    <div class="broadsheet__paper-name"><a href="/">The Kai Wern Choong</a><span>Personal edition · No. 02</span></div>
+    <nav aria-label="Primary navigation">
+      {navigation.map((item) => <a href={item.href} aria-current={item.href === "/" ? "page" : undefined}>{item.title}</a>)}
+      <a href="/proto/home/">Round one</a>
+    </nav>
+  </header>
+
+  <div class="broadsheet__dateline"><span>Home / People &amp; projects</span><span>A small record of current work and past experiments</span></div>
+
+  <main>
+    <header class="broadsheet__lead">
+      <div><p class="broadsheet__kicker">From the desk of Kai</p><h1 id="broadsheet-title">A good career<br />needs margins.</h1></div>
+      <p class="broadsheet__standfirst">I’m a senior software engineer at <a href="https://www.ditto.live" target="_blank" rel="noreferrer">Ditto</a>. I care about the work, and I’m learning to leave enough room for everything around it.</p>
+    </header>
+
+    <section class="broadsheet__front" aria-label="Current notes">
+      <article class="broadsheet__lead-story">
+        <span class="broadsheet__section-label">Today’s position</span>
+        <h2>Keep the work in proportion.</h2>
+        <p>These days, I try to maintain a good work-life balance. It’s a practice, not a finished project.</p>
+      </article>
+      <article class="broadsheet__column">
+        <span class="broadsheet__section-label">On learning</span>
+        <h2>Recurse Center</h2>
+        <p>At Recurse Center I studied system programming by making small tools from the ground up.</p>
+      </article>
+      <article class="broadsheet__column broadsheet__column--note">
+        <span class="broadsheet__section-label">Filed under</span>
+        <h2>Things that teach</h2>
+        <p>A database, a reverse proxy, a learning journal, a counter, and a habit tracker.</p>
+      </article>
+    </section>
+
+    <section class="broadsheet__archive" aria-labelledby="broadsheet-archive-title">
+      <div class="broadsheet__archive-heading"><h2 id="broadsheet-archive-title">The project pages</h2><p>Earlier experiments · five entries</p></div>
+      <div class="broadsheet__project-grid">
+        {projects.map((project, index) => (
+          <article class="broadsheet__project">
+            <span class="broadsheet__project-index">No. 0{index + 1} · {project.group === "systems" ? "Recurse Center" : "Earlier work"}</span>
+            <h3><a href={project.href} target="_blank" rel="noreferrer">{project.title}</a></h3>
+            <p>{project.description}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  </main>
+
+  <footer class="broadsheet__footer">
+    <p>Layout reference: <a href="https://www.loc.gov/item/sn96061149" target="_blank" rel="noreferrer">The Daily Astorian · Library of Congress</a></p>
+    <span>End of this edition · <a href="/proto/home/">Read round one</a></span>
+  </footer>
+</section>
+
+<style>
+  .broadsheet { min-height: 100svh; padding: 22px clamp(20px, 5vw, 74px) 104px; background: var(--canvas); color: var(--ink); font-family: var(--body-font); }
+  .broadsheet__masthead,
+  .broadsheet__masthead nav,
+  .broadsheet__dateline,
+  .broadsheet__archive-heading,
+  .broadsheet__footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .broadsheet__masthead { max-width: 1320px; margin: 0 auto; padding: 0 0 16px; border-bottom: 3px double var(--ink); }
+  .broadsheet__paper-name { display: flex; align-items: baseline; gap: 12px; }
+  .broadsheet__paper-name a { color: var(--ink); font: 500 1.3rem/1 var(--display-font); letter-spacing: -0.035em; text-decoration: none; }
+  .broadsheet__paper-name span { color: var(--muted); font-size: 0.75rem; letter-spacing: 0.09em; text-transform: uppercase; }
+  .broadsheet__masthead nav { flex-wrap: wrap; justify-content: flex-end; gap: 0 15px; }
+  .broadsheet__masthead nav a { display: inline-flex; align-items: center; min-height: 44px; color: var(--muted); font-size: 0.78rem; text-decoration: none; }
+  .broadsheet__masthead nav a[aria-current="page"] { color: var(--accent); }
+  .broadsheet__dateline { max-width: 1320px; margin: 0 auto; padding: 9px 0; border-bottom: 1px solid var(--rule); color: var(--muted); font-size: 0.75rem; }
+  .broadsheet__dateline span:first-child { color: var(--accent); text-transform: uppercase; letter-spacing: 0.09em; }
+  .broadsheet main { max-width: 1140px; margin: 0 auto; }
+  .broadsheet__lead { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(260px, 0.7fr); align-items: end; gap: 52px; padding: clamp(44px, 7vw, 92px) 0 38px; border-bottom: 1px solid var(--ink); }
+  .broadsheet__kicker,
+  .broadsheet__section-label,
+  .broadsheet__archive-heading p,
+  .broadsheet__project-index,
+  .broadsheet__footer { color: var(--muted); font: 500 0.75rem/1.5 var(--body-font); letter-spacing: 0.12em; text-transform: uppercase; }
+  .broadsheet__kicker { margin: 0 0 14px; color: var(--accent); }
+  .broadsheet h1 { margin: 0; font: 400 clamp(3.5rem, 8.2vw, 7rem)/0.88 var(--display-font); letter-spacing: -0.065em; text-wrap: balance; }
+  .broadsheet__standfirst { max-width: 36ch; margin: 0 0 5px; color: var(--muted); font: 400 clamp(1.06rem, 1.8vw, 1.28rem)/1.55 var(--display-font); text-wrap: pretty; }
+  .broadsheet a { text-decoration-thickness: from-font; text-underline-offset: 0.15em; }
+  .broadsheet__standfirst a,
+  .broadsheet__project h3 a,
+  .broadsheet__footer a { color: var(--accent); }
+  .broadsheet__front { display: grid; grid-template-columns: 1.3fr 1fr 0.8fr; gap: 0; padding: 28px 0 34px; border-bottom: 3px double var(--ink); }
+  .broadsheet__front article { padding: 0 26px; border-left: 1px solid var(--rule); }
+  .broadsheet__front article:first-child { padding-left: 0; border-left: 0; }
+  .broadsheet__front article:last-child { padding-right: 0; }
+  .broadsheet__section-label { font-size: 0.75rem; color: var(--accent); }
+  .broadsheet__front h2 { margin: 11px 0 9px; font: 500 1.32rem/1.12 var(--display-font); text-wrap: balance; }
+  .broadsheet__front p { margin: 0; color: var(--muted); font-size: 0.88rem; line-height: 1.6; }
+  .broadsheet__archive { padding: 32px 0 0; }
+  .broadsheet__archive-heading { align-items: baseline; padding-bottom: 13px; border-bottom: 1px solid var(--ink); }
+  .broadsheet__archive-heading h2 { margin: 0; font: 400 1.55rem/1.2 var(--display-font); }
+  .broadsheet__archive-heading p { margin: 0; font-size: 0.75rem; }
+  .broadsheet__project-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .broadsheet__project { min-height: 160px; padding: 19px 22px 18px 0; border-bottom: 1px solid var(--rule); }
+  .broadsheet__project:not(:nth-child(3n + 1)) { padding-left: 22px; border-left: 1px solid var(--rule); }
+  .broadsheet__project-index { font-size: 0.75rem; letter-spacing: 0.08em; }
+  .broadsheet__project h3 { margin: 10px 0 6px; font: 500 1.1rem/1.25 var(--display-font); }
+  .broadsheet__project p { max-width: 43ch; margin: 0; color: var(--muted); font-size: 0.84rem; line-height: 1.55; }
+  .broadsheet__footer { max-width: 1140px; margin: 34px auto 0; padding-top: 15px; border-top: 1px solid var(--rule); font-size: 0.75rem; }
+  .broadsheet__footer p { margin: 0; }
+
+  @media (max-width: 760px) {
+    .broadsheet { padding: 16px 20px 104px; }
+    .broadsheet__masthead { align-items: flex-start; flex-direction: column; gap: 9px; }
+    .broadsheet__masthead nav { justify-content: flex-start; gap: 0 14px; }
+    .broadsheet__paper-name { flex-wrap: wrap; }
+    .broadsheet__dateline { align-items: flex-start; flex-direction: column; gap: 4px; }
+    .broadsheet__lead { grid-template-columns: 1fr; gap: 26px; padding: 44px 0 28px; }
+    .broadsheet h1 { font-size: clamp(3.4rem, 16vw, 5.5rem); }
+    .broadsheet__front { grid-template-columns: 1fr; }
+    .broadsheet__front article,
+    .broadsheet__front article:first-child,
+    .broadsheet__front article:last-child { padding: 18px 0; border-left: 0; border-top: 1px solid var(--rule); }
+    .broadsheet__front article:first-child { border-top: 0; padding-top: 0; }
+    .broadsheet__project-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .broadsheet__project { min-height: 175px; padding-right: 12px; }
+    .broadsheet__project:not(:nth-child(3n + 1)) { padding-left: 0; border-left: 0; }
+    .broadsheet__project:nth-child(even) { padding-left: 12px; border-left: 1px solid var(--rule); }
+    .broadsheet__footer { align-items: flex-start; flex-direction: column; }
+  }
+
+  @media (max-width: 460px) {
+    .broadsheet__project-grid { grid-template-columns: 1fr; }
+    .broadsheet__project,
+    .broadsheet__project:not(:nth-child(3n + 1)),
+    .broadsheet__project:nth-child(even) { min-height: 0; padding: 16px 0; border-left: 0; }
+  }
+</style>

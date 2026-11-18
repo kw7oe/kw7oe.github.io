@@ -1,0 +1,200 @@
+---
+const { contentHtml, navigation } = Astro.props;
+---
+
+<section class="home-design field-notes" data-variant="field-notes">
+  <aside class="field-notes__rail">
+    <a class="field-notes__mark" href="/" aria-label="Home">KW<span> / HOME</span></a>
+    <p class="field-notes__caption">PERSONAL SITE · 01</p>
+    <nav class="field-notes__navigation" aria-label="Primary navigation">
+      {navigation.map((item) => (
+        <a href={item.href} aria-current={item.href === "/" ? "page" : undefined}>{item.title}</a>
+      ))}
+    </nav>
+    <p class="field-notes__folio">FIELD NOTES<br />KAI WERN CHOONG</p>
+  </aside>
+
+  <div class="field-notes__page">
+    <div class="field-notes__eyebrow"><span>HOME</span><span>01 — PROFILE</span></div>
+    <h1>Home</h1>
+    <article class="field-notes__content" set:html={contentHtml}></article>
+  </div>
+</section>
+
+<style>
+  .field-notes {
+    display: grid;
+    grid-template-columns: minmax(220px, 0.36fr) minmax(0, 1fr);
+    min-height: 100svh;
+    max-width: 1440px;
+    margin-inline: auto;
+    background: var(--canvas);
+  }
+
+  .field-notes__rail {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    min-height: 100%;
+    padding: 38px clamp(24px, 4vw, 56px) 40px clamp(24px, 5vw, 72px);
+    border-inline-end: 1px solid var(--rule);
+  }
+
+  .field-notes__mark {
+    color: var(--ink);
+    font: 600 1rem/1 var(--body-font);
+    letter-spacing: 0.01em;
+    text-decoration: none;
+  }
+
+  .field-notes__mark span {
+    color: var(--muted);
+    font-size: 0.76rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+  }
+
+  .field-notes__caption,
+  .field-notes__folio,
+  .field-notes__eyebrow {
+    color: var(--muted);
+    font: 600 0.7rem/1.5 var(--body-font);
+    letter-spacing: 0.14em;
+  }
+
+  .field-notes__navigation {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-block-start: 12px;
+  }
+
+  .field-notes__navigation a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--muted);
+    font: 500 0.98rem/1.3 var(--body-font);
+    text-decoration: none;
+    transition: color 150ms ease-out;
+  }
+
+  .field-notes__navigation a[aria-current="page"] {
+    color: var(--accent);
+  }
+
+  .field-notes__folio {
+    margin-block-start: auto;
+    font-size: 0.64rem;
+    line-height: 1.8;
+  }
+
+  .field-notes__page {
+    width: min(100%, 850px);
+    padding: clamp(36px, 7vw, 88px) clamp(28px, 8vw, 112px) 120px;
+  }
+
+  .field-notes__eyebrow {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding-block-end: 12px;
+    border-block-end: 1px solid var(--rule);
+  }
+
+  .field-notes h1 {
+    margin: 28px 0 40px;
+    color: var(--ink);
+    font: 400 clamp(3.5rem, 8vw, 6.5rem)/0.98 var(--display-font);
+    letter-spacing: -0.065em;
+    text-wrap: balance;
+  }
+
+  .field-notes__content {
+    max-width: 62ch;
+    color: var(--ink);
+    font: 400 1.05rem/1.7 var(--body-font);
+  }
+
+  .field-notes__content :global(p) {
+    margin: 0 0 1.65em;
+  }
+
+  .field-notes__content :global(p:first-child) {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
+
+  .field-notes__content :global(h2) {
+    margin: 3.5rem 0 1rem;
+    padding-block-start: 0.85rem;
+    border-block-start: 1px solid var(--rule);
+    color: var(--muted);
+    font: 600 0.72rem/1.4 var(--body-font);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .field-notes__content :global(ul) {
+    display: grid;
+    gap: 0.9rem;
+    padding-inline-start: 1.2rem;
+  }
+
+  .field-notes__content :global(li) {
+    padding-inline-start: 0.25rem;
+  }
+
+  .field-notes__content :global(a) {
+    color: var(--accent);
+    text-decoration-thickness: from-font;
+    text-underline-offset: 0.15em;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .field-notes__navigation a:hover {
+      color: var(--accent);
+    }
+  }
+
+  @media (max-width: 720px) {
+    .field-notes {
+      grid-template-columns: 1fr;
+    }
+
+    .field-notes__rail {
+      min-height: auto;
+      gap: 12px;
+      padding: 22px 24px 16px;
+      border-inline-end: 0;
+      border-block-end: 1px solid var(--rule);
+    }
+
+    .field-notes__caption,
+    .field-notes__folio {
+      display: none;
+    }
+
+    .field-notes__navigation {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 0 18px;
+      margin-block-start: 0;
+    }
+
+    .field-notes__navigation a {
+      min-height: 40px;
+      font-size: 0.9rem;
+    }
+
+    .field-notes__page {
+      padding: 34px 24px 104px;
+    }
+
+    .field-notes h1 {
+      margin-block: 24px 32px;
+      font-size: clamp(3.25rem, 17vw, 5rem);
+    }
+  }
+</style>

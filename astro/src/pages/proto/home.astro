@@ -1,0 +1,492 @@
+---
+import "../../styles/fonts.css";
+import HugoFieldNotes from "../../prototypes/home/FieldNotes.astro";
+import HugoStudio from "../../prototypes/home/Studio.astro";
+import HugoLedger from "../../prototypes/home/Ledger.astro";
+import HugoPoster from "../../prototypes/home/Poster.astro";
+import HugoCurrentHome from "../../prototypes/home/CurrentHome.astro";
+import { createHugoSite } from "../../lib/hugo-site.mjs";
+import { renderHugoMarkdown } from "../../lib/hugo-markdown.mjs";
+
+const site = createHugoSite();
+const route = site.routes.find((item) => item.route === "/");
+if (!route?.page) throw new Error("Missing Hugo root page");
+const content = await renderHugoMarkdown(route.page, site);
+const navigation = [
+  { title: site.home.title, href: site.home.route },
+  { title: site.blogIndex.title, href: site.blogIndex.route },
+  ...["series", "fragments", "books"].flatMap((section) => {
+    const page = site.sectionIndexes.get(section);
+    return page ? [{ title: page.title, href: page.route }] : [];
+  }),
+  ...site.routes
+    .filter((item) => item.kind === "taxonomy-index" && item.taxonomy === "tags")
+    .map((item) => ({ title: item.title, href: item.route })),
+];
+const contentHtml = content.html;
+const initialVariant = Astro.url.searchParams.get("v") ?? "1";
+---
+
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Home — design study</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Lora&family=Source+Sans+Pro:wght@400;600&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <a class="prototype-skip-link" href="#stage">Skip to content</a>
+    <main id="stage" class="prototype-stage" data-initial-variant={initialVariant}>
+      <template data-variant-template="current"><HugoCurrentHome /></template>
+      <template data-variant-template="field-notes"><HugoFieldNotes contentHtml={contentHtml} navigation={navigation} /></template>
+      <template data-variant-template="studio"><HugoStudio contentHtml={contentHtml} navigation={navigation} /></template>
+      <template data-variant-template="ledger"><HugoLedger contentHtml={contentHtml} navigation={navigation} /></template>
+      <template data-variant-template="poster"><HugoPoster contentHtml={contentHtml} navigation={navigation} /></template>
+    </main>
+
+    <noscript><p class="prototype-noscript">Enable JavaScript to use the design picker.</p></noscript>
+
+    <nav class="proto-picker" aria-label="Prototype variants" data-position="top">
+      <span class="proto-picker-highlight" aria-hidden="true"></span>
+      <button class="proto-picker-item" data-variant="current" data-label="Current" aria-label="Current" title="Current">Current</button>
+      <button class="proto-picker-item" data-variant="field-notes" data-label="Field Notes" data-palette="paper" data-pairing="editorial" aria-label="Field Notes" title="Field Notes">Field</button>
+      <button class="proto-picker-item" data-variant="studio" data-label="Studio" data-palette="moss" data-pairing="studio" aria-label="Studio" title="Studio">Studio</button>
+      <button class="proto-picker-item" data-variant="ledger" data-label="Ledger" data-palette="blueprint" data-pairing="technical" aria-label="Ledger" title="Ledger">Index</button>
+      <button class="proto-picker-item" data-variant="poster" data-label="Poster" data-palette="citrus" data-pairing="poster" aria-label="Poster" title="Poster">Poster</button>
+    </nav>
+
+    <script>
+      import { createDialKit, createDialRoot } from "dialkit/vanilla";
+      import { fontFamilies } from "../../lib/font-families.js";
+      import "dialkit/vanilla/styles.css";
+
+      const stage = document.getElementById("stage");
+      const picker = document.querySelector(".proto-picker");
+      const highlight = picker.querySelector(".proto-picker-highlight");
+      const items = [...picker.querySelectorAll(".proto-picker-item")];
+      const templates = items.map((item) => stage.querySelector(`template[data-variant-template="${item.dataset.variant}"]`));
+      const colorways = {
+        current: {
+          label: "Current",
+          values: ["oklch(0.98 0.008 84)", "oklch(0.96 0.012 84)", "oklch(0.24 0.025 255)", "oklch(0.45 0.025 255)", "oklch(0.38 0.09 250)", "oklch(0.88 0.012 84)"],
+        },
+        paper: {
+          label: "Paper & rust",
+          values: ["oklch(0.97 0.018 82)", "oklch(0.94 0.025 80)", "oklch(0.25 0.035 253)", "oklch(0.44 0.03 253)", "oklch(0.39 0.13 34)", "oklch(0.85 0.026 80)"],
+        },
+        moss: {
+          label: "Moss",
+          values: ["oklch(0.22 0.035 147)", "oklch(0.28 0.04 147)", "oklch(0.95 0.018 90)", "oklch(0.75 0.035 112)", "oklch(0.82 0.13 103)", "oklch(0.35 0.035 147)"],
+        },
+        blueprint: {
+          label: "Blueprint",
+          values: ["oklch(0.96 0.015 245)", "oklch(0.92 0.022 245)", "oklch(0.23 0.045 250)", "oklch(0.44 0.04 250)", "oklch(0.39 0.14 253)", "oklch(0.84 0.025 245)"],
+        },
+        clay: {
+          label: "Clay",
+          values: ["oklch(0.96 0.035 55)", "oklch(0.92 0.045 55)", "oklch(0.24 0.035 27)", "oklch(0.44 0.035 27)", "oklch(0.4 0.15 27)", "oklch(0.83 0.045 55)"],
+        },
+        citrus: {
+          label: "Citrus",
+          values: ["oklch(0.97 0.035 103)", "oklch(0.93 0.045 103)", "oklch(0.22 0.035 255)", "oklch(0.43 0.035 255)", "oklch(0.33 0.14 255)", "oklch(0.84 0.045 103)"],
+        },
+      };
+      const pairings = {
+        current: { label: "Lora + Source Sans", display: "Lora", body: "Source Sans Pro" },
+        editorial: { label: "Newsreader + Inst. Sans", display: "Newsreader", body: "Instrument Sans" },
+        studio: { label: "DM Serif + Manrope", display: "DM Serif Display", body: "Manrope" },
+        technical: { label: "Plex Serif + Plex Sans", display: "IBM Plex Serif", body: "IBM Plex Sans" },
+        poster: { label: "Instr. Serif + Bricolage", display: "Instrument Serif", body: "Bricolage Grotesque" },
+      };
+      const paletteOptions = Object.entries(colorways).map(([value, palette]) => ({ value, label: palette.label }));
+      const pairingOptions = Object.entries(pairings).map(([value, pairing]) => ({ value, label: pairing.label }));
+      const variantIndex = (value) => items.findIndex((item) => item.dataset.variant === value);
+      const requestedVariant = new URLSearchParams(location.search).get("v") ?? stage.dataset.initialVariant;
+      const requestedIndex = Number(requestedVariant) - 1;
+      const initialIndex = Number.isInteger(requestedIndex) && requestedIndex >= 0 && requestedIndex < items.length ? requestedIndex : 0;
+      const currentItem = items[initialIndex];
+      let current = -1;
+
+      const compactViewport = window.matchMedia("(max-width: 720px)").matches;
+      const dialRoot = createDialRoot({
+        position: compactViewport ? "bottom-right" : "top-right",
+        theme: "light",
+        defaultOpen: false,
+      });
+      const controls = createDialKit("Home design study", {
+        direction: {
+          type: "select",
+          options: items.map((item) => ({ value: item.dataset.variant, label: item.dataset.label })),
+          default: currentItem.dataset.variant,
+        },
+        palette: {
+          type: "select",
+          options: paletteOptions,
+          default: currentItem.dataset.palette ?? "current",
+        },
+        fonts: {
+          type: "select",
+          options: pairingOptions,
+          default: currentItem.dataset.pairing ?? "current",
+        },
+      });
+      const dialPanel = dialRoot.element.querySelector(".dialkit-panel");
+
+      function placeControls(index) {
+        if (!dialPanel) return;
+        if (window.matchMedia("(max-width: 720px)").matches) {
+          dialPanel.style.cssText = "bottom: 16px";
+          dialPanel.dataset.position = "bottom-right";
+          return;
+        }
+        const position = index === 0 || index === 4 ? "top-left" : "top-right";
+        const top = index === 2 || index === 3 ? 180 : index === 4 ? 160 : 16;
+        dialPanel.style.cssText = `top: ${top}px`;
+        dialPanel.dataset.position = position;
+      }
+
+      function moveHighlight() {
+        const item = items[current];
+        if (!item) return;
+        highlight.style.width = `${item.offsetWidth}px`;
+        highlight.style.transform = `translateX(${item.offsetLeft}px)`;
+      }
+
+      function applyCurrentFrameTheme(values) {
+        const frame = stage.querySelector("iframe");
+        const frameDocument = frame?.contentDocument;
+        if (!frameDocument) return;
+
+        let dialkitStyle = frameDocument.getElementById("home-prototype-dialkit");
+        if (!dialkitStyle) {
+          dialkitStyle = frameDocument.createElement("style");
+          dialkitStyle.id = "home-prototype-dialkit";
+          dialkitStyle.textContent = ".dialkit-root { display: none !important; }";
+          frameDocument.head.append(dialkitStyle);
+        }
+
+        const colorway = colorways[values.palette] ?? colorways.current;
+        const pairing = pairings[values.fonts] ?? pairings.current;
+        const styleId = "home-prototype-theme";
+        let style = frameDocument.getElementById(styleId);
+        if (values.palette === "current" && values.fonts === "current") {
+          style?.remove();
+          frame.style.height = `${Math.max(frameDocument.documentElement.scrollHeight, window.innerHeight)}px`;
+          return;
+        }
+        if (!style) {
+          style = frameDocument.createElement("style");
+          style.id = styleId;
+          frameDocument.head.append(style);
+        }
+
+        const [canvas, surface, ink, muted, accent] = colorway.values;
+        const displayFont = fontFamilies[pairing.display].stack;
+        const bodyFont = fontFamilies[pairing.body].stack;
+        style.textContent = `
+          body.hugo-site {
+            background: ${canvas} !important;
+            color: ${ink} !important;
+            font-family: ${bodyFont} !important;
+          }
+          body.hugo-site .hugo-navigation a,
+          body.hugo-site .hugo-main a,
+          body.hugo-site .hugo-footer a {
+            color: ${accent} !important;
+          }
+          body.hugo-site .hugo-navigation,
+          body.hugo-site .hugo-main,
+          body.hugo-site .hugo-footer {
+            color: ${ink} !important;
+            font-family: ${bodyFont} !important;
+          }
+          body.hugo-site .hugo-page-title,
+          body.hugo-site .hugo-main h2,
+          body.hugo-site .hugo-main h3 {
+            color: ${ink} !important;
+            font-family: ${displayFont} !important;
+          }
+          body.hugo-site .hugo-lastmod,
+          body.hugo-site .hugo-word-count {
+            color: ${muted} !important;
+          }
+          body.hugo-site .hugo-main {
+            background: ${surface} !important;
+          }
+        `;
+        frame.style.height = `${Math.max(frameDocument.documentElement.scrollHeight, window.innerHeight)}px`;
+      }
+
+      function applyValues(values) {
+        const palette = colorways[values.palette] ?? colorways.current;
+        const pairing = pairings[values.fonts] ?? pairings.current;
+        const [canvas, surface, ink, muted, accent, rule] = palette.values;
+        stage.style.setProperty("--canvas", canvas);
+        stage.style.setProperty("--surface", surface);
+        stage.style.setProperty("--ink", ink);
+        stage.style.setProperty("--muted", muted);
+        stage.style.setProperty("--accent", accent);
+        stage.style.setProperty("--rule", rule);
+        stage.style.setProperty("--display-font", fontFamilies[pairing.display].stack);
+        stage.style.setProperty("--body-font", fontFamilies[pairing.body].stack);
+        applyCurrentFrameTheme(values);
+      }
+
+      function setActive(index, syncControls = false) {
+        if (index < 0 || index >= items.length) return;
+        current = index;
+        placeControls(index);
+        items.forEach((item, itemIndex) => {
+          item.toggleAttribute("data-active", itemIndex === index);
+          if (itemIndex === index) item.setAttribute("aria-current", "true");
+          else item.removeAttribute("aria-current");
+        });
+        stage.replaceChildren(templates[index].content.cloneNode(true));
+        moveHighlight();
+
+        const url = new URL(location.href);
+        url.searchParams.set("v", String(index + 1));
+        history.replaceState(null, "", url);
+
+        if (syncControls) {
+          const item = items[index];
+          controls.setValues({
+            direction: item.dataset.variant,
+            palette: item.dataset.palette ?? "current",
+            fonts: item.dataset.pairing ?? "current",
+          });
+        } else {
+          applyValues(controls.getValues());
+        }
+
+        const frame = stage.querySelector("iframe");
+        frame?.addEventListener("load", () => applyCurrentFrameTheme(controls.getValues()), { once: true });
+      }
+
+      setActive(initialIndex);
+      items.forEach((item, index) => item.addEventListener("click", () => setActive(index, true)));
+      controls.subscribe((values) => {
+        const next = variantIndex(values.direction);
+        if (next !== current) setActive(next);
+        applyValues(values);
+      });
+      window.addEventListener("resize", () => {
+        moveHighlight();
+        placeControls(current);
+      });
+      document.addEventListener("keydown", (event) => {
+        const target = event.target;
+        if (target instanceof Element && (["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) || target.isContentEditable)) return;
+        if (event.metaKey || event.ctrlKey || event.altKey) return;
+
+        const number = Number(event.key);
+        if (Number.isInteger(number) && number >= 1 && number <= items.length) {
+          event.preventDefault();
+          setActive(number - 1, true);
+        } else if (event.key === "ArrowRight") {
+          event.preventDefault();
+          setActive((current + 1) % items.length, true);
+        } else if (event.key === "ArrowLeft") {
+          event.preventDefault();
+          setActive((current - 1 + items.length) % items.length, true);
+        }
+      });
+
+      requestAnimationFrame(() => requestAnimationFrame(() => picker.setAttribute("data-ready", "")));
+    </script>
+
+    <style is:global>
+      :root {
+        --z-skip-link: 500;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        min-width: 320px;
+        background: oklch(0.98 0.008 84);
+      }
+
+      body {
+        margin: 0;
+        color: oklch(0.24 0.025 255);
+        font-family: "Source Sans Pro", ui-sans-serif, sans-serif;
+        font-synthesis: none;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      button,
+      a {
+        touch-action: manipulation;
+      }
+
+      .prototype-stage {
+        --canvas: oklch(0.98 0.008 84);
+        --surface: oklch(0.96 0.012 84);
+        --ink: oklch(0.24 0.025 255);
+        --muted: oklch(0.45 0.025 255);
+        --accent: oklch(0.38 0.09 250);
+        --rule: oklch(0.88 0.012 84);
+        --display-font: "Lora", Georgia, serif;
+        --body-font: "Source Sans Pro", ui-sans-serif, sans-serif;
+        min-height: 100svh;
+        padding-block-start: 80px;
+        background: var(--canvas);
+        color: var(--ink);
+      }
+
+      .prototype-stage a:focus-visible,
+      .prototype-skip-link:focus-visible {
+        outline: 2px solid currentColor;
+        outline-offset: 3px;
+      }
+
+      .prototype-skip-link {
+        position: fixed;
+        z-index: var(--z-skip-link);
+        top: 12px;
+        left: 12px;
+        padding: 12px 16px;
+        transform: translateY(-160%);
+        background: oklch(0.2 0.02 255);
+        color: white;
+        font: 600 1rem/1.2 system-ui, sans-serif;
+      }
+
+      .prototype-skip-link:focus {
+        transform: translateY(0);
+      }
+
+      .prototype-noscript {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: grid;
+        place-content: center;
+        margin: 0;
+        padding: 24px;
+        background: oklch(0.98 0.008 84);
+        color: oklch(0.24 0.025 255);
+        text-align: center;
+      }
+
+      .proto-picker {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2147483647;
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        padding: 4px;
+        border-radius: 999px;
+        background: rgba(10, 10, 10, 0.82);
+        -webkit-backdrop-filter: blur(12px) saturate(1.4);
+        backdrop-filter: blur(12px) saturate(1.4);
+        box-shadow:
+          0 0 0 1px rgba(255, 255, 255, 0.08) inset,
+          0 8px 24px rgba(0, 0, 0, 0.24),
+          0 2px 6px rgba(0, 0, 0, 0.12);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 13px;
+        line-height: 1;
+        -webkit-font-smoothing: antialiased;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+
+      .proto-picker-highlight {
+        position: absolute;
+        top: 4px;
+        left: 0;
+        height: 28px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+        will-change: transform;
+      }
+
+      .proto-picker[data-ready] .proto-picker-highlight {
+        transition:
+          transform 250ms cubic-bezier(0.23, 1, 0.32, 1),
+          width 250ms cubic-bezier(0.23, 1, 0.32, 1);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .proto-picker[data-ready] .proto-picker-highlight {
+          transition: none;
+        }
+      }
+
+      .proto-picker-item {
+        position: relative;
+        display: flex;
+        align-items: center;
+        height: 28px;
+        padding: 0 12px;
+        border: 0;
+        border-radius: 999px;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.55);
+        font: inherit;
+        cursor: pointer;
+        transition: color 150ms ease-out;
+      }
+
+      .proto-picker-item:hover {
+        color: rgba(255, 255, 255, 0.85);
+      }
+
+      .proto-picker-item:active {
+        transform: scale(0.97);
+      }
+
+      .proto-picker-item:focus-visible {
+        outline: 2px solid rgba(255, 255, 255, 0.4);
+        outline-offset: 2px;
+      }
+
+      .proto-picker-item[data-active] {
+        color: #fff;
+      }
+
+      .proto-picker-divider {
+        width: 1px;
+        height: 16px;
+        margin: 0 4px;
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .proto-picker-replay {
+        padding: 0 10px;
+        font-size: 14px;
+      }
+
+      .proto-picker[data-position="top"] {
+        bottom: auto;
+        top: 24px;
+      }
+
+      .dialkit-select-trigger {
+        gap: 10px;
+      }
+
+      .dialkit-select-right {
+        flex: 1;
+        min-width: 0;
+        justify-content: flex-end;
+      }
+
+      .dialkit-select-value {
+        flex: 1;
+        min-width: 0;
+      }
+    </style>
+  </body>
+</html>

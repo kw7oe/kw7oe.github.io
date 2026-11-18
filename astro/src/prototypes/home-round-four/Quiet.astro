@@ -1,0 +1,99 @@
+---
+interface Props {
+  headline: string;
+  paragraph: string;
+  points: { text: string; href?: string }[];
+}
+
+const { headline, paragraph, points } = Astro.props;
+---
+
+<article class="quiet" aria-labelledby="quiet-heading">
+  <div class="quiet__copy">
+    <h1 id="quiet-heading">{headline}</h1>
+    <p>{paragraph}</p>
+    <ul>
+      {points.map((point) => (
+        <li>{point.href ? <a href={point.href}>{point.text}</a> : point.text}</li>
+      ))}
+    </ul>
+  </div>
+</article>
+
+<style>
+  .quiet {
+    display: grid;
+    min-height: 100svh;
+    align-items: center;
+    padding: clamp(72px, 12vh, 136px) clamp(28px, 11vw, 176px) 112px;
+  }
+
+  .quiet__copy {
+    width: min(100%, 520px);
+    margin-inline: auto;
+  }
+
+  h1 {
+    max-width: 15ch;
+    margin: 0;
+    font-family: var(--display-font);
+    font-size: clamp(2rem, 3.2vw, 2.5rem);
+    font-weight: 400;
+    line-height: 1.12;
+    letter-spacing: -0.035em;
+    font-optical-sizing: auto;
+    text-wrap: balance;
+  }
+
+  p {
+    max-width: 48ch;
+    margin: 22px 0 0;
+    color: var(--muted);
+    font-family: var(--body-font);
+    font-size: 1rem;
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
+
+  ul {
+    display: grid;
+    gap: 12px;
+    margin: 30px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    position: relative;
+    padding-inline-start: 16px;
+    font-family: var(--body-font);
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  li::before {
+    position: absolute;
+    top: 0.72em;
+    left: 0;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--accent);
+    content: "";
+  }
+
+  a {
+    color: inherit;
+    text-decoration-color: color-mix(in oklch, var(--accent) 48%, transparent);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    a:hover { text-decoration-color: currentColor; }
+  }
+
+  @media (max-width: 600px) {
+    .quiet { padding-inline: 28px; }
+  }
+</style>

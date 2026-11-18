@@ -1,0 +1,106 @@
+---
+const { navigation, projects } = Astro.props;
+---
+
+<article class="studio-folio" aria-labelledby="studio-folio-title">
+  <header class="studio-folio__header">
+    <a href="/" class="studio-folio__monogram" aria-label="Kai Wern Choong home">KW<span>C</span></a>
+    <nav aria-label="Site navigation">
+      {navigation.map((item) => <a href={item.href}>{item.title}</a>)}
+    </nav>
+    <p>PERSONAL FOLIO / PROJECT INDEX</p>
+  </header>
+
+  <div class="studio-folio__layout">
+    <aside class="studio-folio__identity">
+      <p class="studio-folio__eyebrow">A working folio <span>01—05</span></p>
+      <h1 id="studio-folio-title">Kai<br />Wern<br /><em>Choong.</em></h1>
+      <p class="studio-folio__intro">Senior software engineer at <a href="https://www.ditto.live" target="_blank" rel="noreferrer">Ditto</a>, making room for life outside the work.</p>
+      <dl>
+        <div><dt>Now</dt><dd>Building software</dd></div>
+        <div><dt>Practice</dt><dd>Work, in proportion</dd></div>
+        <div><dt>Study</dt><dd>System programming<br />at Recurse Center</dd></div>
+      </dl>
+      <a class="studio-folio__all-work" href="/blogs/">Notes & writing <span aria-hidden="true">↗</span></a>
+    </aside>
+
+    <section class="studio-folio__work" aria-labelledby="studio-folio-work-title">
+      <div class="studio-folio__work-heading">
+        <p>PROJECT INDEX <span>·</span> 0{projects.length} ENTRIES</p>
+        <h2 id="studio-folio-work-title">Projects &amp; experiments</h2>
+      </div>
+      <ol>
+        {projects.map((project, index) => (
+          <li>
+            <span class="studio-folio__number">0{index + 1}</span>
+            <div class="studio-folio__project-copy">
+              <h3><a href={project.href} target="_blank" rel="noreferrer">{project.title}</a></h3>
+              <p>{project.description}</p>
+            </div>
+            <span class="studio-folio__category">{project.group === "systems" ? "SYSTEMS" : "EARLIER WORK"}</span>
+            <a class="studio-folio__arrow" href={project.href} target="_blank" rel="noreferrer" aria-label={`Open ${project.title}`}>
+              <span aria-hidden="true">↗</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+      <p class="studio-folio__caption">A small archive of things built to understand how they work.</p>
+    </section>
+  </div>
+
+  <footer class="studio-folio__footer"><span>DESIGN STUDY / FOLIO NO. 02</span><span>Made with curiosity, not a business plan.</span></footer>
+</article>
+
+<style>
+  .studio-folio { max-width: 1360px; min-height: 100svh; margin-inline: auto; padding: 30px clamp(28px, 7.5vw, 104px) 140px; font-family: var(--body-font); }
+  .studio-folio a { color: inherit; text-decoration-color: color-mix(in oklab, currentColor 38%, transparent); text-underline-offset: 0.18em; }
+  .studio-folio__header { display: flex; align-items: center; gap: 30px; padding-bottom: 15px; border-bottom: 1px solid var(--rule); }
+  .studio-folio__monogram { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid var(--ink); border-radius: 50%; font: 400 15px/1 var(--display-font); text-decoration: none; }
+  .studio-folio__monogram span { color: var(--accent); }
+  .studio-folio__header nav { display: flex; flex-wrap: wrap; gap: 11px 16px; }
+  .studio-folio__header nav a, .studio-folio__header > p { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; }
+  .studio-folio__header > p { margin: 0 0 0 auto; color: var(--muted); }
+  .studio-folio__layout { display: grid; grid-template-columns: minmax(260px, 0.72fr) minmax(0, 1.28fr); gap: clamp(50px, 10vw, 150px); padding-top: clamp(54px, 8vw, 108px); }
+  .studio-folio__identity { align-self: start; position: sticky; top: 36px; }
+  .studio-folio__eyebrow, .studio-folio__work-heading > p, .studio-folio__identity dt, .studio-folio__category, .studio-folio__footer { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .studio-folio__eyebrow { display: flex; justify-content: space-between; max-width: 340px; margin: 0 0 22px; color: var(--muted); }
+  .studio-folio__eyebrow span, .studio-folio__work-heading > p span { color: var(--accent); }
+  .studio-folio__identity h1 { margin: 0; font: 400 clamp(3.2rem, 6vw, 5.4rem)/0.92 var(--display-font); letter-spacing: -0.045em; text-wrap: balance; }
+  .studio-folio__identity h1 em { color: var(--accent); font-weight: 400; }
+  .studio-folio__intro { max-width: 340px; margin: 29px 0 34px; font-size: 16px; line-height: 1.55; }
+  .studio-folio__identity dl { display: grid; gap: 0; max-width: 370px; margin: 0; border-top: 1px solid var(--rule); }
+  .studio-folio__identity dl div { display: grid; grid-template-columns: 76px 1fr; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--rule); }
+  .studio-folio__identity dt { color: var(--muted); }
+  .studio-folio__identity dd { margin: 0; font-size: 13px; line-height: 1.45; }
+  .studio-folio__all-work { display: inline-flex; gap: 10px; margin-top: 25px; font-size: 12px; text-decoration: none; }
+  .studio-folio__all-work span { color: var(--accent); }
+  .studio-folio__work { padding-top: 10px; }
+  .studio-folio__work-heading { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding-bottom: 25px; border-bottom: 1px solid var(--ink); }
+  .studio-folio__work-heading > p { margin: 0; color: var(--muted); }
+  .studio-folio__work-heading h2 { margin: 0; font: 400 clamp(1.7rem, 2.9vw, 2.8rem)/1.04 var(--display-font); letter-spacing: -0.035em; }
+  .studio-folio__work ol { margin: 0; padding: 0; list-style: none; }
+  .studio-folio__work li { display: grid; grid-template-columns: 36px minmax(0, 1fr) 104px 22px; gap: 12px; align-items: start; padding: 23px 0 21px; border-bottom: 1px solid var(--rule); }
+  .studio-folio__number, .studio-folio__category { padding-top: 5px; color: var(--muted); font-size: 10px; letter-spacing: 0.1em; }
+  .studio-folio__number { color: var(--accent); }
+  .studio-folio__project-copy h3 { margin: 0; font: 400 clamp(1.2rem, 1.7vw, 1.55rem)/1.16 var(--display-font); }
+  .studio-folio__project-copy h3 a { text-decoration: none; }
+  .studio-folio__project-copy p { max-width: 490px; margin: 7px 0 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+  .studio-folio__arrow { justify-self: end; text-decoration: none; }
+  .studio-folio__caption { margin: 18px 0 0 48px; color: var(--muted); font-size: 11px; font-style: italic; }
+  .studio-folio__footer { display: flex; justify-content: space-between; gap: 24px; margin-top: 75px; padding-top: 12px; border-top: 1px solid var(--ink); color: var(--muted); }
+  @media (max-width: 850px) {
+    .studio-folio__layout { grid-template-columns: 1fr; gap: 60px; }
+    .studio-folio__identity { position: static; }
+    .studio-folio__identity h1 { font-size: clamp(3.25rem, 11.5vw, 5.2rem); }
+  }
+  @media (max-width: 560px) {
+    .studio-folio { padding-top: 20px; }
+    .studio-folio__header { flex-wrap: wrap; gap: 14px; }
+    .studio-folio__header > p { width: 100%; margin: 0; }
+    .studio-folio__work li { grid-template-columns: 26px minmax(0, 1fr) 20px; gap: 8px; }
+    .studio-folio__category { grid-column: 2; grid-row: 2; }
+    .studio-folio__arrow { grid-column: 3; grid-row: 1; }
+    .studio-folio__caption { margin-left: 34px; }
+    .studio-folio__footer { flex-direction: column; gap: 7px; font-size: 9px; }
+  }
+</style>

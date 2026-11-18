@@ -1,0 +1,324 @@
+---
+import "../../styles/fonts.css";
+import MagazineCover from "../../prototypes/home-round-three/MagazineCover.astro";
+import StudioFolio from "../../prototypes/home-round-three/StudioFolio.astro";
+import TypeSpecimen from "../../prototypes/home-round-three/TypeSpecimen.astro";
+import FieldGuide from "../../prototypes/home-round-three/FieldGuide.astro";
+import GatefoldNotes from "../../prototypes/home-round-three/GatefoldNotes.astro";
+import { createHugoSite } from "../../lib/hugo-site.mjs";
+
+const site = createHugoSite();
+const navigation = [
+  { title: site.home.title, href: site.home.route },
+  { title: site.blogIndex.title, href: site.blogIndex.route },
+  ...["series", "fragments", "books"].flatMap((section) => {
+    const page = site.sectionIndexes.get(section);
+    return page ? [{ title: page.title, href: page.route }] : [];
+  }),
+  ...site.routes
+    .filter((item) => item.kind === "taxonomy-index" && item.taxonomy === "tags")
+    .map((item) => ({ title: item.title, href: item.route })),
+];
+const projects = [
+  {
+    title: "Database in Rust",
+    href: "https://github.com/kw7oe/mini-db",
+    group: "systems",
+    description: "A simple database written in Rust to learn system programming, inspired by cstack’s tutorial.",
+  },
+  {
+    title: "rok",
+    href: "https://github.com/kw7oe/rok",
+    group: "systems",
+    description: "A minimal reverse proxy, inspired by ngrok.",
+  },
+  {
+    title: "TIL",
+    href: "https://github.com/kw7oe/til",
+    group: "earlier",
+    description: "A Phoenix learning journal with Markdown posts and tags, inspired by Hashrocket TIL.",
+  },
+  {
+    title: "Progressus",
+    href: "https://github.com/kw7oe/progressus",
+    group: "earlier",
+    description: "A simple counter app for iOS.",
+  },
+  {
+    title: "hbtrack",
+    href: "https://github.com/kw7oe/hbtrack",
+    group: "earlier",
+    description: "A Ruby habit-tracking CLI. It still works; I use Streaks now.",
+  },
+];
+---
+
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Home · Round three design study</title>
+  </head>
+  <body>
+    <a class="prototype-skip-link" href="#stage">Skip to content</a>
+    <main id="stage" class="prototype-stage" tabindex="-1">
+      <template data-variant-template="magazine-cover"><MagazineCover navigation={navigation} projects={projects} /></template>
+      <template data-variant-template="studio-folio"><StudioFolio navigation={navigation} projects={projects} /></template>
+      <template data-variant-template="type-specimen"><TypeSpecimen navigation={navigation} projects={projects} /></template>
+      <template data-variant-template="field-guide"><FieldGuide navigation={navigation} projects={projects} /></template>
+      <template data-variant-template="gatefold-notes"><GatefoldNotes navigation={navigation} projects={projects} /></template>
+    </main>
+
+    <noscript><p class="prototype-noscript">Enable JavaScript to use the design picker.</p></noscript>
+
+    <nav class="proto-picker" aria-label="Prototype variants">
+      <span class="proto-picker-highlight" aria-hidden="true"></span>
+      <button class="proto-picker-item" data-active aria-current="true">Cover</button>
+      <button class="proto-picker-item">Studio</button>
+      <button class="proto-picker-item">Type</button>
+      <button class="proto-picker-item">Botany</button>
+      <button class="proto-picker-item">Fold</button>
+    </nav>
+
+    <script>
+      import { createDialKit, createDialRoot } from "dialkit/vanilla";
+      import { fontFamilies } from "../../lib/font-families.js";
+      import "dialkit/vanilla/styles.css";
+
+      const stage = document.getElementById("stage");
+      const picker = document.querySelector(".proto-picker");
+      const highlight = picker.querySelector(".proto-picker-highlight");
+      const items = [...picker.querySelectorAll(".proto-picker-item")];
+      const directions = [
+        { value: "magazine-cover", label: "Magazine Cover", pairing: "magazine" },
+        { value: "studio-folio", label: "Studio Folio", pairing: "studio" },
+        { value: "type-specimen", label: "Type Specimen", pairing: "type" },
+        { value: "field-guide", label: "Field Guide", pairing: "field" },
+        { value: "gatefold-notes", label: "Gatefold Notes", pairing: "gatefold" },
+      ];
+      const templates = directions.map((direction) => stage.querySelector(`template[data-variant-template="${direction.value}"]`));
+      const pairings = {
+        magazine: { label: "Newsreader + Source Sans 3", display: "Newsreader", body: "Source Sans 3" },
+        studio: { label: "DM Serif Display + Manrope", display: "DM Serif Display", body: "Manrope" },
+        type: { label: "Instrument Serif + IBM Plex Sans", display: "Instrument Serif", body: "IBM Plex Sans" },
+        field: { label: "Literata + Instrument Sans", display: "Literata", body: "Instrument Sans" },
+        gatefold: { label: "Sora + Paper Mono", display: "Sora", body: "Paper Mono" },
+        "all-sans": { label: "Manrope + IBM Plex Sans", display: "Manrope", body: "IBM Plex Sans" },
+        "instrument-sans": { label: "Instrument Sans (all text)", display: "Instrument Sans", body: "Instrument Sans" },
+        "dm-sans": { label: "DM Sans (all text)", display: "DM Sans", body: "DM Sans" },
+        "instrument-dm": { label: "Instrument Sans + DM Sans", display: "Instrument Sans", body: "DM Sans" },
+        "sora-instrument": { label: "Sora + Instrument Sans", display: "Sora", body: "Instrument Sans" },
+        "bricolage-dm": { label: "Bricolage Grotesque + DM Sans", display: "Bricolage Grotesque", body: "DM Sans" },
+      };
+      const pairingOptions = Object.entries(pairings).map(([value, pairing]) => ({ value, label: pairing.label }));
+      const query = new URLSearchParams(location.search);
+      const requestedIndex = Number(query.get("v") ?? 1) - 1;
+      const initialIndex = Number.isInteger(requestedIndex) && requestedIndex >= 0 && requestedIndex < items.length ? requestedIndex : 0;
+      const initialDirection = directions[initialIndex];
+      const hasPairing = (value) => Object.hasOwn(pairings, value);
+      const initialPairing = hasPairing(query.get("fonts")) ? query.get("fonts") : initialDirection.pairing;
+      let current = -1;
+
+      createDialRoot({ position: "top-right", theme: "light", defaultOpen: false });
+      const controls = createDialKit("Home design study · round three", {
+        layout: {
+          type: "select",
+          options: directions.map(({ value, label }) => ({ value, label })),
+          default: initialDirection.value,
+        },
+        typography: { type: "select", options: pairingOptions, default: initialPairing },
+      });
+
+      function moveHighlight() {
+        const item = items[current];
+        if (!item) return;
+        highlight.style.width = `${item.offsetWidth}px`;
+        highlight.style.transform = `translateX(${item.offsetLeft}px)`;
+      }
+
+      function mountDirection(index) {
+        if (index < 0 || index >= items.length) return;
+        current = index;
+        items.forEach((item, itemIndex) => {
+          item.toggleAttribute("data-active", itemIndex === index);
+          if (itemIndex === index) item.setAttribute("aria-current", "true");
+          else item.removeAttribute("aria-current");
+        });
+        stage.replaceChildren(templates[index].content.cloneNode(true));
+        stage.scrollTop = 0;
+        moveHighlight();
+      }
+
+      function applyTypography(values) {
+        const pairing = pairings[values.typography] ?? pairings[initialDirection.pairing];
+        stage.style.setProperty("--display-font", fontFamilies[pairing.display].stack);
+        stage.style.setProperty("--body-font", fontFamilies[pairing.body].stack);
+      }
+
+      function syncUrl(values) {
+        const url = new URL(location.href);
+        url.searchParams.set("v", String(current + 1));
+        url.searchParams.set("fonts", values.typography);
+        history.replaceState(null, "", url);
+      }
+
+      function chooseDirection(index) {
+        const direction = directions[index];
+        controls.setValues({ layout: direction.value, typography: direction.pairing });
+      }
+
+      mountDirection(initialIndex);
+      applyTypography(controls.getValues());
+      syncUrl(controls.getValues());
+      controls.subscribe((values) => {
+        const index = directions.findIndex((direction) => direction.value === values.layout);
+        if (index < 0) return;
+        if (index !== current) mountDirection(index);
+        applyTypography(values);
+        syncUrl(values);
+      });
+
+      items.forEach((item, index) => item.addEventListener("click", () => chooseDirection(index)));
+      window.addEventListener("resize", moveHighlight);
+      window.addEventListener("keydown", (event) => {
+        if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
+        if (event.target instanceof Element && event.target.closest("input, textarea, select, [contenteditable='true']")) return;
+        if (event.key === "ArrowRight") {
+          event.preventDefault();
+          chooseDirection((current + 1) % items.length);
+        } else if (event.key === "ArrowLeft") {
+          event.preventDefault();
+          chooseDirection((current - 1 + items.length) % items.length);
+        } else {
+          const number = Number(event.key);
+          if (Number.isInteger(number) && number >= 1 && number <= items.length) chooseDirection(number - 1);
+        }
+      });
+
+      requestAnimationFrame(() => requestAnimationFrame(() => picker.setAttribute("data-ready", "")));
+    </script>
+
+    <style is:global>
+      :root {
+        --z-skip-link: 500;
+        --prototype-canvas: oklch(0.965 0.008 250);
+        --prototype-surface: oklch(0.93 0.012 250);
+        --prototype-ink: oklch(0.24 0.018 255);
+        --prototype-muted: oklch(0.48 0.022 255);
+        --prototype-accent: oklch(0.46 0.10 245);
+        --prototype-rule: oklch(0.84 0.016 250);
+      }
+      * { box-sizing: border-box; }
+      html { height: 100%; min-width: 320px; overflow: hidden; background: var(--prototype-canvas); }
+      body {
+        height: 100svh;
+        margin: 0;
+        overflow: hidden;
+        color: var(--prototype-ink);
+        font-family: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+        font-synthesis: none;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      button, a { touch-action: manipulation; }
+      .prototype-stage {
+        --canvas: var(--prototype-canvas);
+        --surface: var(--prototype-surface);
+        --ink: var(--prototype-ink);
+        --muted: var(--prototype-muted);
+        --accent: var(--prototype-accent);
+        --rule: var(--prototype-rule);
+        --display-font: "Newsreader", Georgia, serif;
+        --body-font: "Source Sans 3", ui-sans-serif, sans-serif;
+        height: calc(100svh - 88px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-gutter: stable;
+        background: var(--canvas);
+        color: var(--ink);
+      }
+      .prototype-stage a:focus-visible, .prototype-skip-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+      .prototype-stage article > header { padding-inline-end: 80px; }
+      .prototype-skip-link {
+        position: fixed;
+        z-index: var(--z-skip-link);
+        top: 12px;
+        left: 12px;
+        padding: 12px 16px;
+        transform: translateY(-160%);
+        background: var(--prototype-ink);
+        color: white;
+        font: 600 1rem/1.2 system-ui, sans-serif;
+      }
+      .prototype-skip-link:focus { transform: translateY(0); }
+      .prototype-noscript {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: grid;
+        place-content: center;
+        margin: 0;
+        padding: 24px;
+        background: var(--prototype-canvas);
+        color: var(--prototype-ink);
+        text-align: center;
+      }
+      .proto-picker {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2147483647;
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        padding: 4px;
+        border-radius: 999px;
+        background: rgba(10, 10, 10, 0.82);
+        -webkit-backdrop-filter: blur(12px) saturate(1.4);
+        backdrop-filter: blur(12px) saturate(1.4);
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset, 0 8px 24px rgba(0, 0, 0, 0.24), 0 2px 6px rgba(0, 0, 0, 0.12);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 13px;
+        line-height: 1;
+        -webkit-font-smoothing: antialiased;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      .proto-picker-highlight {
+        position: absolute;
+        top: 4px;
+        left: 0;
+        height: 28px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+        will-change: transform;
+      }
+      .proto-picker[data-ready] .proto-picker-highlight { transition: transform 250ms cubic-bezier(0.23, 1, 0.32, 1), width 250ms cubic-bezier(0.23, 1, 0.32, 1); }
+      @media (prefers-reduced-motion: reduce) { .proto-picker[data-ready] .proto-picker-highlight { transition: none; } }
+      .proto-picker-item {
+        position: relative;
+        display: flex;
+        align-items: center;
+        height: 28px;
+        padding: 0 12px;
+        border: 0;
+        border-radius: 999px;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.55);
+        font: inherit;
+        cursor: pointer;
+        transition: color 150ms ease-out;
+      }
+      .proto-picker-item:hover { color: rgba(255, 255, 255, 0.85); }
+      .proto-picker-item:active { transform: scale(0.97); }
+      .proto-picker-item:focus-visible { outline: 2px solid rgba(255, 255, 255, 0.4); outline-offset: 2px; }
+      .proto-picker-item[data-active] { color: #fff; }
+      .dialkit-select-trigger { gap: 10px; }
+      .dialkit-select-right, .dialkit-select-value { flex: 1; min-width: 0; }
+      .dialkit-select-right { justify-content: flex-end; }
+    </style>
+  </body>
+</html>

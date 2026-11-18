@@ -1,0 +1,125 @@
+---
+const { navigation, projects } = Astro.props;
+---
+
+<section class="herbarium" aria-labelledby="herbarium-title">
+  <header class="herbarium__header">
+    <a href="/" class="herbarium__mark">Kai Wern Choong <span>· Personal collection</span></a>
+    <nav aria-label="Primary navigation">
+      {navigation.map((item) => <a href={item.href} aria-current={item.href === "/" ? "page" : undefined}>{item.title}</a>)}
+      <a href="/proto/home/">Round one</a>
+    </nav>
+  </header>
+
+  <main class="herbarium__sheet">
+    <aside class="herbarium__plate">
+      <p class="herbarium__catalog">Specimen no. KW—01</p>
+      <svg class="herbarium__drawing" viewBox="0 0 360 560" role="img" aria-label="A branching pressed-leaf specimen drawn in fine botanical lines">
+        <path class="herbarium__stem" d="M179 520C185 437 168 366 180 292c11-70 2-135 13-245" />
+        <path class="herbarium__stem herbarium__stem--fine" d="M180 414c-25-21-47-42-74-72M176 356c27-20 48-43 76-72M178 292c-30-17-51-39-75-62M183 230c25-15 46-38 68-60M187 172c-22-15-40-34-58-53M190 126c19-12 32-27 45-43" />
+        <g class="herbarium__leaves">
+          <path d="M105 348c-34-7-54-29-61-65 35 3 58 24 61 65Z" />
+          <path d="M101 342c-16-19-33-35-53-51M107 286c-33 0-55-17-67-48 34-2 58 15 67 48Z" />
+          <path d="M99 282c-19-12-39-22-62-30M253 285c31-11 48-33 50-68-32 8-51 31-50 68Z" />
+          <path d="M249 281c15-18 31-35 51-51M102 232c-30-10-47-32-51-66 31 6 51 27 51 66Z" />
+          <path d="M98 226c-17-15-35-28-57-38M251 173c29-10 44-30 49-61-30 6-48 26-49 61Z" />
+          <path d="M248 169c15-17 30-31 48-46M133 123c-24-11-36-29-37-57 26 7 39 25 37 57Z" />
+          <path d="M133 119c-12-14-25-26-41-37M235 83c20-9 30-23 31-45-22 6-33 20-31 45Z" />
+          <path d="M235 79c10-12 21-22 34-31" />
+        </g>
+        <path class="herbarium__midrib" d="M61 283c14 14 27 29 40 62M41 235c18 12 39 27 61 47M303 217c-20 16-37 35-52 64M41 188c20 12 40 26 57 38M300 112c-18 17-34 36-49 61M96 66c17 16 28 33 37 57M266 38c-12 14-22 28-31 45" />
+      </svg>
+      <p class="herbarium__plate-note">Field drawing · one ongoing practice</p>
+    </aside>
+
+    <div class="herbarium__record">
+      <p class="herbarium__eyebrow">A working-life specimen</p>
+      <h1 id="herbarium-title">Kai<br />Wern Choong</h1>
+      <p class="herbarium__intro">A senior software engineer at <a href="https://www.ditto.live" target="_blank" rel="noreferrer">Ditto</a>. I’m trying to keep a good work-life balance, with room for small things made to learn.</p>
+
+      <dl class="herbarium__facts">
+        <div><dt>Present work</dt><dd>Software engineering · Ditto</dd></div>
+        <div><dt>Working condition</dt><dd>Balance is part of the practice</dd></div>
+        <div><dt>Study habitat</dt><dd>Recurse Center · system programming</dd></div>
+      </dl>
+
+      <section class="herbarium__projects" aria-labelledby="herbarium-projects-title">
+        <div class="herbarium__section-heading"><h2 id="herbarium-projects-title">Collected projects</h2><span>Five entries</span></div>
+        {projects.map((project, index) => (
+          <article class="herbarium__entry">
+            <span class="herbarium__entry-index">0{index + 1}</span>
+            <div><h3><a href={project.href} target="_blank" rel="noreferrer">{project.title}</a></h3><p>{project.description}</p></div>
+          </article>
+        ))}
+      </section>
+    </div>
+  </main>
+
+  <footer class="herbarium__footer">
+    <p>Label format inspired by <a href="https://www.kew.org/read-and-watch/herbarium-collection" target="_blank" rel="noreferrer">Kew’s herbarium collection</a></p>
+    <a href="/proto/home/">Compare with round one</a>
+  </footer>
+</section>
+
+<style>
+  .herbarium { min-height: 100svh; padding: 24px clamp(18px, 4vw, 64px) 104px; background: var(--canvas); color: var(--ink); font-family: var(--body-font); }
+  .herbarium__header,
+  .herbarium__header nav,
+  .herbarium__footer { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+  .herbarium__header { max-width: 1320px; margin: 0 auto; padding-bottom: 18px; border-bottom: 1px solid var(--rule); }
+  .herbarium__mark { color: var(--ink); font: 600 0.9rem/1.3 var(--display-font); text-decoration: none; }
+  .herbarium__mark span { color: var(--muted); font: 400 0.85rem/1.4 var(--body-font); }
+  .herbarium__header nav { flex-wrap: wrap; justify-content: flex-end; gap: 0 16px; }
+  .herbarium__header nav a,
+  .herbarium__footer { color: var(--muted); font-size: 0.82rem; text-decoration-thickness: from-font; text-underline-offset: 0.15em; }
+  .herbarium__header nav a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: none; }
+  .herbarium__header nav a[aria-current="page"] { color: var(--accent); }
+
+  .herbarium__sheet { display: grid; grid-template-columns: minmax(290px, 0.8fr) minmax(0, 1.2fr); gap: clamp(34px, 7vw, 100px); max-width: 1140px; margin: clamp(42px, 7vw, 92px) auto 54px; padding: clamp(22px, 4vw, 54px); border: 1px solid var(--rule); background: var(--surface); }
+  .herbarium__plate { display: flex; flex-direction: column; align-items: center; min-width: 0; margin: 0; padding: 8px 12px 0; border-right: 1px solid var(--rule); }
+  .herbarium__catalog,
+  .herbarium__plate-note,
+  .herbarium__eyebrow,
+  .herbarium__section-heading span,
+  .herbarium__entry-index { color: var(--muted); font: 500 0.75rem/1.5 var(--body-font); letter-spacing: 0.14em; text-transform: uppercase; }
+  .herbarium__catalog { align-self: flex-start; margin: 0; }
+  .herbarium__drawing { display: block; width: min(100%, 360px); height: auto; margin: 18px 0 10px; overflow: visible; }
+  .herbarium__stem { fill: none; stroke: var(--ink); stroke-width: 1.4; }
+  .herbarium__stem--fine { stroke-width: 1; }
+  .herbarium__leaves path { fill: color-mix(in oklch, var(--accent) 20%, var(--surface)); stroke: var(--accent); stroke-width: 1.4; stroke-linejoin: round; }
+  .herbarium__midrib { fill: none; stroke: var(--accent); stroke-width: 0.8; }
+  .herbarium__plate-note { margin: auto 0 0; text-align: center; font-size: 0.75rem; }
+
+  .herbarium__record { padding: 5px 0 0; }
+  .herbarium__eyebrow { margin: 0 0 16px; color: var(--accent); }
+  .herbarium h1 { margin: 0 0 24px; font: 400 clamp(3.4rem, 7vw, 6.4rem)/0.9 var(--display-font); letter-spacing: -0.07em; text-wrap: balance; }
+  .herbarium__intro { max-width: 52ch; margin: 0; color: var(--muted); font-size: 1.08rem; line-height: 1.65; text-wrap: pretty; }
+  .herbarium__intro a { color: var(--accent); text-decoration-thickness: from-font; text-underline-offset: 0.16em; }
+  .herbarium__facts { display: grid; gap: 0; margin: 34px 0 44px; border-top: 1px solid var(--rule); }
+  .herbarium__facts div { display: grid; grid-template-columns: minmax(130px, 0.6fr) 1fr; gap: 18px; padding: 12px 0; border-bottom: 1px solid var(--rule); }
+  .herbarium__facts dt { color: var(--muted); font-size: 0.82rem; }
+  .herbarium__facts dd { margin: 0; font-size: 0.9rem; }
+  .herbarium__section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 8px; }
+  .herbarium__section-heading h2 { margin: 0; font: 400 1.45rem/1.2 var(--display-font); }
+  .herbarium__section-heading span { font-size: 0.75rem; }
+  .herbarium__entry { display: grid; grid-template-columns: 42px 1fr; gap: 10px; padding: 15px 0; border-top: 1px solid var(--rule); }
+  .herbarium__entry-index { padding-top: 3px; font-size: 0.75rem; font-variant-numeric: tabular-nums; }
+  .herbarium__entry h3 { margin: 0 0 4px; font: 500 1rem/1.3 var(--display-font); }
+  .herbarium__entry h3 a { color: var(--accent); text-decoration-thickness: from-font; text-underline-offset: 0.14em; }
+  .herbarium__entry p { max-width: 58ch; margin: 0; color: var(--muted); font-size: 0.85rem; line-height: 1.55; }
+  .herbarium__footer { max-width: 1140px; margin: 0 auto; font-size: 0.75rem; }
+  .herbarium__footer p { margin: 0; }
+  .herbarium__footer a { color: var(--accent); }
+
+  @media (max-width: 760px) {
+    .herbarium { padding: 16px 18px 104px; }
+    .herbarium__header { align-items: flex-start; flex-direction: column; gap: 8px; }
+    .herbarium__header nav { justify-content: flex-start; gap: 0 14px; }
+    .herbarium__sheet { grid-template-columns: 1fr; gap: 32px; margin: 30px auto; padding: 22px 18px; }
+    .herbarium__plate { border-right: 0; border-bottom: 1px solid var(--rule); padding: 0 0 18px; }
+    .herbarium__drawing { max-height: 420px; }
+    .herbarium h1 { font-size: clamp(3.3rem, 16vw, 5.2rem); }
+    .herbarium__facts div { grid-template-columns: 1fr; gap: 4px; }
+    .herbarium__footer { align-items: flex-start; flex-direction: column; }
+  }
+</style>

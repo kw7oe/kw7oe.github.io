@@ -1,0 +1,111 @@
+---
+const { navigation, projects } = Astro.props;
+const systemsProjects = projects.filter((project) => project.group === "systems");
+const earlierProjects = projects.filter((project) => project.group === "earlier");
+---
+
+<section class="line-map" aria-labelledby="line-map-title">
+  <header class="line-map__header">
+    <a class="line-map__brand" href="/">KAI WERN CHOONG <span>· HOME NETWORK</span></a>
+    <nav aria-label="Primary navigation">
+      {navigation.map((item) => <a href={item.href} aria-current={item.href === "/" ? "page" : undefined}>{item.title}</a>)}
+      <a href="/proto/home/">Round one</a>
+    </nav>
+  </header>
+
+  <div class="line-map__intro">
+    <p>Connections / 01–03</p>
+    <h1 id="line-map-title">A route, so far.</h1>
+    <span>Stops along work, study, and things built on the way.</span>
+  </div>
+
+  <div class="line-map__network">
+    <section class="line-map__route line-map__route--work" aria-labelledby="line-map-work-title">
+      <header><span>01</span><h2 id="line-map-work-title">The day line</h2><p>Current work</p></header>
+      <ol>
+        <li><span class="line-map__node" aria-hidden="true"></span><span class="line-map__station">NOW</span><div><h3>Kai Wern Choong</h3><p>Senior Software Engineer at <a href="https://www.ditto.live" target="_blank" rel="noreferrer">Ditto</a>.</p></div></li>
+        <li><span class="line-map__node" aria-hidden="true"></span><span class="line-map__station">RHYTHM</span><div><h3>Work, with room around it</h3><p>Trying to maintain a good work-life balance.</p></div></li>
+      </ol>
+    </section>
+
+    <section class="line-map__route line-map__route--study" aria-labelledby="line-map-study-title">
+      <header><span>02</span><h2 id="line-map-study-title">The study line</h2><p>Recurse Center</p></header>
+      <ol>
+        <li><span class="line-map__node" aria-hidden="true"></span><span class="line-map__station">SUBJECT</span><div><h3>System programming</h3><p>Learning by taking small systems apart and building them again.</p></div></li>
+        {systemsProjects.map((project) => <li><span class="line-map__node" aria-hidden="true"></span><span class="line-map__station">PROJECT</span><div><h3><a href={project.href} target="_blank" rel="noreferrer">{project.title}</a></h3><p>{project.description}</p></div></li>)}
+      </ol>
+    </section>
+
+    <section class="line-map__route line-map__route--past" aria-labelledby="line-map-past-title">
+      <header><span>03</span><h2 id="line-map-past-title">The side line</h2><p>Earlier builds</p></header>
+      <ol>
+        {earlierProjects.map((project) => <li><span class="line-map__node" aria-hidden="true"></span><span class="line-map__station">PROJECT</span><div><h3><a href={project.href} target="_blank" rel="noreferrer">{project.title}</a></h3><p>{project.description}</p></div></li>)}
+      </ol>
+    </section>
+  </div>
+
+  <footer class="line-map__footer">
+    <p>Diagram study: <a href="https://content.tfl.gov.uk/tfl-line-diagram-standard.pdf" target="_blank" rel="noreferrer">TfL Line Diagram Standard</a></p>
+    <span>Five projects · three lines</span>
+  </footer>
+</section>
+
+<style>
+  .line-map { min-height: 100svh; padding: 24px clamp(22px, 5vw, 76px) 104px; background: var(--canvas); color: var(--ink); font-family: var(--body-font); }
+  .line-map__header,
+  .line-map__header nav,
+  .line-map__footer { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+  .line-map__header { max-width: 1280px; margin: 0 auto; padding-bottom: 16px; border-bottom: 1px solid var(--rule); }
+  .line-map__brand { color: var(--ink); font: 500 0.75rem/1.4 var(--body-font); letter-spacing: 0.09em; text-decoration: none; }
+  .line-map__brand span { color: var(--muted); }
+  .line-map__header nav { flex-wrap: wrap; justify-content: flex-end; gap: 0 14px; }
+  .line-map__header nav a { display: inline-flex; align-items: center; min-height: 44px; color: var(--muted); font-size: 0.82rem; text-decoration: none; }
+  .line-map__header nav a[aria-current="page"] { color: var(--accent); }
+  .line-map__intro { max-width: 1140px; margin: clamp(48px, 8vw, 100px) auto 56px; }
+  .line-map__intro > p,
+  .line-map__route header > span,
+  .line-map__route header > p,
+  .line-map__station,
+  .line-map__footer { color: var(--muted); font: 500 0.75rem/1.5 var(--body-font); letter-spacing: 0.13em; text-transform: uppercase; }
+  .line-map__intro > p { margin: 0 0 13px; color: var(--accent); }
+  .line-map__intro h1 { margin: 0 0 10px; font: 400 clamp(3.5rem, 8vw, 6.8rem)/0.98 var(--display-font); letter-spacing: -0.06em; text-wrap: balance; }
+  .line-map__intro > span { color: var(--muted); font-size: 1.02rem; }
+  .line-map__network { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(24px, 4vw, 62px); max-width: 1140px; margin: 0 auto; }
+  .line-map__route { --route-color: var(--accent); min-width: 0; }
+  .line-map__route--study { --route-color: var(--signal); }
+  .line-map__route--past { --route-color: color-mix(in oklch, var(--accent) 45%, var(--ink)); }
+  .line-map__route header { min-height: 86px; padding: 0 0 18px; border-bottom: 2px solid var(--route-color); }
+  .line-map__route header > span { color: var(--route-color); font-variant-numeric: tabular-nums; }
+  .line-map__route header h2 { margin: 7px 0 2px; font: 500 1.22rem/1.2 var(--display-font); }
+  .line-map__route header > p { margin: 0; font-size: 0.75rem; }
+  .line-map__route ol { position: relative; display: grid; gap: 0; margin: 0; padding: 22px 0 0; list-style: none; }
+  .line-map__route ol::before { position: absolute; top: 34px; bottom: 28px; left: 8px; width: 4px; background: var(--route-color); content: ""; }
+  .line-map__route li { position: relative; display: grid; grid-template-columns: 1fr; gap: 5px; min-height: 112px; padding: 0 0 24px 34px; }
+  .line-map__node { position: absolute; top: 2px; left: 0; width: 20px; height: 20px; border: 4px solid var(--route-color); border-radius: 50%; background: var(--canvas); }
+  .line-map__station { color: var(--route-color); font-size: 0.75rem; }
+  .line-map__route li h3 { margin: 0; font: 500 1rem/1.3 var(--display-font); text-wrap: pretty; }
+  .line-map__route li h3 a { color: var(--route-color); text-decoration-thickness: from-font; text-underline-offset: 0.14em; }
+  .line-map__route li p { margin: 3px 0 0; color: var(--muted); font-size: 0.84rem; line-height: 1.55; }
+  .line-map__footer { max-width: 1140px; margin: 26px auto 0; padding-top: 14px; border-top: 1px solid var(--rule); font-size: 0.75rem; }
+  .line-map__footer p { margin: 0; }
+  .line-map__footer a { color: var(--accent); text-decoration-thickness: from-font; text-underline-offset: 0.15em; }
+
+  @media (max-width: 860px) {
+    .line-map__network { grid-template-columns: 1fr; gap: 30px; }
+    .line-map__route header { min-height: 0; }
+    .line-map__route ol { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 16px; }
+    .line-map__route ol::before { bottom: 34px; }
+    .line-map__route li { min-height: 100px; }
+  }
+
+  @media (max-width: 560px) {
+    .line-map { padding: 16px 22px 104px; }
+    .line-map__header { align-items: flex-start; flex-direction: column; gap: 6px; }
+    .line-map__header nav { justify-content: flex-start; gap: 0 14px; }
+    .line-map__intro { margin: 44px auto 38px; }
+    .line-map__intro h1 { font-size: clamp(3.3rem, 16vw, 5rem); }
+    .line-map__route ol { grid-template-columns: 1fr; }
+    .line-map__route li { min-height: 88px; }
+    .line-map__footer { align-items: flex-start; flex-direction: column; gap: 8px; }
+  }
+</style>

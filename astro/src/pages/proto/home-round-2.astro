@@ -1,0 +1,360 @@
+---
+import "../../styles/fonts.css";
+import FlightPlan from "../../prototypes/home-round-two/FlightPlan.astro";
+import Herbarium from "../../prototypes/home-round-two/Herbarium.astro";
+import LineMap from "../../prototypes/home-round-two/LineMap.astro";
+import Broadsheet from "../../prototypes/home-round-two/Broadsheet.astro";
+import SleeveNotes from "../../prototypes/home-round-two/SleeveNotes.astro";
+import { createHugoSite } from "../../lib/hugo-site.mjs";
+
+const site = createHugoSite();
+const navigation = [
+  { title: site.home.title, href: site.home.route },
+  { title: site.blogIndex.title, href: site.blogIndex.route },
+  ...["series", "fragments", "books"].flatMap((section) => {
+    const page = site.sectionIndexes.get(section);
+    return page ? [{ title: page.title, href: page.route }] : [];
+  }),
+  ...site.routes
+    .filter((item) => item.kind === "taxonomy-index" && item.taxonomy === "tags")
+    .map((item) => ({ title: item.title, href: item.route })),
+];
+const projects = [
+  {
+    title: "Database in Rust",
+    href: "https://github.com/kw7oe/mini-db",
+    group: "systems",
+    description: "A simple database written in Rust to learn system programming, inspired by cstack’s tutorial.",
+  },
+  {
+    title: "rok",
+    href: "https://github.com/kw7oe/rok",
+    group: "systems",
+    description: "A minimal reverse proxy, inspired by ngrok.",
+  },
+  {
+    title: "TIL",
+    href: "https://github.com/kw7oe/til",
+    group: "earlier",
+    description: "A Phoenix learning journal with Markdown posts and tags, inspired by Hashrocket TIL.",
+  },
+  {
+    title: "Progressus",
+    href: "https://github.com/kw7oe/progressus",
+    group: "earlier",
+    description: "A simple counter app for iOS.",
+  },
+  {
+    title: "hbtrack",
+    href: "https://github.com/kw7oe/hbtrack",
+    group: "earlier",
+    description: "A Ruby habit-tracking CLI. It still works; I use Streaks now.",
+  },
+];
+---
+
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Home · Round two design study</title>
+  </head>
+  <body>
+    <a class="prototype-skip-link" href="#stage">Skip to content</a>
+    <main id="stage" class="prototype-stage" tabindex="-1">
+      <template data-variant-template="flight-plan"><FlightPlan navigation={navigation} projects={projects} /></template>
+      <template data-variant-template="herbarium"><Herbarium navigation={navigation} projects={projects} /></template>
+      <template data-variant-template="line-map"><LineMap navigation={navigation} projects={projects} /></template>
+      <template data-variant-template="broadsheet"><Broadsheet navigation={navigation} projects={projects} /></template>
+      <template data-variant-template="sleeve-notes"><SleeveNotes navigation={navigation} projects={projects} /></template>
+    </main>
+
+    <noscript><p class="prototype-noscript">Enable JavaScript to use the design picker.</p></noscript>
+
+    <nav class="proto-picker" aria-label="Prototype variants">
+      <span class="proto-picker-highlight" aria-hidden="true"></span>
+      <button class="proto-picker-item" data-active aria-current="true">Flight</button>
+      <button class="proto-picker-item">Botany</button>
+      <button class="proto-picker-item">Map</button>
+      <button class="proto-picker-item">News</button>
+      <button class="proto-picker-item">Sleeve</button>
+    </nav>
+
+    <script>
+      import { createDialKit, createDialRoot } from "dialkit/vanilla";
+      import { fontFamilies } from "../../lib/font-families.js";
+      import "dialkit/vanilla/styles.css";
+
+      const stage = document.getElementById("stage");
+      const picker = document.querySelector(".proto-picker");
+      const highlight = picker.querySelector(".proto-picker-highlight");
+      const items = [...picker.querySelectorAll(".proto-picker-item")];
+      const directions = [
+        { value: "flight-plan", label: "Flight Plan", palette: "flight", pairing: "flight" },
+        { value: "herbarium", label: "Specimen Sheet", palette: "herbarium", pairing: "herbarium" },
+        { value: "line-map", label: "Line Map", palette: "transit", pairing: "transit" },
+        { value: "broadsheet", label: "Broadsheet", palette: "newsprint", pairing: "broadsheet" },
+        { value: "sleeve-notes", label: "Sleeve Notes", palette: "blue-note", pairing: "sleeve" },
+      ];
+      const templates = directions.map((direction) => stage.querySelector(`template[data-variant-template="${direction.value}"]`));
+      const colorways = {
+        flight: {
+          label: "Flight console",
+          values: ["oklch(0.2 0.028 255)", "oklch(0.26 0.032 255)", "oklch(0.95 0.015 90)", "oklch(0.73 0.025 255)", "oklch(0.78 0.15 82)", "oklch(0.69 0.16 35)", "oklch(0.4 0.03 255)"],
+        },
+        herbarium: {
+          label: "Herbarium",
+          values: ["oklch(0.97 0.018 82)", "oklch(0.94 0.025 80)", "oklch(0.24 0.035 145)", "oklch(0.46 0.035 145)", "oklch(0.46 0.12 30)", "oklch(0.63 0.1 112)", "oklch(0.85 0.025 80)"],
+        },
+        transit: {
+          label: "Network map",
+          values: ["oklch(0.98 0.008 250)", "oklch(0.94 0.012 250)", "oklch(0.2 0.02 252)", "oklch(0.45 0.025 250)", "oklch(0.5 0.16 255)", "oklch(0.61 0.19 28)", "oklch(0.85 0.012 250)"],
+        },
+        newsprint: {
+          label: "Newsprint",
+          values: ["oklch(0.95 0.02 82)", "oklch(0.92 0.025 82)", "oklch(0.2 0.015 64)", "oklch(0.44 0.02 64)", "oklch(0.43 0.11 20)", "oklch(0.62 0.12 68)", "oklch(0.84 0.022 82)"],
+        },
+        "blue-note": {
+          label: "Blue Note",
+          values: ["oklch(0.34 0.16 260)", "oklch(0.4 0.14 260)", "oklch(0.97 0.015 90)", "oklch(0.79 0.04 93)", "oklch(0.82 0.15 83)", "oklch(0.66 0.18 25)", "oklch(0.53 0.1 256)"],
+        },
+      };
+      const pairings = {
+        flight: { label: "Plex Sans + Plex Mono", display: "IBM Plex Sans", body: "IBM Plex Mono" },
+        herbarium: { label: "Literata + Manrope", display: "Literata", body: "Manrope" },
+        transit: { label: "Source Sans 3 + Departure Mono", display: "Source Sans 3", body: "Departure Mono" },
+        broadsheet: { label: "Newsreader + Source Sans 3", display: "Newsreader", body: "Source Sans 3" },
+        sleeve: { label: "Sora + Paper Mono", display: "Sora", body: "Paper Mono" },
+      };
+      const paletteOptions = Object.entries(colorways).map(([value, palette]) => ({ value, label: palette.label }));
+      const pairingOptions = Object.entries(pairings).map(([value, pairing]) => ({ value, label: pairing.label }));
+      const variantIndex = (value) => directions.findIndex((direction) => direction.value === value);
+      const query = new URLSearchParams(location.search);
+      const requestedIndex = Number(query.get("v") ?? 1) - 1;
+      const initialIndex = Number.isInteger(requestedIndex) && requestedIndex >= 0 && requestedIndex < items.length ? requestedIndex : 0;
+      const initialDirection = directions[initialIndex];
+      const hasOption = (options, value) => Object.hasOwn(options, value);
+      const initialPalette = hasOption(colorways, query.get("palette")) ? query.get("palette") : initialDirection.palette;
+      const initialPairing = hasOption(pairings, query.get("fonts")) ? query.get("fonts") : initialDirection.pairing;
+      let current = -1;
+
+      createDialRoot({ position: "top-right", theme: "light", defaultOpen: false });
+      const controls = createDialKit("Home design study · round two", {
+        direction: {
+          type: "select",
+          options: directions.map(({ value, label }) => ({ value, label })),
+          default: initialDirection.value,
+        },
+        palette: { type: "select", options: paletteOptions, default: initialPalette },
+        fonts: { type: "select", options: pairingOptions, default: initialPairing },
+      });
+
+      function moveHighlight() {
+        const item = items[current];
+        if (!item) return;
+        highlight.style.width = `${item.offsetWidth}px`;
+        highlight.style.transform = `translateX(${item.offsetLeft}px)`;
+      }
+
+      function mountVariant(index) {
+        if (index < 0 || index >= items.length) return;
+        current = index;
+        items.forEach((item, itemIndex) => {
+          item.toggleAttribute("data-active", itemIndex === index);
+          if (itemIndex === index) item.setAttribute("aria-current", "true");
+          else item.removeAttribute("aria-current");
+        });
+        stage.replaceChildren(templates[index].content.cloneNode(true));
+        moveHighlight();
+      }
+
+      function applyValues(values) {
+        const palette = colorways[values.palette] ?? colorways[initialDirection.palette];
+        const pairing = pairings[values.fonts] ?? pairings[initialDirection.pairing];
+        const [canvas, surface, ink, muted, accent, signal, rule] = palette.values;
+        stage.style.setProperty("--canvas", canvas);
+        stage.style.setProperty("--surface", surface);
+        stage.style.setProperty("--ink", ink);
+        stage.style.setProperty("--muted", muted);
+        stage.style.setProperty("--accent", accent);
+        stage.style.setProperty("--signal", signal);
+        stage.style.setProperty("--rule", rule);
+        stage.style.setProperty("--display-font", fontFamilies[pairing.display].stack);
+        stage.style.setProperty("--body-font", fontFamilies[pairing.body].stack);
+      }
+
+      function updateUrl(values) {
+        const url = new URL(location.href);
+        url.searchParams.set("v", String(current + 1));
+        url.searchParams.set("palette", values.palette);
+        url.searchParams.set("fonts", values.fonts);
+        history.replaceState(null, "", url);
+      }
+
+      function chooseVariant(index) {
+        const direction = directions[index];
+        controls.setValues({
+          direction: direction.value,
+          palette: direction.palette,
+          fonts: direction.pairing,
+        });
+      }
+
+      mountVariant(initialIndex);
+      const initialValues = controls.getValues();
+      applyValues(initialValues);
+      updateUrl(initialValues);
+      items.forEach((item, index) => item.addEventListener("click", () => chooseVariant(index)));
+      controls.subscribe((values) => {
+        const index = variantIndex(values.direction);
+        if (index !== current) mountVariant(index);
+        applyValues(values);
+        updateUrl(values);
+      });
+      window.addEventListener("resize", moveHighlight);
+      document.addEventListener("keydown", (event) => {
+        const target = event.target;
+        if (target instanceof Element && (target.matches("input, textarea, select, [contenteditable='true']") || target.isContentEditable)) return;
+        if (event.metaKey || event.ctrlKey || event.altKey) return;
+
+        const number = Number(event.key);
+        if (Number.isInteger(number) && number >= 1 && number <= items.length) {
+          event.preventDefault();
+          chooseVariant(number - 1);
+        } else if (event.key === "ArrowRight") {
+          event.preventDefault();
+          chooseVariant((current + 1) % items.length);
+        } else if (event.key === "ArrowLeft") {
+          event.preventDefault();
+          chooseVariant((current - 1 + items.length) % items.length);
+        }
+      });
+
+      requestAnimationFrame(() => requestAnimationFrame(() => picker.setAttribute("data-ready", "")));
+    </script>
+
+    <style is:global>
+      :root {
+        --z-skip-link: 500;
+      }
+
+      * { box-sizing: border-box; }
+      html { min-width: 320px; background: oklch(0.2 0.028 255); }
+      body {
+        margin: 0;
+        color: oklch(0.95 0.015 90);
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        font-synthesis: none;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      button, a { touch-action: manipulation; }
+      .prototype-stage {
+        --canvas: oklch(0.2 0.028 255);
+        --surface: oklch(0.26 0.032 255);
+        --ink: oklch(0.95 0.015 90);
+        --muted: oklch(0.73 0.025 255);
+        --accent: oklch(0.78 0.15 82);
+        --signal: oklch(0.69 0.16 35);
+        --rule: oklch(0.4 0.03 255);
+        --display-font: "IBM Plex Sans", ui-sans-serif, sans-serif;
+        --body-font: "IBM Plex Mono", ui-monospace, monospace;
+        min-height: 100svh;
+        padding-block-end: calc(94px + env(safe-area-inset-bottom));
+        background: var(--canvas);
+        color: var(--ink);
+      }
+      .prototype-stage a:focus-visible, .prototype-skip-link:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+      .prototype-skip-link {
+        position: fixed;
+        z-index: var(--z-skip-link);
+        top: 12px;
+        left: 12px;
+        padding: 12px 16px;
+        transform: translateY(-160%);
+        background: oklch(0.2 0.02 255);
+        color: white;
+        font: 600 1rem/1.2 system-ui, sans-serif;
+      }
+      .prototype-skip-link:focus { transform: translateY(0); }
+      .prototype-noscript {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: grid;
+        place-content: center;
+        margin: 0;
+        padding: 24px;
+        background: oklch(0.98 0.008 84);
+        color: oklch(0.24 0.025 255);
+        text-align: center;
+      }
+      .proto-picker {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2147483647;
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        padding: 4px;
+        border-radius: 999px;
+        background: rgba(10, 10, 10, 0.82);
+        -webkit-backdrop-filter: blur(12px) saturate(1.4);
+        backdrop-filter: blur(12px) saturate(1.4);
+        box-shadow:
+          0 0 0 1px rgba(255, 255, 255, 0.08) inset,
+          0 8px 24px rgba(0, 0, 0, 0.24),
+          0 2px 6px rgba(0, 0, 0, 0.12);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 13px;
+        line-height: 1;
+        -webkit-font-smoothing: antialiased;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      .proto-picker-highlight {
+        position: absolute;
+        top: 4px;
+        left: 0;
+        height: 28px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+        will-change: transform;
+      }
+      .proto-picker[data-ready] .proto-picker-highlight {
+        transition: transform 250ms cubic-bezier(0.23, 1, 0.32, 1), width 250ms cubic-bezier(0.23, 1, 0.32, 1);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .proto-picker[data-ready] .proto-picker-highlight { transition: none; }
+      }
+      .proto-picker-item {
+        position: relative;
+        display: flex;
+        align-items: center;
+        height: 28px;
+        padding: 0 12px;
+        border: 0;
+        border-radius: 999px;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.55);
+        font: inherit;
+        cursor: pointer;
+        transition: color 150ms ease-out;
+      }
+      .proto-picker-item:hover { color: rgba(255, 255, 255, 0.85); }
+      .proto-picker-item:active { transform: scale(0.97); }
+      .proto-picker-item:focus-visible { outline: 2px solid rgba(255, 255, 255, 0.4); outline-offset: 2px; }
+      .proto-picker-item[data-active] { color: #fff; }
+      .proto-picker-divider { width: 1px; height: 16px; margin: 0 4px; background: rgba(255, 255, 255, 0.12); }
+      .proto-picker-replay { padding: 0 10px; font-size: 14px; }
+      .proto-picker[data-position="top"] { bottom: auto; top: 24px; }
+      .dialkit-select-trigger { gap: 10px; }
+      .dialkit-select-right, .dialkit-select-value { flex: 1; min-width: 0; }
+      .dialkit-select-right { justify-content: flex-end; }
+    </style>
+  </body>
+</html>

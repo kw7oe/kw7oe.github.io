@@ -1,0 +1,125 @@
+---
+const { navigation, projects } = Astro.props;
+---
+
+<article class="magazine-cover" aria-labelledby="magazine-cover-title">
+  <header class="magazine-cover__masthead">
+    <a class="magazine-cover__wordmark" href="/" aria-label="Kai Wern Choong home">KAI<span> / </span>WERN<span> / </span>CHOONG</a>
+    <p class="magazine-cover__issue">THE PERSONAL EDITION <span>·</span> NO. 01</p>
+    <nav class="magazine-cover__nav" aria-label="Site navigation">
+      {navigation.map((item) => <a href={item.href}>{item.title}</a>)}
+    </nav>
+  </header>
+
+  <section class="magazine-cover__feature">
+    <div class="magazine-cover__headline">
+      <p class="magazine-cover__kicker">A LIFE IN SOFTWARE, WITH ROOM AROUND IT</p>
+      <h1 id="magazine-cover-title">Make room<br />for the <em>whole</em> life.</h1>
+      <p class="magazine-cover__standfirst">I’m Kai, a senior software engineer at <a href="https://www.ditto.live" target="_blank" rel="noreferrer">Ditto</a>. The work matters. So does having a life after it.</p>
+      <p class="magazine-cover__byline">A personal profile <span>—</span> current chapter</p>
+    </div>
+
+    <aside class="magazine-cover__coverlines" aria-label="Inside this issue">
+      <p class="magazine-cover__coverlines-heading">INSIDE THIS ISSUE <span>01—03</span></p>
+      <article>
+        <span>01 / THE PRESENT</span>
+        <h2>Good work.<br />Good boundaries.</h2>
+        <p>Building at Ditto while protecting time away from the keyboard.</p>
+      </article>
+      <article>
+        <span>02 / THE STUDY</span>
+        <h2>Back to first principles.</h2>
+        <p>System programming, explored at Recurse Center.</p>
+      </article>
+      <article>
+        <span>03 / THE PROJECTS</span>
+        <h2>Small things, made to learn.</h2>
+        <p>Five tools from databases to habit tracking.</p>
+      </article>
+    </aside>
+  </section>
+
+  <section class="magazine-cover__contents" aria-labelledby="magazine-cover-projects">
+    <div class="magazine-cover__contents-heading">
+      <p>THE WORK INDEX <span>·</span> FIVE PROJECTS</p>
+      <h2 id="magazine-cover-projects">A few things<br />I’ve made.</h2>
+    </div>
+    <ol>
+      {projects.map((project, index) => (
+        <li>
+          <span>0{index + 1}</span>
+          <a href={project.href} target="_blank" rel="noreferrer">{project.title}</a>
+          <p>{project.description}</p>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <footer class="magazine-cover__footer">
+    <span>HOME / PERSONAL EDITION</span>
+    <a href="/blogs/">Read the blog <span aria-hidden="true">↗</span></a>
+  </footer>
+</article>
+
+<style>
+  .magazine-cover {
+    max-width: 1360px;
+    margin-inline: auto;
+    padding: 38px clamp(28px, 7.5vw, 104px) 150px;
+    color: var(--ink);
+    font-family: var(--body-font);
+  }
+  .magazine-cover a { color: inherit; text-decoration-color: color-mix(in oklab, currentColor 38%, transparent); text-underline-offset: 0.18em; }
+  .magazine-cover__masthead { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 22px; padding-bottom: 18px; border-bottom: 1px solid var(--ink); }
+  .magazine-cover__wordmark { font: 400 12px/1.2 var(--body-font); letter-spacing: 0.13em; text-decoration: none; white-space: nowrap; }
+  .magazine-cover__wordmark span { color: var(--accent); }
+  .magazine-cover__issue, .magazine-cover__nav { margin: 0; font-size: 10px; letter-spacing: 0.11em; text-transform: uppercase; }
+  .magazine-cover__issue { justify-self: center; }
+  .magazine-cover__issue span { color: var(--accent); }
+  .magazine-cover__nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; }
+  .magazine-cover__nav a { text-decoration: none; }
+  .magazine-cover__feature { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(240px, 0.62fr); gap: clamp(38px, 8vw, 116px); padding-block: clamp(48px, 7vw, 94px) 64px; }
+  .magazine-cover__kicker, .magazine-cover__byline, .magazine-cover__coverlines-heading, .magazine-cover__coverlines article > span, .magazine-cover__contents-heading > p, .magazine-cover__footer { font-size: 10px; line-height: 1.4; letter-spacing: 0.13em; text-transform: uppercase; }
+  .magazine-cover__kicker { margin: 0 0 25px; color: var(--accent); }
+  .magazine-cover__headline h1 { max-width: 900px; margin: 0; font: 400 clamp(3.25rem, 7.5vw, 7rem)/0.94 var(--display-font); letter-spacing: -0.045em; text-wrap: balance; }
+  .magazine-cover__headline h1 em { color: var(--accent); font-weight: 400; }
+  .magazine-cover__standfirst { max-width: 36rem; margin: 26px 0 0; font-size: clamp(16px, 1.25vw, 18px); line-height: 1.6; }
+  .magazine-cover__byline { margin: 25px 0 0; color: var(--muted); }
+  .magazine-cover__byline span { color: var(--accent); }
+  .magazine-cover__coverlines { align-self: end; border-top: 1px solid var(--ink); }
+  .magazine-cover__coverlines-heading { display: flex; justify-content: space-between; margin: 0; padding-block: 12px 20px; }
+  .magazine-cover__coverlines-heading span { color: var(--accent); }
+  .magazine-cover__coverlines article { padding: 16px 0 19px; border-top: 1px solid var(--rule); }
+  .magazine-cover__coverlines article > span { color: var(--muted); }
+  .magazine-cover__coverlines h2 { margin: 8px 0 4px; font: 400 clamp(1.3rem, 1.8vw, 1.75rem)/1.08 var(--display-font); letter-spacing: -0.02em; }
+  .magazine-cover__coverlines article p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+  .magazine-cover__contents { display: grid; grid-template-columns: 0.75fr 1.4fr; gap: clamp(40px, 9vw, 130px); padding-top: 28px; border-top: 1px solid var(--ink); }
+  .magazine-cover__contents-heading > p { margin: 0 0 24px; }
+  .magazine-cover__contents-heading > p span { color: var(--accent); }
+  .magazine-cover__contents-heading h2 { margin: 0; font: 400 clamp(2.2rem, 4vw, 4rem)/1 var(--display-font); letter-spacing: -0.04em; text-wrap: balance; }
+  .magazine-cover__contents ol { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; margin: 0; padding: 0; list-style: none; }
+  .magazine-cover__contents li { display: grid; grid-template-columns: 30px minmax(0, 1fr); align-content: start; gap: 5px 8px; padding: 13px 0; border-top: 1px solid var(--rule); }
+  .magazine-cover__contents li > span { color: var(--accent); font-size: 10px; letter-spacing: 0.08em; }
+  .magazine-cover__contents li > a { font: 400 16px/1.25 var(--display-font); }
+  .magazine-cover__contents li > p { grid-column: 2; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+  .magazine-cover__footer { display: flex; justify-content: space-between; gap: 20px; margin-top: 64px; padding-top: 13px; border-top: 1px solid var(--ink); }
+  .magazine-cover__footer a { text-decoration: none; }
+  .magazine-cover__footer a span { color: var(--accent); }
+  @media (max-width: 780px) {
+    .magazine-cover { padding-top: 24px; }
+    .magazine-cover__masthead { grid-template-columns: 1fr; row-gap: 12px; }
+    .magazine-cover__issue { justify-self: start; }
+    .magazine-cover__nav { grid-column: 1; justify-content: flex-start; gap: 8px 14px; }
+    .magazine-cover__feature { grid-template-columns: 1fr; gap: 42px; padding-block: 52px 48px; }
+    .magazine-cover__headline h1 { font-size: clamp(3.25rem, 13vw, 6rem); }
+    .magazine-cover__contents { grid-template-columns: 1fr; gap: 28px; }
+  }
+  @media (max-width: 500px) {
+    .magazine-cover__wordmark { font-size: 10px; }
+    .magazine-cover__issue { font-size: 8px; }
+    .magazine-cover__nav { font-size: 9px; }
+    .magazine-cover__headline h1 { font-size: clamp(3rem, 12.5vw, 4rem); }
+    .magazine-cover__contents ol { grid-template-columns: 1fr; }
+    .magazine-cover__footer { font-size: 8px; }
+  }
+</style>

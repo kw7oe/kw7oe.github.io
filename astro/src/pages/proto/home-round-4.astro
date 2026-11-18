@@ -1,0 +1,1096 @@
+---
+import "../../styles/fonts.css";
+import Quiet from "../../prototypes/home-round-four/Quiet.astro";
+import Index from "../../prototypes/home-round-four/Index.astro";
+import Spread from "../../prototypes/home-round-four/Spread.astro";
+import Stack from "../../prototypes/home-round-four/Stack.astro";
+import Rail from "../../prototypes/home-round-four/Rail.astro";
+
+const profile = {
+  headline: "Good work. Room for life.",
+  paragraph: "I’m Kai Wern Choong, a senior software engineer at Ditto. I want to do thoughtful work and keep time for a life beyond it.",
+  points: [
+    { text: "Systems programming at Recurse Center" },
+    { text: "Small tools built to learn how systems work" },
+    { text: "Notes and essays", href: "/blogs/" },
+  ],
+};
+---
+
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Home · Round four design study</title>
+  </head>
+  <body>
+    <a class="prototype-skip-link" href="#stage">Skip to content</a>
+    <main id="stage" class="prototype-stage" tabindex="-1">
+      <template data-variant-template="quiet"><Quiet {...profile} /></template>
+      <template data-variant-template="index"><Index {...profile} /></template>
+      <template data-variant-template="spread"><Spread {...profile} /></template>
+      <template data-variant-template="stack"><Stack {...profile} /></template>
+      <template data-variant-template="rail"><Rail {...profile} /></template>
+    </main>
+
+    <div class="prototype-ornaments" aria-hidden="true">
+      <svg class="prototype-ornament prototype-ornament--tree" viewBox="0 0 320 220" focusable="false">
+        <defs>
+          <filter id="tree-shadow-soften" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="2.2" />
+          </filter>
+        </defs>
+        <g fill="currentColor" filter="url(#tree-shadow-soften)" opacity="0.48">
+          <path d="M-8 43C0 20 25 14 39 29c10-16 35-13 42 3 18 0 28 17 19 32-14 12-34 8-41-3-13 16-38 14-44-2C-5 62-15 53-8 43Z" />
+          <path d="M55 16C69-5 96-2 102 14c18-5 31 10 28 25-9 14-26 14-37 5-16 13-38 7-39-12C44 29 48 20 55 16Z" />
+          <path d="M144 24C157 2 182 8 185 25c15-5 30 7 28 21-8 15-25 17-36 8-14 11-34 4-35-12-12-4-8-14 2-18Z" />
+          <path d="M13 90C27 72 50 75 57 89c12-8 27-2 27 12-8 13-22 16-34 8-14 10-31 4-33-8-11-2-12-8-4-11Z" />
+          <path d="M111 100C124 82 148 86 154 100c15-5 27 5 24 18-8 13-23 16-35 7-15 8-30-1-29-15-11-2-11-6-3-10Z" />
+        </g>
+        <g fill="none" filter="url(#tree-shadow-soften)" opacity="0.42" stroke="currentColor" stroke-linecap="round" stroke-width="7">
+          <path d="M-20 158C37 124 76 92 111 51 131 27 149 7 182-8M42 126C32 104 17 83 4 74M75 99C62 79 54 60 53 42M111 60C91 47 78 33 73 14m50 29c22-1 43 6 60 21M87 87c24 1 46 9 64 24" />
+        </g>
+      </svg>
+
+      <svg class="prototype-ornament prototype-ornament--mountain" viewBox="0 0 180 108" focusable="false">
+        <path d="M7 94 48 49l21 22 34-48 69 71" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.35" />
+        <path d="m97 57 6-34 14 20-11-4-9 11" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.1" opacity="0.6" />
+        <circle cx="145" cy="27" r="7" fill="none" stroke="currentColor" stroke-width="1.1" opacity="0.55" />
+      </svg>
+
+      <svg class="prototype-ornament prototype-ornament--window" viewBox="0 0 300 230" focusable="false">
+        <path d="M0 0h218L0 218Z" fill="currentColor" opacity="0.1" />
+        <path d="M84 0h216L92 230H0Z" fill="currentColor" opacity="0.055" />
+        <path d="M18 18h106v106H18zM71 18v106M18 71h106" fill="none" stroke="currentColor" stroke-width="1.1" />
+        <path d="M124 18h64v64" fill="none" stroke="currentColor" stroke-width="1.1" opacity="0.45" />
+      </svg>
+
+      <svg class="prototype-ornament prototype-ornament--contour" viewBox="0 0 300 220" focusable="false">
+        <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.1">
+          <path d="M310 12C254 16 246 51 206 62s-43-13-81-3-44 53-85 59S-8 103-18 93" />
+          <path d="M310 34c-49 2-60 31-99 41s-42-11-76-1-38 47-78 53-52-13-75-23" />
+          <path d="M308 57c-44 1-54 25-91 34s-40-9-70 0-34 42-70 47-48-12-70-21" />
+          <path d="M306 80c-39 0-48 20-81 27s-37-7-64 1-30 35-62 40-43-10-64-18" />
+          <path d="M304 103c-34-1-42 15-71 21s-34-5-57 2-25 28-53 33-38-8-58-15" />
+          <path d="M302 126c-28-2-35 10-60 14s-30-3-50 3-21 21-45 26-33-6-52-12" />
+          <path d="M300 149c-22-3-29 5-49 8s-26-1-42 4-17 14-37 19-28-4-46-9" />
+        </g>
+        <circle cx="213" cy="60" r="2.5" fill="currentColor" />
+      </svg>
+
+      <svg class="prototype-ornament prototype-ornament--fern" viewBox="0 0 170 260" focusable="false">
+        <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.35">
+          <path d="M20 246C64 195 72 143 83 97s23-71 67-83" />
+          <path d="M37 219C22 218 12 208 13 193c15 0 26 8 27 21Zm9-14c15-2 25-12 24-27-15 1-26 10-27 25Zm9-33c-15-1-24-11-23-26 14 1 24 9 25 23Zm8-15c15-3 23-13 21-28-14 3-23 12-23 26Zm7-33c-14-2-22-12-20-27 13 2 22 10 22 24Zm8-16c13-5 19-16 15-30-13 5-20 15-17 28Zm9-32c-12-5-17-16-11-30 12 5 18 15 13 28Zm10-14c11-7 15-18 7-31-11 7-15 18-9 30Zm11-31c-10-7-12-19-4-30 10 7 13 18 6 29Zm13-10c8-8 10-19 1-29-9 8-10 19-3 29Z" />
+        </g>
+      </svg>
+
+      <svg class="prototype-ornament prototype-ornament--stitch" viewBox="0 0 180 240" focusable="false">
+        <path d="M46 8C34 48 58 69 44 108s13 61-2 124" fill="none" stroke="currentColor" stroke-dasharray="1 8" stroke-linecap="round" stroke-width="2.4" />
+        <path d="m39 34 14 8m-13 12 14 8m-13 13 14 8m-13 12 14 8m-13 13 14 8m-13 12 14 8m-13 13 14 8m-13 12 14 8m-13 13 14 8m-13 12 14 8m-13 13 14 8" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.05" opacity="0.68" />
+        <path d="M46 8c19-12 27 4 10 17M42 232c-16 10-23-3-10-14" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.3" />
+      </svg>
+
+      <svg class="prototype-ornament prototype-ornament--folio" viewBox="0 0 220 150" focusable="false">
+        <g fill="none" stroke="currentColor" stroke-linecap="square" stroke-width="1.1">
+          <path d="M20 28V10h20M180 10h20v18M20 122v18h20M180 140h20v-18" />
+          <path d="M58 38h104M58 111h104" opacity="0.45" />
+        </g>
+        <text x="110" y="87" fill="currentColor" font-family="Instrument Serif, Georgia, serif" font-size="34" font-weight="400" letter-spacing="-1" text-anchor="middle">01</text>
+        <text x="110" y="101" fill="currentColor" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="7" letter-spacing="1.4" text-anchor="middle">KAI · PHOTOBOOK</text>
+      </svg>
+
+      <svg class="prototype-ornament prototype-ornament--rain" viewBox="0 0 180 270" shape-rendering="crispEdges" focusable="false">
+        <path d="M18 18v187M52 42v181M86 14v228M120 58v155M154 28v203" fill="none" stroke="currentColor" stroke-width="1" opacity="0.12" />
+        <g fill="currentColor" opacity="0.18">
+          <path d="M13 40h10v14H13zm34 48h10v14H47zm34-52h10v14H81zm34 88h10v14h-10zm34-46h10v14h-10z" />
+          <path d="M15 178h6v6h-6zm34 23h6v6h-6zm34 15h6v6h-6zm34-17h6v6h-6zm34 18h6v6h-6z" />
+        </g>
+        <g fill="currentColor" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" text-anchor="middle">
+          <text x="18" y="20" opacity="0.8">1<tspan x="18" dy="15">0</tspan><tspan x="18" dy="15">1</tspan><tspan x="18" dy="15">+</tspan><tspan x="18" dy="15">0</tspan><tspan x="18" dy="15">1</tspan><tspan x="18" dy="15">:</tspan><tspan x="18" dy="15">0</tspan><tspan x="18" dy="15">1</tspan><tspan x="18" dy="15">/</tspan></text>
+          <text x="52" y="42" opacity="0.48">0<tspan x="52" dy="15">1</tspan><tspan x="52" dy="15">;</tspan><tspan x="52" dy="15">0</tspan><tspan x="52" dy="15">1</tspan><tspan x="52" dy="15">0</tspan><tspan x="52" dy="15">+</tspan><tspan x="52" dy="15">1</tspan><tspan x="52" dy="15">0</tspan></text>
+          <text x="86" y="14" opacity="0.68">0<tspan x="86" dy="15">1</tspan><tspan x="86" dy="15">0</tspan><tspan x="86" dy="15">/</tspan><tspan x="86" dy="15">1</tspan><tspan x="86" dy="15">0</tspan><tspan x="86" dy="15">1</tspan><tspan x="86" dy="15">:</tspan><tspan x="86" dy="15">0</tspan><tspan x="86" dy="15">1</tspan><tspan x="86" dy="15">0</tspan></text>
+          <text x="120" y="58" opacity="0.38">1<tspan x="120" dy="15">0</tspan><tspan x="120" dy="15">1</tspan><tspan x="120" dy="15">0</tspan><tspan x="120" dy="15">;</tspan><tspan x="120" dy="15">1</tspan><tspan x="120" dy="15">0</tspan><tspan x="120" dy="15">+</tspan></text>
+          <text x="154" y="28" opacity="0.58">0<tspan x="154" dy="15">1</tspan><tspan x="154" dy="15">:</tspan><tspan x="154" dy="15">0</tspan><tspan x="154" dy="15">1</tspan><tspan x="154" dy="15">0</tspan><tspan x="154" dy="15">/</tspan><tspan x="154" dy="15">1</tspan><tspan x="154" dy="15">0</tspan><tspan x="154" dy="15">1</tspan></text>
+        </g>
+        <rect x="13" y="13" width="10" height="2" fill="currentColor" />
+        <rect x="81" y="7" width="10" height="2" fill="currentColor" opacity="0.68" />
+        <path d="M13 159h10v4H13zm34 19h10v4H47zm34 0h10v4H81zm34 9h10v4h-10zm34-14h10v4h-10z" fill="currentColor" opacity="0.65" />
+      </svg>
+
+      <svg class="prototype-ornament prototype-ornament--terminal" viewBox="0 0 292 150" shape-rendering="crispEdges" focusable="false">
+        <path d="M1 1h290v148H1zM1 26h290M205 26v123" fill="none" stroke="currentColor" stroke-width="1" />
+        <path d="M1 1h290v25H1z" fill="currentColor" opacity="0.1" />
+        <text x="17" y="18" fill="currentColor" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="8" letter-spacing="1.1">FIELD TERMINAL / 01</text>
+        <path d="M253 12h5v5h-5zm10 0h5v5h-5zm10 0h5v5h-5z" fill="currentColor" opacity="0.55" />
+        <g fill="currentColor" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10">
+          <text x="17" y="48">&gt; status --current</text>
+          <text x="17" y="68" opacity="0.7">work / thoughtful</text>
+          <text x="17" y="86" opacity="0.7">life / kept open</text>
+          <text x="17" y="119">&gt; _</text>
+        </g>
+        <rect x="39" y="111" width="6" height="10" fill="currentColor" opacity="0.7" />
+        <path d="M219 42h58v40h-58zM219 91h58M219 99h37M219 107h47" fill="none" stroke="currentColor" stroke-width="1" opacity="0.35" />
+        <path d="M224 73h7v-7h7v-8h7v5h7v-12h7v8h7v-4h6" fill="none" stroke="currentColor" stroke-width="2" opacity="0.7" />
+        <text x="219" y="136" fill="currentColor" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="7" letter-spacing="0.6" opacity="0.7">LINK / ON</text>
+      </svg>
+
+      <svg class="prototype-ornament prototype-ornament--ghost" viewBox="0 0 144 152" shape-rendering="crispEdges" focusable="false">
+        <path d="M32 24V8h24m32 0h24v16m0 96v16H88m-32 0H32v-16" fill="none" stroke="currentColor" stroke-width="1" opacity="0.56" />
+        <path d="M40 32h32v8h16v16h8v24h-8v16H72v8H40v-8H24V80h-8V56h8V40h16z" fill="currentColor" opacity="0.12" />
+        <path d="M56 24h32v8h16v16h8v24h-8v16H88v8H56v-8H40V72h-8V48h8V32h16z" fill="none" stroke="currentColor" stroke-width="3" opacity="0.42" />
+        <path d="M48 48h8v8h8v8h8v8h-8v8h-8v-8h-8v-8h-8v-8h8z" fill="currentColor" opacity="0.18" />
+        <g fill="currentColor">
+          <rect x="48" y="48" width="8" height="8" opacity="0.82" />
+          <rect x="64" y="48" width="8" height="8" opacity="0.46" />
+          <rect x="56" y="64" width="8" height="8" opacity="0.74" />
+          <rect x="72" y="64" width="8" height="8" opacity="0.38" />
+          <rect x="48" y="80" width="8" height="8" opacity="0.54" />
+          <rect x="64" y="80" width="8" height="8" opacity="0.9" />
+          <rect x="112" y="32" width="8" height="8" opacity="0.66" />
+          <rect x="128" y="40" width="8" height="8" opacity="0.42" />
+          <rect x="120" y="56" width="8" height="8" opacity="0.76" />
+          <rect x="104" y="72" width="8" height="8" opacity="0.5" />
+          <rect x="128" y="88" width="8" height="8" opacity="0.3" />
+          <rect x="112" y="104" width="8" height="8" opacity="0.56" />
+          <rect x="96" y="120" width="8" height="8" opacity="0.34" />
+        </g>
+        <path d="M8 136h24m-24 5h8m80-113h16m-8 104h16" stroke="currentColor" stroke-width="1" opacity="0.5" />
+        <text x="8" y="12" fill="currentColor" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="5" letter-spacing="0.7">ECHO / 07</text>
+      </svg>
+
+      <svg class="prototype-ornament prototype-ornament--city" viewBox="0 0 340 154" shape-rendering="crispEdges" focusable="false">
+        <path d="M1 136h338" stroke="currentColor" stroke-width="1" opacity="0.48" />
+        <path d="M13 136V90h13V74h25v62zm48 0V60h10V39h30v21h12v76zm65 0V80h12V61h36v19h10v56zm72 0V51h12V25h25v26h16v85zm69 0V87h10V68h31v19h12v49z" fill="currentColor" opacity="0.18" />
+        <path d="M6 121h50v15H6zm50-23h60v38H56zm59 20h71v18h-71zm69-32h69v50h-69zm67 22h76v28h-76z" fill="currentColor" opacity="0.2" />
+        <path d="M37 73V55h1v18M85 39V18h1v21M222 25V8h1v17M293 68V51h1v17" stroke="currentColor" stroke-width="1" opacity="0.65" />
+        <path d="M0 112h340M0 101h340M0 90h340" stroke="currentColor" stroke-width="1" opacity="0.12" />
+        <g fill="currentColor" opacity="0.78">
+          <rect x="91" y="40" width="5" height="5" /><rect x="105" y="40" width="5" height="5" />
+          <rect x="91" y="55" width="5" height="5" /><rect x="105" y="55" width="5" height="5" />
+          <rect x="188" y="81" width="5" height="5" /><rect x="202" y="81" width="5" height="5" />
+          <rect x="188" y="96" width="5" height="5" /><rect x="202" y="96" width="5" height="5" />
+          <rect x="273" y="91" width="5" height="5" /><rect x="287" y="91" width="5" height="5" />
+          <rect x="273" y="106" width="5" height="5" /><rect x="287" y="106" width="5" height="5" />
+        </g>
+        <g fill="var(--prototype-canvas)">
+          <rect x="25" y="91" width="5" height="8" /><rect x="44" y="91" width="5" height="8" />
+          <rect x="25" y="108" width="5" height="8" /><rect x="44" y="108" width="5" height="8" />
+          <rect x="145" y="83" width="5" height="8" /><rect x="162" y="83" width="5" height="8" />
+          <rect x="145" y="101" width="5" height="8" /><rect x="162" y="101" width="5" height="8" />
+        </g>
+        <text x="13" y="149" fill="currentColor" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="6" letter-spacing="1">NIGHT GRID / 02:14</text>
+        <rect x="316" y="145" width="6" height="4" fill="currentColor" />
+      </svg>
+
+      <svg class="prototype-ornament prototype-ornament--raster" viewBox="0 0 300 132" shape-rendering="crispEdges" focusable="false">
+        <path d="M24 12h210v92H24z" fill="currentColor" opacity="0.06" />
+        <path d="M24 12h210v27h-17v13h35v19h-22v33H24V79h20V61H10V43h14z" fill="none" stroke="currentColor" stroke-width="1" opacity="0.36" />
+        <g fill="currentColor">
+          <rect x="0" y="20" width="78" height="2" opacity="0.26" /><rect x="92" y="20" width="42" height="2" opacity="0.46" /><rect x="147" y="20" width="111" height="2" opacity="0.22" />
+          <rect x="22" y="36" width="104" height="5" opacity="0.58" /><rect x="138" y="36" width="28" height="5" opacity="0.3" /><rect x="184" y="36" width="76" height="5" opacity="0.46" />
+          <rect x="0" y="48" width="54" height="2" opacity="0.18" /><rect x="74" y="48" width="176" height="2" opacity="0.34" /><rect x="267" y="48" width="33" height="2" opacity="0.24" />
+          <rect x="46" y="64" width="116" height="8" opacity="0.72" /><rect x="173" y="64" width="37" height="8" opacity="0.34" /><rect x="224" y="64" width="56" height="8" opacity="0.56" />
+          <rect x="18" y="81" width="69" height="3" opacity="0.26" /><rect x="102" y="81" width="138" height="3" opacity="0.42" /><rect x="253" y="81" width="47" height="3" opacity="0.24" />
+          <rect x="0" y="98" width="44" height="6" opacity="0.34" /><rect x="58" y="98" width="102" height="6" opacity="0.62" /><rect x="174" y="98" width="32" height="6" opacity="0.28" /><rect x="219" y="98" width="81" height="6" opacity="0.48" />
+          <path d="M10 58h18v5H10zm237-18h12v5h-12zm10 31h21v4h-21zM31 88h8v4h-8zm152-29h7v4h-7z" opacity="0.7" />
+        </g>
+        <path d="M34 116h34m12 0h8m106 0h68" stroke="currentColor" stroke-width="1" opacity="0.45" />
+        <text x="34" y="127" fill="currentColor" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="6" letter-spacing="1.2" opacity="0.62">FRAME / 0x07 / SIGNAL DRIFT</text>
+      </svg>
+
+      <svg class="prototype-ornament prototype-ornament--study" data-art="orbit" viewBox="0 0 200 150" focusable="false">
+        <circle cx="100" cy="75" r="31" fill="#b8d8dc" />
+        <ellipse cx="100" cy="75" rx="86" ry="37" transform="rotate(-25 100 75)" fill="none" stroke="#477a88" stroke-width="1.5" />
+        <ellipse cx="100" cy="75" rx="71" ry="28" transform="rotate(33 100 75)" fill="none" stroke="#6c91a6" stroke-width="1" />
+        <circle cx="37" cy="99" r="5" fill="#376b81" /><circle cx="158" cy="108" r="3" fill="#739ba2" />
+      </svg>
+      <svg class="prototype-ornament prototype-ornament--study" data-art="camera" viewBox="0 0 200 150" focusable="false">
+        <path d="M31 48h32l9-13h50l9 13h37v67H31z" fill="#c0d7db" stroke="#537687" stroke-width="1.5" stroke-linejoin="round" />
+        <path d="M31 65h137M42 55h15m85 1h13" fill="none" stroke="#648c9a" stroke-width="1.5" />
+        <circle cx="100" cy="81" r="27" fill="#edf4f6" stroke="#537687" stroke-width="2" /><circle cx="100" cy="81" r="18" fill="#9ec6d0" stroke="#537687" stroke-width="1.5" />
+        <path d="M91 72a13 13 0 0 1 17 0" fill="none" stroke="#e9f4f3" stroke-width="2" stroke-linecap="round" />
+        <circle cx="150" cy="57" r="3" fill="#527e83" />
+      </svg>
+      <svg class="prototype-ornament prototype-ornament--study" data-art="tide" viewBox="0 0 200 150" focusable="false">
+        <circle cx="143" cy="41" r="17" fill="#accdd6" />
+        <path d="M10 80c20-12 33-12 53 0s33 12 53 0 33-12 53 0 25 9 31 5M0 96c20-12 33-12 53 0s33 12 53 0 33-12 53 0 33 12 53 0M10 112c20-12 33-12 53 0s33 12 53 0 33-12 53 0 25 9 31 5" fill="none" stroke="#6297a4" stroke-width="2" stroke-linecap="round" />
+        <path d="M27 66h29m45-10h17" stroke="#9dbfc8" stroke-width="1.5" stroke-linecap="round" />
+      </svg>
+      <svg class="prototype-ornament prototype-ornament--study" data-art="kite" viewBox="0 0 200 150" focusable="false">
+        <path d="M100 18 143 58 100 91 57 58z" fill="#bed9d8" stroke="#598783" stroke-width="1.5" />
+        <path d="M100 18v73M57 58h86" stroke="#6a9999" stroke-width="1" />
+        <path d="M100 91c-5 13 13 15 3 28s-19 8-16 20" fill="none" stroke="#598783" stroke-width="1.5" stroke-linecap="round" />
+        <path d="m98 111-9-4 2 8zm6 15 9-4-3 8z" fill="#7fa7a4" />
+      </svg>
+      <svg class="prototype-ornament prototype-ornament--study" data-art="disk" viewBox="0 0 200 150" focusable="false">
+        <path d="M48 20h91l14 14v96H48z" fill="#bad2de" stroke="#557b91" stroke-width="1.5" stroke-linejoin="round" />
+        <path d="M65 20v33h68V20M66 130V75h68v55" fill="#e7f0f3" stroke="#557b91" stroke-width="1.5" />
+        <path d="M114 24h12v23h-12z" fill="#7799a9" /><path d="M79 91h42M79 101h32M79 111h37" stroke="#8cabb8" stroke-width="2" />
+      </svg>
+      <svg class="prototype-ornament prototype-ornament--study" data-art="plant" viewBox="0 0 200 150" focusable="false">
+        <path d="M74 94h53l-7 35H81z" fill="#a9c5c1" stroke="#608681" stroke-width="1.5" /><path d="M68 92h65v7H68z" fill="#d1e1da" stroke="#608681" stroke-width="1.5" />
+        <path d="M100 92V38m0 38C86 76 77 67 74 54c15 0 25 7 26 22Zm0-18c2-14 11-23 25-25 0 15-8 24-25 25Z" fill="#b3d1c8" stroke="#608681" stroke-width="1.5" stroke-linejoin="round" />
+        <path d="M100 76 79 59m21-1 20-20" fill="none" stroke="#7ca69d" stroke-width="1" />
+      </svg>
+      <svg class="prototype-ornament prototype-ornament--study" data-art="paper" viewBox="0 0 200 150" focusable="false">
+        <path d="M49 29h88v96H49z" transform="rotate(-9 93 77)" fill="#c5dbe2" />
+        <path d="M63 22h88v98H63z" transform="rotate(5 107 71)" fill="#eaf2f2" stroke="#7394a0" stroke-width="1.5" />
+        <path d="m80 53 52 4m-53 9 45 4m-46 9 53 4m-54 9 32 2" stroke="#9bb7bd" stroke-width="2" stroke-linecap="round" />
+        <path d="m130 22 1 19 20-1" fill="none" stroke="#7394a0" stroke-width="1.2" />
+      </svg>
+      <svg class="prototype-ornament prototype-ornament--study" data-art="constellation" viewBox="0 0 200 150" focusable="false">
+        <path d="m28 100 38-56 35 37 36-57 34 76-70-19-73 19 109-76" fill="none" stroke="#8aafbd" stroke-width="1" />
+        <g fill="#547e97"><circle cx="28" cy="100" r="3" /><circle cx="66" cy="44" r="4" /><circle cx="101" cy="81" r="3" /><circle cx="137" cy="24" r="4" /><circle cx="171" cy="100" r="3" /></g>
+        <path d="M43 22v10m-5-5h10m102 89v8m-4-4h8" stroke="#8aafbd" stroke-width="1.5" />
+      </svg>
+      <svg class="prototype-ornament prototype-ornament--study" data-art="mug" viewBox="0 0 200 150" focusable="false">
+        <path d="M62 60h66v45c0 12-9 20-20 20H82c-11 0-20-8-20-20z" fill="#c2d9dd" stroke="#648890" stroke-width="1.5" />
+        <path d="M128 72h10c18 0 17 29-10 29M51 130h95" fill="none" stroke="#648890" stroke-width="1.5" stroke-linecap="round" />
+        <path d="M83 48c-8-10 8-13 0-23m21 23c-8-10 8-13 0-23" fill="none" stroke="#93b7bb" stroke-width="1.5" stroke-linecap="round" />
+        <path d="M72 72h46" stroke="#edf5f4" stroke-width="2" />
+      </svg>
+      <svg class="prototype-ornament prototype-ornament--study" data-art="tiles" viewBox="0 0 200 150" shape-rendering="crispEdges" focusable="false">
+        <path d="M25 30h40v40H25zM70 30h40v40H70zM115 30h40v40h-40zM25 75h40v40H25zM70 75h40v40H70zM115 75h40v40h-40z" fill="#d6e6e7" />
+        <path d="M25 70a40 40 0 0 1 40-40v40zM70 30a40 40 0 0 0 40 40V30zM115 70a40 40 0 0 1 40-40v40zM25 75a40 40 0 0 0 40 40V75zM70 115a40 40 0 0 1 40-40v40zM115 75a40 40 0 0 0 40 40V75z" fill="#81adb5" />
+        <circle cx="165" cy="25" r="5" fill="#527f91" />
+      </svg>
+      <svg class="prototype-ornament prototype-ornament--study" data-art="breathing-room" viewBox="0 0 200 150" focusable="false">
+        <path d="M13 38h66c15 0 21 6 21 18v38c0 12 6 18 21 18h66" fill="none" stroke="#a7c8cf" stroke-width="19" />
+        <path d="M13 112h47c15 0 21-6 21-18V56c0-12 6-18 21-18h85" fill="none" stroke="#578898" stroke-width="2" />
+        <circle cx="100" cy="75" r="5" fill="#eaf3f4" />
+      </svg>
+      <svg class="prototype-ornament prototype-ornament--study" data-art="weave" viewBox="0 0 200 150" focusable="false">
+        <path d="M15 43h170M15 75h170M15 107h170" stroke="#abcbd0" stroke-width="13" />
+        <path d="M48 20v110M100 20v110M152 20v110" stroke="#6b9aa4" stroke-width="13" />
+        <path d="M42 43h12m40 32h12m40-32h12M42 107h12m92 0h12" stroke="#d3e5e5" stroke-width="13" />
+      </svg>
+      <svg class="prototype-ornament prototype-ornament--study" data-art="detour" viewBox="0 0 200 150" focusable="false">
+        <path d="M12 106h38V43h37v39h33V28h38v78h30" fill="none" stroke="#b8d3d9" stroke-width="18" stroke-linejoin="round" />
+        <path d="M12 106h38V43h37v39h33V28h38v78h30" fill="none" stroke="#4f8291" stroke-width="2" stroke-linejoin="round" />
+        <circle cx="12" cy="106" r="4" fill="#4f8291" /><circle cx="188" cy="106" r="4" fill="#4f8291" />
+      </svg>
+      <svg class="prototype-ornament prototype-ornament--study" data-art="interference" viewBox="0 0 200 150" focusable="false">
+        <g fill="none" stroke="#81abb5" stroke-width="1.3">
+          <ellipse cx="78" cy="75" rx="22" ry="47" /><ellipse cx="78" cy="75" rx="34" ry="47" /><ellipse cx="78" cy="75" rx="46" ry="47" /><ellipse cx="78" cy="75" rx="58" ry="47" />
+          <ellipse cx="122" cy="75" rx="22" ry="47" /><ellipse cx="122" cy="75" rx="34" ry="47" /><ellipse cx="122" cy="75" rx="46" ry="47" /><ellipse cx="122" cy="75" rx="58" ry="47" />
+        </g>
+        <circle cx="100" cy="75" r="4" fill="#4c8393" />
+      </svg>
+      <svg class="prototype-ornament prototype-ornament--study" data-art="small-steps" viewBox="0 0 200 150" focusable="false">
+        <path d="M22 118h34V97h31V76h31V55h31V34h29v84z" fill="#c5dce0" />
+        <path d="M22 118h34V97h31V76h31V55h31V34h29" fill="none" stroke="#6698a5" stroke-width="2" />
+        <path d="M56 118V97m31 21V76m31 42V55m31 63V34" stroke="#9ec1c8" stroke-width="1" />
+        <circle cx="178" cy="34" r="5" fill="#4d8190" />
+      </svg>
+      <svg class="prototype-ornament prototype-ornament--study" data-art="strata" viewBox="0 0 200 150" focusable="false">
+        <path d="M12 103c34-17 52 9 85-2s54-25 91-10v26H12z" fill="#a8c9cd" />
+        <path d="M12 83c38-17 54 11 88-1s52-22 88-11v19c-37-15-58-1-91 10s-51-15-85 2z" fill="#c4dcdd" />
+        <path d="M12 63c35-18 56 10 88-1s53-24 88-12v20c-36-11-54-1-88 11S50 65 12 82z" fill="#dae9e8" />
+        <path d="M12 63c35-18 56 10 88-1s53-24 88-12M12 83c38-17 54 11 88-1s52-22 88-11M12 103c34-17 52 9 85-2s54-25 91-10" fill="none" stroke="#7da9ac" stroke-width="1.2" />
+      </svg>
+      <svg class="prototype-ornament prototype-ornament--study" data-art="drift" viewBox="0 0 200 150" focusable="false">
+        <path d="M13 53h28v28H13zM52 41h28v28H52zM91 58h28v28H91zM130 30h28v28h-28zM165 49h20v20h-20z" fill="#c2dcde" />
+        <path d="M24 94h28v28H24zM65 90h28v28H65zM106 101h28v28h-28zM147 87h28v28h-28z" fill="#85b0b9" opacity="0.7" />
+        <path d="M27 67 66 55l39 17 39-28 31 15M38 108l41-4 41 11 41-14" fill="none" stroke="#5c8c9c" stroke-width="1.5" />
+      </svg>
+      <svg class="prototype-ornament prototype-ornament--study" data-art="aperture" viewBox="0 0 200 150" focusable="false">
+        <path d="M23 25h48v100H23z" fill="#bdd8dc" /><path d="M129 25h48v100h-48z" fill="#98bdc6" />
+        <path d="M71 25h58v100H71z" fill="#dcebea" /><path d="M71 25v100m58-100v100" stroke="#729da8" stroke-width="1.5" />
+        <path d="M23 75h154" stroke="#729da8" stroke-width="1" opacity="0.65" /><circle cx="100" cy="75" r="17" fill="#f0f6f6" stroke="#729da8" stroke-width="1.5" />
+      </svg>
+      <svg class="prototype-ornament prototype-ornament--study" data-art="intervals" viewBox="0 0 200 150" focusable="false">
+        <path d="M15 48h26M53 48h12M77 48h39M128 48h11M151 48h34M15 75h12M39 75h35M86 75h12M110 75h45M167 75h18M15 102h44M71 102h12M95 102h27M134 102h12M158 102h27" stroke="#80adb5" stroke-width="9" stroke-linecap="square" />
+        <path d="M15 126h170" stroke="#b2cfd3" stroke-width="1" /><circle cx="98" cy="126" r="3" fill="#4e8594" />
+      </svg>
+      <svg class="prototype-ornament prototype-ornament--study" data-art="branching" viewBox="0 0 200 150" focusable="false">
+        <path d="M24 116h35V76h35V38h35M59 76h35v40h35M94 76h35V59h42M129 116h42" fill="none" stroke="#80aeb2" stroke-width="2" stroke-linejoin="round" />
+        <g fill="#bfdad9"><circle cx="59" cy="76" r="7" /><circle cx="94" cy="76" r="7" /><circle cx="129" cy="38" r="7" /><circle cx="129" cy="116" r="7" /></g>
+        <g fill="#548d92"><circle cx="24" cy="116" r="4" /><circle cx="171" cy="59" r="4" /><circle cx="171" cy="116" r="4" /></g>
+      </svg>
+
+      <svg class="prototype-ornament organic organic--a" data-art="eddy" viewBox="0 0 240 180" focusable="false">
+        <path d="M-22 90C15 23 80 10 125 36c46 27 31 70 1 78-28 8-51-14-37-35 11-16 36-11 37 3" fill="none" stroke="#9cc6c9" stroke-width="21" stroke-linecap="round" />
+        <path d="M-20 119C24 38 89 32 120 51c28 17 21 41 2 46" fill="none" stroke="#528d99" stroke-width="1.5" />
+        <circle cx="177" cy="36" r="5" fill="#80aeb5" /><circle cx="200" cy="58" r="3" fill="#a5c9c9" />
+      </svg>
+      <svg class="prototype-ornament organic organic--b" data-art="eddy" viewBox="0 0 200 120" focusable="false">
+        <path d="M18 99C49 100 52 63 84 59c30-4 39 33 71 20 16-7 22-22 39-24" fill="none" stroke="#b2d2d2" stroke-width="15" stroke-linecap="round" />
+        <path d="M16 91c33 0 37-38 69-40s40 32 69 20 25-25 42-25" fill="none" stroke="#6b9da5" stroke-width="1.5" />
+      </svg>
+      <svg class="prototype-ornament organic organic--c" data-art="seed" viewBox="0 0 210 160" focusable="false">
+        <path d="M20 95c31-5 51-26 65-62 17 27 18 55-2 75-19 20-43 19-63-13z" fill="#b8d7d1" />
+        <path d="M22 95c34-1 48-25 63-62M62 88l-7-24m16 10 22-8" fill="none" stroke="#6e9e97" stroke-width="1.5" />
+        <path d="M120 107c21-10 33-28 34-54 21 19 27 39 17 56-11 17-30 19-51-2z" fill="#cce2dd" />
+        <path d="M121 107c22-9 31-26 33-54" fill="none" stroke="#86aba5" stroke-width="1.5" />
+      </svg>
+      <svg class="prototype-ornament organic organic--d" data-art="seed" viewBox="0 0 150 160" focusable="false">
+        <path d="M28 139c23-22 34-47 38-99M62 68C42 67 32 56 31 39c19 0 30 10 31 29Zm2 17c17-6 26-18 25-33-17 3-25 14-25 33Zm-9 25c-15-2-24-10-25-24 15 0 23 9 25 24Z" fill="#bfdcd5" stroke="#7aa69f" stroke-width="1.4" stroke-linejoin="round" />
+      </svg>
+      <svg class="prototype-ornament organic organic--a" data-art="pool" viewBox="0 0 240 180" focusable="false">
+        <path d="M30 102c-11-40 21-71 62-69 31 1 39-18 69-9 37 11 49 39 32 65-13 21-39 16-53 36-24 31-99 21-110-23z" fill="#c5dfe1" />
+        <path d="M49 100c-7-28 14-47 45-46 29 1 39-16 61-8 25 9 30 28 18 45-11 14-30 12-42 26-18 19-73 12-82-17z" fill="none" stroke="#82aeb6" stroke-width="1.5" />
+        <path d="M67 97c-4-16 9-25 29-24 23 1 32-11 48-5 15 6 15 16 8 25-8 9-22 7-31 16-13 12-48 7-54-12z" fill="none" stroke="#80adb6" stroke-width="1.5" />
+      </svg>
+      <svg class="prototype-ornament organic organic--b" data-art="pool" viewBox="0 0 200 120" focusable="false">
+        <path d="M8 75c18-31 45-35 66-19s38 24 59 5 39-21 61-3M8 89c20-29 44-32 65-16s40 21 61 4 38-21 60-6M9 103c21-26 43-29 64-15s40 20 61 5 40-20 59-9" fill="none" stroke="#8db9bf" stroke-width="1.5" />
+      </svg>
+      <svg class="prototype-ornament organic organic--c" data-art="gathering" viewBox="0 0 220 170" focusable="false">
+        <path d="M25 102c-9-24 7-46 29-45 16 0 29 16 27 35-1 25-15 39-32 36-11-2-20-11-24-26z" fill="#a9c9c4" />
+        <path d="M77 50c8-25 31-30 49-16 18 13 18 34 6 49-14 17-36 18-48 5-9-10-11-25-7-38z" fill="#bed8d9" />
+        <path d="M129 103c-2-21 14-37 34-34 20 3 29 21 24 38-5 19-23 27-39 20-11-5-18-13-19-24z" fill="#9abfc7" />
+        <path d="M40 91c8-16 21-20 34-13m23-35c11-8 23-6 30 3m16 45c9-9 20-10 30-4" fill="none" stroke="#f1f7f5" stroke-width="1.5" />
+      </svg>
+      <svg class="prototype-ornament organic organic--d" data-art="gathering" viewBox="0 0 150 160" focusable="false">
+        <path d="M30 68c-4-17 8-29 23-28 17 1 25 16 21 31-5 17-17 23-29 17-8-4-13-11-15-20z" fill="#c4dfdb" /><path d="M75 100c-2-20 15-31 30-25 15 5 20 22 12 36-8 13-23 15-33 7-5-4-8-10-9-18z" fill="#a5c8ca" />
+      </svg>
+      <svg class="prototype-ornament organic organic--e" data-art="current" viewBox="0 0 260 140" focusable="false">
+        <path d="M-20 105C31 117 42 25 97 41s48 74 96 46 55-49 86-26M-20 119C31 131 45 42 96 56s47 71 96 46 58-49 87-26M-20 132C30 143 48 59 96 71s48 68 95 46 58-48 88-26" fill="none" stroke="#7eafb9" stroke-width="1.5" />
+        <path d="M-18 90C30 101 40 10 98 26s48 73 96 45 54-48 84-25" fill="none" stroke="#c4dddd" stroke-width="9" />
+      </svg>
+      <svg class="prototype-ornament organic organic--f" data-art="current" viewBox="0 0 200 130" focusable="false">
+        <path d="M4 84c45-45 56 18 94-13s54-20 97-3M4 99c45-45 57 18 95-13s53-20 96-3M4 114c45-45 57 18 95-13s53-20 96-3" fill="none" stroke="#9ac4c8" stroke-width="1.5" />
+      </svg>
+      <svg class="prototype-ornament organic organic--e" data-art="fragments" viewBox="0 0 240 150" focusable="false">
+        <path d="M8 73c22-39 54-52 74-36 18 15 5 40-17 50S22 101 8 73z" fill="#bad7da" /><path d="M94 41c11-19 30-20 39-6 8 14-3 29-18 32-15 2-27-11-21-26z" fill="#87b3bd" /><path d="M149 84c7-23 27-33 45-24 18 8 19 29 3 41-16 13-39 8-46-4-2-4-3-8-2-13z" fill="#c9dfdc" /><circle cx="215" cy="39" r="5" fill="#7ca8ad" />
+      </svg>
+      <svg class="prototype-ornament organic organic--f" data-art="fragments" viewBox="0 0 200 130" focusable="false">
+        <path d="M16 71c10-22 29-27 41-15 12 13 4 30-11 35-16 5-36-3-30-20z" fill="#c2dddc" /><path d="M75 89c8-29 30-42 51-31 20 10 19 33 1 45-18 12-46 9-52-2-2-4-2-8 0-12z" fill="#9fc5c9" /><circle cx="159" cy="50" r="8" fill="#b3d4d2" />
+      </svg>
+      <svg class="prototype-ornament estuary estuary--upper" data-art="estuary" viewBox="0 0 400 310" focusable="false">
+        <path d="M400 0v288c-59 9-106-5-132-46-25-39-17-76-58-92-42-16-95 8-126-26C55 93 74 44 112 0z" fill="#b4d5d4" />
+        <path d="M400 0v195c-36 16-80 7-98-27-20-39-12-65-55-76-31-8-59 7-81-7-28-18-19-54 4-85z" fill="#74aaa9" />
+        <path d="M400 232c-43 6-76-8-94-39-21-35-15-72-54-87-35-13-75 4-100-15-20-15-22-42-2-75" fill="none" stroke="#e7f3f0" stroke-width="2" />
+        <path d="M400 253c-55 8-94-6-115-39-22-35-17-70-56-84-37-14-80 6-106-19-23-22-14-58 9-87" fill="none" stroke="#639c9e" stroke-width="1.5" />
+        <circle cx="66" cy="171" r="10" fill="#6ca3aa" /><circle cx="42" cy="198" r="4" fill="#a3c8cb" />
+      </svg>
+      <svg class="prototype-ornament estuary estuary--lower" data-art="estuary" viewBox="0 0 400 260" focusable="false">
+        <path d="M0 260V37c51-11 92 2 117 34 25 31 25 67 68 75 39 7 75-9 101 11 25 20 19 69-6 103z" fill="#c1dcdd" />
+        <path d="M0 260V107c36-9 64 0 84 28 19 28 25 59 58 68 29 8 62-4 78 12 10 11 11 27 4 45z" fill="#86b8bd" />
+        <path d="M0 62c42-7 75 4 96 33 23 32 23 65 62 76 36 10 70-5 91 13" fill="none" stroke="#79aaad" stroke-width="1.5" />
+        <path d="M0 87c34-7 62 3 81 31 20 30 25 61 61 71 31 9 61-3 79 13" fill="none" stroke="#ecf5f3" stroke-width="2" />
+        <circle cx="304" cy="137" r="7" fill="#81b0b5" /><circle cx="328" cy="117" r="3" fill="#aacdcc" />
+      </svg>
+      <svg class="prototype-ornament ascii-current ascii-current--upper" data-art="ascii-current" viewBox="0 0 330 230" focusable="false">
+        <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="19" xml:space="preserve">
+          <text x="0" y="45" fill="#96bfc5">·  ·   ◦      ·   ◦</text>
+          <text x="0" y="74" fill="#669ca7">▁▁▂▃▄▅▆▇▆▅▄▃▂▁▁▂▃▄▃▂▁</text>
+          <text x="0" y="98" fill="#397a85">▂▃▄▅▆▇▆▅▄▃▂▁▂▃▄▅▆▅▄▃▂</text>
+          <text x="0" y="122" fill="#75a8b0">▄▅▆▅▄▃▂▁▁▂▃▄▅▆▅▄▃▂▁▁▂</text>
+          <text x="0" y="146" fill="#a3c5c9">▆▅▄▃▂▁▁▂▃▄▅▆▅▄▃▂▁▁▂▃▄</text>
+          <text x="40" y="180" fill="#669ca7">◦    ·       ◦     ·</text>
+        </g>
+      </svg>
+      <svg class="prototype-ornament ascii-current ascii-current--lower" data-art="ascii-current" viewBox="0 0 270 130" focusable="false">
+        <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="19" xml:space="preserve">
+          <text x="20" y="27" fill="#98bec4">·    ◦       ·</text>
+          <text x="35" y="57" fill="#8db8bf">▁▂▃▄▅▆▅▄▃▂▁▂▃▄▃▂▁</text>
+          <text x="35" y="81" fill="#4d8994">▃▄▅▆▅▄▃▂▁▂▃▄▅▆▅▄▃</text>
+          <text x="35" y="105" fill="#a5c9cc">▅▄▃▂▁▁▂▃▄▅▆▅▄▃▂▁▁</text>
+        </g>
+      </svg>
+      <svg class="prototype-ornament unicode-field unicode-field--upper" data-art="unicode-swarm" viewBox="0 0 300 180" focusable="false">
+        <g font-family="monospace" font-size="28" fill="#528b98" xml:space="preserve">
+          <text x="100" y="28">⠁ ⠄ ⠂ ⠁</text><text x="55" y="55">⠄ ⠂ ⠒ ⠤ ⠄ ⠂</text>
+          <text x="25" y="82">⠁ ⠒ ⠶ ⠿ ⠷ ⠒ ⠄</text><text x="40" y="109">⠄ ⠤ ⠾ ⣿ ⠿ ⠦ ⠂</text>
+          <text x="75" y="136">⠂ ⠒ ⠶ ⠶ ⠤ ⠁</text><text x="135" y="163">⠄ ⠂ ⠁</text>
+        </g>
+      </svg>
+      <svg class="prototype-ornament unicode-field unicode-field--lower" data-art="unicode-swarm" viewBox="0 0 240 110" focusable="false">
+        <g font-family="monospace" font-size="28" fill="#679ba5" xml:space="preserve">
+          <text x="15" y="27">⠄ ⠂ ⠁ ⠄</text><text x="35" y="54">⠂ ⠒ ⠶ ⠦ ⠄</text><text x="65" y="81">⠁ ⠒ ⠤ ⠂</text>
+        </g>
+      </svg>
+      <svg class="prototype-ornament unicode-field unicode-field--left" data-art="unicode-weave" viewBox="0 0 300 180" focusable="false">
+        <g font-family="monospace" font-size="24" fill="#548c98" xml:space="preserve">
+          <text x="0" y="38">╱╲╱╲╱╲╱╲╱╲╱╲</text><text x="0" y="62">╲╱╲╱╲╱╲╱╲╱╲╱</text>
+          <text x="25" y="90" fill="#91bbc0">╱╲╱╲╱╲╱╲╱╲</text><text x="25" y="114" fill="#91bbc0">╲╱╲╱╲╱╲╱╲╱</text>
+          <text x="55" y="142">╱╲╱╲╱╲╱╲</text><text x="55" y="166">╲╱╲╱╲╱╲╱</text>
+        </g>
+      </svg>
+      <svg class="prototype-ornament unicode-field unicode-field--right" data-art="unicode-weave" viewBox="0 0 240 110" focusable="false">
+        <g font-family="monospace" font-size="24" fill="#8bb6bc" xml:space="preserve">
+          <text x="0" y="40">╱╲╱╲╱╲╱╲</text><text x="0" y="64">╲╱╲╱╲╱╲╱</text><text x="30" y="92">╱╲╱╲╱╲</text>
+        </g>
+      </svg>
+      <svg class="prototype-ornament unicode-field unicode-field--upper" data-art="unicode-phase" viewBox="0 0 300 180" focusable="false">
+        <g font-family="monospace" xml:space="preserve">
+          <text x="30" y="68" font-size="38" fill="#6195a3">◔ ◑ ◕ ●</text>
+          <text x="72" y="112" font-size="26" fill="#669ca7">◌ ┄ ┄ ◌ ┄ ┄ ◌</text>
+          <text x="112" y="153" font-size="38" fill="#397987">● ◕ ◑ ◔</text>
+        </g>
+      </svg>
+      <svg class="prototype-ornament unicode-field unicode-field--lower" data-art="unicode-phase" viewBox="0 0 240 110" focusable="false">
+        <g font-family="monospace" xml:space="preserve"><text x="20" y="58" font-size="34" fill="#82aeb7">◔ ◑ ◕ ●</text><text x="55" y="92" font-size="22" fill="#a9cbd0">◌ ┄ ◌ ┄ ◌</text></g>
+      </svg>
+      <svg class="prototype-ornament unicode-field unicode-field--left" data-art="unicode-branch" viewBox="0 0 300 180" focusable="false">
+        <g font-family="monospace" font-size="21" fill="#4d8994" xml:space="preserve">
+          <text x="0" y="36">        ╭──◦</text><text x="0" y="58">   ╭────┤</text><text x="0" y="80">───┤    ╰────◇</text>
+          <text x="0" y="102">   │  ╭───◦</text><text x="0" y="124">   ╰──┤</text><text x="0" y="146">      ╰─────◦</text>
+        </g>
+      </svg>
+      <svg class="prototype-ornament unicode-field unicode-field--right" data-art="unicode-branch" viewBox="0 0 240 110" focusable="false">
+        <g font-family="monospace" font-size="21" fill="#88b4bb" xml:space="preserve"><text x="0" y="30">   ╭────◦</text><text x="0" y="52">───┤</text><text x="0" y="74">   ╰──┬──◇</text><text x="0" y="96">      ╰──◦</text></g>
+      </svg>
+      <svg class="prototype-ornament unicode-field unicode-field--upper" data-art="unicode-contour" viewBox="0 0 300 180" focusable="false">
+        <g font-family="monospace" font-size="20" fill="#5a919b" xml:space="preserve">
+          <text x="36" y="31">╭───────╮</text><text x="20" y="53">╭──╯  ╭────╯ ╰──╮</text><text x="8" y="75">│   ╭─╯  ╭───╮  ╰─╮</text>
+          <text x="8" y="97">╰─╮ │  ╭─╯ ◦ ╰─╮  │</text><text x="20" y="119">╰─╯  ╰───────╯ ╭─╯</text><text x="42" y="141">╰──────────╯</text>
+        </g>
+      </svg>
+      <svg class="prototype-ornament unicode-field unicode-field--lower" data-art="unicode-contour" viewBox="0 0 240 110" focusable="false">
+        <g font-family="monospace" font-size="20" fill="#90b9bf" xml:space="preserve"><text x="15" y="30">╭───────╮</text><text x="0" y="52">╭─╯ ╭───╮ ╰──╮</text><text x="0" y="74">╰─╮ ╰─◦─╯ ╭──╯</text><text x="15" y="96">╰───────╯</text></g>
+      </svg>
+      <svg class="prototype-ornament unicode-field unicode-field--upper" data-art="glyph-orbit" viewBox="0 0 300 180" focusable="false">
+        <g font-family="monospace" font-size="18" fill="#508998" xml:space="preserve">
+          <text x="60" y="30">       .  ·  .</text><text x="60" y="52">    .´  ╭────╮  `.</text>
+          <text x="60" y="74">  .´  ╭─╯░░▒▒╰─╮  `.</text><text x="60" y="96"> ·───( ░▒▓▓▒░ )───·</text>
+          <text x="60" y="118">  `.  ╰─╮▒▒░░╭─╯  .´</text><text x="60" y="140">    `.  ╰────╯  .´</text><text x="60" y="162">       ·  .  ·</text>
+        </g>
+      </svg>
+      <svg class="prototype-ornament unicode-field unicode-field--lower" data-art="glyph-orbit" viewBox="0 0 240 110" focusable="false">
+        <g font-family="monospace" font-size="19" fill="#82adb8" xml:space="preserve"><text x="30" y="38">   .´ ╭──╮ `.</text><text x="30" y="62"> ·──( ░▒ )──·</text><text x="30" y="86">   `. ╰──╯ .´</text></g>
+      </svg>
+      <svg class="prototype-ornament unicode-field unicode-field--left" data-art="glyph-dunes" viewBox="0 0 300 180" focusable="false">
+        <g font-family="monospace" font-size="18" fill="#5b929d" xml:space="preserve">
+          <text x="0" y="35">   ·           ✦      ·</text><text x="0" y="63">       .  .     .</text>
+          <text x="0" y="91">       ╱╲       ╱╲</text><text x="0" y="113">  ╱╲  ╱  ╲  ╱╲╱  ╲</text>
+          <text x="0" y="135">╱  ╲╱    ╲╱  ╲   ╲</text><text x="0" y="157" fill="#9abdc2">░░▒▒░░▒▒▒░░░▒▒░░░▒▒</text>
+        </g>
+      </svg>
+      <svg class="prototype-ornament unicode-field unicode-field--right" data-art="glyph-dunes" viewBox="0 0 240 110" focusable="false">
+        <g font-family="monospace" font-size="18" fill="#80aeb7" xml:space="preserve"><text x="0" y="31">   ·    ✦     ·</text><text x="0" y="57">    ╱╲     ╱╲</text><text x="0" y="79">╱╲╱  ╲╱╲╱  ╲</text><text x="0" y="101">░▒░░▒▒░▒░░▒▒░</text></g>
+      </svg>
+      <svg class="prototype-ornament unicode-field unicode-field--upper" data-art="glyph-ribbon" viewBox="0 0 300 180" focusable="false">
+        <g font-family="monospace" font-size="20" fill="#477f8f" xml:space="preserve">
+          <text x="0" y="30">    ╭──────╮</text><text x="0" y="52">  ╭─╯ ╭──╮ ╰─╮</text><text x="0" y="74"> ╱  ╭─╯  ╰─╮  ╲</text>
+          <text x="0" y="96"> ╲  ╰─╮  ╭─╯  ╱</text><text x="0" y="118">  ╰─╮ ╰──╯ ╭─╯</text><text x="0" y="140">    ╰──────╯</text><text x="135" y="163" fill="#90b9c0">·  ·  ·</text>
+        </g>
+      </svg>
+      <svg class="prototype-ornament unicode-field unicode-field--lower" data-art="glyph-ribbon" viewBox="0 0 240 110" focusable="false">
+        <g font-family="monospace" font-size="20" fill="#85b0b8" xml:space="preserve"><text x="15" y="32"> ╭────╮</text><text x="15" y="54">╱ ╭──╮ ╲</text><text x="15" y="76">╲ ╰──╯ ╱</text><text x="15" y="98"> ╰────╯</text></g>
+      </svg>
+      <svg class="prototype-ornament unicode-field unicode-field--left" data-art="glyph-loom" viewBox="0 0 300 180" focusable="false">
+        <g font-family="monospace" font-size="20" fill="#558c9b" xml:space="preserve">
+          <text x="10" y="31">▖ ▝ ▖ ▝ ▖ ▝ ▖</text><text x="10" y="55"> ▚ ▚ ▚ ▚ ▚ ▚</text><text x="10" y="79">▗ ▘ ▗ ▘ ▗ ▘ ▗</text>
+          <text x="36" y="108" fill="#91b7c0">▖ ▝ ▖ ▝ ▖ ▝</text><text x="36" y="132" fill="#91b7c0"> ▞ ▞ ▞ ▞ ▞</text><text x="36" y="156" fill="#91b7c0">▗ ▘ ▗ ▘ ▗ ▘</text>
+        </g>
+      </svg>
+      <svg class="prototype-ornament unicode-field unicode-field--right" data-art="glyph-loom" viewBox="0 0 240 110" focusable="false">
+        <g font-family="monospace" font-size="20" fill="#82adb7" xml:space="preserve"><text x="10" y="35">▖ ▝ ▖ ▝ ▖</text><text x="10" y="59"> ▚ ▚ ▚ ▚</text><text x="10" y="83">▗ ▘ ▗ ▘ ▗</text></g>
+      </svg>
+    </div>
+
+    <noscript><p class="prototype-noscript">Enable JavaScript to use the design picker.</p></noscript>
+
+    <nav class="proto-picker" aria-label="Prototype variants">
+      <span class="proto-picker-highlight" aria-hidden="true"></span>
+      <button class="proto-picker-item" data-active aria-current="true">Quiet</button>
+      <button class="proto-picker-item">Index</button>
+      <button class="proto-picker-item">Split</button>
+      <button class="proto-picker-item">Stack</button>
+      <button class="proto-picker-item">Rail</button>
+    </nav>
+
+    <script>
+      import { createDialKit, createDialRoot } from "dialkit/vanilla";
+      import { fontFamilies } from "../../lib/font-families.js";
+      import "dialkit/vanilla/styles.css";
+
+      const stage = document.getElementById("stage");
+      const picker = document.querySelector(".proto-picker");
+      const highlight = picker.querySelector(".proto-picker-highlight");
+      const items = [...picker.querySelectorAll(".proto-picker-item")];
+      const directions = [
+        { value: "quiet", label: "Quiet column", pairing: "instrument-sans" },
+        { value: "index", label: "Index", pairing: "all-sans" },
+        { value: "spread", label: "Open spread", pairing: "dm-sans" },
+        { value: "stack", label: "Centered stack", pairing: "instrument-dm" },
+        { value: "rail", label: "Margin rail", pairing: "bricolage-dm" },
+      ];
+      const templates = directions.map((direction) => stage.querySelector(`template[data-variant-template="${direction.value}"]`));
+      const pairings = {
+        magazine: { label: "Newsreader + Source Sans 3", display: "Newsreader", body: "Source Sans 3" },
+        studio: { label: "DM Serif Display + Manrope", display: "DM Serif Display", body: "Manrope" },
+        type: { label: "Instrument Serif + IBM Plex Sans", display: "Instrument Serif", body: "IBM Plex Sans" },
+        field: { label: "Literata + Instrument Sans", display: "Literata", body: "Instrument Sans" },
+        gatefold: { label: "Sora + Paper Mono", display: "Sora", body: "Paper Mono" },
+        "all-sans": { label: "Manrope + IBM Plex Sans", display: "Manrope", body: "IBM Plex Sans" },
+        "instrument-sans": { label: "Instrument Sans (all text)", display: "Instrument Sans", body: "Instrument Sans" },
+        "dm-sans": { label: "DM Sans (all text)", display: "DM Sans", body: "DM Sans" },
+        "instrument-dm": { label: "Instrument Sans + DM Sans", display: "Instrument Sans", body: "DM Sans" },
+        "sora-instrument": { label: "Sora + Instrument Sans", display: "Sora", body: "Instrument Sans" },
+        "bricolage-dm": { label: "Bricolage Grotesque + DM Sans", display: "Bricolage Grotesque", body: "DM Sans" },
+      };
+      const pairingOptions = Object.entries(pairings).map(([value, pairing]) => ({ value, label: pairing.label }));
+      const motifOptions = [
+        { value: "none", label: "None" },
+        { value: "tree", label: "Canopy shadow" },
+        { value: "mountain", label: "Ridge line" },
+        { value: "window", label: "Window light" },
+        { value: "contour", label: "Contour map" },
+        { value: "fern", label: "Pressed fern" },
+        { value: "stitch", label: "Running stitch" },
+        { value: "folio", label: "Photobook folio" },
+        { value: "rain", label: "Pixel · Code rain" },
+        { value: "terminal", label: "Pixel · Field terminal" },
+        { value: "ghost", label: "Pixel · Memory echo" },
+        { value: "city", label: "Pixel · Night grid" },
+        { value: "raster", label: "Pixel · Raster tear" },
+        { value: "orbit", label: "Orbit" },
+        { value: "camera", label: "Camera" },
+        { value: "tide", label: "Tide" },
+        { value: "kite", label: "Kite" },
+        { value: "disk", label: "Floppy disk" },
+        { value: "plant", label: "Potted plant" },
+        { value: "paper", label: "Paper notes" },
+        { value: "constellation", label: "Constellation" },
+        { value: "mug", label: "Coffee break" },
+        { value: "tiles", label: "Arc tiles" },
+        { value: "breathing-room", label: "Abstract · Breathing room" },
+        { value: "weave", label: "Abstract · Weave" },
+        { value: "detour", label: "Abstract · Detour" },
+        { value: "interference", label: "Abstract · Interference" },
+        { value: "small-steps", label: "Abstract · Small steps" },
+        { value: "strata", label: "Abstract · Strata" },
+        { value: "drift", label: "Abstract · Drift" },
+        { value: "aperture", label: "Abstract · Aperture" },
+        { value: "intervals", label: "Abstract · Intervals" },
+        { value: "branching", label: "Abstract · Branching" },
+        { value: "eddy", label: "Organic · Eddy" },
+        { value: "seed", label: "Organic · Seed and stem" },
+        { value: "pool", label: "Organic · Still water" },
+        { value: "gathering", label: "Organic · Gathering" },
+        { value: "current", label: "Organic · Current" },
+        { value: "fragments", label: "Organic · Fragments" },
+        { value: "estuary", label: "Organic · Estuary" },
+        { value: "ascii-current", label: "ASCII · Current" },
+        { value: "unicode-swarm", label: "Unicode · Swarm" },
+        { value: "unicode-weave", label: "Unicode · Weave" },
+        { value: "unicode-phase", label: "Unicode · Phases" },
+        { value: "unicode-branch", label: "Unicode · Branches" },
+        { value: "unicode-contour", label: "Unicode · Contours" },
+        { value: "glyph-orbit", label: "Glyph · Orbit" },
+        { value: "glyph-dunes", label: "Glyph · Dunes" },
+        { value: "glyph-ribbon", label: "Glyph · Ribbon" },
+        { value: "glyph-loom", label: "Glyph · Loom" },
+      ];
+      const query = new URLSearchParams(location.search);
+      const requestedIndex = Number(query.get("v") ?? 1) - 1;
+      const initialIndex = Number.isInteger(requestedIndex) && requestedIndex >= 0 && requestedIndex < items.length ? requestedIndex : 0;
+      const initialDirection = directions[initialIndex];
+      const hasPairing = (value) => Object.hasOwn(pairings, value);
+      const initialPairing = hasPairing(query.get("fonts")) ? query.get("fonts") : initialDirection.pairing;
+      const hasMotif = (value) => motifOptions.some((option) => option.value === value);
+      const initialMotif = hasMotif(query.get("motif")) ? query.get("motif") : "none";
+      let current = -1;
+
+      createDialRoot({ position: "top-right", theme: "light", defaultOpen: false });
+      const controls = createDialKit("Home design study · round four", {
+        layout: {
+          type: "select",
+          options: directions.map(({ value, label }) => ({ value, label })),
+          default: initialDirection.value,
+        },
+        typography: { type: "select", options: pairingOptions, default: initialPairing },
+        motif: { type: "select", options: motifOptions, default: initialMotif },
+      });
+
+      function moveHighlight() {
+        const item = items[current];
+        if (!item) return;
+        highlight.style.width = `${item.offsetWidth}px`;
+        highlight.style.transform = `translateX(${item.offsetLeft}px)`;
+      }
+
+      function mountDirection(index) {
+        if (index < 0 || index >= items.length) return;
+        current = index;
+        items.forEach((item, itemIndex) => {
+          item.toggleAttribute("data-active", itemIndex === index);
+          if (itemIndex === index) item.setAttribute("aria-current", "true");
+          else item.removeAttribute("aria-current");
+        });
+        stage.replaceChildren(templates[index].content.cloneNode(true));
+        stage.scrollTop = 0;
+        moveHighlight();
+      }
+
+      function applyTypography(values) {
+        const pairing = pairings[values.typography] ?? pairings[directions[current]?.pairing ?? initialDirection.pairing];
+        stage.style.setProperty("--display-font", fontFamilies[pairing.display].stack);
+        stage.style.setProperty("--body-font", fontFamilies[pairing.body].stack);
+      }
+
+      function applyMotif(values) {
+        stage.dataset.motif = values.motif;
+      }
+
+      function syncUrl(values) {
+        const url = new URL(location.href);
+        url.searchParams.set("v", String(current + 1));
+        url.searchParams.set("fonts", values.typography);
+        url.searchParams.set("motif", values.motif);
+        url.searchParams.delete("mountain");
+        url.searchParams.delete("tree");
+        history.replaceState(null, "", url);
+      }
+
+      function chooseDirection(index) {
+        const direction = directions[index];
+        controls.setValues({ layout: direction.value, typography: direction.pairing });
+      }
+
+      mountDirection(initialIndex);
+      applyTypography(controls.getValues());
+      applyMotif(controls.getValues());
+      syncUrl(controls.getValues());
+      controls.subscribe((values) => {
+        const index = directions.findIndex((direction) => direction.value === values.layout);
+        if (index < 0) return;
+        if (index !== current) mountDirection(index);
+        applyTypography(values);
+        applyMotif(values);
+        syncUrl(values);
+      });
+
+      items.forEach((item, index) => item.addEventListener("click", () => chooseDirection(index)));
+      window.addEventListener("resize", moveHighlight);
+      window.addEventListener("keydown", (event) => {
+        if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
+        if (event.target instanceof Element && event.target.closest("input, textarea, select, [contenteditable='true']")) return;
+        if (event.key === "ArrowRight") {
+          event.preventDefault();
+          chooseDirection((current + 1) % items.length);
+        } else if (event.key === "ArrowLeft") {
+          event.preventDefault();
+          chooseDirection((current - 1 + items.length) % items.length);
+        } else if (event.key.toLowerCase() === "r") {
+          mountDirection(current);
+        } else {
+          const number = Number(event.key);
+          if (Number.isInteger(number) && number >= 1 && number <= items.length) chooseDirection(number - 1);
+        }
+      });
+
+      requestAnimationFrame(() => requestAnimationFrame(() => picker.setAttribute("data-ready", "")));
+    </script>
+
+    <style is:global>
+      :root {
+        --z-skip-link: 500;
+        --prototype-canvas: oklch(0.976 0.008 250);
+        --prototype-surface: oklch(0.944 0.012 250);
+        --prototype-ink: oklch(0.24 0.018 255);
+        --prototype-muted: oklch(0.48 0.02 255);
+        --prototype-accent: oklch(0.44 0.07 247);
+        --prototype-rule: oklch(0.87 0.014 250);
+      }
+
+      * { box-sizing: border-box; }
+
+      html {
+        min-width: 320px;
+        min-height: 100%;
+        background: var(--prototype-canvas);
+      }
+
+      body {
+        min-width: 320px;
+        min-height: 100svh;
+        margin: 0;
+        overflow: hidden;
+        background: var(--prototype-canvas);
+        color: var(--prototype-ink);
+        font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+        font-synthesis: none;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      button, a { touch-action: manipulation; }
+
+      .prototype-stage {
+        --canvas: var(--prototype-canvas);
+        --surface: var(--prototype-surface);
+        --ink: var(--prototype-ink);
+        --muted: var(--prototype-muted);
+        --accent: var(--prototype-accent);
+        --rule: var(--prototype-rule);
+        --display-font: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+        --body-font: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+        position: relative;
+        z-index: 1;
+        height: 100svh;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-gutter: stable;
+        background: transparent;
+        color: var(--ink);
+      }
+
+      .prototype-ornaments {
+        position: fixed;
+        z-index: 0;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+      }
+
+      .prototype-ornament {
+        position: absolute;
+        display: block;
+        height: auto;
+        opacity: 0;
+        visibility: hidden;
+        user-select: none;
+      }
+
+      .prototype-ornament--tree {
+        top: 0;
+        left: 0;
+        width: clamp(150px, 21vw, 300px);
+        color: oklch(0.39 0.027 250);
+      }
+
+      .prototype-ornament--mountain {
+        top: clamp(56px, 8vh, 96px);
+        right: clamp(14px, 4vw, 58px);
+        width: clamp(132px, 16vw, 210px);
+        color: var(--prototype-accent);
+      }
+
+      .prototype-ornament--window {
+        top: 0;
+        right: 0;
+        width: clamp(220px, 30vw, 390px);
+        color: oklch(0.48 0.035 245);
+      }
+
+      .prototype-ornament--contour {
+        right: 0;
+        bottom: clamp(82px, 12vh, 124px);
+        width: clamp(230px, 28vw, 360px);
+        color: oklch(0.43 0.03 232);
+      }
+
+      .prototype-ornament--fern {
+        top: 50%;
+        right: clamp(30px, 8vw, 118px);
+        width: clamp(104px, 13vw, 164px);
+        color: oklch(0.43 0.035 195);
+        transform: translateY(-50%);
+      }
+
+      .prototype-ornament--stitch {
+        bottom: clamp(84px, 14vh, 154px);
+        left: clamp(18px, 5vw, 72px);
+        width: clamp(112px, 15vw, 180px);
+        color: oklch(0.43 0.035 252);
+      }
+
+      .prototype-ornament--folio {
+        right: clamp(24px, 7vw, 100px);
+        bottom: clamp(86px, 16vh, 168px);
+        width: clamp(162px, 19vw, 232px);
+        color: oklch(0.39 0.025 255);
+      }
+
+      .prototype-ornament--rain {
+        top: clamp(34px, 8vh, 90px);
+        right: clamp(20px, 6vw, 88px);
+        width: clamp(112px, 14vw, 176px);
+        color: oklch(0.43 0.075 205);
+      }
+
+      .prototype-ornament--terminal {
+        right: clamp(22px, 7vw, 100px);
+        bottom: clamp(84px, 13vh, 136px);
+        width: clamp(220px, 27vw, 292px);
+        color: oklch(0.37 0.026 248);
+      }
+
+      .prototype-ornament--ghost {
+        top: 50%;
+        left: clamp(20px, 6vw, 88px);
+        width: clamp(108px, 13vw, 152px);
+        color: oklch(0.42 0.075 218);
+        transform: translateY(-50%);
+      }
+
+      .prototype-ornament--city {
+        bottom: clamp(82px, 12vh, 128px);
+        left: clamp(24px, 6vw, 88px);
+        width: clamp(235px, 30vw, 340px);
+        color: oklch(0.39 0.045 244);
+      }
+
+      .prototype-ornament--raster {
+        top: clamp(72px, 13vh, 124px);
+        left: clamp(16px, 4vw, 60px);
+        width: clamp(210px, 24vw, 300px);
+        color: oklch(0.44 0.065 222);
+      }
+
+      .prototype-ornament--study {
+        top: clamp(68px, 12vh, 112px);
+        left: clamp(20px, 5vw, 72px);
+        width: clamp(160px, 17vw, 210px);
+      }
+
+      .organic--a { top: 5%; left: 0; width: clamp(190px, 23vw, 310px); }
+      .organic--b { right: 2%; bottom: 13%; width: clamp(150px, 18vw, 250px); }
+      .organic--c { top: 7%; right: 4%; width: clamp(180px, 21vw, 280px); }
+      .organic--d { bottom: 13%; left: 3%; width: clamp(115px, 13vw, 175px); }
+      .organic--e { bottom: 12%; left: 0; width: clamp(200px, 24vw, 320px); }
+      .organic--f { top: 9%; right: 4%; width: clamp(155px, 18vw, 240px); }
+      .estuary--upper { top: 0; right: 0; width: clamp(260px, 30vw, 420px); }
+      .estuary--lower { bottom: 0; left: 0; width: clamp(260px, 29vw, 400px); }
+      .ascii-current--upper { top: 8%; left: 0; width: clamp(220px, 25vw, 330px); }
+      .ascii-current--lower { right: 0; bottom: 12%; width: clamp(190px, 20vw, 270px); }
+      .unicode-field--upper { top: 8%; right: 2%; width: clamp(220px, 24vw, 320px); }
+      .unicode-field--lower { bottom: 12%; left: 1%; width: clamp(180px, 19vw, 250px); }
+      .unicode-field--left { top: 9%; left: 0; width: clamp(220px, 24vw, 320px); }
+      .unicode-field--right { right: 1%; bottom: 12%; width: clamp(180px, 19vw, 250px); }
+
+      .prototype-stage[data-motif="orbit"] ~ .prototype-ornaments [data-art="orbit"],
+      .prototype-stage[data-motif="camera"] ~ .prototype-ornaments [data-art="camera"],
+      .prototype-stage[data-motif="tide"] ~ .prototype-ornaments [data-art="tide"],
+      .prototype-stage[data-motif="kite"] ~ .prototype-ornaments [data-art="kite"],
+      .prototype-stage[data-motif="disk"] ~ .prototype-ornaments [data-art="disk"],
+      .prototype-stage[data-motif="plant"] ~ .prototype-ornaments [data-art="plant"],
+      .prototype-stage[data-motif="paper"] ~ .prototype-ornaments [data-art="paper"],
+      .prototype-stage[data-motif="constellation"] ~ .prototype-ornaments [data-art="constellation"],
+      .prototype-stage[data-motif="mug"] ~ .prototype-ornaments [data-art="mug"],
+      .prototype-stage[data-motif="tiles"] ~ .prototype-ornaments [data-art="tiles"],
+      .prototype-stage[data-motif="breathing-room"] ~ .prototype-ornaments [data-art="breathing-room"],
+      .prototype-stage[data-motif="weave"] ~ .prototype-ornaments [data-art="weave"],
+      .prototype-stage[data-motif="detour"] ~ .prototype-ornaments [data-art="detour"],
+      .prototype-stage[data-motif="interference"] ~ .prototype-ornaments [data-art="interference"],
+      .prototype-stage[data-motif="small-steps"] ~ .prototype-ornaments [data-art="small-steps"],
+      .prototype-stage[data-motif="strata"] ~ .prototype-ornaments [data-art="strata"],
+      .prototype-stage[data-motif="drift"] ~ .prototype-ornaments [data-art="drift"],
+      .prototype-stage[data-motif="aperture"] ~ .prototype-ornaments [data-art="aperture"],
+      .prototype-stage[data-motif="intervals"] ~ .prototype-ornaments [data-art="intervals"],
+      .prototype-stage[data-motif="branching"] ~ .prototype-ornaments [data-art="branching"],
+      .prototype-stage[data-motif="eddy"] ~ .prototype-ornaments [data-art="eddy"],
+      .prototype-stage[data-motif="seed"] ~ .prototype-ornaments [data-art="seed"],
+      .prototype-stage[data-motif="pool"] ~ .prototype-ornaments [data-art="pool"],
+      .prototype-stage[data-motif="gathering"] ~ .prototype-ornaments [data-art="gathering"],
+      .prototype-stage[data-motif="current"] ~ .prototype-ornaments [data-art="current"],
+      .prototype-stage[data-motif="fragments"] ~ .prototype-ornaments [data-art="fragments"],
+      .prototype-stage[data-motif="estuary"] ~ .prototype-ornaments [data-art="estuary"],
+      .prototype-stage[data-motif="ascii-current"] ~ .prototype-ornaments [data-art="ascii-current"],
+      .prototype-stage[data-motif="unicode-swarm"] ~ .prototype-ornaments [data-art="unicode-swarm"],
+      .prototype-stage[data-motif="unicode-weave"] ~ .prototype-ornaments [data-art="unicode-weave"],
+      .prototype-stage[data-motif="unicode-phase"] ~ .prototype-ornaments [data-art="unicode-phase"],
+      .prototype-stage[data-motif="unicode-branch"] ~ .prototype-ornaments [data-art="unicode-branch"],
+      .prototype-stage[data-motif="unicode-contour"] ~ .prototype-ornaments [data-art="unicode-contour"],
+      .prototype-stage[data-motif="glyph-orbit"] ~ .prototype-ornaments [data-art="glyph-orbit"],
+      .prototype-stage[data-motif="glyph-dunes"] ~ .prototype-ornaments [data-art="glyph-dunes"],
+      .prototype-stage[data-motif="glyph-ribbon"] ~ .prototype-ornaments [data-art="glyph-ribbon"],
+      .prototype-stage[data-motif="glyph-loom"] ~ .prototype-ornaments [data-art="glyph-loom"] {
+        visibility: visible;
+        opacity: 1;
+      }
+
+      .prototype-stage[data-motif="tree"] ~ .prototype-ornaments .prototype-ornament--tree {
+        opacity: 0.28;
+        visibility: visible;
+      }
+
+      .prototype-stage[data-motif="mountain"] ~ .prototype-ornaments .prototype-ornament--mountain {
+        opacity: 0.72;
+        visibility: visible;
+      }
+
+      .prototype-stage[data-motif="window"] ~ .prototype-ornaments .prototype-ornament--window {
+        opacity: 0.72;
+        visibility: visible;
+      }
+
+      .prototype-stage[data-motif="contour"] ~ .prototype-ornaments .prototype-ornament--contour {
+        opacity: 0.72;
+        visibility: visible;
+      }
+
+      .prototype-stage[data-motif="fern"] ~ .prototype-ornaments .prototype-ornament--fern {
+        opacity: 0.68;
+        visibility: visible;
+      }
+
+      .prototype-stage[data-motif="stitch"] ~ .prototype-ornaments .prototype-ornament--stitch {
+        opacity: 0.72;
+        visibility: visible;
+      }
+
+      .prototype-stage[data-motif="folio"] ~ .prototype-ornaments .prototype-ornament--folio {
+        opacity: 0.68;
+        visibility: visible;
+      }
+
+      .prototype-stage[data-motif="rain"] ~ .prototype-ornaments .prototype-ornament--rain,
+      .prototype-stage[data-motif="terminal"] ~ .prototype-ornaments .prototype-ornament--terminal,
+      .prototype-stage[data-motif="ghost"] ~ .prototype-ornaments .prototype-ornament--ghost,
+      .prototype-stage[data-motif="city"] ~ .prototype-ornaments .prototype-ornament--city,
+      .prototype-stage[data-motif="raster"] ~ .prototype-ornaments .prototype-ornament--raster {
+        opacity: 0.8;
+        visibility: visible;
+      }
+
+      @media (max-width: 640px) {
+        .prototype-ornament--window { right: -52px; width: 245px; }
+        .prototype-ornament--contour { right: -38px; bottom: 78px; width: 220px; }
+        .prototype-ornament--fern { top: 14%; right: -4px; width: 100px; transform: none; }
+        .prototype-ornament--stitch { bottom: 78px; left: 0; width: 116px; }
+        .prototype-ornament--folio { right: 4px; bottom: 78px; width: 164px; }
+        .prototype-ornament--rain { top: 64px; right: 8px; width: 88px; }
+        .prototype-ornament--terminal { right: 8px; bottom: 74px; width: min(206px, 60vw); }
+        .prototype-ornament--ghost { top: auto; bottom: 78px; left: 4px; width: 84px; transform: none; }
+        .prototype-ornament--city { bottom: 76px; left: 8px; width: min(220px, 62vw); }
+        .prototype-ornament--raster { top: 68px; left: 8px; width: min(192px, 55vw); }
+        .prototype-ornament--study { top: 68px; left: 8px; width: 140px; }
+        .organic--a { top: 62px; width: 150px; }
+        .organic--b { right: 4px; bottom: 84px; width: 140px; }
+        .organic--c { top: 64px; right: 8px; width: 145px; }
+        .organic--d { bottom: 84px; left: 4px; width: 95px; }
+        .organic--e { bottom: 84px; width: 160px; }
+        .organic--f { top: 65px; right: 8px; width: 140px; }
+        .estuary--upper { top: 0; right: 0; width: 180px; }
+        .estuary--lower { bottom: 0; left: 0; width: 160px; }
+        .ascii-current--upper { top: 55px; width: 180px; }
+        .ascii-current--lower { bottom: 85px; width: 165px; }
+        .unicode-field--upper, .unicode-field--left { top: 55px; width: 165px; }
+        .unicode-field--lower, .unicode-field--right { bottom: 85px; width: 150px; }
+      }
+
+      @media (max-width: 640px) and (max-height: 720px) {
+        .prototype-ornament--contour { top: 72px; bottom: auto; }
+        .prototype-ornament--stitch { top: 72px; bottom: auto; }
+        .prototype-ornament--folio { top: 70px; bottom: auto; }
+        .prototype-ornament--terminal { top: 70px; bottom: auto; }
+        .prototype-ornament--ghost { top: 70px; bottom: auto; }
+        .prototype-ornament--city { top: 70px; bottom: auto; }
+        .organic--a, .organic--d, .organic--e { top: 20px; bottom: auto; left: 8px; width: 75px; }
+        .organic--b, .organic--c, .organic--f { top: 20px; right: 65px; bottom: auto; left: auto; width: 75px; }
+        .estuary--upper { width: 125px; }
+        .estuary--lower { bottom: 0; width: 125px; }
+        .ascii-current--upper { top: 12px; width: 115px; }
+        .ascii-current--lower { top: 15px; right: 55px; bottom: auto; width: 100px; }
+        .unicode-field--upper { top: 15px; right: 55px; width: 100px; }
+        .unicode-field--left { top: 15px; width: 100px; }
+        .unicode-field--lower { top: 15px; bottom: auto; width: 95px; }
+        .unicode-field--right { top: 15px; right: 55px; bottom: auto; width: 95px; }
+      }
+
+      .prototype-stage a:focus-visible, .prototype-skip-link:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+      }
+
+      .prototype-skip-link {
+        position: fixed;
+        z-index: var(--z-skip-link);
+        top: 12px;
+        left: 12px;
+        padding: 12px 16px;
+        transform: translateY(-160%);
+        background: var(--prototype-ink);
+        color: white;
+        font: 600 1rem/1.2 system-ui, sans-serif;
+      }
+
+      .prototype-skip-link:focus { transform: translateY(0); }
+
+      .prototype-noscript {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: grid;
+        place-content: center;
+        margin: 0;
+        padding: 24px;
+        background: var(--prototype-canvas);
+        color: var(--prototype-ink);
+        text-align: center;
+      }
+
+      .proto-picker {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2147483647;
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        padding: 4px;
+        border-radius: 999px;
+        background: rgba(10, 10, 10, 0.82);
+        -webkit-backdrop-filter: blur(12px) saturate(1.4);
+        backdrop-filter: blur(12px) saturate(1.4);
+        box-shadow:
+          0 0 0 1px rgba(255, 255, 255, 0.08) inset,
+          0 8px 24px rgba(0, 0, 0, 0.24),
+          0 2px 6px rgba(0, 0, 0, 0.12);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 13px;
+        line-height: 1;
+        -webkit-font-smoothing: antialiased;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+
+      .proto-picker-highlight {
+        position: absolute;
+        top: 4px;
+        left: 0;
+        height: 28px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+        will-change: transform;
+      }
+
+      .proto-picker[data-ready] .proto-picker-highlight {
+        transition:
+          transform 250ms cubic-bezier(0.23, 1, 0.32, 1),
+          width 250ms cubic-bezier(0.23, 1, 0.32, 1);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .proto-picker[data-ready] .proto-picker-highlight { transition: none; }
+      }
+
+      .proto-picker-item {
+        position: relative;
+        display: flex;
+        align-items: center;
+        height: 28px;
+        padding: 0 12px;
+        border: 0;
+        border-radius: 999px;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.55);
+        font: inherit;
+        cursor: pointer;
+        transition: color 150ms ease-out;
+      }
+
+      .proto-picker-item:hover { color: rgba(255, 255, 255, 0.85); }
+      .proto-picker-item:active { transform: scale(0.97); }
+      .proto-picker-item:focus-visible { outline: 2px solid rgba(255, 255, 255, 0.4); outline-offset: 2px; }
+      .proto-picker-item[data-active] { color: #fff; }
+
+      .dialkit-root .dialkit-select-trigger,
+      .dialkit-root .dialkit-select-option { height: auto; min-height: 44px; }
+      .dialkit-root .dialkit-select-dropdown { max-height: min(420px, calc(100vh - 280px)) !important; }
+      .dialkit-select-trigger { gap: 10px; }
+      .dialkit-select-right, .dialkit-select-value { flex: 1; min-width: 0; }
+      .dialkit-select-right { justify-content: flex-end; }
+      .dialkit-labeled-control { min-height: 44px; }
+      .dialkit-segmented-button { min-width: 44px; min-height: 44px; }
+    </style>
+  </body>
+</html>

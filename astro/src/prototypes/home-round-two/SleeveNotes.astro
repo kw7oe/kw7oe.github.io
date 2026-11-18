@@ -1,0 +1,105 @@
+---
+const { navigation, projects } = Astro.props;
+---
+
+<section class="sleeve-notes" aria-labelledby="sleeve-title">
+  <header class="sleeve-notes__header">
+    <a href="/" class="sleeve-notes__brand">Kai Wern Choong <span>· Long play, side A</span></a>
+    <nav aria-label="Primary navigation">
+      {navigation.map((item) => <a href={item.href} aria-current={item.href === "/" ? "page" : undefined}>{item.title}</a>)}
+      <a href="/proto/home/">Round one</a>
+    </nav>
+  </header>
+
+  <main class="sleeve-notes__layout">
+    <div class="sleeve-notes__cover" role="img" aria-label="Geometric cover artwork reading Kai Wern Choong, personal edition, side one">
+      <span class="sleeve-notes__cover-meta">Home study · 02</span>
+      <span class="sleeve-notes__cover-initials" aria-hidden="true">KW</span>
+      <span class="sleeve-notes__cover-block sleeve-notes__cover-block--ink" aria-hidden="true"></span>
+      <span class="sleeve-notes__cover-block sleeve-notes__cover-block--signal" aria-hidden="true"></span>
+      <span class="sleeve-notes__cover-title">Kai Wern<br />Choong</span>
+      <span class="sleeve-notes__cover-credit">Personal collection · Side A / Now</span>
+    </div>
+
+    <article class="sleeve-notes__liner">
+      <p class="sleeve-notes__side-label">Side A · The current track</p>
+      <h1 id="sleeve-title">Keep a little room around the work.</h1>
+      <p class="sleeve-notes__lead">I’m a senior software engineer at <a href="https://www.ditto.live" target="_blank" rel="noreferrer">Ditto</a>. A good work-life balance is part of the plan, not the bonus track.</p>
+      <p class="sleeve-notes__liner-note">The B-side collects small projects made to learn, including a run at system programming during Recurse Center.</p>
+
+      <section class="sleeve-notes__tracks" aria-labelledby="sleeve-tracks-title">
+        <div class="sleeve-notes__track-heading"><h2 id="sleeve-tracks-title">Side B · Project notes</h2><span>Five tracks</span></div>
+        <ol>
+          {projects.map((project, index) => (
+            <li>
+              <span class="sleeve-notes__track-number">0{index + 1}</span>
+              <div><h3><a href={project.href} target="_blank" rel="noreferrer">{project.title}</a></h3><p>{project.description}</p></div>
+            </li>
+          ))}
+        </ol>
+      </section>
+    </article>
+  </main>
+
+  <footer class="sleeve-notes__footer">
+    <p>Cover-study reference: <a href="https://www.moma.org/collection/artists/46697" target="_blank" rel="noreferrer">Reid Miles for Blue Note Records · MoMA collection</a></p>
+    <span><a href="/proto/home/">Compare with round one</a></span>
+  </footer>
+</section>
+
+<style>
+  .sleeve-notes { min-height: 100svh; padding: 22px clamp(20px, 5vw, 76px) 104px; background: var(--canvas); color: var(--ink); font-family: var(--body-font); }
+  .sleeve-notes__header,
+  .sleeve-notes__header nav,
+  .sleeve-notes__footer,
+  .sleeve-notes__track-heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+  .sleeve-notes__header { max-width: 1280px; margin: 0 auto; padding-bottom: 17px; border-bottom: 1px solid var(--rule); }
+  .sleeve-notes__brand { color: var(--ink); font: 500 0.82rem/1.4 var(--display-font); text-decoration: none; }
+  .sleeve-notes__brand span { color: var(--muted); font: 400 0.78rem/1.4 var(--body-font); }
+  .sleeve-notes__header nav { flex-wrap: wrap; justify-content: flex-end; gap: 0 15px; }
+  .sleeve-notes__header nav a { display: inline-flex; align-items: center; min-height: 44px; color: var(--muted); font-size: 0.8rem; text-decoration: none; }
+  .sleeve-notes__header nav a[aria-current="page"] { color: var(--accent); }
+  .sleeve-notes__layout { display: grid; grid-template-columns: minmax(320px, 0.95fr) minmax(0, 1.05fr); align-items: start; gap: clamp(36px, 7vw, 100px); max-width: 1120px; margin: clamp(44px, 7vw, 88px) auto 54px; }
+  .sleeve-notes__cover { position: sticky; top: 24px; display: flex; flex-direction: column; justify-content: space-between; aspect-ratio: 1; overflow: hidden; padding: clamp(18px, 3vw, 34px); background: var(--accent); color: var(--canvas); isolation: isolate; }
+  .sleeve-notes__cover-meta,
+  .sleeve-notes__cover-credit { position: relative; z-index: 2; font: 500 0.75rem/1.4 var(--body-font); letter-spacing: 0.13em; text-transform: uppercase; }
+  .sleeve-notes__cover-initials { position: absolute; z-index: 1; top: 18%; left: 6%; color: var(--canvas); font: 500 clamp(8rem, 18vw, 15rem)/0.75 var(--display-font); letter-spacing: -0.12em; }
+  .sleeve-notes__cover-block { position: absolute; z-index: 0; display: block; }
+  .sleeve-notes__cover-block--ink { top: 31%; right: -13%; width: 78%; height: 32%; transform: rotate(-12deg); background: var(--ink); }
+  .sleeve-notes__cover-block--signal { bottom: 12%; left: -10%; width: 68%; height: 24%; transform: rotate(9deg); background: var(--signal); }
+  .sleeve-notes__cover-title { position: relative; z-index: 2; align-self: flex-end; margin: auto 0 20px; color: var(--canvas); font: 500 clamp(2.5rem, 5.2vw, 4.8rem)/0.86 var(--display-font); letter-spacing: -0.07em; text-align: right; }
+  .sleeve-notes__cover-credit { position: relative; z-index: 2; color: var(--canvas); }
+  .sleeve-notes__side-label,
+  .sleeve-notes__track-heading span,
+  .sleeve-notes__track-number,
+  .sleeve-notes__footer { color: var(--muted); font: 500 0.75rem/1.5 var(--body-font); letter-spacing: 0.12em; text-transform: uppercase; }
+  .sleeve-notes__side-label { margin: 0 0 17px; color: var(--accent); }
+  .sleeve-notes h1 { max-width: 12ch; margin: 0 0 21px; font: 400 clamp(3rem, 5vw, 5rem)/0.94 var(--display-font); letter-spacing: -0.065em; text-wrap: balance; }
+  .sleeve-notes__lead { max-width: 55ch; margin: 0; color: var(--ink); font-size: 1.04rem; line-height: 1.65; text-wrap: pretty; }
+  .sleeve-notes__lead a,
+  .sleeve-notes__tracks h3 a,
+  .sleeve-notes__footer a { color: var(--accent); text-decoration-thickness: from-font; text-underline-offset: 0.14em; }
+  .sleeve-notes__liner-note { max-width: 55ch; margin: 13px 0 36px; color: var(--muted); font-size: 0.9rem; line-height: 1.6; }
+  .sleeve-notes__track-heading { align-items: baseline; padding: 0 0 10px; border-bottom: 1px solid var(--ink); }
+  .sleeve-notes__track-heading h2 { margin: 0; font: 500 1.18rem/1.3 var(--display-font); }
+  .sleeve-notes__track-heading span { font-size: 0.75rem; }
+  .sleeve-notes__tracks ol { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+  .sleeve-notes__tracks li { display: grid; grid-template-columns: 36px 1fr; gap: 10px; padding: 13px 0; border-bottom: 1px solid var(--rule); }
+  .sleeve-notes__track-number { padding-top: 3px; font-variant-numeric: tabular-nums; font-size: 0.75rem; }
+  .sleeve-notes__tracks h3 { margin: 0 0 4px; font: 500 0.98rem/1.3 var(--display-font); }
+  .sleeve-notes__tracks li p { max-width: 58ch; margin: 0; color: var(--muted); font-size: 0.84rem; line-height: 1.5; }
+  .sleeve-notes__footer { max-width: 1120px; margin: 0 auto; padding-top: 14px; border-top: 1px solid var(--rule); font-size: 0.75rem; }
+  .sleeve-notes__footer p { margin: 0; }
+
+  @media (max-width: 760px) {
+    .sleeve-notes { padding: 16px 20px 104px; }
+    .sleeve-notes__header { align-items: flex-start; flex-direction: column; gap: 7px; }
+    .sleeve-notes__header nav { justify-content: flex-start; gap: 0 14px; }
+    .sleeve-notes__layout { grid-template-columns: 1fr; gap: 35px; margin: 30px auto; }
+    .sleeve-notes__cover { position: relative; top: auto; width: min(100%, 480px); margin-inline: auto; }
+    .sleeve-notes__cover-initials { font-size: clamp(8rem, 37vw, 13rem); }
+    .sleeve-notes__cover-title { font-size: clamp(2.8rem, 12vw, 4.4rem); }
+    .sleeve-notes h1 { font-size: clamp(3rem, 14vw, 4.6rem); }
+    .sleeve-notes__footer { align-items: flex-start; flex-direction: column; gap: 8px; }
+  }
+</style>

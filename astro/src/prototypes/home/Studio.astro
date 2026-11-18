@@ -1,0 +1,254 @@
+---
+const { contentHtml, navigation } = Astro.props;
+---
+
+<section class="home-design studio" data-variant="studio">
+  <header class="studio__header">
+    <a class="studio__wordmark" href="/" aria-label="Home">KW<span>.</span></a>
+    <nav class="studio__navigation" aria-label="Primary navigation">
+      {navigation.map((item) => (
+        <a href={item.href} aria-current={item.href === "/" ? "page" : undefined}>{item.title}</a>
+      ))}
+    </nav>
+  </header>
+
+  <div class="studio__layout">
+    <aside class="studio__identity">
+      <p class="studio__eyebrow">PERSONAL SITE / 01</p>
+      <h1>Home</h1>
+      <div class="studio__mark" aria-hidden="true"><span></span><span></span><span></span></div>
+    </aside>
+    <article class="studio__content" set:html={contentHtml}></article>
+  </div>
+</section>
+
+<style>
+  .studio {
+    min-height: 100svh;
+    padding: 0 clamp(24px, 6vw, 88px) 120px;
+    background: var(--canvas);
+  }
+
+  .studio__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+    min-height: 88px;
+    border-block-end: 1px solid var(--rule);
+  }
+
+  .studio__wordmark {
+    color: var(--ink);
+    font: 700 1.1rem/1 var(--body-font);
+    letter-spacing: -0.08em;
+    text-decoration: none;
+  }
+
+  .studio__wordmark span {
+    color: var(--accent);
+  }
+
+  .studio__navigation {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 4px 22px;
+  }
+
+  .studio__navigation a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--muted);
+    font: 500 0.9rem/1.2 var(--body-font);
+    text-decoration: none;
+    transition: color 150ms ease-out;
+  }
+
+  .studio__navigation a[aria-current="page"] {
+    color: var(--accent);
+  }
+
+  .studio__layout {
+    display: grid;
+    grid-template-columns: minmax(280px, 0.82fr) minmax(0, 1.18fr);
+    gap: clamp(42px, 9vw, 136px);
+    max-width: 1280px;
+    margin-inline: auto;
+    padding-block-start: clamp(52px, 9vw, 112px);
+  }
+
+  .studio__identity {
+    position: relative;
+    align-self: start;
+    min-height: 510px;
+    overflow: hidden;
+    padding: clamp(28px, 4vw, 56px);
+    background: var(--surface);
+  }
+
+  .studio__eyebrow {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    color: var(--muted);
+    font: 600 0.7rem/1.5 var(--body-font);
+    letter-spacing: 0.14em;
+  }
+
+  .studio h1 {
+    position: relative;
+    z-index: 1;
+    margin: 22px 0 0;
+    color: var(--ink);
+    font: 400 clamp(3.3rem, 7vw, 6.5rem)/0.95 var(--display-font);
+    letter-spacing: -0.075em;
+    text-wrap: balance;
+  }
+
+  .studio__mark {
+    position: absolute;
+    inset: auto -52px -80px auto;
+    width: min(64%, 340px);
+    aspect-ratio: 1;
+    border: 1px solid color-mix(in oklch, var(--accent) 34%, transparent);
+    border-radius: 50%;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .studio__mark::before,
+  .studio__mark::after,
+  .studio__mark span {
+    position: absolute;
+    display: block;
+    border: 1px solid color-mix(in oklch, var(--accent) 32%, transparent);
+    border-radius: 50%;
+    content: "";
+  }
+
+  .studio__mark::before {
+    inset: 14%;
+  }
+
+  .studio__mark::after {
+    inset: 28%;
+  }
+
+  .studio__mark span:nth-child(1) {
+    inset: 42%;
+    background: var(--accent);
+  }
+
+  .studio__mark span:nth-child(2) {
+    top: 50%;
+    inset-inline: 0;
+    height: 1px;
+    border: 0;
+    border-radius: 0;
+    background: color-mix(in oklch, var(--accent) 42%, transparent);
+  }
+
+  .studio__mark span:nth-child(3) {
+    inset-block: 0;
+    left: 50%;
+    width: 1px;
+    border: 0;
+    border-radius: 0;
+    background: color-mix(in oklch, var(--accent) 42%, transparent);
+  }
+
+  .studio__content {
+    max-width: 65ch;
+    padding-block-start: 12px;
+    color: var(--ink);
+    font: 400 1.04rem/1.68 var(--body-font);
+  }
+
+  .studio__content :global(p) {
+    margin: 0 0 1.5em;
+  }
+
+  .studio__content :global(p:first-child) {
+    font-size: 1.22rem;
+    line-height: 1.55;
+    text-wrap: pretty;
+  }
+
+  .studio__content :global(h2) {
+    margin: 3rem 0 0.9rem;
+    color: var(--accent);
+    font: 500 1.1rem/1.3 var(--body-font);
+    letter-spacing: -0.02em;
+  }
+
+  .studio__content :global(ul) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    padding: 0;
+    list-style: none;
+  }
+
+  .studio__content :global(li) {
+    min-height: 92px;
+    padding: 14px 16px;
+    background: color-mix(in oklch, var(--surface) 58%, var(--canvas));
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+
+  .studio__content :global(a) {
+    color: var(--accent);
+    text-decoration-thickness: from-font;
+    text-underline-offset: 0.15em;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .studio__navigation a:hover {
+      color: var(--accent);
+    }
+  }
+
+  @media (max-width: 800px) {
+    .studio {
+      padding-inline: 24px;
+    }
+
+    .studio__header {
+      align-items: flex-start;
+      padding-block: 16px;
+    }
+
+    .studio__navigation {
+      gap: 0 12px;
+    }
+
+    .studio__layout {
+      grid-template-columns: 1fr;
+      gap: 40px;
+      padding-block-start: 36px;
+    }
+
+    .studio__identity {
+      min-height: 310px;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .studio__header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .studio__navigation {
+      justify-content: flex-start;
+    }
+
+    .studio__content :global(ul) {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

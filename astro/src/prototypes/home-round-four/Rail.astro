@@ -1,0 +1,94 @@
+---
+interface Props {
+  headline: string;
+  paragraph: string;
+  points: { text: string; href?: string }[];
+}
+
+const { headline, paragraph, points } = Astro.props;
+---
+
+<article class="rail" aria-labelledby="rail-heading">
+  <h1 id="rail-heading">{headline}</h1>
+  <p>{paragraph}</p>
+  <ul>
+    {points.map((point) => (
+      <li>{point.href ? <a href={point.href}>{point.text}</a> : point.text}</li>
+    ))}
+  </ul>
+</article>
+
+<style>
+  .rail {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    column-gap: clamp(44px, 8vw, 112px);
+    row-gap: 26px;
+    align-content: center;
+    width: min(100%, 1120px);
+    min-height: 100svh;
+    margin-inline: auto;
+    padding: clamp(72px, 12vh, 136px) clamp(28px, 8vw, 112px) 112px;
+  }
+
+  h1 {
+    max-width: 14ch;
+    margin: 0;
+    font-family: var(--display-font);
+    font-size: clamp(2rem, 3vw, 2.35rem);
+    font-weight: 400;
+    line-height: 1.12;
+    letter-spacing: -0.03em;
+    font-optical-sizing: auto;
+    text-wrap: balance;
+  }
+
+  p {
+    max-width: 45ch;
+    margin: 0;
+    color: var(--muted);
+    font-family: var(--body-font);
+    font-size: 1rem;
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
+
+  ul {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
+    margin: 34px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    padding-block-start: 12px;
+    border-top: 1px solid var(--rule);
+    font-family: var(--body-font);
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  a {
+    color: inherit;
+    text-decoration-color: color-mix(in oklch, var(--accent) 48%, transparent);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    a:hover { text-decoration-color: currentColor; }
+  }
+
+  @media (max-width: 680px) {
+    .rail {
+      grid-template-columns: 1fr;
+      row-gap: 20px;
+      padding-inline: 28px;
+    }
+
+    ul { grid-template-columns: 1fr; gap: 12px; margin-top: 12px; }
+  }
+</style>

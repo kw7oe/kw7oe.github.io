@@ -1,0 +1,107 @@
+---
+interface Props {
+  headline: string;
+  paragraph: string;
+  points: { text: string; href?: string }[];
+}
+
+const { headline, paragraph, points } = Astro.props;
+---
+
+<article class="index" aria-labelledby="index-heading">
+  <h1 id="index-heading">{headline}</h1>
+  <div class="index__details">
+    <p>{paragraph}</p>
+    <ul>
+      {points.map((point) => (
+        <li>{point.href ? <a href={point.href}>{point.text}</a> : point.text}</li>
+      ))}
+    </ul>
+  </div>
+</article>
+
+<style>
+  .index {
+    display: grid;
+    grid-template-columns: minmax(150px, 0.78fr) minmax(0, 1.15fr);
+    gap: clamp(44px, 9vw, 136px);
+    align-content: center;
+    width: min(100%, 1080px);
+    min-height: 100svh;
+    margin-inline: auto;
+    padding: clamp(72px, 12vh, 136px) clamp(28px, 8vw, 112px) 112px;
+  }
+
+  h1 {
+    max-width: 12ch;
+    margin: 0;
+    font-family: var(--display-font);
+    font-size: clamp(2rem, 3vw, 2.4rem);
+    font-weight: 400;
+    line-height: 1.12;
+    letter-spacing: -0.03em;
+    font-optical-sizing: auto;
+    text-wrap: balance;
+  }
+
+  .index__details { align-self: center; }
+
+  p {
+    max-width: 46ch;
+    margin: 0;
+    color: var(--muted);
+    font-family: var(--body-font);
+    font-size: 1rem;
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
+
+  ul {
+    margin: 28px 0 0;
+    padding: 0;
+    border-top: 1px solid var(--rule);
+    list-style: none;
+    counter-reset: index-point;
+  }
+
+  li {
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    gap: 10px;
+    align-items: baseline;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--body-font);
+    font-size: 1rem;
+    line-height: 1.45;
+    counter-increment: index-point;
+  }
+
+  li::before {
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+    content: counter(index-point, decimal-leading-zero);
+  }
+
+  a {
+    color: inherit;
+    text-decoration-color: color-mix(in oklch, var(--accent) 48%, transparent);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    a:hover { text-decoration-color: currentColor; }
+  }
+
+  @media (max-width: 680px) {
+    .index {
+      grid-template-columns: 1fr;
+      gap: 26px;
+      padding-inline: 28px;
+    }
+
+    h1 { max-width: 16ch; }
+  }
+</style>

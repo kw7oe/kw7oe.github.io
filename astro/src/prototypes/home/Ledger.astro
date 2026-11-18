@@ -1,0 +1,252 @@
+---
+const { contentHtml, navigation } = Astro.props;
+---
+
+<section class="home-design ledger" data-variant="ledger">
+  <header class="ledger__header">
+    <a class="ledger__wordmark" href="/">KW <span>— HOME</span></a>
+    <nav class="ledger__navigation" aria-label="Primary navigation">
+      {navigation.map((item) => (
+        <a href={item.href} aria-current={item.href === "/" ? "page" : undefined}>{item.title}</a>
+      ))}
+    </nav>
+  </header>
+
+  <div class="ledger__layout">
+    <aside class="ledger__index" aria-label="Page index">
+      <span>INDEX</span>
+      <strong>01</strong>
+      <span>PROFILE</span>
+    </aside>
+    <div class="ledger__page">
+      <p class="ledger__eyebrow">PERSONAL SITE / 2026</p>
+      <h1>Home</h1>
+      <article class="ledger__content" set:html={contentHtml}></article>
+    </div>
+  </div>
+</section>
+
+<style>
+  .ledger {
+    min-height: 100svh;
+    padding: 0 clamp(24px, 5vw, 72px) 120px;
+    background: var(--canvas);
+  }
+
+  .ledger__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+    min-height: 82px;
+    border-block-end: 1px solid var(--rule);
+  }
+
+  .ledger__wordmark {
+    color: var(--ink);
+    font: 600 0.87rem/1 var(--body-font);
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .ledger__wordmark span {
+    color: var(--muted);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+  }
+
+  .ledger__navigation {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0 18px;
+  }
+
+  .ledger__navigation a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--muted);
+    font: 500 0.82rem/1.2 var(--body-font);
+    text-decoration: none;
+    transition: color 150ms ease-out;
+  }
+
+  .ledger__navigation a[aria-current="page"] {
+    color: var(--accent);
+  }
+
+  .ledger__layout {
+    display: grid;
+    grid-template-columns: 110px minmax(0, 760px);
+    gap: clamp(32px, 7vw, 100px);
+    max-width: 1120px;
+    margin-inline: auto;
+    padding-block-start: clamp(58px, 9vw, 112px);
+  }
+
+  .ledger__index {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding-block-start: 8px;
+    color: var(--muted);
+    font: 600 0.65rem/1.4 var(--body-font);
+    letter-spacing: 0.14em;
+  }
+
+  .ledger__index strong {
+    margin-block: 8px;
+    color: var(--accent);
+    font: 400 3.2rem/0.95 var(--display-font);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.08em;
+  }
+
+  .ledger__page {
+    min-width: 0;
+  }
+
+  .ledger__eyebrow {
+    margin: 0 0 18px;
+    color: var(--muted);
+    font: 600 0.7rem/1.4 var(--body-font);
+    letter-spacing: 0.14em;
+  }
+
+  .ledger h1 {
+    margin: 0 0 44px;
+    color: var(--ink);
+    font: 400 clamp(3.5rem, 8vw, 6.2rem)/0.98 var(--display-font);
+    letter-spacing: -0.07em;
+    text-wrap: balance;
+  }
+
+  .ledger__content {
+    counter-reset: ledger-section;
+    max-width: 66ch;
+    color: var(--ink);
+    font: 400 1rem/1.72 var(--body-font);
+  }
+
+  .ledger__content :global(p) {
+    margin: 0 0 1.5em;
+  }
+
+  .ledger__content :global(p:first-child) {
+    font-size: 1.18rem;
+    line-height: 1.58;
+    text-wrap: pretty;
+  }
+
+  .ledger__content :global(h2) {
+    display: grid;
+    grid-template-columns: 3.2rem 1fr;
+    gap: 14px;
+    align-items: baseline;
+    margin: 3rem 0 0.85rem;
+    padding-block-start: 0.8rem;
+    border-block-start: 1px solid var(--rule);
+    color: var(--ink);
+    font: 500 1.2rem/1.3 var(--body-font);
+    letter-spacing: -0.02em;
+    counter-increment: ledger-section;
+  }
+
+  .ledger__content :global(h2::before) {
+    color: var(--accent);
+    content: "0" counter(ledger-section);
+    font: 500 0.74rem/1.4 var(--body-font);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.08em;
+  }
+
+  .ledger__content :global(ul) {
+    margin: 1rem 0 1.8rem;
+    padding: 0;
+    list-style: none;
+    counter-reset: project-row;
+  }
+
+  .ledger__content :global(li) {
+    position: relative;
+    padding: 14px 0;
+    padding-inline-start: 3.2rem;
+    border-block-start: 1px solid var(--rule);
+    counter-increment: project-row;
+  }
+
+  .ledger__content :global(li::before) {
+    position: absolute;
+    inset-block-start: 14px;
+    inset-inline-start: 0;
+    color: var(--muted);
+    content: "0" counter(project-row);
+    font-size: 0.74rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ledger__content :global(a) {
+    color: var(--accent);
+    text-decoration-thickness: from-font;
+    text-underline-offset: 0.15em;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .ledger__navigation a:hover {
+      color: var(--accent);
+    }
+  }
+
+  @media (max-width: 760px) {
+    .ledger {
+      padding-inline: 24px;
+    }
+
+    .ledger__header {
+      align-items: flex-start;
+      padding-block: 12px;
+    }
+
+    .ledger__navigation {
+      gap: 0 12px;
+    }
+
+    .ledger__layout {
+      grid-template-columns: 1fr;
+      gap: 30px;
+      padding-block-start: 42px;
+    }
+
+    .ledger__index {
+      flex-direction: row;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    .ledger__index strong {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .ledger__header {
+      flex-direction: column;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .ledger__navigation {
+      justify-content: flex-start;
+    }
+
+    .ledger__content :global(h2),
+    .ledger__content :global(li) {
+      grid-template-columns: 2.4rem minmax(0, 1fr);
+      gap: 10px;
+    }
+  }
+</style>
