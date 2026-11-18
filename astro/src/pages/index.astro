@@ -1,4 +1,11 @@
 ---
+import { renderLakeAscii } from '../lib/lake-ascii.js';
+
+const lake = renderLakeAscii();
+const lakeVars = lake.palette
+  .map((colour, index) => `--q${index}:${colour.hex};--q${index}-fg:${colour.fg};`)
+  .join('');
+
 const sections = [
   {
     title: 'Posts',
@@ -51,9 +58,45 @@ const sections = [
           </a>
         </section>
 
+        <section class="field-note" aria-labelledby="field-note-title">
+          <div class="field-note-head">
+            <div>
+              <p class="eyebrow">Field note 001 · Lake Brienz</p>
+              <h2 id="field-note-title">A lake in eight tones.</h2>
+            </div>
+            <p class="field-meta">
+              <span>220 × 46</span>
+              <span>8 colours</span>
+              <span>still</span>
+            </p>
+          </div>
+
+          <figure class="terminal">
+            <div class="terminal-bar" aria-hidden="true">
+              <span class="terminal-lights"><i></i><i></i><i></i></span>
+              <span class="terminal-path">~/field-notes/lake-brienz.txt</span>
+              <span class="terminal-mode">colour</span>
+            </div>
+            <div class="terminal-screen">
+              <pre class="lake-ascii" style={lakeVars} aria-hidden="true" set:html={lake.html}></pre>
+            </div>
+            <figcaption class="terminal-caption">
+              <span class="terminal-source">
+                Photograph: <a href="https://commons.wikimedia.org/wiki/File:Panorama_of_Brienzersee.jpg">Panorama of Brienzersee</a>
+                · Nicojonesgodel · CC BY-SA 4.0
+              </span>
+              <span class="terminal-links">
+                <a href="/exploration/">Exploration <span aria-hidden="true">↗</span></a>
+                <a href="/lab/">Open the Lab <span aria-hidden="true">↗</span></a>
+              </span>
+            </figcaption>
+          </figure>
+        </section>
+
         <section class="writing" aria-label="Writing">
-          {sections.map((section) => (
+          {sections.map((section, index) => (
             <a class="writing-card" href={section.href}>
+              <span class="card-index">[{String(index + 1).padStart(2, '0')}]</span>
               <span class="card-title">{section.title}</span>
               <span class="card-description">{section.description}</span>
               <span class="card-arrow" aria-hidden="true">↗</span>
@@ -143,7 +186,7 @@ const sections = [
 
   .intro {
     max-width: 45rem;
-    padding-block: clamp(5rem, 15vh, 10rem) clamp(4rem, 10vh, 7rem);
+    padding-block: clamp(3.5rem, 9vh, 6rem) clamp(2.5rem, 5vh, 3.5rem);
   }
 
   .eyebrow {
@@ -189,6 +232,169 @@ const sections = [
     background: #4c4769;
   }
 
+  .field-note {
+    margin-bottom: clamp(2.5rem, 6vw, 4rem);
+    padding-top: 1.25rem;
+    border-top: 1px solid #d8d0ca;
+  }
+
+  .field-note-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .field-note-head .eyebrow {
+    margin-bottom: 0.55rem;
+  }
+
+  .field-note h2 {
+    margin: 0;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.6rem, 3vw, 2.3rem);
+    font-weight: 400;
+    letter-spacing: -0.045em;
+    line-height: 1.1;
+  }
+
+  .field-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin: 0 0 0.25rem;
+    color: #8a847d;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .field-meta span {
+    padding: 0.2rem 0.4rem;
+    border: 1px solid #d8d0ca;
+  }
+
+  .terminal {
+    margin: 0;
+    border: 1px solid #2b3038;
+    background: #171a1f;
+    box-shadow: 0 18px 40px -30px rgba(23, 26, 31, 0.7);
+    overflow: hidden;
+  }
+
+  .terminal-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.5rem 0.8rem;
+    border-bottom: 1px solid #30353d;
+    background: #20242b;
+    color: #8f9995;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.04em;
+  }
+
+  .terminal-lights {
+    display: flex;
+    gap: 0.3rem;
+  }
+
+  .terminal-lights i {
+    width: 0.42rem;
+    height: 0.42rem;
+    border-radius: 50%;
+    background: #50565e;
+  }
+
+  .terminal-lights i:nth-child(1) {
+    background: #936464;
+  }
+
+  .terminal-lights i:nth-child(2) {
+    background: #988257;
+  }
+
+  .terminal-lights i:nth-child(3) {
+    background: #66836a;
+  }
+
+  .terminal-path {
+    flex: 1;
+    overflow: hidden;
+    color: #c6cec9;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .terminal-mode {
+    color: #7d9e9f;
+    text-transform: uppercase;
+  }
+
+  .terminal-screen {
+    padding: clamp(0.55rem, 1.6vw, 1rem);
+    background: #f6f1ea;
+    container-type: inline-size;
+  }
+
+  .lake-ascii {
+    display: block;
+    width: max-content;
+    max-width: 100%;
+    margin-inline: auto;
+    overflow: hidden;
+    background: #f6f1ea;
+    font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+    font-size: clamp(2px, 0.745cqi, 9px);
+    line-height: 1.08;
+    letter-spacing: 0;
+    white-space: pre;
+    font-variant-ligatures: none;
+  }
+
+  .lake-ascii :global(.q0) { background: var(--q0); color: var(--q0-fg); }
+  .lake-ascii :global(.q1) { background: var(--q1); color: var(--q1-fg); }
+  .lake-ascii :global(.q2) { background: var(--q2); color: var(--q2-fg); }
+  .lake-ascii :global(.q3) { background: var(--q3); color: var(--q3-fg); }
+  .lake-ascii :global(.q4) { background: var(--q4); color: var(--q4-fg); }
+  .lake-ascii :global(.q5) { background: var(--q5); color: var(--q5-fg); }
+  .lake-ascii :global(.q6) { background: var(--q6); color: var(--q6-fg); }
+  .lake-ascii :global(.q7) { background: var(--q7); color: var(--q7-fg); }
+
+  .terminal-caption {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.4rem 1.5rem;
+    padding: 0.55rem 0.8rem;
+    border-top: 1px solid #30353d;
+    background: #171a1f;
+    color: #8b9490;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.6rem;
+    line-height: 1.5;
+  }
+
+  .terminal-caption a {
+    color: #c6cec9;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .terminal-caption a:hover {
+    color: #fff;
+  }
+
+  .terminal-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
   .writing {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -211,9 +417,23 @@ const sections = [
     border-left: 1px solid #d8d0ca;
   }
 
+  .card-index {
+    color: #a09a93;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.66rem;
+    letter-spacing: 0.08em;
+  }
+
   .card-title {
     font-family: Georgia, "Times New Roman", serif;
     font-size: 1.5rem;
+  }
+
+  .card-title::before {
+    content: "> ";
+    color: #625c87;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.72em;
   }
 
   .card-description {
@@ -253,7 +473,29 @@ const sections = [
     }
 
     .intro {
-      padding-block: 4.5rem 3.5rem;
+      padding-block: 3rem 2.5rem;
+    }
+
+    .field-note-head {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .field-meta {
+      margin-top: 0.2rem;
+    }
+
+    .terminal-path {
+      text-align: left;
+    }
+
+    .terminal-mode {
+      display: none;
+    }
+
+    .terminal-caption {
+      flex-direction: column;
     }
 
     .writing {
