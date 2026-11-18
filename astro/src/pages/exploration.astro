@@ -1,0 +1,718 @@
+---
+import { SCENES, renderScene, linesToHtml } from '../lib/landscapes.js';
+
+const initial = SCENES.map((scene) => ({
+  scene,
+  html: linesToHtml(renderScene(scene, { style: 'sparse', density: 1 })),
+}));
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Seven landscapes drawn in characters — an ASCII study by Kai Wern."
+    />
+    <meta name="theme-color" content="#ebe5df" />
+    <title>Landscapes in characters — Kai Wern</title>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <a class="wordmark" href="/" aria-label="Kai Wern home">KW<span>.</span></a>
+        <nav aria-label="Primary navigation">
+          <a href="https://kaiwern.com/posts/">Posts</a>
+          <a href="https://kaiwern.com/fragments/">Fragments</a>
+          <a href="https://kaiwern.com/about/">About</a>
+          <a href="/exploration/" aria-current="page">Exploration</a>
+          <a href="/lab/">Lab</a>
+        </nav>
+      </header>
+
+      <main id="main-content">
+        <section class="intro" aria-labelledby="intro-title">
+          <p class="eyebrow">Exploration · ASCII studies</p>
+          <h1 id="intro-title">Landscapes,<br />in <span>characters</span>.</h1>
+          <p class="intro-copy">
+            Seven places reduced to a grid of type. Each scene is drawn from
+            ridge lines, noise, or a photograph, then set in an alphabet — a loose
+            ink stipple, a dense chromatic dither, or a field of colored cells.
+          </p>
+          <p class="intro-note">
+            Stills only. Switch the render or push the ink around below.
+          </p>
+        </section>
+
+        <nav class="scene-index" aria-label="Scenes">
+          {
+            SCENES.map((scene, index) => (
+              <a href={`#${scene.id}`}>
+                <span>{String(index + 1).padStart(2, '0')}</span>
+                {scene.title}
+              </a>
+            ))
+          }
+        </nav>
+
+        <div class="toolbar">
+          <div class="control">
+            <span class="control-label" id="render-label">Render</span>
+            <div class="segmented" role="group" aria-labelledby="render-label">
+              <button type="button" data-style="sparse" aria-pressed="true">Stipple</button>
+              <button type="button" data-style="grid" aria-pressed="false">Dither</button>
+              <button type="button" data-style="color" aria-pressed="false">Color</button>
+            </div>
+          </div>
+          <label class="control">
+            <span class="control-label">Ink <output id="ink-output" for="ink">100%</output></span>
+            <input id="ink" type="range" min="60" max="160" step="5" value="100" />
+          </label>
+          <p class="toolbar-note">Seven scenes · still</p>
+        </div>
+
+        <div class="plates" data-render-style="sparse">
+          {
+            initial.map(({ scene, html }, index) => (
+              <figure class="plate" id={scene.id} style={`--accent: ${scene.accent};`}>
+                <div class="plate-head">
+                  <span class="plate-index">{String(index + 1).padStart(2, '0')}</span>
+                  <h2>{scene.title}</h2>
+                  <span class="plate-place">{scene.place}</span>
+                </div>
+                <div
+                  class="canvas"
+                  role="img"
+                  aria-label={`${scene.title} — ${scene.place}. An ASCII landscape.`}
+                >
+                  <pre
+                    class="ascii"
+                    data-scene={scene.id}
+                    style={`--fs: ${(164 / (scene.width ?? 142)).toFixed(3)}cqi;`}
+                    aria-hidden="true"
+                    set:html={html}
+                  />
+                </div>
+                <figcaption>
+                  {scene.caption}
+                  {
+                    scene.credit && (
+                      <span class="photo-credit">
+                        Photo: <a href={scene.credit.page}>{scene.credit.work}</a> by{' '}
+                        {scene.credit.name}, <a href={scene.credit.licenseUrl}>{scene.credit.license}</a>,
+                        via Wikimedia Commons. Cropped and resampled; ASCII adaptation CC BY-SA 4.0.
+                      </span>
+                    )
+                  }
+                </figcaption>
+              </figure>
+            ))
+          }
+        </div>
+      </main>
+
+      <footer class="site-footer">
+        <span>Made with care.</span>
+        <a href="https://kaiwern.com/about/">More about Kai <span aria-hidden="true">↗</span></a>
+      </footer>
+    </div>
+
+    <script>
+      import { SCENES, renderScene, linesToHtml } from '../lib/landscapes.js';
+
+      const scenes = new Map(SCENES.map((scene) => [scene.id, scene]));
+      const plates = document.querySelector('.plates');
+      const pres = [...document.querySelectorAll('.ascii')];
+      const buttons = [...document.querySelectorAll('[data-style]')];
+      const ink = document.querySelector('#ink');
+      const inkOutput = document.querySelector('#ink-output');
+
+      let style = 'sparse';
+      let density = 1;
+      let frame = 0;
+      let dirty = false;
+      const visible = new Set();
+
+      function paintOne(pre) {
+        const scene = scenes.get(pre.dataset.scene);
+        if (!scene) return;
+        pre.innerHTML = linesToHtml(renderScene(scene, { style, density }));
+      }
+
+      function paint() {
+        frame = 0;
+        plates.dataset.renderStyle = style;
+        for (const pre of visible) paintOne(pre);
+      }
+
+      function schedule() {
+        dirty = true;
+        if (frame) return;
+        frame = requestAnimationFrame(paint);
+      }
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              visible.add(entry.target);
+              if (dirty) paintOne(entry.target);
+            } else {
+              visible.delete(entry.target);
+            }
+          }
+        },
+        { rootMargin: '350px 0px' },
+      );
+
+      for (const pre of pres) observer.observe(pre);
+
+      for (const button of buttons) {
+        button.addEventListener('click', () => {
+          style = button.dataset.style;
+          for (const other of buttons) {
+            other.setAttribute('aria-pressed', String(other === button));
+          }
+          schedule();
+        });
+      }
+
+      ink.addEventListener('input', () => {
+        density = Number(ink.value) / 100;
+        inkOutput.value = `${ink.value}%`;
+        schedule();
+      });
+    </script>
+
+    <style>
+      :global(*) {
+        box-sizing: border-box;
+      }
+
+      :global(body) {
+        margin: 0;
+        background: #ebe5df;
+        color: #292735;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      :global(::selection) {
+        background: #625c87;
+        color: #fff;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      a:focus-visible,
+      button:focus-visible,
+      input:focus-visible {
+        outline: 2px solid #625c87;
+        outline-offset: 3px;
+      }
+
+      .page-shell {
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+        margin-inline: auto;
+        max-width: 76rem;
+        padding: 0 clamp(1.25rem, 4vw, 3.5rem);
+      }
+
+      .site-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.5rem;
+        padding-block: 2rem;
+        border-bottom: 1px solid #d8d0ca;
+      }
+
+      .wordmark {
+        font-size: 1.1rem;
+        font-weight: 750;
+        letter-spacing: -0.06em;
+      }
+
+      .wordmark span,
+      h1 span {
+        color: #625c87;
+      }
+
+      nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: clamp(1rem, 2.4vw, 1.9rem);
+        font-size: 0.875rem;
+        font-weight: 600;
+      }
+
+      nav a:hover {
+        color: #625c87;
+        text-decoration: underline;
+        text-underline-offset: 0.25em;
+      }
+
+      nav a[aria-current="page"] {
+        color: #625c87;
+      }
+
+      main {
+        flex: 1;
+      }
+
+      .intro {
+        max-width: 47rem;
+        padding-block: clamp(4rem, 11vh, 7.5rem) clamp(2.5rem, 6vh, 4rem);
+      }
+
+      .eyebrow {
+        margin: 0 0 1.25rem;
+        color: #625c87;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(3rem, 7.5vw, 5.75rem);
+        font-weight: 400;
+        letter-spacing: -0.07em;
+        line-height: 0.98;
+      }
+
+      .intro-copy {
+        max-width: 36rem;
+        margin: 1.75rem 0 1rem;
+        color: #575563;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(1.1rem, 1.6vw, 1.3rem);
+        line-height: 1.65;
+      }
+
+      .intro-note {
+        margin: 0;
+        color: #7a7484;
+        font-size: 0.8rem;
+        letter-spacing: 0.01em;
+      }
+
+      .scene-index {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem 1.5rem;
+        margin: 0 0 1.5rem;
+        padding-block: 1rem;
+        border-top: 1px solid #d8d0ca;
+        border-bottom: 1px solid #d8d0ca;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+      }
+
+      .scene-index a {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 0.45rem;
+        color: #5f5b69;
+      }
+
+      .scene-index a:hover {
+        color: #625c87;
+      }
+
+      .scene-index span {
+        color: #a09a93;
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 0.68rem;
+      }
+
+      .toolbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 1.25rem 2.5rem;
+        margin-bottom: 2rem;
+        padding: 0.85rem 0;
+        border-bottom: 1px solid #d8d0ca;
+        background: rgba(235, 229, 223, 0.93);
+        backdrop-filter: blur(8px);
+      }
+
+      .control {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.75rem;
+      }
+
+      .control-label {
+        display: inline-flex;
+        min-width: 3rem;
+        gap: 0.45rem;
+        align-items: baseline;
+        color: #77727f;
+        font-weight: 700;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+      }
+
+      output {
+        color: #292735;
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 0.7rem;
+        font-weight: 500;
+        letter-spacing: 0;
+      }
+
+      .segmented {
+        display: inline-flex;
+        padding: 2px;
+        border: 1px solid #cdc5bd;
+        border-radius: 2px;
+        background: #e4ddd6;
+      }
+
+      .segmented button {
+        padding: 0.32rem 0.65rem;
+        border: 0;
+        border-radius: 1px;
+        background: transparent;
+        color: #625e6b;
+        font: inherit;
+        font-size: 0.72rem;
+        font-weight: 650;
+        letter-spacing: 0.02em;
+        cursor: pointer;
+      }
+
+      .segmented button[aria-pressed="true"] {
+        background: #f7f2ec;
+        color: #292735;
+        box-shadow: 0 1px 1px rgba(41, 39, 53, 0.12);
+      }
+
+      input[type="range"] {
+        width: 7.5rem;
+        accent-color: #625c87;
+      }
+
+      .toolbar-note {
+        margin: 0 0 0 auto;
+        color: #8c867f;
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 0.66rem;
+        letter-spacing: 0.02em;
+      }
+
+      .plates {
+        display: grid;
+        gap: clamp(3rem, 7vw, 5rem);
+        padding-bottom: 3rem;
+      }
+
+      .plate {
+        margin: 0;
+        scroll-margin-top: 4.5rem;
+      }
+
+      .plate-head {
+        display: grid;
+        grid-template-columns: 2.75rem minmax(0, auto) 1fr;
+        align-items: baseline;
+        gap: 0 0.75rem;
+        margin-bottom: 0.9rem;
+      }
+
+      .plate-index {
+        color: #9b958d;
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 0.7rem;
+        letter-spacing: 0.04em;
+      }
+
+      .plate h2 {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(1.4rem, 2vw, 1.75rem);
+        font-weight: 400;
+        letter-spacing: -0.03em;
+      }
+
+      .plate-place {
+        justify-self: end;
+        color: #77727f;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .canvas {
+        padding: clamp(0.75rem, 2vw, 1.6rem);
+        border: 1px solid #d9d1c8;
+        background: #f6f1ea;
+        overflow: hidden;
+      }
+
+      .ascii {
+        margin: 0;
+        overflow: hidden;
+        font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+        font-size: clamp(3px, var(--fs, 1.15cqi), 14px);
+        font-weight: 500;
+        line-height: 1.08;
+        letter-spacing: 0;
+        white-space: pre;
+        font-variant-ligatures: none;
+        tab-size: 1;
+        user-select: text;
+      }
+
+      .canvas {
+        container-type: inline-size;
+      }
+
+      .plates[data-render-style="sparse"] .ascii {
+        color: #302c39;
+      }
+
+      .plates[data-render-style="sparse"] .ascii :global(.a) {
+        color: var(--accent);
+        opacity: 0.82;
+      }
+
+      .plates[data-render-style="sparse"] .ascii :global(.s2) {
+        color: #4c4757;
+      }
+
+      .plates[data-render-style="sparse"] .ascii :global(.s3) {
+        color: #383341;
+      }
+
+      .plates[data-render-style="sparse"] .ascii :global(.s4) {
+        color: #26222e;
+      }
+
+      .plates[data-render-style="sparse"] .ascii :global(.hi) {
+        color: var(--accent);
+      }
+
+      .plates[data-render-style="sparse"] .ascii :global(.w) {
+        color: var(--accent);
+        opacity: 0.6;
+      }
+
+      .plates[data-render-style="sparse"] .canvas {
+        background:
+          radial-gradient(120% 90% at 50% 0%, #fbf7f1 0%, #f6f1ea 60%);
+      }
+
+      .plates[data-render-style="grid"] .ascii {
+        background-color: color-mix(in srgb, var(--accent) 5%, #f7f3ed);
+        background-image:
+          repeating-linear-gradient(
+            to right,
+            color-mix(in srgb, var(--accent) 16%, transparent) 0 1px,
+            transparent 1px 1ch
+          ),
+          repeating-linear-gradient(
+            to bottom,
+            color-mix(in srgb, var(--accent) 16%, transparent) 0 1px,
+            transparent 1px 1.08em
+          );
+      }
+
+      .plates[data-render-style="grid"] .ascii :global(.g1) {
+        color: color-mix(in srgb, var(--accent) 48%, transparent);
+      }
+
+      .plates[data-render-style="grid"] .ascii :global(.g2) {
+        color: color-mix(in srgb, var(--accent) 66%, transparent);
+      }
+
+      .plates[data-render-style="grid"] .ascii :global(.g3) {
+        color: color-mix(in srgb, var(--accent) 84%, transparent);
+      }
+
+      .plates[data-render-style="grid"] .ascii :global(.g4) {
+        color: var(--accent);
+      }
+
+      .plates[data-render-style="grid"] .ascii :global(.hi) {
+        color: color-mix(in srgb, var(--accent) 80%, #ffffff);
+      }
+
+      .plates[data-render-style="grid"] .ascii :global(.w) {
+        color: color-mix(in srgb, var(--accent) 65%, transparent);
+      }
+
+      .plates[data-render-style="color"] .ascii {
+        background-color: color-mix(in srgb, var(--accent) 8%, #f4f0e9);
+        background-image:
+          repeating-linear-gradient(
+            to right,
+            color-mix(in srgb, var(--accent) 24%, transparent) 0 1px,
+            transparent 1px 1ch
+          ),
+          repeating-linear-gradient(
+            to bottom,
+            color-mix(in srgb, var(--accent) 24%, transparent) 0 1px,
+            transparent 1px 1.08em
+          );
+        color: color-mix(in srgb, var(--accent) 80%, #292735);
+      }
+
+      .plates[data-render-style="color"] .ascii :global(span) {
+        padding-block: 0.06em;
+      }
+
+      .plates[data-render-style="color"] .ascii :global(.g0) {
+        background-color: color-mix(in srgb, var(--accent) 8%, transparent);
+      }
+
+      .plates[data-render-style="color"] .ascii :global(.g1) {
+        background-color: color-mix(in srgb, var(--accent) 22%, transparent);
+        color: color-mix(in srgb, var(--accent) 70%, #292735);
+      }
+
+      .plates[data-render-style="color"] .ascii :global(.g2) {
+        background-color: color-mix(in srgb, var(--accent) 40%, transparent);
+        color: color-mix(in srgb, var(--accent) 88%, #292735);
+      }
+
+      .plates[data-render-style="color"] .ascii :global(.g3) {
+        background-color: color-mix(in srgb, var(--accent) 62%, transparent);
+        color: #f8f4ed;
+      }
+
+      .plates[data-render-style="color"] .ascii :global(.g4) {
+        background-color: color-mix(in srgb, var(--accent) 84%, transparent);
+        color: #fffdf9;
+      }
+
+      .plates[data-render-style="color"] .ascii :global(.hi) {
+        background-color: color-mix(in srgb, var(--accent) 12%, transparent);
+        color: color-mix(in srgb, var(--accent) 65%, #292735);
+      }
+
+      .plates[data-render-style="color"] .ascii :global(.p0) {
+        background: #f6f1ea;
+        color: #708b8e;
+      }
+
+      .plates[data-render-style="color"] .ascii :global(.p1) {
+        background: #d3e1dd;
+        color: #50747a;
+      }
+
+      .plates[data-render-style="color"] .ascii :global(.p2) {
+        background: #96b9b7;
+        color: #2f5a63;
+      }
+
+      .plates[data-render-style="color"] .ascii :global(.p3) {
+        background: #3c6d84;
+        color: #f7f3ed;
+      }
+
+      .plates[data-render-style="color"] .ascii :global(.p4) {
+        background: #262a33;
+        color: #f7f3ed;
+      }
+
+      .photo-credit {
+        display: block;
+        margin-top: 0.35rem;
+        color: #8a847d;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 0.7rem;
+        font-style: normal;
+        line-height: 1.5;
+      }
+
+      .photo-credit a {
+        text-decoration: underline;
+        text-underline-offset: 0.2em;
+      }
+
+      .photo-credit a:hover {
+        color: #625c87;
+      }
+
+      figcaption {
+        max-width: 42rem;
+        margin-top: 0.8rem;
+        color: #6a6673;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 0.88rem;
+        font-style: italic;
+        line-height: 1.55;
+      }
+
+      .site-footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding-block: 1.5rem;
+        border-top: 1px solid #d8d0ca;
+        color: #777481;
+        font-size: 0.8rem;
+      }
+
+      .site-footer a:hover {
+        color: #625c87;
+        text-decoration: underline;
+        text-underline-offset: 0.25em;
+      }
+
+      @media (max-width: 44rem) {
+        .site-header {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        .intro {
+          padding-block: 3.5rem 2.5rem;
+        }
+
+        .plate-head {
+          grid-template-columns: 2rem 1fr;
+          row-gap: 0.25rem;
+        }
+
+        .plate-place {
+          grid-column: 2;
+          justify-self: start;
+          font-size: 0.65rem;
+        }
+
+        .toolbar {
+          gap: 0.75rem 1.25rem;
+          padding-block: 0.7rem;
+        }
+
+        .toolbar-note {
+          display: none;
+        }
+
+        .ascii {
+          font-size: clamp(2.3px, var(--fs, 1.15cqi), 10px);
+        }
+      }
+    </style>
+  </body>
+</html>

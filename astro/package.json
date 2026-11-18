@@ -13,7 +13,7 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "astro": "^7.3.8",
-    "dialkit": "^2.0.2",
+    "dialkit": "^2.2.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "rehype-raw": "^7.0.0",

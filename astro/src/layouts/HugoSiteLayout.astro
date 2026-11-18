@@ -20,6 +20,8 @@ const navigation = [
   ...site.routes
     .filter((route) => route.kind === "taxonomy-index" && route.taxonomy === "tags")
     .map((route) => ({ title: route.title, href: route.route })),
+  { title: "Exploration", href: "/exploration/" },
+  { title: "Lab", href: "/lab/" },
 ];
 const keywordContent = Array.isArray(keywords) ? keywords.join(",") : keywords;
 ---
