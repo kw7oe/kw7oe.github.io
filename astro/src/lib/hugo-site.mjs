@@ -232,7 +232,9 @@ function buildHugoSite() {
   const drafts = pages.filter((page) => page.metadata.draft === true);
   const regularPages = publishedPages.filter((page) => !page.isSectionIndex);
   const home = publishedPages.find((page) => page.route === '/');
-  if (!home) throw new Error('Missing content/_index.md home page');
+  const blogIndex = publishedPages.find((page) => page.sourcePath === '_index.md');
+  if (!home) throw new Error('Missing root page at /');
+  if (!blogIndex) throw new Error('Missing content/_index.md blog index');
 
   const pagesBySource = new Map(regularPages.map((page) => [page.sourcePath, page]));
   const referenceIndex = new Map();
@@ -255,7 +257,7 @@ function buildHugoSite() {
 
   const sectionIndexes = new Map(publishedPages.filter((page) => page.isSectionIndex).map((page) => [page.section, page]));
   const routes = [];
-  routes.push({ kind: 'home', route: '/', title: home.title, page: home, entries: regularPages.filter((page) => page.type === 'posts').sort(compareNewestFirst) });
+  routes.push({ kind: 'home', route: blogIndex.route, title: blogIndex.title, page: blogIndex, entries: regularPages.filter((page) => page.type === 'posts').sort(compareNewestFirst) });
 
   for (const section of ['posts', 'fragments']) {
     const entries = regularPages.filter((page) => page.section === section).sort(compareNewestFirst);
@@ -321,6 +323,7 @@ function buildHugoSite() {
     drafts,
     routes,
     home,
+    blogIndex,
     sectionIndexes,
     resolveRef,
     formatDate: dateLabel,

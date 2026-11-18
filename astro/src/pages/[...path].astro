@@ -20,7 +20,7 @@ export async function getStaticPaths() {
     return `<nav id="TableOfContents"><ul>${items}</ul></nav>`;
   };
   const renderedPages = new Map();
-  for (const page of site.pages) {
+  for (const page of [...site.pages, site.blogIndex]) {
     const rendered = await renderHugoMarkdown(page, site);
     const metadata = page.metadata;
     const tags = page.tags.map((label) => ({
@@ -87,6 +87,13 @@ const isPost = route.kind === "single" && page?.type === "posts";
 ---
 
 <HugoSiteLayout title={route.title} description={page?.description} keywords={page?.keywords} author={page?.author}>
+  {route.kind === "home" && page && (
+    <>
+      <div class="hugo-home-content prose serif" set:html={page.html}></div>
+      <HugoEntryList entries={route.entries} layout="home" />
+    </>
+  )}
+
   {route.kind === "single" && isPost && (
     <>
       <header class="hugo-page-header">

@@ -34,6 +34,8 @@ const baselineRoutes = baselineFiles
   .filter((file) => file.endsWith('/index.html') || file === 'index.html')
   .map(routeFromFile)
   .sort();
+const routeMoves = new Map([['/', '/blogs/'], ['/about/', '/']]);
+const migratedBaselineRoutes = baselineRoutes.map((route) => routeMoves.get(route) ?? route);
 const expectedRoutes = site.routes.map(({ route }) => route).sort();
 const baselineAliases = baselineFiles.filter((file) => file !== 'index.html' && file !== '404.html' && !file.endsWith('/index.html')).sort();
 const sourceAliases = site.pages.flatMap((page) => page.aliases.map((alias) => alias.slice(1))).sort();
@@ -47,8 +49,8 @@ const astroFiles = astroRoot
 const missingAstroFiles = astroRoot
   ? [...expectedHtml].filter((file) => !astroFiles.includes(file))
   : [];
-const missingRoutes = expectedRoutes.filter((route) => !baselineRoutes.includes(route));
-const unexpectedRoutes = baselineRoutes.filter((route) => !expectedRoutes.includes(route));
+const missingRoutes = expectedRoutes.filter((route) => !migratedBaselineRoutes.includes(route));
+const unexpectedRoutes = migratedBaselineRoutes.filter((route) => !expectedRoutes.includes(route));
 const missingAliases = sourceAliases.filter((alias) => !baselineAliases.includes(alias));
 const unexpectedAliases = baselineAliases.filter((alias) => !sourceAliases.includes(alias));
 const unresolvedRefs = [];

@@ -12,13 +12,11 @@ const { title, description, keywords, author } = Astro.props;
 const site = createHugoSite();
 const navigation = [
   { title: site.home.title, href: site.home.route },
+  { title: site.blogIndex.title, href: site.blogIndex.route },
   ...["series", "fragments", "books"].flatMap((section) => {
     const page = site.sectionIndexes.get(section);
     return page ? [{ title: page.title, href: page.route }] : [];
   }),
-  ...[site.pages.find((page) => page.sourcePath === "about.md")]
-    .filter((page) => page)
-    .map((page) => ({ title: page.title, href: page.route })),
   ...site.routes
     .filter((route) => route.kind === "taxonomy-index" && route.taxonomy === "tags")
     .map((route) => ({ title: route.title, href: route.route })),

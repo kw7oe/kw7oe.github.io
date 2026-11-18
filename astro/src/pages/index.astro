@@ -1,12 +1,11 @@
 ---
-import HugoEntryList from "../components/hugo/HugoEntryList.astro";
 import HugoSiteLayout from "../layouts/HugoSiteLayout.astro";
 import { createHugoSite } from "../lib/hugo-site.mjs";
 import { renderHugoMarkdown } from "../lib/hugo-markdown.mjs";
 
 const site = createHugoSite();
-const route = site.routes.find((item) => item.kind === "home");
-if (!route?.page) throw new Error("Missing Hugo home route");
+const route = site.routes.find((item) => item.route === "/");
+if (!route?.page) throw new Error("Missing Hugo root page");
 const content = await renderHugoMarkdown(route.page, site);
 const metadata = route.page.metadata;
 const description = typeof metadata.description === "string" ? metadata.description : undefined;
@@ -16,15 +15,19 @@ const keywords = Array.isArray(metadata.keywords)
     ? metadata.keywords
     : undefined;
 const author = typeof metadata.author === "string" ? metadata.author : undefined;
-const entries = route.entries.map((page) => ({
-  title: page.title,
-  route: page.route,
-  dateKey: page.dateKey,
-  dateLabel: page.dateKey ? site.formatDate(page.dateKey, { fullMonth: true, padDay: true }) : "",
-}));
+const lastmod = route.page.lastmod ? site.formatDate(route.page.lastmod, { year: true, padDay: true }) : "";
+const wordCount = content.wordCount;
 ---
 
 <HugoSiteLayout title={route.title} description={description} keywords={keywords} author={author}>
-  <div class="hugo-home-content prose serif" set:html={content.html}></div>
-  <HugoEntryList entries={entries} layout="home" />
+  <div>
+    <header class="hugo-page-header">
+      <h1 class="hugo-page-title">{route.title}</h1>
+      {lastmod && <p class="hugo-lastmod">Last updated at: {lastmod}</p>}
+    </header>
+    <article class="hugo-single-article prose serif">
+      <div set:html={content.html}></div>
+      <div class="hugo-word-count"><p>({wordCount} words)</p></div>
+    </article>
+  </div>
 </HugoSiteLayout>
